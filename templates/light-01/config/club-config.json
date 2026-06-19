@@ -56,6 +56,11 @@
     "jsonbinApiKey": "DUMMY_API_KEY_xxxxxxxxxxxxxxxx"
   },
 
+  "integration": {
+    "jsonbinBinId": "DUMMY_BIN_ID_xxxxxxxxxxxxxxxx",
+    "jsonbinApiKey": "DUMMY_API_KEY_xxxxxxxxxxxxxxxx"
+  },
+
   "features": {
     "showNews": true,
     "showResults": true,

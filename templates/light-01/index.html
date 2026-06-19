@@ -51,20 +51,36 @@
     .latest-more { display: inline-block; margin-top: 16px; font-size: 0.85rem; color: var(--main-color); border: 1px solid var(--main-color); padding: 5px 14px; border-radius: 4px; transition: background 0.2s, color 0.2s; }
     .latest-more:hover { background: var(--main-color); color: #fff; }
 
-    /* Match Planner items */
+    /* Match Planner items – 共通 */
     .mp-news-item, .mp-result-item, .mp-schedule-item { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
     .mp-news-item:last-child, .mp-result-item:last-child, .mp-schedule-item:last-child { border-bottom: none; }
-    .mp-date { color: #888; font-size: 0.8rem; }
-    .mp-category { background: var(--sub-color); color: #333; font-size: 0.72rem; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
-    .mp-title { margin-top: 4px; }
-    .mp-score { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-    .mp-score-num { font-weight: bold; color: var(--main-color); }
-    .mp-competition { font-size: 0.78rem; color: #888; }
-    .mp-match { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
-    .mp-vs { font-size: 0.78rem; color: #999; }
-    .mp-venue { font-size: 0.78rem; color: #888; }
-    .mp-time { font-size: 0.78rem; color: #888; margin-left: 8px; }
     .mp-no-data { color: #aaa; font-size: 0.85rem; padding: 12px 0; }
+
+    /* ヘッダー行 (日付 + 大会名) */
+    .mp-result-header, .mp-schedule-header, .mp-news-header { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+    .mp-date { color: #888; font-size: 0.8rem; }
+    .mp-competition { font-size: 0.76rem; color: #888; }
+    .mp-category { background: var(--sub-color); color: #333; font-size: 0.72rem; padding: 1px 6px; border-radius: 3px; }
+
+    /* 試合結果 */
+    .mp-score { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 2px 0; }
+    .mp-score-num { font-weight: bold; font-size: 1rem; color: var(--main-color); }
+    .mp-vs { font-size: 0.76rem; color: #bbb; }
+    .mp-opponent { font-size: 0.88rem; }
+    .mp-result-badge { font-size: 0.72rem; font-weight: bold; padding: 1px 7px; border-radius: 3px; }
+    .mp-win  { background: #e8f6ef; color: #27ae60; }
+    .mp-lose { background: #fdecea; color: #e74c3c; }
+    .mp-draw { background: #f0f0f0; color: #7f8c8d; }
+
+    /* 試合予定 */
+    .mp-match { display: flex; align-items: center; gap: 6px; margin: 2px 0; }
+    .mp-schedule-opponent { font-size: 0.88rem; }
+    .mp-match-name { font-size: 0.82rem; color: #555; margin: 1px 0; }
+    .mp-venue { font-size: 0.76rem; color: #aaa; margin-top: 2px; }
+
+    /* ニュース */
+    .mp-news-opponent { font-size: 0.85rem; margin: 2px 0; }
+    .mp-title { margin-top: 3px; line-height: 1.5; }
 
     /* Philosophy / Mission */
     .philosophy { background: #fff; }
