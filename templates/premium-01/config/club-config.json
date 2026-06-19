@@ -1,0 +1,137 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "description": "サッカークラブ ホームページ設定ファイル。このファイルを書き換えるだけで別クラブへ展開できます。"
+  },
+
+  "club": {
+    "name": "FC グランデ サンプル",
+    "shortName": "FCG",
+    "founded": 2010,
+    "location": "東京都渋谷区",
+    "description": "地域に根ざしたサッカークラブとして、選手の技術向上と人間的な成長を大切にしています。プロを目指す選手から楽しむことを目的とした選手まで、幅広いメンバーが活躍しています。"
+  },
+
+  "design": {
+    "logo": "assets/logo.png",
+    "favicon": "assets/favicon.ico",
+    "mainColor": "#1a3a5c",
+    "subColor": "#e8b400",
+    "accentColor": "#e84040"
+  },
+
+  "pages": {
+    "home": {
+      "heroTitle": "情熱を、グラウンドへ。",
+      "heroSubtitle": "FC グランデ サンプル オフィシャルサイト",
+      "heroImage": "assets/hero.jpg"
+    }
+  },
+
+  "philosophy": {
+    "title": "クラブフィロソフィー",
+    "text": "私たちは「楽しむ・鍛える・貢献する」をテーマに、サッカーを通じて地域と人をつなぐクラブを目指しています。勝利だけを追い求めるのではなく、人として成長できる環境づくりを最優先に考えています。"
+  },
+
+  "mission": {
+    "title": "育成方針",
+    "text": "年代に応じた適切な指導と環境づくりを通じて、技術はもちろん、チームワーク・自主性・礼儀を身につけた選手を育成します。指導者は常に学び続け、選手一人ひとりの可能性を最大限に引き出します。"
+  },
+
+  "contact": {
+    "address": "〒150-0001 東京都渋谷区神宮前1-1-1",
+    "phone": "03-1234-5678",
+    "email": "info@fc-grande.example.com"
+  },
+
+  "sns": {
+    "instagram": "https://www.instagram.com/fc_grande_example/",
+    "facebook": "https://www.facebook.com/fc_grande_example/",
+    "youtube": "https://www.youtube.com/@fc_grande_example",
+    "lineUrl": "https://line.me/R/ti/p/@fc_grande_example"
+  },
+
+  "matchPlanner": {
+    "jsonbinBinId": "DUMMY_BIN_ID_xxxxxxxxxxxxxxxx",
+    "jsonbinApiKey": "DUMMY_API_KEY_xxxxxxxxxxxxxxxx"
+  },
+
+  "features": {
+    "showNews": true,
+    "showResults": true,
+    "showSchedule": true,
+    "showSponsors": false,
+    "showInstagram": true,
+    "showSchool": false,
+    "showStaff": true,
+    "showPartners": false
+  },
+
+  "sponsors": [
+    {
+      "name": "サンプルスポンサー株式会社",
+      "logo": "assets/sponsors/sponsor-01.png",
+      "url": "https://example.com",
+      "tier": "gold"
+    }
+  ],
+
+  "partners": [
+    {
+      "name": "サンプルパートナー",
+      "logo": "assets/partners/partner-01.png",
+      "url": "https://example.com"
+    }
+  ],
+
+  "school": {
+    "name": "FCG サッカースクール",
+    "description": "未就学児から中学生まで幅広い年代のスクールを開校しています。",
+    "courses": [
+      {
+        "name": "キッズクラス",
+        "age": "4〜6歳",
+        "schedule": "毎週土曜 10:00〜11:00",
+        "fee": "月額5,000円"
+      },
+      {
+        "name": "ジュニアクラス",
+        "age": "小学1〜3年生",
+        "schedule": "毎週水・土 16:00〜17:30",
+        "fee": "月額8,000円"
+      }
+    ]
+  },
+
+  "staff": [
+    {
+      "name": "山田 太郎",
+      "role": "監督",
+      "license": "JFA B級",
+      "photo": "assets/staff/staff-01.jpg",
+      "comment": "選手一人ひとりの成長を大切にします。"
+    },
+    {
+      "name": "鈴木 次郎",
+      "role": "コーチ",
+      "license": "JFA C級",
+      "photo": "assets/staff/staff-02.jpg",
+      "comment": "楽しいサッカーを一緒に作りましょう。"
+    }
+  ],
+
+  "players": [
+    {
+      "number": 1,
+      "name": "選手 太郎",
+      "position": "GK",
+      "photo": "assets/players/player-01.jpg"
+    },
+    {
+      "number": 10,
+      "name": "選手 次郎",
+      "position": "MF",
+      "photo": "assets/players/player-02.jpg"
+    }
+  ]
+}

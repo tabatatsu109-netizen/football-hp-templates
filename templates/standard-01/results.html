@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>試合結果</title>
+  <style>
+    :root { --main: #1a3a5c; --sub: #e8b400; --accent: #e84040; --text: #333; --bg: #fff; --bg-light: #f5f7fa; --border: #e0e0e0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: var(--text); background: var(--bg); }
+    a { color: inherit; text-decoration: none; }
+
+    header { background: var(--main); color: #fff; padding: 0 20px; }
+    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+    .header-logo { display: flex; align-items: center; gap: 12px; }
+    .header-logo img { height: 44px; width: 44px; object-fit: contain; display: none; }
+    .header-logo h1 { font-size: 1.2rem; letter-spacing: 0.05em; }
+    nav ul { list-style: none; display: flex; gap: 24px; }
+    nav a { font-size: 0.9rem; padding: 4px 0; border-bottom: 2px solid transparent; transition: border-color 0.2s; }
+    nav a:hover, nav a.active { border-color: var(--sub); }
+
+    .page-hero { background: var(--main); color: #fff; padding: 48px 20px; text-align: center; }
+    .page-hero h2 { font-size: 1.6rem; letter-spacing: 0.1em; }
+    .page-hero h2::after { content: ''; display: block; width: 40px; height: 3px; background: var(--sub); margin: 12px auto 0; }
+
+    main { padding: 64px 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .tab-group { display: flex; gap: 0; margin-bottom: 32px; border-bottom: 2px solid var(--border); }
+    .tab-btn { padding: 10px 24px; font-size: 0.9rem; cursor: pointer; border: none; background: none; color: #888; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s; font-family: inherit; }
+    .tab-btn.active { color: var(--main); border-bottom-color: var(--sub); font-weight: bold; }
+
+    .result-item { padding: 20px 0; border-bottom: 1px solid var(--border); }
+    .result-item:first-child { border-top: 1px solid var(--border); }
+    .result-meta { font-size: 0.82rem; color: #888; margin-bottom: 8px; }
+    .result-score-row { display: flex; align-items: center; gap: 16px; }
+    .result-team { flex: 1; font-size: 1rem; }
+    .result-team.home { text-align: right; }
+    .result-team.away { text-align: left; }
+    .score-box { font-size: 1.4rem; font-weight: bold; color: var(--main); min-width: 80px; text-align: center; letter-spacing: 0.1em; }
+
+    .schedule-item { padding: 20px 0; border-bottom: 1px solid var(--border); }
+    .schedule-item:first-child { border-top: 1px solid var(--border); }
+    .schedule-meta { font-size: 0.82rem; color: #888; margin-bottom: 8px; }
+    .schedule-match-row { display: flex; align-items: center; gap: 16px; }
+    .schedule-team { flex: 1; font-size: 1rem; }
+    .schedule-team.home { text-align: right; }
+    .schedule-team.away { text-align: left; }
+    .vs-box { font-size: 0.9rem; color: #bbb; min-width: 40px; text-align: center; }
+    .schedule-venue { font-size: 0.78rem; color: #aaa; margin-top: 6px; }
+
+    .no-data { color: #aaa; padding: 32px 0; text-align: center; }
+    .hidden { display: none; }
+
+    footer { background: var(--main); color: #fff; padding: 40px 20px; text-align: center; font-size: 0.85rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-name { font-size: 1rem; font-weight: bold; margin-bottom: 10px; }
+    .footer-info { color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 16px; }
+    .footer-social { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .footer-social a { color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.3); padding: 5px 16px; border-radius: 4px; font-size: 0.82rem; }
+    .footer-copy { margin-top: 24px; color: rgba(255,255,255,0.4); font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="header-logo">
+        <img id="club-logo" src="" alt="ロゴ">
+        <h1 id="club-name">クラブ名</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">ホーム</a></li>
+          <li><a href="team.html">チーム</a></li>
+          <li><a href="news.html">ニュース</a></li>
+          <li><a href="results.html" class="active">試合結果</a></li>
+          <li><a href="contact.html">お問い合わせ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <h2>試合結果・予定</h2>
+  </div>
+
+  <main>
+    <div class="container">
+
+      <div class="tab-group">
+        <button class="tab-btn active" onclick="showTab('results', this)">試合結果</button>
+        <button class="tab-btn" onclick="showTab('schedule', this)">試合予定</button>
+      </div>
+
+      <div id="tab-results">
+        <div id="results-list"><p class="no-data">読み込み中...</p></div>
+      </div>
+
+      <div id="tab-schedule" class="hidden">
+        <div id="schedule-list"><p class="no-data">読み込み中...</p></div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p class="footer-name" id="footer-club-name">クラブ名</p>
+      <div class="footer-info">
+        <p id="footer-address"></p>
+        <p id="footer-phone"></p>
+        <p id="footer-email"></p>
+      </div>
+      <div class="footer-social">
+        <a id="sns-instagram" href="#" style="display:none">Instagram</a>
+        <a id="sns-facebook" href="#" style="display:none">Facebook</a>
+        <a id="sns-youtube" href="#" style="display:none">YouTube</a>
+        <a id="sns-line" href="#" style="display:none">LINE</a>
+      </div>
+      <p class="footer-copy">&copy; <span id="footer-club-name-copy">クラブ名</span>. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
+
+    function showTab(name, btn) {
+      document.getElementById('tab-results').classList.toggle('hidden', name !== 'results');
+      document.getElementById('tab-schedule').classList.toggle('hidden', name !== 'schedule');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    fetch('config/club-config.json')
+      .then(r => r.json())
+      .then(c => {
+        document.title = c.club.name + ' | 試合結果';
+        document.documentElement.style.setProperty('--main', c.design.mainColor);
+        document.documentElement.style.setProperty('--sub', c.design.subColor);
+        document.documentElement.style.setProperty('--accent', c.design.accentColor);
+
+        if (c.design.favicon) {
+          const fav = document.createElement('link');
+          fav.rel = 'icon'; fav.href = c.design.favicon;
+          document.head.appendChild(fav);
+        }
+
+        const logo = document.getElementById('club-logo');
+        if (c.design.logo) { logo.src = c.design.logo; logo.style.display = 'block'; }
+
+        document.getElementById('club-name').textContent = c.club.name;
+        document.getElementById('footer-club-name').textContent = c.club.name;
+        document.getElementById('footer-club-name-copy').textContent = c.club.name;
+        document.getElementById('footer-address').textContent = c.contact.address;
+        document.getElementById('footer-phone').textContent = c.contact.phone;
+        document.getElementById('footer-email').textContent = c.contact.email;
+
+        const snsMap = {
+          'sns-instagram': c.sns.instagram,
+          'sns-facebook':  c.sns.facebook,
+          'sns-youtube':   c.sns.youtube,
+          'sns-line':      c.sns.lineUrl
+        };
+        Object.entries(snsMap).forEach(([id, url]) => {
+          if (url) { const el = document.getElementById(id); el.href = url; el.style.display = ''; }
+        });
+
+        return fetch(`${JSONBIN_BASE}/${c.matchPlanner.jsonbinBinId}/latest`, {
+          headers: { 'X-Master-Key': c.matchPlanner.jsonbinApiKey }
+        });
+      })
+      .then(r => r.json())
+      .then(data => {
+        const record = data.record || {};
+
+        const results = record.results || [];
+        const resultsList = document.getElementById('results-list');
+        if (results.length === 0) {
+          resultsList.innerHTML = '<p class="no-data">試合結果はありません</p>';
+        } else {
+          resultsList.innerHTML = results.map(item => `
+            <div class="result-item">
+              <div class="result-meta">${item.date || ''}&nbsp;&nbsp;${item.competition || ''}</div>
+              <div class="result-score-row">
+                <span class="result-team home">${item.homeTeam || ''}</span>
+                <span class="score-box">${item.homeScore ?? '-'} - ${item.awayScore ?? '-'}</span>
+                <span class="result-team away">${item.awayTeam || ''}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        const schedule = record.schedule || [];
+        const scheduleList = document.getElementById('schedule-list');
+        if (schedule.length === 0) {
+          scheduleList.innerHTML = '<p class="no-data">試合予定はありません</p>';
+        } else {
+          scheduleList.innerHTML = schedule.map(item => `
+            <div class="schedule-item">
+              <div class="schedule-meta">${item.date || ''}&nbsp;${item.time || ''}&nbsp;&nbsp;${item.competition || ''}</div>
+              <div class="schedule-match-row">
+                <span class="schedule-team home">${item.homeTeam || ''}</span>
+                <span class="vs-box">vs</span>
+                <span class="schedule-team away">${item.awayTeam || ''}</span>
+              </div>
+              <p class="schedule-venue">${item.venue || ''}</p>
+            </div>
+          `).join('');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        ['results-list', 'schedule-list'].forEach(id => {
+          document.getElementById(id).innerHTML = '<p class="no-data">データを読み込めませんでした</p>';
+        });
+      });
+  </script>
+
+</body>
+</html>

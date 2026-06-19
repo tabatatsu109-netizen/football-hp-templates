@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ホームページ</title>
+  <style>
+    :root {
+      --main: #1a3a5c;
+      --sub: #e8b400;
+      --accent: #e84040;
+      --text: #333;
+      --bg: #fff;
+      --bg-light: #f5f7fa;
+      --border: #e0e0e0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: var(--text); background: var(--bg); }
+    a { color: inherit; text-decoration: none; }
+
+    /* Header */
+    header { background: var(--main); color: #fff; padding: 0 20px; }
+    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 70px; }
+    .header-logo { display: flex; align-items: center; gap: 12px; }
+    .header-logo img { height: 44px; width: 44px; object-fit: contain; display: none; }
+    .header-logo h1 { font-size: 1.2rem; letter-spacing: 0.05em; }
+    nav ul { list-style: none; display: flex; gap: 24px; }
+    nav a { font-size: 0.9rem; padding: 4px 0; border-bottom: 2px solid transparent; transition: border-color 0.2s; }
+    nav a:hover { border-color: var(--sub); }
+
+    /* Hero */
+    .hero { background: var(--main); color: #fff; min-height: 340px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 60px 20px; background-size: cover; background-position: center; position: relative; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.45); }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-title { font-size: 2rem; font-weight: bold; letter-spacing: 0.12em; line-height: 1.4; margin-bottom: 12px; }
+    .hero-subtitle { font-size: 1rem; opacity: 0.85; letter-spacing: 0.05em; }
+    .hero-title::after { content: ''; display: block; width: 60px; height: 4px; background: var(--sub); margin: 16px auto 0; }
+
+    /* Section common */
+    section { padding: 64px 20px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .section-title { font-size: 1.5rem; font-weight: bold; color: var(--main); margin-bottom: 36px; text-align: center; }
+    .section-title::after { content: ''; display: block; width: 40px; height: 3px; background: var(--sub); margin: 10px auto 0; }
+
+    /* Latest Info */
+    .latest-info { background: var(--bg-light); }
+    .latest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    @media (max-width: 768px) { .latest-grid { grid-template-columns: 1fr; } }
+    .latest-block { background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .latest-block h3 { font-size: 1rem; color: var(--main); border-left: 4px solid var(--sub); padding-left: 10px; margin-bottom: 16px; }
+    .latest-more { display: inline-block; margin-top: 16px; font-size: 0.85rem; color: var(--main); border: 1px solid var(--main); padding: 5px 14px; border-radius: 4px; transition: background 0.2s, color 0.2s; }
+    .latest-more:hover { background: var(--main); color: #fff; }
+
+    /* Match Planner items */
+    .mp-news-item, .mp-result-item, .mp-schedule-item { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+    .mp-news-item:last-child, .mp-result-item:last-child, .mp-schedule-item:last-child { border-bottom: none; }
+    .mp-date { color: #888; font-size: 0.8rem; }
+    .mp-category { background: var(--sub); color: #333; font-size: 0.72rem; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
+    .mp-title { margin-top: 4px; }
+    .mp-score { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+    .mp-score-num { font-weight: bold; color: var(--main); }
+    .mp-competition { font-size: 0.78rem; color: #888; }
+    .mp-match { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+    .mp-vs { font-size: 0.78rem; color: #999; }
+    .mp-venue { font-size: 0.78rem; color: #888; }
+    .mp-time { font-size: 0.78rem; color: #888; margin-left: 8px; }
+    .mp-no-data { color: #aaa; font-size: 0.85rem; padding: 12px 0; }
+
+    /* Philosophy / Mission */
+    .philosophy { background: #fff; }
+    .mission { background: var(--bg-light); }
+    .section-text { max-width: 720px; margin: 0 auto; line-height: 1.9; font-size: 0.95rem; text-align: center; }
+
+    /* Footer */
+    footer { background: var(--main); color: #fff; padding: 40px 20px; text-align: center; font-size: 0.85rem; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-name { font-size: 1rem; font-weight: bold; margin-bottom: 10px; }
+    .footer-info { color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 16px; }
+    .footer-social { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .footer-social a { color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.3); padding: 5px 16px; border-radius: 4px; font-size: 0.82rem; transition: background 0.2s; }
+    .footer-social a:hover { background: rgba(255,255,255,0.15); }
+    .footer-copy { margin-top: 24px; color: rgba(255,255,255,0.4); font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="header-logo">
+        <img id="club-logo" src="" alt="ロゴ">
+        <h1 id="club-name">クラブ名</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">ホーム</a></li>
+          <li><a href="team.html">チーム</a></li>
+          <li><a href="news.html">ニュース</a></li>
+          <li><a href="results.html">試合結果</a></li>
+          <li><a href="contact.html">お問い合わせ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Hero -->
+    <section class="hero" id="hero-section">
+      <div class="hero-content">
+        <p class="hero-title" id="hero-title">-</p>
+        <p class="hero-subtitle" id="hero-subtitle"></p>
+      </div>
+    </section>
+
+    <!-- 最新情報 -->
+    <section class="latest-info">
+      <div class="container">
+        <h2 class="section-title">最新情報</h2>
+        <div class="latest-grid">
+
+          <div class="latest-block" id="section-news">
+            <h3>ニュース</h3>
+            <div id="latest-news-list"><p class="mp-no-data">読み込み中...</p></div>
+            <a class="latest-more" href="news.html">もっと見る</a>
+          </div>
+
+          <div class="latest-block" id="section-results">
+            <h3>試合結果</h3>
+            <div id="latest-results-list"><p class="mp-no-data">読み込み中...</p></div>
+            <a class="latest-more" href="results.html">もっと見る</a>
+          </div>
+
+          <div class="latest-block" id="section-schedule">
+            <h3>試合予定</h3>
+            <div id="latest-schedule-list"><p class="mp-no-data">読み込み中...</p></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- フィロソフィー -->
+    <section class="philosophy">
+      <div class="container">
+        <h2 class="section-title" id="philosophy-title">クラブフィロソフィー</h2>
+        <p class="section-text" id="philosophy-text"></p>
+      </div>
+    </section>
+
+    <!-- ミッション -->
+    <section class="mission">
+      <div class="container">
+        <h2 class="section-title" id="mission-title">育成方針</h2>
+        <p class="section-text" id="mission-text"></p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p class="footer-name" id="footer-club-name">クラブ名</p>
+      <div class="footer-info">
+        <p id="footer-address"></p>
+        <p id="footer-phone"></p>
+        <p id="footer-email"></p>
+      </div>
+      <div class="footer-social">
+        <a id="sns-instagram" href="#" style="display:none">Instagram</a>
+        <a id="sns-facebook" href="#" style="display:none">Facebook</a>
+        <a id="sns-youtube" href="#" style="display:none">YouTube</a>
+        <a id="sns-line" href="#" style="display:none">LINE</a>
+      </div>
+      <p class="footer-copy">&copy; <span id="footer-club-name-copy">クラブ名</span>. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/match-planner-connector.js"></script>
+  <script>
+    fetch('config/club-config.json')
+      .then(r => r.json())
+      .then(c => {
+        // タイトル
+        document.title = c.club.name + ' | ホームページ';
+
+        // デザイン
+        document.documentElement.style.setProperty('--main', c.design.mainColor);
+        document.documentElement.style.setProperty('--sub', c.design.subColor);
+        document.documentElement.style.setProperty('--accent', c.design.accentColor);
+
+        // ファビコン
+        if (c.design.favicon) {
+          const fav = document.createElement('link');
+          fav.rel = 'icon'; fav.href = c.design.favicon;
+          document.head.appendChild(fav);
+        }
+
+        // ロゴ
+        const logo = document.getElementById('club-logo');
+        if (c.design.logo) { logo.src = c.design.logo; logo.style.display = 'block'; }
+
+        // クラブ名
+        document.getElementById('club-name').textContent = c.club.name;
+
+        // ヒーロー
+        document.getElementById('hero-title').textContent = c.pages.home.heroTitle;
+        document.getElementById('hero-subtitle').textContent = c.pages.home.heroSubtitle || '';
+        if (c.pages.home.heroImage) {
+          document.getElementById('hero-section').style.backgroundImage = `url(${c.pages.home.heroImage})`;
+        }
+
+        // 理念・育成方針
+        document.getElementById('philosophy-title').textContent = c.philosophy.title;
+        document.getElementById('philosophy-text').textContent = c.philosophy.text;
+        document.getElementById('mission-title').textContent = c.mission.title;
+        document.getElementById('mission-text').textContent = c.mission.text;
+
+        // フッター
+        document.getElementById('footer-club-name').textContent = c.club.name;
+        document.getElementById('footer-club-name-copy').textContent = c.club.name;
+        document.getElementById('footer-address').textContent = c.contact.address;
+        document.getElementById('footer-phone').textContent = c.contact.phone;
+        document.getElementById('footer-email').textContent = c.contact.email;
+
+        // SNS（設定されているもののみ表示）
+        const snsMap = {
+          'sns-instagram': c.sns.instagram,
+          'sns-facebook':  c.sns.facebook,
+          'sns-youtube':   c.sns.youtube,
+          'sns-line':      c.sns.lineUrl
+        };
+        Object.entries(snsMap).forEach(([id, url]) => {
+          if (url) {
+            const el = document.getElementById(id);
+            el.href = url;
+            el.style.display = '';
+          }
+        });
+
+        // 機能ON/OFF（features）は match-planner-connector.js が制御
+      })
+      .catch(err => console.error('club-config.json 読み込みエラー:', err));
+  </script>
+
+</body>
+</html>
