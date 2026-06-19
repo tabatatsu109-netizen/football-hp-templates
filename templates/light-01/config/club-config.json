@@ -61,6 +61,10 @@
     "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8FauPnBwXLLyCgXqw/H5NFvD.yuOq"
   },
 
+  "newsIntegration": {
+    "jsonbinBinId": "6a34acdfda38895dfedaf904"
+  },
+
   "features": {
     "showNews": true,
     "showResults": true,

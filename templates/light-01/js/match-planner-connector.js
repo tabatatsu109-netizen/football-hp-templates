@@ -71,6 +71,15 @@ const MatchPlannerConnector = (function () {
     return isNaN(d.getTime()) ? null : d;
   }
 
+  /** HTML 特殊文字をエスケープ */
+  function escapeHTML(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   /** resultStr から勝敗 CSS クラスを返す */
   function resultClass(rs) {
     if (!rs) return '';
@@ -132,6 +141,53 @@ const MatchPlannerConnector = (function () {
     }
 
     return Array.isArray(matches) ? matches : [];
+  }
+
+  // ── お知らせ (newsIntegration) ──────────────────────────
+
+  async function fetchNews(config) {
+    var binId = get(config, 'newsIntegration.jsonbinBinId');
+    if (!binId) throw new Error('newsIntegration.jsonbinBinId 未設定');
+    var url = JSONBIN_BASE + '/' + binId + '/latest';
+    console.log('[MatchPlanner] news取得URL:', url);
+    var res = await fetch(url);
+    console.log('[MatchPlanner] news HTTPステータス:', res.status);
+    if (!res.ok) {
+      var errText = '';
+      try { errText = await res.text(); } catch (_) {}
+      console.error('[MatchPlanner] news取得失敗:', errText);
+      throw new Error('news JSONBin取得失敗 (' + res.status + ')');
+    }
+    var json = await res.json();
+    console.log('[MatchPlanner] news 生データ:', JSON.stringify(json.record, null, 2));
+    var items = get(json, 'record.news');
+    return Array.isArray(items) ? items : [];
+  }
+
+  function renderNewsItems(items) {
+    var sorted = items
+      .filter(function (n) { return n && n.title; })
+      .sort(function (a, b) {
+        return (toDate(b.date) || 0) - (toDate(a.date) || 0);
+      })
+      .slice(0, 3);
+
+    if (sorted.length === 0) {
+      setHTML('latest-news-list', noData('現在お知らせはありません'));
+      return;
+    }
+
+    var html = sorted.map(function (n) {
+      return '<div class="mp-news-item">'
+        + '<div class="mp-news-header">'
+        + '<span class="mp-date">' + formatDate(n.date) + '</span>'
+        + '</div>'
+        + '<p class="mp-news-title">' + escapeHTML(n.title) + '</p>'
+        + (n.body ? '<p class="mp-news-body">' + escapeHTML(n.body) + '</p>' : '')
+        + '</div>';
+    }).join('');
+
+    setHTML('latest-news-list', html);
   }
 
   // ── 描画ロジック ────────────────────────────────────────
@@ -307,27 +363,49 @@ const MatchPlannerConnector = (function () {
   // ── エントリーポイント ──────────────────────────────────
 
   async function init() {
+    var config;
     try {
-      var config = await loadConfig();
-
-      // features フラグによる表示制御
-      var f = config.features || {};
-      if (f.showNews     === false) setHTML('latest-news-list', '');
-      if (f.showResults  === false) setHTML('latest-results-list', '');
-      if (f.showSchedule === false) setHTML('latest-schedule-list', '');
-
-      // 全オフなら以降は実行しない
-      if (f.showNews === false && f.showResults === false && f.showSchedule === false) return;
-
-      var matches = await fetchMatches(config);
-
-      if (f.showResults  !== false) renderResults(matches);
-      if (f.showSchedule !== false) renderSchedule(matches);
-      if (f.showNews     !== false) renderNews(matches);
-
+      config = await loadConfig();
     } catch (err) {
-      console.error('[MatchPlannerConnector]', err.message);
-      showError(err.code === 'UNCONFIGURED');
+      console.error('[MatchPlannerConnector] config読込失敗:', err.message);
+      setHTML('latest-news-list',     noData('現在お知らせはありません'));
+      setHTML('latest-results-list',  noData('現在表示できる情報はありません'));
+      setHTML('latest-schedule-list', noData('現在表示できる情報はありません'));
+      return;
+    }
+
+    var f = config.features || {};
+
+    // ── ニュース: newsIntegration.jsonbinBinId から独立取得 ──
+    if (f.showNews === false) {
+      setHTML('latest-news-list', '');
+    } else {
+      try {
+        var newsItems = await fetchNews(config);
+        renderNewsItems(newsItems);
+      } catch (err) {
+        console.error('[MatchPlannerConnector] news:', err.message);
+        setHTML('latest-news-list', noData('現在お知らせはありません'));
+      }
+    }
+
+    // ── 試合結果・試合予定: 既存の matches ロジック (変更なし) ──
+    if (f.showResults  === false) setHTML('latest-results-list', '');
+    if (f.showSchedule === false) setHTML('latest-schedule-list', '');
+
+    if (f.showResults !== false || f.showSchedule !== false) {
+      try {
+        var matches = await fetchMatches(config);
+        if (f.showResults  !== false) renderResults(matches);
+        if (f.showSchedule !== false) renderSchedule(matches);
+      } catch (err) {
+        console.error('[MatchPlannerConnector]', err.message);
+        var errMsg = err.code === 'UNCONFIGURED'
+          ? noData('Match Planner連携は未設定です')
+          : noData('現在表示できる情報はありません');
+        if (f.showResults  !== false) setHTML('latest-results-list',  errMsg);
+        if (f.showSchedule !== false) setHTML('latest-schedule-list', errMsg);
+      }
     }
   }
 
