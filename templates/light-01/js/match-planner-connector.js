@@ -146,11 +146,12 @@ const MatchPlannerConnector = (function () {
   // ── お知らせ (newsIntegration) ──────────────────────────
 
   async function fetchNews(config) {
-    var binId = get(config, 'newsIntegration.jsonbinBinId');
+    var binId  = get(config, 'newsIntegration.jsonbinBinId');
+    var apiKey = get(config, 'newsIntegration.jsonbinApiKey');
     if (!binId) throw new Error('newsIntegration.jsonbinBinId 未設定');
     var url = JSONBIN_BASE + '/' + binId + '/latest';
     console.log('[MatchPlanner] news取得URL:', url);
-    var res = await fetch(url);
+    var res = await fetch(url, { headers: { 'X-Master-Key': apiKey } });
     console.log('[MatchPlanner] news HTTPステータス:', res.status);
     if (!res.ok) {
       var errText = '';
