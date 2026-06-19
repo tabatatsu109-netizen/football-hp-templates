@@ -52,13 +52,13 @@
   },
 
   "matchPlanner": {
-    "jsonbinBinId": "DUMMY_BIN_ID_xxxxxxxxxxxxxxxx",
-    "jsonbinApiKey": "DUMMY_API_KEY_xxxxxxxxxxxxxxxx"
+    "jsonbinBinId": "6a26279cf5f4af5e29c8caeb",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8FauPnBwXLLyCgXqw/H5NFvD.yuOq"
   },
 
   "integration": {
-    "jsonbinBinId": "DUMMY_BIN_ID_xxxxxxxxxxxxxxxx",
-    "jsonbinApiKey": "DUMMY_API_KEY_xxxxxxxxxxxxxxxx"
+    "jsonbinBinId": "6a26279cf5f4af5e29c8caeb",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8FauPnBwXLLyCgXqw/H5NFvD.yuOq"
   },
 
   "features": {

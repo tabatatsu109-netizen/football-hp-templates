@@ -101,18 +101,36 @@ const MatchPlannerConnector = (function () {
       throw e;
     }
 
-    var res = await fetch(JSONBIN_BASE + '/' + binId + '/latest', {
+    var url = JSONBIN_BASE + '/' + binId + '/latest';
+    console.log('[MatchPlanner] 取得URL:', url);
+    console.log('[MatchPlanner] BinId:', binId);
+    console.log('[MatchPlanner] APIキー先頭10文字:', apiKey ? apiKey.slice(0, 10) + '...' : '(未設定)');
+
+    var res = await fetch(url, {
       headers: { 'X-Master-Key': apiKey }
     });
 
+    console.log('[MatchPlanner] HTTP ステータス:', res.status);
+
     if (!res.ok) {
-      throw new Error('JSONBin 取得失敗 (' + res.status + ')');
+      var errBody = '';
+      try { errBody = await res.text(); } catch (_) {}
+      console.error('[MatchPlanner] 取得失敗 レスポンス:', errBody);
+      var httpErr = new Error('JSONBin 取得失敗 (' + res.status + ')');
+      httpErr.status = res.status;
+      throw httpErr;
     }
 
     var json = await res.json();
+    console.log('[MatchPlanner] 生レスポンス (record):', JSON.stringify(json.record, null, 2));
 
     // json.record.matches を取得
     var matches = get(json, 'record.matches');
+    console.log('[MatchPlanner] matches:', Array.isArray(matches) ? matches.length + '件' : '(配列でない: ' + typeof matches + ')');
+    if (Array.isArray(matches) && matches.length > 0) {
+      console.log('[MatchPlanner] matches[0]:', JSON.stringify(matches[0], null, 2));
+    }
+
     return Array.isArray(matches) ? matches : [];
   }
 
