@@ -52,8 +52,8 @@
   },
 
   "matchPlanner": {
-    "jsonbinBinId": "DUMMY_BIN_ID_xxxxxxxxxxxxxxxx",
-    "jsonbinApiKey": "DUMMY_API_KEY_xxxxxxxxxxxxxxxx"
+    "jsonbinBinId": "6a34acdfda38895dfedaf904",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
 
   "features": {

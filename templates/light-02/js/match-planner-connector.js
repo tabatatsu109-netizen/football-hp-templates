@@ -43,10 +43,11 @@ const MatchPlannerConnector = (function () {
       setHTML('latest-news-list', noData('最新情報はありません'));
       return;
     }
-    const html = news.slice(0, 5).map(item => `
+    const sorted = news.slice().sort((a, b) => (b.date || '') > (a.date || '') ? 1 : -1);
+    const html = sorted.slice(0, 5).map(item => `
       <div class="mp-news-item">
         <span class="mp-date">${item.date || ''}</span>
-        <span class="mp-category">${item.category || ''}</span>
+        ${item.category ? `<span class="mp-category">${item.category}</span>` : ''}
         <p class="mp-title">${item.title || ''}</p>
       </div>
     `).join('');

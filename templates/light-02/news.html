@@ -33,6 +33,7 @@
     .news-date { font-size: 0.85rem; color: #888; }
     .news-category { background: var(--sub); color: #333; font-size: 0.72rem; padding: 2px 8px; border-radius: 3px; white-space: nowrap; }
     .news-title { flex: 1; font-size: 0.95rem; line-height: 1.5; }
+    .news-body  { flex-basis: 100%; font-size: 0.88rem; color: #555; line-height: 1.7; padding-top: 4px; }
     .no-data { color: #aaa; padding: 32px 0; text-align: center; }
 
     footer { background: var(--main); color: #fff; padding: 40px 20px; text-align: center; font-size: 0.85rem; }
@@ -139,7 +140,9 @@
       })
       .then(r => r.json())
       .then(data => {
-        const news = (data.record && data.record.news) || [];
+        const news = ((data.record && data.record.news) || [])
+          .slice()
+          .sort((a, b) => (b.date || '') > (a.date || '') ? 1 : -1);
         const list = document.getElementById('news-list');
         if (news.length === 0) {
           list.innerHTML = '<p class="no-data">ニュースはありません</p>';
@@ -149,9 +152,10 @@
           <div class="news-item">
             <div class="news-meta">
               <span class="news-date">${item.date || ''}</span>
-              <span class="news-category">${item.category || ''}</span>
+              ${item.category ? `<span class="news-category">${item.category}</span>` : ''}
             </div>
             <p class="news-title">${item.title || ''}</p>
+            ${item.body ? `<p class="news-body">${item.body}</p>` : ''}
           </div>
         `).join('');
       })
