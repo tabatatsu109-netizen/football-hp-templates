@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>テンプレート一覧 | サッカークラブHP制作</title>
+  <style>
+    :root {
+      --black: #0e0e10;
+      --dark: #1a1a1e;
+      --mid: #2c2c32;
+      --border: #e2e2e5;
+      --text: #18181b;
+      --muted: #71717a;
+      --light-bg: #f8f8f8;
+      --white: #ffffff;
+
+      --light-accent: #52525b;
+      --std-accent: #2563eb;
+      --prem-accent: #a16207;
+      --prem-gold: #ca8a04;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif; background: var(--light-bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Header ── */
+    .site-header { background: var(--black); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .header-logo { color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 1px; }
+    .header-logo span { color: #60a5fa; }
+    .header-contact { background: #2563eb; color: #fff; font-size: 12px; font-weight: 700; padding: 9px 18px; border-radius: 4px; letter-spacing: 0.5px; }
+
+    /* ── Hero ── */
+    .hero { background: var(--black); color: #fff; padding: 64px 24px 56px; text-align: center; border-bottom: 1px solid #2a2a30; }
+    .hero-label { font-size: 11px; font-weight: 700; letter-spacing: 4px; color: #60a5fa; margin-bottom: 16px; }
+    .hero-title { font-size: clamp(26px, 5vw, 44px); font-weight: 900; letter-spacing: -0.5px; line-height: 1.25; margin-bottom: 16px; }
+    .hero-title em { font-style: normal; color: #60a5fa; }
+    .hero-desc { color: #a1a1aa; font-size: 14px; line-height: 1.9; max-width: 560px; margin: 0 auto; }
+
+    /* ── Filter ── */
+    .filter-wrap { background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 30; }
+    .filter-inner { max-width: 1100px; margin: 0 auto; padding: 0 20px; display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .filter-inner::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      flex: none; padding: 16px 22px; font-size: 13px; font-weight: 700; border: none;
+      background: none; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent;
+      white-space: nowrap; transition: color 0.15s, border-color 0.15s;
+    }
+    .filter-btn.active { color: var(--text); border-bottom-color: var(--text); }
+    .filter-btn[data-filter="light"].active  { color: var(--light-accent); border-bottom-color: var(--light-accent); }
+    .filter-btn[data-filter="standard"].active { color: var(--std-accent); border-bottom-color: var(--std-accent); }
+    .filter-btn[data-filter="premium"].active  { color: var(--prem-gold); border-bottom-color: var(--prem-gold); }
+
+    /* ── Main ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 56px 20px 80px; }
+
+    /* ── Plan Section ── */
+    .plan-section { margin-bottom: 72px; }
+    .plan-section.hidden { display: none; }
+    .plan-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid var(--border); }
+    .plan-badge {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      padding: 5px 12px; border-radius: 2px;
+    }
+    .plan-badge.light   { background: #f4f4f5; color: var(--light-accent); }
+    .plan-badge.standard { background: #eff6ff; color: var(--std-accent); }
+    .plan-badge.premium { background: #fefce8; color: var(--prem-accent); }
+    .plan-title { font-size: 20px; font-weight: 900; }
+    .plan-desc { color: var(--muted); font-size: 13px; margin-left: auto; }
+
+    /* ── Grid ── */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: box-shadow 0.2s, transform 0.2s;
+      position: relative;
+    }
+    .card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.10); transform: translateY(-2px); }
+
+    /* おすすめリボン */
+    .card.recommended::before {
+      content: '★ おすすめ';
+      position: absolute; top: 14px; right: -28px;
+      background: var(--std-accent); color: #fff;
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      padding: 5px 36px; transform: rotate(35deg);
+      z-index: 2;
+    }
+    .card.premium-card { border-color: #d4af37; }
+
+    /* プレビュー */
+    .card-preview {
+      width: 100%; aspect-ratio: 16/9;
+      background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-preview img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .preview-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px;
+    }
+    .preview-placeholder .ph-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #a1a1aa; }
+    .preview-placeholder .ph-name  { font-size: 18px; font-weight: 900; color: #d4d4d8; }
+
+    /* カード本体 */
+    .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .card-name { font-size: 16px; font-weight: 900; }
+    .card-plan-badge {
+      flex: none; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      padding: 3px 8px; border-radius: 2px;
+    }
+    .card-plan-badge.light    { background: #f4f4f5; color: var(--light-accent); }
+    .card-plan-badge.standard { background: #eff6ff; color: var(--std-accent); }
+    .card-plan-badge.premium  { background: #fefce8; color: var(--prem-accent); }
+
+    .card-design { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 1px; }
+    .card-target { font-size: 12px; color: var(--text); font-weight: 700; }
+    .card-features { display: flex; flex-wrap: wrap; gap: 6px; }
+    .feat-tag { font-size: 11px; background: #f4f4f5; color: #52525b; padding: 3px 8px; border-radius: 100px; }
+
+    .card-price {
+      display: flex; align-items: center; gap: 8px;
+      background: #fafafa; border: 1px solid var(--border);
+      border-radius: 4px; padding: 10px 14px; margin-top: auto;
+    }
+    .price-label { font-size: 11px; color: var(--muted); }
+    .price-val   { font-size: 16px; font-weight: 900; color: var(--text); }
+    .price-note  { font-size: 10px; color: var(--muted); }
+
+    .card-actions { display: flex; gap: 8px; padding: 0 20px 20px; }
+    .btn-preview {
+      flex: 1; text-align: center; border: 1.5px solid var(--border);
+      color: var(--text); font-size: 12px; font-weight: 700; padding: 11px;
+      border-radius: 4px; transition: background 0.15s;
+    }
+    .btn-preview:hover { background: #f4f4f5; }
+    .btn-consult {
+      flex: 1; text-align: center; background: var(--text);
+      color: #fff; font-size: 12px; font-weight: 700; padding: 11px;
+      border-radius: 4px; transition: opacity 0.15s;
+    }
+    .btn-consult:hover { opacity: 0.85; }
+    .btn-consult.standard { background: var(--std-accent); }
+    .btn-consult.premium  { background: #a16207; }
+
+    /* ── CTA Banner ── */
+    .cta-banner { background: var(--black); color: #fff; text-align: center; padding: 56px 24px; margin-top: 24px; }
+    .cta-banner h2 { font-size: 24px; font-weight: 900; margin-bottom: 12px; }
+    .cta-banner p  { color: #a1a1aa; font-size: 14px; line-height: 1.8; margin-bottom: 28px; }
+    .cta-btn { display: inline-block; background: #2563eb; color: #fff; font-weight: 700; font-size: 15px; padding: 16px 40px; border-radius: 4px; letter-spacing: 0.5px; }
+
+    /* ── Footer ── */
+    .site-footer { background: #09090b; color: #71717a; text-align: center; font-size: 12px; padding: 24px; }
+
+    /* ── No results ── */
+    .no-results { text-align: center; color: var(--muted); font-size: 14px; padding: 60px 0; display: none; }
+
+    @media (max-width: 600px) {
+      .hero { padding: 44px 20px 36px; }
+      .plan-desc { display: none; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .card-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-logo">Soccer<span>HP</span> テンプレート</div>
+    <a href="contact.html" class="header-contact">無料相談はこちら</a>
+  </header>
+
+  <section class="hero">
+    <div class="hero-label">TEMPLATE GALLERY</div>
+    <h1 class="hero-title">サッカークラブ向け<br><em>ホームページテンプレート</em>一覧</h1>
+    <p class="hero-desc">ライト・スタンダード・プレミアムの3プランをご用意。<br>設定ファイルを変えるだけで、どのクラブでもすぐ使えます。</p>
+  </section>
+
+  <div class="filter-wrap">
+    <div class="filter-inner">
+      <button class="filter-btn active" data-filter="all">すべて</button>
+      <button class="filter-btn" data-filter="light">ライト</button>
+      <button class="filter-btn" data-filter="standard">スタンダード ★おすすめ</button>
+      <button class="filter-btn" data-filter="premium">プレミアム</button>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="no-results" id="no-results">該当するテンプレートがありません</div>
+
+    <!-- ライトプラン -->
+    <section class="plan-section" data-plan="light" id="section-light">
+      <div class="plan-header">
+        <span class="plan-badge light">LIGHT</span>
+        <h2 class="plan-title">ライトプラン</h2>
+        <span class="plan-desc">シンプル構成。まずホームページを持ちたいクラブに</span>
+      </div>
+      <div class="cards-grid" id="grid-light"></div>
+    </section>
+
+    <!-- スタンダードプラン -->
+    <section class="plan-section" data-plan="standard" id="section-standard">
+      <div class="plan-header">
+        <span class="plan-badge standard">STANDARD</span>
+        <h2 class="plan-title">スタンダードプラン <span style="font-size:13px;color:#2563eb;font-weight:700;">★ 人気No.1</span></h2>
+        <span class="plan-desc">ニュース・試合結果・チーム紹介を標準装備</span>
+      </div>
+      <div class="cards-grid" id="grid-standard"></div>
+    </section>
+
+    <!-- プレミアムプラン -->
+    <section class="plan-section" data-plan="premium" id="section-premium">
+      <div class="plan-header">
+        <span class="plan-badge premium">PREMIUM</span>
+        <h2 class="plan-title">プレミアムプラン</h2>
+        <span class="plan-desc">スクール・スポンサー枠・選手プロフィールなど機能フル搭載</span>
+      </div>
+      <div class="cards-grid" id="grid-premium"></div>
+    </section>
+  </main>
+
+  <section class="cta-banner">
+    <h2>どのデザインにするか迷っていますか？</h2>
+    <p>ご要望をお聞きして、クラブに合ったプランをご提案します。<br>まずはお気軽にご相談ください。</p>
+    <a href="contact.html" class="cta-btn">無料で相談する</a>
+  </section>
+
+  <footer class="site-footer">
+    © 2026 SoccerHP Templates. All Rights Reserved.
+  </footer>
+
+  <script>
+    // ============================================================
+    // テンプレートデータ（URLや情報はここで管理）
+    // ============================================================
+    var BASE_URL = 'https://tabatatsu109-netizen.github.io/football-hp-templates/templates/';
+    var CONTACT_URL = 'contact.html'; // 相談先URL（LINEに変える場合はここを修正）
+
+    var TEMPLATES = [
+      // ── ライトプラン ──
+      {
+        id: 'light-01',
+        plan: 'light',
+        name: 'ライト 01',
+        design: 'Design A — 王道・落ち着き',
+        target: '地域密着型クラブ・保護者向け',
+        features: ['シンプル構成', 'ニュース表示', '試合結果', 'スマホ対応'],
+        price: '¥49,800〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'light-01/',
+        preview: ''
+      },
+      {
+        id: 'light-02',
+        plan: 'light',
+        name: 'ライト 02',
+        design: 'Design B — 躍動感・スポーツらしさ',
+        target: '活動的なクラブ・選手向け発信',
+        features: ['シンプル構成', 'ニュース表示', '試合結果', 'スマホ対応'],
+        price: '¥49,800〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'light-02/',
+        preview: ''
+      },
+      {
+        id: 'light-03',
+        plan: 'light',
+        name: 'ライト 03',
+        design: 'Design C — ミニマル・読みやすさ重視',
+        target: '情報整理を優先したいクラブ',
+        features: ['シンプル構成', 'ニュース表示', '試合結果', 'スマホ対応'],
+        price: '¥49,800〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'light-03/',
+        preview: ''
+      },
+
+      // ── スタンダードプラン ──
+      {
+        id: 'standard-01',
+        plan: 'standard',
+        name: 'スタンダード 01',
+        design: 'Design A — 王道・落ち着き',
+        target: '保護者が安心して読めるデザイン',
+        features: ['ニュース', '試合結果', 'スケジュール', 'チーム紹介', 'SNS連携'],
+        price: '¥98,000〜',
+        priceNote: '初期費用込み・税別',
+        recommended: true,
+        previewUrl: BASE_URL + 'standard-01/',
+        preview: ''
+      },
+      {
+        id: 'standard-02',
+        plan: 'standard',
+        name: 'スタンダード 02',
+        design: 'Design B — 躍動感・ダイナミック',
+        target: '勝利・強さを打ち出したいクラブ',
+        features: ['ニュース', '試合結果', 'スケジュール', 'チーム紹介', 'SNS連携'],
+        price: '¥98,000〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'standard-02/',
+        preview: ''
+      },
+      {
+        id: 'standard-03',
+        plan: 'standard',
+        name: 'スタンダード 03',
+        design: 'Design C — ミニマル・スタイリッシュ',
+        target: '洗練されたイメージを求めるクラブ',
+        features: ['ニュース', '試合結果', 'スケジュール', 'チーム紹介', 'SNS連携'],
+        price: '¥98,000〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'standard-03/',
+        preview: ''
+      },
+      {
+        id: 'standard-04',
+        plan: 'standard',
+        name: 'スタンダード 04',
+        design: 'Design D — ダーク×レッド・本格感',
+        target: 'ジュニアユース・強豪クラブ向け',
+        features: ['ニュース', '試合結果', 'カテゴリタブ', '選手プロフィール', '体験申込'],
+        price: '¥98,000〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'standard-04/',
+        preview: ''
+      },
+
+      // ── プレミアムプラン ──
+      {
+        id: 'premium-01',
+        plan: 'premium',
+        name: 'プレミアム 01',
+        design: 'Design A — 王道・信頼感',
+        target: '地域トップクラスの育成クラブ',
+        features: ['全機能搭載', 'スクール管理', 'スポンサー枠', '選手プロフィール', 'クラブ員専用'],
+        price: '¥198,000〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'premium-01/',
+        preview: ''
+      },
+      {
+        id: 'premium-02',
+        plan: 'premium',
+        name: 'プレミアム 02',
+        design: 'Design B — 躍動感・インパクト重視',
+        target: '注目度・集客力を最大化したいクラブ',
+        features: ['全機能搭載', 'スクール管理', 'スポンサー枠', '選手プロフィール', 'クラブ員専用'],
+        price: '¥198,000〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'premium-02/',
+        preview: ''
+      },
+      {
+        id: 'premium-03',
+        plan: 'premium',
+        name: 'プレミアム 03',
+        design: 'Design C — ミニマル・高級感',
+        target: 'ブランド価値を重視するクラブ',
+        features: ['全機能搭載', 'スクール管理', 'スポンサー枠', '選手プロフィール', 'クラブ員専用'],
+        price: '¥198,000〜',
+        priceNote: '初期費用込み・税別',
+        recommended: false,
+        previewUrl: BASE_URL + 'premium-03/',
+        preview: ''
+      }
+    ];
+
+    // ============================================================
+    // カード描画
+    // ============================================================
+    function planClass(plan) {
+      return plan === 'light' ? 'light' : plan === 'standard' ? 'standard' : 'premium';
+    }
+
+    function buildCard(t) {
+      var pc = planClass(t.plan);
+      var previewHtml = t.preview
+        ? '<img src="' + t.preview + '" alt="' + t.name + ' プレビュー" loading="lazy">'
+        : '<div class="preview-placeholder" style="background:' + (t.plan==='premium'?'#1a1a14':t.plan==='standard'?'#f0f4ff':'#f4f4f5') + '">'
+          + '<span class="ph-label">' + t.id.toUpperCase() + '</span>'
+          + '<span class="ph-name">' + t.name + '</span>'
+          + '</div>';
+      var feats = t.features.map(function(f){ return '<span class="feat-tag">' + f + '</span>'; }).join('');
+      var consultStyle = t.plan === 'standard' ? ' standard' : t.plan === 'premium' ? ' premium' : '';
+      return '<div class="card' + (t.recommended?' recommended':'') + (t.plan==='premium'?' premium-card':'') + '">'
+        + '<div class="card-preview">' + previewHtml + '</div>'
+        + '<div class="card-body">'
+        +   '<div class="card-top">'
+        +     '<span class="card-name">' + t.name + '</span>'
+        +     '<span class="card-plan-badge ' + pc + '">' + (t.plan==='light'?'LIGHT':t.plan==='standard'?'STANDARD':'PREMIUM') + '</span>'
+        +   '</div>'
+        +   '<div class="card-design">' + t.design + '</div>'
+        +   '<div class="card-target">対象：' + t.target + '</div>'
+        +   '<div class="card-features">' + feats + '</div>'
+        +   '<div class="card-price">'
+        +     '<span class="price-label">価格目安</span>'
+        +     '<span class="price-val">' + t.price + '</span>'
+        +     '<span class="price-note">' + t.priceNote + '</span>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="card-actions">'
+        +   '<a href="' + t.previewUrl + '" class="btn-preview" target="_blank" rel="noopener">プレビューを見る ↗</a>'
+        +   '<a href="' + CONTACT_URL + '?template=' + t.id + '" class="btn-consult' + consultStyle + '">このデザインで相談</a>'
+        + '</div>'
+        + '</div>';
+    }
+
+    function render() {
+      ['light','standard','premium'].forEach(function(plan){
+        var items = TEMPLATES.filter(function(t){ return t.plan === plan; });
+        document.getElementById('grid-' + plan).innerHTML = items.map(buildCard).join('');
+      });
+    }
+
+    // ============================================================
+    // フィルター
+    // ============================================================
+    function applyFilter(filter) {
+      var sections = document.querySelectorAll('.plan-section');
+      sections.forEach(function(s){
+        if (filter === 'all' || s.dataset.plan === filter) {
+          s.classList.remove('hidden');
+        } else {
+          s.classList.add('hidden');
+        }
+      });
+      document.querySelectorAll('.filter-btn').forEach(function(b){
+        b.classList.toggle('active', b.dataset.filter === filter);
+      });
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){ applyFilter(this.dataset.filter); });
+    });
+
+    render();
+  </script>
+</body>
+</html>
