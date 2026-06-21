@@ -5,66 +5,76 @@
   },
 
   "club": {
-    "name": "FC グランデ サンプル",
-    "shortName": "FCG",
-    "founded": 2010,
-    "location": "東京都渋谷区",
-    "description": "地域に根ざしたサッカークラブとして、選手の技術向上と人間的な成長を大切にしています。プロを目指す選手から楽しむことを目的とした選手まで、幅広いメンバーが活躍しています。"
+    "name": "FC ベルガ",
+    "shortName": "BERGA",
+    "founded": 2015,
+    "location": "（所在地を入力）",
+    "description": "（クラブ紹介文を入力）"
   },
 
   "design": {
-    "logo": "assets/logo.png",
-    "favicon": "assets/favicon.ico",
-    "mainColor": "#1a3a5c",
-    "subColor": "#e8b400",
+    "logo": "",
+    "favicon": "",
+    "mainColor": "#1a5c2d",
+    "subColor": "#f0c000",
     "accentColor": "#e84040"
   },
 
   "pages": {
     "home": {
-      "heroTitle": "情熱を、グラウンドへ。",
-      "heroSubtitle": "FC グランデ サンプル オフィシャルサイト",
-      "heroImage": "assets/hero.jpg"
+      "heroTitle": "ベルガとともに、前へ。",
+      "heroSubtitle": "FC ベルガ オフィシャルサイト",
+      "heroImage": ""
     }
   },
 
   "philosophy": {
     "title": "クラブフィロソフィー",
-    "text": "私たちは「楽しむ・鍛える・貢献する」をテーマに、サッカーを通じて地域と人をつなぐクラブを目指しています。勝利だけを追い求めるのではなく、人として成長できる環境づくりを最優先に考えています。"
+    "text": "（フィロソフィーを入力）"
   },
 
   "mission": {
     "title": "育成方針",
-    "text": "年代に応じた適切な指導と環境づくりを通じて、技術はもちろん、チームワーク・自主性・礼儀を身につけた選手を育成します。指導者は常に学び続け、選手一人ひとりの可能性を最大限に引き出します。"
+    "text": "（育成方針を入力）"
   },
 
   "contact": {
-    "address": "〒150-0001 東京都渋谷区神宮前1-1-1",
-    "phone": "03-1234-5678",
-    "email": "info@fc-grande.example.com"
+    "address": "（住所を入力）",
+    "phone": "（電話番号を入力）",
+    "email": "（メールアドレスを入力）"
   },
 
   "sns": {
-    "instagram": "https://www.instagram.com/fc_grande_example/",
-    "facebook": "https://www.facebook.com/fc_grande_example/",
-    "youtube": "https://www.youtube.com/@fc_grande_example",
-    "lineUrl": "https://line.me/R/ti/p/@fc_grande_example"
+    "instagram": "",
+    "facebook": "",
+    "youtube": "",
+    "lineUrl": ""
   },
 
   "matchPlanner": {
-    "jsonbinBinId": "DUMMY_BIN_ID_xxxxxxxxxxxxxxxx",
-    "jsonbinApiKey": "DUMMY_API_KEY_xxxxxxxxxxxxxxxx"
+    "jsonbinBinId": "6a36acb5f5f4af5e2914a294",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+
+  "integration": {
+    "jsonbinBinId": "6a36acb5f5f4af5e2914a294",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+
+  "newsIntegration": {
+    "jsonbinBinId": "6a36acb5f5f4af5e2914a294",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
 
   "features": {
     "showNews": true,
     "showResults": true,
     "showSchedule": true,
-    "showSponsors": true,
+    "showSponsors": false,
     "showInstagram": true,
-    "showSchool": true,
+    "showSchool": false,
     "showStaff": true,
-    "showPartners": true
+    "showPartners": false
   },
 
   "sponsors": [

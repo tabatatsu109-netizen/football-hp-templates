@@ -80,6 +80,34 @@
     .footer-social a { color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.3); padding: 5px 16px; border-radius: 4px; font-size: 0.82rem; transition: background 0.2s; }
     .footer-social a:hover { background: rgba(255,255,255,0.15); }
     .footer-copy { margin-top: 24px; color: rgba(255,255,255,0.4); font-size: 0.75rem; }
+
+    /* Sponsors */
+    .sponsors-section { background: var(--bg-light); }
+    .sponsors-note { text-align: center; color: #888; font-size: 0.85rem; margin-bottom: 28px; }
+    .sponsors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    @media (max-width: 600px) { .sponsors-grid { grid-template-columns: repeat(2, 1fr); } }
+    .sponsor-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+    .sponsor-card img { max-width: 120px; max-height: 60px; object-fit: contain; }
+    .sponsor-name { font-size: 0.85rem; color: #555; }
+    .sponsor-tier-gold { border-top: 3px solid #d4af37; }
+    .sponsor-tier-silver { border-top: 3px solid #a8a9ad; }
+
+    /* School */
+    .school-section { background: var(--bg); }
+    .school-intro { max-width: 720px; margin: 0 auto 40px; line-height: 1.9; font-size: 0.95rem; text-align: center; }
+    .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .course-card { background: var(--bg-light); border-radius: 8px; padding: 24px; border-left: 4px solid var(--sub); }
+    .course-name { font-size: 1rem; font-weight: bold; color: var(--main); margin-bottom: 12px; }
+    .course-detail { font-size: 0.85rem; color: #555; line-height: 1.8; }
+    .course-fee { font-size: 0.9rem; font-weight: bold; color: var(--accent); margin-top: 8px; }
+
+    /* Partners */
+    .partners-section { background: var(--bg-light); }
+    .partners-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+    .partner-item { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 12px 20px; display: flex; align-items: center; gap: 10px; transition: box-shadow 0.2s; }
+    .partner-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .partner-item img { max-width: 80px; max-height: 40px; object-fit: contain; }
+    .partner-name { font-size: 0.85rem; color: #555; }
   </style>
 </head>
 <body>
@@ -152,6 +180,33 @@
       <div class="container">
         <h2 class="section-title" id="mission-title">育成方針</h2>
         <p class="section-text" id="mission-text"></p>
+      </div>
+    </section>
+
+
+    <!-- スポンサー -->
+    <section class="sponsors-section" id="section-sponsors" style="display:none">
+      <div class="container">
+        <h2 class="section-title">スポンサー</h2>
+        <p class="sponsors-note">クラブの活動を支えてくださっているスポンサー様</p>
+        <div class="sponsors-grid" id="sponsors-list"></div>
+      </div>
+    </section>
+
+    <!-- スクール -->
+    <section class="school-section" id="section-school" style="display:none">
+      <div class="container">
+        <h2 class="section-title" id="school-title">サッカースクール</h2>
+        <p class="school-intro" id="school-description"></p>
+        <div class="courses-grid" id="courses-list"></div>
+      </div>
+    </section>
+
+    <!-- パートナー -->
+    <section class="partners-section" id="section-partners" style="display:none">
+      <div class="container">
+        <h2 class="section-title">パートナー</h2>
+        <div class="partners-grid" id="partners-list"></div>
       </div>
     </section>
 
@@ -237,7 +292,44 @@
           }
         });
 
-        // 機能ON/OFF（features）は match-planner-connector.js が制御
+        // スポンサー
+        if (c.features.showSponsors && (c.sponsors || []).length > 0) {
+          document.getElementById('section-sponsors').style.display = '';
+          document.getElementById('sponsors-list').innerHTML = (c.sponsors || []).map(s => `
+            <div class="sponsor-card${s.tier ? ' sponsor-tier-' + s.tier : ''}">
+              ${s.logo ? `<img src="${s.logo}" alt="${s.name}">` : ''}
+              <p class="sponsor-name">${s.name || ''}</p>
+            </div>
+          `).join('');
+        }
+
+        // スクール
+        if (c.features.showSchool && c.school) {
+          document.getElementById('section-school').style.display = '';
+          document.getElementById('school-title').textContent = c.school.name || 'サッカースクール';
+          document.getElementById('school-description').textContent = c.school.description || '';
+          document.getElementById('courses-list').innerHTML = (c.school.courses || []).map(course => `
+            <div class="course-card">
+              <p class="course-name">${course.name || ''}</p>
+              <div class="course-detail">
+                <p>対象：${course.age || ''}</p>
+                <p>日程：${course.schedule || ''}</p>
+              </div>
+              <p class="course-fee">${course.fee || ''}</p>
+            </div>
+          `).join('') || '<p style="color:#aaa">コース情報はありません</p>';
+        }
+
+        // パートナー
+        if (c.features.showPartners && (c.partners || []).length > 0) {
+          document.getElementById('section-partners').style.display = '';
+          document.getElementById('partners-list').innerHTML = (c.partners || []).map(p => `
+            <a class="partner-item" href="${p.url || '#'}" target="_blank" rel="noopener">
+              ${p.logo ? `<img src="${p.logo}" alt="${p.name}">` : ''}
+              <span class="partner-name">${p.name || ''}</span>
+            </a>
+          `).join('');
+        }
       })
       .catch(err => console.error('club-config.json 読み込みエラー:', err));
   </script>

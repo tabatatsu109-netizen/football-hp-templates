@@ -1,0 +1,140 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "description": "サッカークラブ ホームページ設定ファイル（standard-04）。このファイルを書き換えるだけで別クラブへ展開できます。"
+  },
+
+  "club": {
+    "name": "FC AURORA U-15",
+    "shortName": "AURORA",
+    "abbreviation": "A",
+    "founded": 2018,
+    "location": "神奈川県横浜市",
+    "description": "横浜を拠点とする中学生（ジュニアユース）の育成クラブ。技術と人間性をともに育て、一人ひとりの次のステージへ送り出します。"
+  },
+
+  "design": {
+    "logo": "assets/logo.png",
+    "favicon": "assets/favicon.ico",
+    "mainColor": "#e3001b",
+    "subColor": "#ffffff",
+    "accentColor": "#e3001b"
+  },
+
+  "hero": {
+    "location": "KANAGAWA · YOKOHAMA",
+    "catchphrase": "FUTURE IS OURS.",
+    "catchphraseJa": "未来は、自分の足で掴み取れ",
+    "description": "FC AURORA U-15 は、横浜を拠点とする中学生（ジュニアユース）の育成クラブ。\n技術と人間性をともに育て、一人ひとりの次のステージへ送り出します。"
+  },
+
+  "philosophy": {
+    "pillars": [
+      {
+        "no": "01",
+        "title": "全員を育てる",
+        "body": "勝利だけを求めず、一人ひとりの判断力と技術を引き出す指導。全員が公式戦を経験できる環境を整えます。"
+      },
+      {
+        "no": "02",
+        "title": "次のステージへ",
+        "body": "高校・ユースへの進路を見据えた育成。卒部後も伸び続けられる基礎とサッカーを続ける意欲をつくります。"
+      },
+      {
+        "no": "03",
+        "title": "人間性を磨く",
+        "body": "挨拶・準備・仲間への声かけ。サッカーを通じて、社会で生きる力と礼節を育みます。"
+      }
+    ]
+  },
+
+  "school": {
+    "description": "小学6年・中学生を対象に、年2回の体験会を開催しています。\n参加は無料、クラブの雰囲気と練習をぜひ体感してください。",
+    "scheduleLabel": "2026 SUMMER",
+    "trials": [
+      {
+        "date": "7/13",
+        "day": "SAT",
+        "target": "小6・中1 対象 体験会",
+        "time": "10:00〜12:00",
+        "place": "たまエリア第2グラウンド"
+      },
+      {
+        "date": "7/27",
+        "day": "SAT",
+        "target": "小6 対象 体験会",
+        "time": "10:00〜12:00",
+        "place": "たまエリア第2グラウンド"
+      },
+      {
+        "date": "8/10",
+        "day": "SUN",
+        "target": "中1・中2 対象 体験会",
+        "time": "16:00〜18:00",
+        "place": "たまエリア第2グラウンド"
+      }
+    ]
+  },
+
+  "players": [
+    { "number": "1",  "name": "大谷 諒",   "position": "GK", "grade": "3年", "note": "守護神" },
+    { "number": "4",  "name": "佐藤 斉",   "position": "DF", "grade": "3年", "note": "最終ライン" },
+    { "number": "6",  "name": "鈴木 徹",   "position": "MF", "grade": "3年", "note": "キャプテン" },
+    { "number": "8",  "name": "山本 絵馬", "position": "MF", "grade": "2年", "note": "司令塔" },
+    { "number": "10", "name": "中溝 輝",   "position": "MF", "grade": "3年", "note": "10番" },
+    { "number": "9",  "name": "小澤 樹",   "position": "FW", "grade": "3年", "note": "エース" },
+    { "number": "11", "name": "渡辺 駿",   "position": "FW", "grade": "2年", "note": "快速WG" },
+    { "number": "5",  "name": "田中 颯",   "position": "DF", "grade": "2年", "note": "左SB" }
+  ],
+
+  "matchCategories": ["U-15", "U-14", "U-13"],
+
+  "contact": {
+    "ground": "たまエリアフットボールパーク",
+    "address": "神奈川県横浜市港北区たまえ町1-2-3",
+    "access": "たまえたまたま線「たまえ駅」徒歩8分",
+    "phone": "045-123-4567（平日 10:00〜18:00）",
+    "email": "info@fc-aurora.example.jp"
+  },
+
+  "sns": {
+    "instagram": "https://www.instagram.com/fcaurora_u15/",
+    "youtube": "https://www.youtube.com/@fcaurora_u15",
+    "twitter": "https://twitter.com/fcaurora_u15",
+    "facebook": "",
+    "lineUrl": ""
+  },
+
+  "matchPlanner": {
+    "jsonbinBinId": "6a3810b0f5f4af5e2918ef20",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+
+  "integration": {
+    "jsonbinBinId": "6a3810b0f5f4af5e2918ef20",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+
+  "newsIntegration": {
+    "jsonbinBinId": "DUMMY_BIN_ID_xxxxxxxxxxxxxxxx",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+
+  "features": {
+    "showNews": true,
+    "showResults": true,
+    "showSchedule": true,
+    "showSponsors": true,
+    "showPlayers": true,
+    "showSchool": true
+  },
+
+  "sponsors": [
+    { "name": "スポンサー企業A", "logo": "", "url": "#" },
+    { "name": "スポンサー企業B", "logo": "", "url": "#" },
+    { "name": "スポンサー企業C", "logo": "", "url": "#" },
+    { "name": "スポンサー企業D", "logo": "", "url": "#" },
+    { "name": "スポンサー企業E", "logo": "", "url": "#" },
+    { "name": "スポンサー企業F", "logo": "", "url": "#" }
+  ]
+}
