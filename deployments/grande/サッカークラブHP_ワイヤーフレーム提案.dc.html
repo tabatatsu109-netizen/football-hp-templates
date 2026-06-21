@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body{margin:0;background:#e6e7ea;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  *{box-sizing:border-box;}
+</style>
+</helmet>
+<div style="width:max-content; min-width:100%; min-height:100vh; padding:48px; background:#e6e7ea; font-family:Helvetica,'Helvetica Neue',Arial,sans-serif; color:#1d1d20;">
+
+  <div style="margin:0 0 40px 0; max-width:1100px;">
+    <div style="font-family:ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:3px; color:#8a8b92;">WIREFRAME · GRAYSCALE · v1</div>
+    <h1 style="margin:6px 0 6px 0; font-size:38px; font-weight:800; font-style:italic; letter-spacing:-0.5px; line-height:1.05;">サッカークラブ ホームページ 提案ワイヤーフレーム</h1>
+    <div style="font-size:15px; color:#44454c; line-height:1.6;">ジュニアユース・ユース（育成）クラブ向け ／ <b>ライト・スタンダード・プレミアム</b> 各3案。<br>3案の違いは「<b>情報の優先順位</b>」で振っています。各案に ターゲット・コンセプト・TOP構成（PC）・スマホ表示 を併記。</div>
+    <div style="display:flex; gap:22px; flex-wrap:wrap; margin-top:18px; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#6b6c73;">
+      <div style="display:flex; align-items:center; gap:7px;"><span style="width:24px; height:14px; background:repeating-linear-gradient(45deg,#d9dade 0 7px,#ececed 7px 14px); border:1px solid #d2d3d8; display:inline-block;"></span>画像 / 映像</div>
+      <div style="display:flex; align-items:center; gap:7px;"><span style="width:24px; height:14px; background:#f1f1f4; border:1px solid #d2d3d8; display:inline-block; position:relative;"><i style="position:absolute; left:3px; top:4px; right:8px; height:3px; background:#cfd0d6;"></i></span>テキスト領域</div>
+      <div style="display:flex; align-items:center; gap:7px;"><span style="width:24px; height:14px; background:#26262b; display:inline-block;"></span>CTA / ナビ</div>
+      <div style="display:flex; align-items:center; gap:7px;"><span style="font-size:10px; border:1px solid #d2d3d8; background:#fff; padding:1px 4px; border-radius:2px;">TAG</span>セクション種別</div>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:52px;">
+    <sc-for list="{{ plans }}" as="plan" hint-placeholder-count="3">
+      <div style="display:flex; flex-direction:column; align-items:stretch; gap:20px;">
+
+        <div style="background:#1c1c20; color:#fff; border-radius:3px; padding:18px 22px; display:flex; align-items:center; gap:26px; flex-wrap:wrap;">
+          <div style="display:flex; align-items:baseline; gap:14px;">
+            <div style="font-size:30px; font-weight:800; font-style:italic; letter-spacing:1px;">{{ plan.en }}</div>
+            <div style="font-size:17px; font-weight:700;">{{ plan.short }}</div>
+          </div>
+          <div style="flex:1; min-width:260px; font-size:13px; color:#c7c8d0; line-height:1.55;">{{ plan.positioning }}</div>
+          <div style="display:flex; flex-direction:column; gap:8px; min-width:300px;">
+            <div style="display:flex; gap:7px; flex-wrap:wrap;">
+              <sc-for list="{{ plan.specs }}" as="sp" hint-placeholder-count="4">
+                <span style="font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#d6d7de; border:1px solid #45464d; border-radius:2px; padding:3px 7px;">{{ sp }}</span>
+              </sc-for>
+            </div>
+            <div style="font-size:11px; color:#9a9ba3; line-height:1.5;"><b style="color:#c7c8d0;">スマホ：</b>{{ plan.mobile }}</div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:28px; align-items:flex-start;">
+          <sc-for list="{{ plan.designs }}" as="d" hint-placeholder-count="3">
+            <div style="flex:none; width:540px; background:#fff; border-radius:3px; box-shadow:0 1px 4px rgba(0,0,0,0.10); padding:20px;">
+
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+                <div style="display:flex; align-items:baseline; gap:10px;">
+                  <div style="font-size:19px; font-weight:800; font-style:italic;">{{ plan.short }} {{ d.code }}</div>
+                </div>
+                <div style="font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#5b5c63; background:#eeeef1; border:1px solid #dfe0e5; border-radius:999px; padding:4px 10px;">優先：{{ d.priority }}</div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:auto 1fr; gap:6px 12px; font-size:12px; line-height:1.55; margin-bottom:16px; padding-bottom:16px; border-bottom:1px dashed #dcdce1;">
+                <div style="font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#9a9ba3; padding-top:2px;">TARGET</div>
+                <div style="color:#33343a;">{{ d.target }}</div>
+                <div style="font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#9a9ba3; padding-top:2px;">CONCEPT</div>
+                <div style="color:#33343a;">{{ d.concept }}</div>
+              </div>
+
+              <div style="display:flex; gap:18px; align-items:flex-start;">
+
+                <div style="flex:1; min-width:0;">
+                  <div style="font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#9a9ba3; margin-bottom:6px;">PC / TOP 構成</div>
+                  <div style="border:1px solid #d3d4d9; border-radius:4px; overflow:hidden; background:#fdfdfe;">
+                    <div style="height:22px; background:#ededf0; border-bottom:1px solid #dcdce1; display:flex; align-items:center; gap:5px; padding:0 9px;">
+                      <span style="width:7px; height:7px; border-radius:50%; background:#cdced4;"></span>
+                      <span style="width:7px; height:7px; border-radius:50%; background:#cdced4;"></span>
+                      <span style="width:7px; height:7px; border-radius:50%; background:#cdced4;"></span>
+                      <span style="flex:1; height:9px; background:#fff; border:1px solid #e2e3e8; border-radius:3px; margin-left:6px;"></span>
+                    </div>
+                    <div style="padding:8px;">
+                      <sc-for list="{{ d.sections }}" as="sec" hint-placeholder-count="6">
+                        <div style="position:relative; border:1px solid #dadbe0; border-radius:2px; margin-bottom:6px; overflow:hidden; height:{{ sec.h }}px;">
+                          <sc-if value="{{ sec.isNav }}" hint-placeholder-val="{{ false }}">
+                            <div style="height:100%; background:#26262b; display:flex; align-items:center; justify-content:space-between; padding:0 9px;">
+                              <span style="width:34px; height:11px; background:#54555c; border-radius:2px;"></span>
+                              <span style="display:flex; gap:7px;"><i style="width:20px;height:5px;background:#54555c;display:block;"></i><i style="width:20px;height:5px;background:#54555c;display:block;"></i><i style="width:20px;height:5px;background:#54555c;display:block;"></i><i style="width:20px;height:5px;background:#54555c;display:block;"></i></span>
+                            </div>
+                          </sc-if>
+                          <sc-if value="{{ sec.isMedia }}" hint-placeholder-val="{{ false }}">
+                            <div style="position:absolute; inset:0; background:repeating-linear-gradient(45deg,#d9dade 0 8px,#ececed 8px 16px);"></div>
+                            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; padding:0 12px; font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#73747c; line-height:1.4;">{{ sec.label }}</div>
+                          </sc-if>
+                          <sc-if value="{{ sec.isText }}" hint-placeholder-val="{{ false }}">
+                            <div style="height:100%; background:#f3f3f6; padding:9px 10px;">
+                              <div style="font-size:10px; font-weight:700; color:#54555c; margin-bottom:7px;">{{ sec.label }}</div>
+                              <div style="height:6px; background:#d6d7dc; border-radius:2px; margin-bottom:5px; width:92%;"></div>
+                              <div style="height:6px; background:#dde0e4; border-radius:2px; margin-bottom:5px; width:78%;"></div>
+                              <div style="height:6px; background:#dde0e4; border-radius:2px; width:60%;"></div>
+                            </div>
+                          </sc-if>
+                          <sc-if value="{{ sec.showTag }}" hint-placeholder-val="{{ false }}">
+                            <div style="position:absolute; top:5px; left:6px; font-family:ui-monospace,Menlo,monospace; font-size:8px; letter-spacing:.4px; color:#6f7077; background:#fff; border:1px solid #d8d9de; padding:1px 4px; border-radius:2px; z-index:2;">{{ sec.tag }}</div>
+                          </sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="flex:none; width:138px;">
+                  <div style="font-family:ui-monospace,Menlo,monospace; font-size:10px; color:#9a9ba3; margin-bottom:6px;">スマホ TOP</div>
+                  <div style="border:6px solid #26262b; border-radius:20px; overflow:hidden; background:#26262b;">
+                    <div style="height:13px; background:#26262b; display:flex; align-items:center; justify-content:center;"><span style="width:34px; height:4px; background:#45464d; border-radius:3px;"></span></div>
+                    <div style="position:relative; height:340px; overflow:hidden; background:#fdfdfe;">
+                      <div style="padding:5px;">
+                        <sc-for list="{{ d.sections }}" as="sec" hint-placeholder-count="6">
+                          <div style="border:1px solid #dadbe0; border-radius:2px; margin-bottom:4px; overflow:hidden; height:{{ sec.mh }}px;">
+                            <sc-if value="{{ sec.isNav }}" hint-placeholder-val="{{ false }}">
+                              <div style="height:100%; background:#26262b; display:flex; align-items:center; justify-content:space-between; padding:0 6px;"><span style="width:22px;height:6px;background:#54555c;border-radius:1px;"></span><span style="display:flex;flex-direction:column;gap:2px;"><i style="width:11px;height:2px;background:#54555c;display:block;"></i><i style="width:11px;height:2px;background:#54555c;display:block;"></i><i style="width:11px;height:2px;background:#54555c;display:block;"></i></span></div>
+                            </sc-if>
+                            <sc-if value="{{ sec.isMedia }}" hint-placeholder-val="{{ false }}">
+                              <div style="height:100%; background:repeating-linear-gradient(45deg,#d9dade 0 6px,#ececed 6px 12px);"></div>
+                            </sc-if>
+                            <sc-if value="{{ sec.isText }}" hint-placeholder-val="{{ false }}">
+                              <div style="height:100%; background:#f3f3f6; padding:6px 7px;"><div style="height:4px; background:#d2d3d9; border-radius:2px; margin-bottom:4px; width:80%;"></div><div style="height:4px; background:#dde0e4; border-radius:2px; width:55%;"></div></div>
+                            </sc-if>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="position:absolute; left:0; right:0; bottom:0; height:46px; background:linear-gradient(to top,#fdfdfe 30%,rgba(253,253,254,0));"></div>
+                      <div style="position:absolute; left:50%; bottom:6px; transform:translateX(-50%); font-family:ui-monospace,Menlo,monospace; font-size:8px; color:#a7a8af;">↓ scroll</div>
+                    </div>
+                  </div>
+                  <div style="font-size:10px; color:#8a8b92; line-height:1.45; margin-top:8px;">{{ d.mobileNote }}</div>
+                </div>
+
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top:48px; font-family:ui-monospace,Menlo,monospace; font-size:11px; color:#9a9ba3;">※ レイアウト構造・情報優先順位の検討用ワイヤー。配色・写真・実コピーは次フェーズで作成。</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const S = (tag, label, h, media) => ({
+      tag, label, h,
+      mh: Math.max(7, Math.round(h * 0.42)),
+      isNav: tag === 'NAV',
+      isMedia: !!media,
+      isText: tag !== 'NAV' && !media,
+      showTag: tag !== 'NAV',
+    });
+
+    const plans = [
+      {
+        en: 'LIGHT', short: 'ライト',
+        positioning: '立ち上げ期〜小規模クラブ向けの最小構成。「まず存在を示し、団員を集める」ことに絞った静的サイト。',
+        specs: ['1〜数ページ / 静的', '予約・EC・会員 なし', 'アニメ控えめ', 'CMS：お知らせ更新のみ'],
+        mobile: 'ハンバーガーメニュー＋1カラム縦積み。最下部に「電話／LINE」固定CTAバー。画像は軽量・最小限。',
+        designs: [
+          {
+            code: 'A', priority: '体験・入会募集ファースト',
+            target: '立ち上げ期〜小規模のジュニアユース。とにかく団員・体験者を集めたい。',
+            concept: '開いてすぐ「体験申込」へ。募集を最上段に置き、迷わせない最短導線。',
+            mobileNote: '1画面目に体験CTA。下部に電話／LINE固定バー。',
+            sections: [
+              S('NAV', '', 28),
+              S('HERO', '体験・入会募集 メインビジュアル＋申込ボタン', 150, true),
+              S('CTA', '', 40),
+              S('SCHOOL', 'スクール・体験案内', 92),
+              S('SCHEDULE', '練習・試合日程', 84),
+              S('NEWS', 'お知らせ', 76),
+              S('ACCESS', 'アクセス・問い合わせ', 70),
+              S('FOOTER', 'フッター（SNS / 連絡先）', 44),
+            ],
+          },
+          {
+            code: 'B', priority: '試合実績ファースト',
+            target: '大会・試合で実績を出している少年団／ジュニアユース。強さで魅せたい。',
+            concept: '試合日程・結果を最上段に。活動写真主体で勢いと実力を伝える。',
+            mobileNote: '日程・結果を上部カードに。写真は横スクロール。',
+            sections: [
+              S('NAV', '', 28),
+              S('HERO', '試合・活動シーン ビジュアル', 144, true),
+              S('SCHEDULE', '試合日程・結果（大）', 124),
+              S('NEWS', '活動報告・お知らせ', 88),
+              S('SCHOOL', '体験・入会案内', 82),
+              S('SNS', 'SNS / 動画', 64, true),
+              S('ACCESS', 'アクセス', 62),
+              S('FOOTER', 'フッター', 44),
+            ],
+          },
+          {
+            code: 'C', priority: 'お知らせ更新ファースト',
+            target: 'まめに活動を発信したい指導者中心の小規模クラブ。',
+            concept: 'お知らせ／ブログ中心の更新型。日々の様子を文章で素朴に伝える。',
+            mobileNote: 'お知らせ一覧を上部に。読みやすい1カラム。',
+            sections: [
+              S('NAV', '', 28),
+              S('HERO', 'クラブ紹介ビジュアル', 128, true),
+              S('NEWS', 'お知らせ / ブログ（大・一覧）', 150),
+              S('SCHEDULE', '直近の予定', 82),
+              S('SCHOOL', 'スクール案内', 80),
+              S('ACCESS', 'アクセス・問い合わせ', 70),
+              S('FOOTER', 'フッター', 44),
+            ],
+          },
+        ],
+      },
+      {
+        en: 'STANDARD', short: 'スタンダード',
+        positioning: '複数カテゴリを運営し、保護者・会員との連絡や新規獲得を重視するクラブ向け。体験予約フォームとSNS連携を標準装備。',
+        specs: ['10ページ前後 / カテゴリ別', '体験予約フォーム / SNS連携', 'ほどよい動き', 'CMS：複数項目を自社更新'],
+        mobile: '固定ヘッダー＋「体験予約」追従ボタン。カード型で日程・お知らせを整理し、タブで情報を切替。',
+        designs: [
+          {
+            code: 'A', priority: '日程・会員連絡ファースト',
+            target: '複数カテゴリを運営し、保護者・会員との連絡を重視するクラブ。',
+            concept: '情報ハブ型。カテゴリ別日程と連絡事項を整理。体験予約フォームも完備。',
+            mobileNote: '日程タブを上部固定。会員向け連絡をカードで。',
+            sections: [
+              S('NAV', '', 30),
+              S('HERO', 'クラブビジュアル＋お知らせティッカー', 138, true),
+              S('SCHEDULE', '日程・結果（カテゴリ別タブ）', 124),
+              S('NEWS', 'お知らせ', 86),
+              S('MEMBERS', '保護者・会員向け連絡', 92),
+              S('SCHOOL', '体験予約フォーム導線', 82),
+              S('SNS', 'SNS 連携', 62, true),
+              S('SPONSOR', 'スポンサー', 54),
+              S('ACCESS', 'アクセス', 62),
+              S('FOOTER', 'フッター', 48),
+            ],
+          },
+          {
+            code: 'B', priority: '体験予約導線ファースト',
+            target: '新規入会・体験者を継続的に増やしたい育成クラブ。',
+            concept: '獲得導線を強化。体験予約をカレンダー／フォームで大きく。コーチ陣で安心感。',
+            mobileNote: '予約フォームを目立つ位置に。コーチ紹介で信頼。',
+            sections: [
+              S('NAV', '', 30),
+              S('HERO', '募集メインビジュアル＋予約CTA', 140, true),
+              S('SCHOOL', '体験予約（大・カレンダー / フォーム）', 138),
+              S('SCHEDULE', '活動日程', 88),
+              S('NEWS', 'お知らせ', 82),
+              S('PLAYERS', 'コーチ・指導陣紹介', 104, true),
+              S('SNS', 'SNS / 保護者の声', 62, true),
+              S('ACCESS', 'アクセス', 62),
+              S('FOOTER', 'フッター', 48),
+            ],
+          },
+          {
+            code: 'C', priority: '世界観・ブランディングファースト',
+            target: 'クラブの理念・世界観で選ばれたいブランド志向のクラブ。',
+            concept: 'ビジュアル主導。大型映像とギャラリーで雰囲気を伝えるブランディング型。',
+            mobileNote: '全幅ビジュアル先行。ギャラリーはスワイプ。',
+            sections: [
+              S('NAV', '', 30),
+              S('HERO', '大型映像ヒーロー', 160, true),
+              S('GALLERY', 'フォトギャラリー', 116, true),
+              S('NEWS', 'お知らせ', 82),
+              S('SCHEDULE', '日程', 86),
+              S('SCHOOL', 'スクール案内', 82),
+              S('SNS', 'SNS', 62, true),
+              S('SPONSOR', 'スポンサー', 54),
+              S('ACCESS', 'アクセス', 62),
+              S('FOOTER', 'フッター', 48),
+            ],
+          },
+        ],
+      },
+      {
+        en: 'PREMIUM', short: 'プレミアム',
+        positioning: '強豪・大型育成クラブ、事業性を重視するクラブ向け。リッチアニメ・映像演出に、EC（グッズ販売）やファンクラブ会員機能を統合。',
+        specs: ['多ページ / 大規模', 'EC・ファンクラブ会員', 'リッチアニメ・映像演出', 'CMS：全面的に柔軟運用'],
+        mobile: 'フルスクリーン映像ヒーロー＋スワイプ式ギャラリー。下部にタブ風ナビ、リッチな画面遷移。',
+        designs: [
+          {
+            code: 'A', priority: 'ブランド体験（映像）ファースト',
+            target: '強豪・大型育成クラブ。ブランド体験そのものを訴求したい。',
+            concept: '没入型ブランドサイト。フルスクリーン映像＋パララックス。EC・会員も統合。',
+            mobileNote: '全画面映像ヒーロー。下部タブ風ナビで回遊。',
+            sections: [
+              S('NAV', '', 30),
+              S('HERO', 'フルスクリーン映像（パララックス）', 180, true),
+              S('GALLERY', 'ハイライト / シネマギャラリー', 128, true),
+              S('SCHEDULE', '日程・結果', 100),
+              S('NEWS', 'ニュース', 82),
+              S('PLAYERS', '選手・カテゴリ紹介', 110, true),
+              S('STORE', 'オンラインストア', 100, true),
+              S('MEMBERS', 'ファンクラブ会員', 82),
+              S('SNS', 'SNS / 動画', 62, true),
+              S('SPONSOR', 'スポンサー', 54),
+              S('ACCESS', 'アクセス', 62),
+              S('FOOTER', 'フッター（サイトマップ大）', 62),
+            ],
+          },
+          {
+            code: 'B', priority: 'EC・物販ファースト',
+            target: 'グッズ販売やファン拡大など事業性を重視するクラブ。',
+            concept: 'EC前面。商品グリッドと会員特典で収益・ファンベースを育てる。',
+            mobileNote: '商品グリッドを上部に。カート・会員導線を固定。',
+            sections: [
+              S('NAV', '', 30),
+              S('HERO', 'ブランドビジュアル＋ストアCTA', 150, true),
+              S('STORE', 'オンラインストア（大・商品グリッド）', 146, true),
+              S('GALLERY', 'ギャラリー', 98, true),
+              S('NEWS', 'ニュース', 82),
+              S('SCHEDULE', '日程', 86),
+              S('MEMBERS', 'ファンクラブ / 会員特典', 92),
+              S('SNS', 'SNS', 62, true),
+              S('SPONSOR', 'スポンサー', 54),
+              S('ACCESS', 'アクセス', 62),
+              S('FOOTER', 'フッター', 60),
+            ],
+          },
+          {
+            code: 'C', priority: '育成実績・進路ファースト',
+            target: '進路実績で選ばれたい育成特化のトップクラブ。',
+            concept: '信頼訴求。育成実績・進路データとOB紹介で「預ける価値」を可視化。',
+            mobileNote: '実績データを上部に。OB紹介はカード横スクロール。',
+            sections: [
+              S('NAV', '', 30),
+              S('HERO', '育成理念ビジュアル', 148, true),
+              S('STATS', '育成実績・進路データ', 100),
+              S('PLAYERS', 'OB / 在籍選手紹介', 110, true),
+              S('SCHEDULE', '日程・結果', 92),
+              S('NEWS', 'ニュース', 82),
+              S('SCHOOL', '体験・セレクション案内', 88),
+              S('STORE', 'ストア', 84, true),
+              S('SNS', 'SNS', 62, true),
+              S('ACCESS', 'アクセス', 62),
+              S('FOOTER', 'フッター', 60),
+            ],
+          },
+        ],
+      },
+    ];
+
+    return { plans };
+  }
+}
+</script>
+</body>
+</html>

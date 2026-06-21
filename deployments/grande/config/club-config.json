@@ -1,0 +1,123 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "description": "八ヶ岳グランデフットボールクラブ ホームページ設定ファイル"
+  },
+
+  "club": {
+    "name": "八ヶ岳グランデフットボールクラブ",
+    "shortName": "GRANDE FC",
+    "abbreviation": "G",
+    "founded": null,
+    "location": "山梨県北杜市",
+    "description": "八ヶ岳の大自然のもと、子どもたちがフットボールを通じて自分の人生を切り開く力を育てるクラブ。地域に愛され、感動するサッカーを追求します。"
+  },
+
+  "design": {
+    "logo": "assets/logo.png",
+    "favicon": "assets/favicon.ico",
+    "mainColor": "#1a5c2d",
+    "subColor": "#ffffff",
+    "accentColor": "#1a5c2d"
+  },
+
+  "hero": {
+    "location": "YAMANASHI · HOKUTO",
+    "catchphrase": "PURSUIT OF EXCITING FOOTBALL.",
+    "catchphraseJa": "感動するサッカーの追求",
+    "description": "八ヶ岳の大自然のもと、子どもたちがフットボールを通じて\n自分の人生を切り開く力を育てるクラブ。"
+  },
+
+  "philosophy": {
+    "pillars": [
+      {
+        "no": "01",
+        "title": "感動するサッカー",
+        "body": "見ている人が感動できるサッカーを追求する。テクニックだけでなく、仲間を信じ、全力で戦う姿勢を大切にします。"
+      },
+      {
+        "no": "02",
+        "title": "夢に向かって努力",
+        "body": "夢に向かって努力できる子供に育てる。サッカーを通じて、目標を持ち、諦めない力を身につけます。"
+      },
+      {
+        "no": "03",
+        "title": "人生を切り開く力",
+        "body": "フットボールで培った経験を人生に活かす。主体性・判断力・チームワークを育て、次のステージへ送り出します。"
+      }
+    ]
+  },
+
+  "school": {
+    "description": "ジュニアユース（U-15）・ジュニア（U-12）・スクール（未就学〜小学生）の各カテゴリで体験練習を随時受け付けています。\nまずはお気軽にお問い合わせください。",
+    "scheduleLabel": "体験練習 随時受付中",
+    "trials": [
+      {
+        "date": "随時",
+        "day": "",
+        "target": "U-15（中学生） 体験練習",
+        "time": "要問合せ",
+        "place": "白州総合運動場 / 長坂総合スポーツ公園"
+      },
+      {
+        "date": "随時",
+        "day": "",
+        "target": "U-12（小学生） 体験練習",
+        "time": "要問合せ",
+        "place": "白州総合運動場 / 長坂総合スポーツ公園"
+      },
+      {
+        "date": "随時",
+        "day": "",
+        "target": "スクール（未就学〜小学生） 体験",
+        "time": "要問合せ",
+        "place": "白州総合運動場 / 長坂総合スポーツ公園"
+      }
+    ]
+  },
+
+  "players": [],
+
+  "matchCategories": ["U-15", "U-12"],
+
+  "contact": {
+    "ground": "白州総合運動場 / 長坂総合スポーツ公園",
+    "address": "山梨県北杜市",
+    "access": "お問い合わせください",
+    "phone": "",
+    "email": ""
+  },
+
+  "sns": {
+    "instagram": "https://www.instagram.com/yatsugatake.grande/",
+    "youtube": "https://www.youtube.com/@corazon-grande9642",
+    "facebook": "",
+    "lineUrl": "https://line.me/R/ti/p/@200sfwtn"
+  },
+
+  "matchPlanner": {
+    "jsonbinBinId": "6a3817c2f5f4af5e291906f9",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+
+  "integration": {
+    "jsonbinBinId": "6a3817c2f5f4af5e291906f9",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+
+  "newsIntegration": {
+    "jsonbinBinId": "6a3817c2f5f4af5e291906f9",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+
+  "features": {
+    "showNews": true,
+    "showResults": true,
+    "showSchedule": true,
+    "showSponsors": true,
+    "showPlayers": false,
+    "showSchool": true
+  },
+
+  "sponsors": []
+}
