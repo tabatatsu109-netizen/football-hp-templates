@@ -140,7 +140,8 @@ const AuroraConnector = (function () {
     });
     if (!res.ok) throw new Error('news JSONBin取得失敗 (' + res.status + ')');
     var json = await res.json();
-    var items = get(json, 'record.news');
+    // Match Planner は 'posts' キーで保存するため両方に対応
+    var items = get(json, 'record.news') || get(json, 'record.posts');
     return Array.isArray(items) ? items : [];
   }
 
