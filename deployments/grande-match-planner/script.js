@@ -1682,7 +1682,7 @@ function convertImageUrl(url) {
 //    grande_news.html が読む: BIN 6a1ed74af5f4af5e29ad180b
 //    データ形式: { posts: [ {id, title, category, type, date, body, score, source, scorers, published}, ... ] }
 //
-const GRANDE_NEWS_BIN = BIN_ID;
+const GRANDE_NEWS_BIN = '6a381e07f5f4af5e29191bec';
 const GRANDE_API_KEY  = API_KEY;
 
 /**

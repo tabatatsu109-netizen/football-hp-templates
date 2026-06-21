@@ -96,17 +96,17 @@
   },
 
   "matchPlanner": {
-    "jsonbinBinId": "6a241ce5f5f4af5e29c25c0e",
+    "jsonbinBinId": "6a3817c2f5f4af5e291906f9",
     "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
 
   "integration": {
-    "jsonbinBinId": "6a241ce5f5f4af5e29c25c0e",
+    "jsonbinBinId": "6a3817c2f5f4af5e291906f9",
     "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
 
   "newsIntegration": {
-    "jsonbinBinId": "6a26cabada38895dfe9a2ffa",
+    "jsonbinBinId": "6a381e07f5f4af5e29191bec",
     "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
 
