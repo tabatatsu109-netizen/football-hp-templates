@@ -78,7 +78,7 @@
 
   "players": [],
 
-  "matchCategories": ["U-15", "U-12"],
+  "matchCategories": ["U-15"],
 
   "contact": {
     "ground": "白州総合運動場 / 長坂総合スポーツ公園",
@@ -106,7 +106,7 @@
   },
 
   "newsIntegration": {
-    "jsonbinBinId": "6a241ce5f5f4af5e29c25c0e",
+    "jsonbinBinId": "6a26cabada38895dfe9a2ffa",
     "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
 

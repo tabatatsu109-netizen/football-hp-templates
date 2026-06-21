@@ -168,6 +168,8 @@ const AuroraConnector = (function () {
   function renderMatchSection() {
     var cat = state.activeCategory;
     var matches = state.allMatches.filter(function (m) {
+      // category フィールドがない場合は全タブに表示する
+      if (!m.category) return true;
       return m.category === cat;
     });
 
@@ -319,10 +321,12 @@ const AuroraConnector = (function () {
     }
 
     var html = sorted.map(function (n) {
-      var cc = catColor(n.cat);
+      // Match Planner は category / type で保存するため n.cat も参照
+      var cat = n.cat || n.category || n.type || 'お知らせ';
+      var cc = catColor(cat);
       return '<a href="news.html" class="news-row">' +
         '<span class="news-date">' + escapeHTML(formatDate(n.date)) + '</span>' +
-        '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';">' + escapeHTML(n.cat || 'お知らせ') + '</span>' +
+        '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';">' + escapeHTML(cat) + '</span>' +
         '<span class="news-title">' + escapeHTML(n.title) + '</span>' +
         '<span class="news-arrow">›</span>' +
         '</a>';

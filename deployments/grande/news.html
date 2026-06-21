@@ -212,7 +212,8 @@
         fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', { headers:{'X-Master-Key':apiKey} })
           .then(function(r){ return r.json(); })
           .then(function(json){
-            var items = json && json.record && json.record.news;
+            // Match Planner は posts キーで保存するため両方に対応
+            var items = (json && json.record && (json.record.news || json.record.posts));
             if (!Array.isArray(items) || items.length === 0) {
               document.getElementById('news-list').innerHTML = '<p class="no-data">現在お知らせはありません</p>';
               return;
@@ -221,10 +222,11 @@
               return (new Date(b.date||0)) - (new Date(a.date||0));
             });
             var html = sorted.map(function(n){
-              var cc = catColor(n.cat);
+              var cat = n.cat || n.category || n.type || 'お知らせ';
+              var cc = catColor(cat);
               return '<div class="news-row">' +
                 '<span class="news-date">' + esc(formatDate(n.date)) + '</span>' +
-                '<span class="news-tag" style="color:'+cc+';border-color:'+cc+';">' + esc(n.cat||'お知らせ') + '</span>' +
+                '<span class="news-tag" style="color:'+cc+';border-color:'+cc+';">' + esc(cat) + '</span>' +
                 '<span class="news-title">' + esc(n.title) + '</span>' +
                 '<span class="news-arrow">›</span>' +
                 '</div>';
