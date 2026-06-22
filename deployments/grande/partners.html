@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スポンサー・パートナー</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --main-color: #e3001b; --dark: #0a0a0c; --dark2: #0e0e11; --dark3: #141418; --light: #f5f4f1; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN',sans-serif; background: var(--light); color: #16161a; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── ヘッダー ── */
+    .site-header { position: sticky; top: 0; z-index: 50; background: rgba(12,12,14,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .header-inner { max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 74px; display: flex; align-items: center; gap: 20px; }
+    .header-logo { display: flex; align-items: center; gap: 11px; flex: none; }
+    .logo-mark { width: 38px; height: 38px; background: var(--main-color); display: flex; align-items: center; justify-content: center; transform: rotate(45deg); flex: none; }
+    .logo-mark-img { width: 38px; height: 38px; object-fit: contain; display: none; }
+    .logo-mark-letter { transform: rotate(-45deg); font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; line-height: 1; }
+    .logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .logo-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; letter-spacing: 1px; }
+    .logo-sub  { color: #8d8d96; font-size: 10px; letter-spacing: 3px; margin-top: 3px; }
+    .header-nav { flex: 1; display: flex; justify-content: center; gap: 22px; }
+    .header-nav a { color: #dcdce0; font-size: 13px; font-weight: 500; letter-spacing: 1px; transition: color 0.2s; }
+    .header-nav a:hover { color: #fff; }
+    .header-nav a.active { color: #fff; border-bottom: 2px solid var(--main-color); padding-bottom: 2px; }
+    .header-actions { display: flex; align-items: center; gap: 12px; flex: none; }
+    .btn-login { color: #9a9aa2; font-size: 12px; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.18); padding: 9px 14px; border-radius: 2px; }
+    .btn-trial { background: var(--main-color); color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 1px; padding: 11px 20px; border-radius: 2px; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 1px; }
+    .mobile-nav { display: none; position: fixed; inset: 0; z-index: 49; background: rgba(10,10,12,0.97); flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { color: #fff; font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+    .mobile-nav-close { position: absolute; top: 20px; right: 24px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
+
+    /* ── ページヒーロー ── */
+    .page-hero { background: var(--dark2); padding: 60px 24px 50px; border-bottom: 3px solid var(--main-color); }
+    .page-hero-inner { max-width: 1240px; margin: 0 auto; }
+    .page-en { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 13px; letter-spacing: 4px; }
+    .page-title { margin: 8px 0 0 0; color: #fff; font-size: 42px; font-weight: 900; letter-spacing: 1px; font-family: 'Anton',sans-serif; }
+    .page-desc { margin: 14px 0 0 0; color: #76767f; font-size: 14px; line-height: 1.9; max-width: 600px; }
+    .breadcrumb { margin-top: 16px; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #76767f; }
+    .breadcrumb a { color: #76767f; }
+    .breadcrumb-sep { color: #3a3a42; }
+
+    /* ── セクション共通 ── */
+    .section { max-width: 1240px; margin: 0 auto; padding: 72px 24px; }
+    .section-label { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 12px; letter-spacing: 4px; margin-bottom: 8px; }
+    .section-title { font-size: 32px; font-weight: 900; color: #16161a; margin-bottom: 12px; letter-spacing: 1px; }
+    .section-desc { font-size: 14px; color: #86868f; line-height: 1.9; margin-bottom: 40px; max-width: 560px; }
+    .divider { border: none; border-top: 1px solid #e4e3de; margin: 0; }
+
+    /* ── スポンサーカード（大） ── */
+    .sponsor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap: 24px; }
+    .sponsor-card { background: #fff; border: 1px solid #e4e3de; border-top: 4px solid var(--main-color); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+    .sponsor-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,0.1); }
+    .sponsor-card-top { background: var(--dark); min-height: 120px; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .sponsor-logo-text { font-family: 'Anton',sans-serif; font-size: 36px; color: #fff; letter-spacing: 3px; text-align: center; }
+    .sponsor-card-body { padding: 22px 24px; }
+    .sponsor-badge { display: inline-block; background: var(--main-color); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 2px; padding: 3px 10px; font-family: 'Anton',sans-serif; margin-bottom: 12px; }
+    .sponsor-name { font-size: 15px; font-weight: 900; color: #16161a; margin-bottom: 8px; }
+    .sponsor-text { font-size: 13px; color: #76767f; line-height: 1.8; margin-bottom: 14px; }
+    .sponsor-link { display: inline-flex; align-items: center; gap: 6px; color: var(--main-color); font-size: 13px; font-weight: 700; border-bottom: 1px solid var(--main-color); padding-bottom: 2px; transition: opacity 0.2s; }
+    .sponsor-link:hover { opacity: 0.7; }
+    .sponsor-link::after { content: '›'; }
+
+    /* ── パートナーカード（中） ── */
+    .partner-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 20px; }
+    .partner-card { background: #fff; border: 1px solid #e4e3de; padding: 24px; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+    .partner-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); border-color: #c4c3bd; }
+    .partner-badge { display: inline-block; background: var(--dark2); color: #dcdce0; font-size: 10px; font-weight: 700; letter-spacing: 2px; padding: 3px 10px; font-family: 'Anton',sans-serif; margin-bottom: 12px; }
+    .partner-badge.supporter { background: #6f6f78; }
+    .partner-name { font-size: 16px; font-weight: 900; color: #16161a; margin-bottom: 8px; }
+    .partner-text { font-size: 13px; color: #76767f; line-height: 1.8; margin-bottom: 14px; }
+    .partner-link { display: inline-flex; align-items: center; gap: 6px; color: #46464d; font-size: 12px; font-weight: 700; border-bottom: 1px solid #c4c3bd; padding-bottom: 2px; transition: color 0.2s; }
+    .partner-link:hover { color: var(--main-color); }
+    .partner-link::after { content: '›'; }
+
+    /* ── 支援バナー ── */
+    .support-banner { background: var(--dark); padding: 60px 24px; text-align: center; }
+    .support-banner-inner { max-width: 600px; margin: 0 auto; }
+    .support-en { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 13px; letter-spacing: 4px; }
+    .support-title { margin: 10px 0 16px; color: #fff; font-size: 30px; font-weight: 900; letter-spacing: 1px; }
+    .support-desc { color: #9a9aa2; font-size: 14px; line-height: 1.9; margin-bottom: 28px; }
+    .support-btn { display: inline-block; background: var(--main-color); color: #fff; font-size: 14px; font-weight: 700; letter-spacing: 1px; padding: 16px 36px; }
+    .support-btn:hover { opacity: 0.85; }
+
+    /* ── フッター ── */
+    .site-footer { background: var(--dark); padding: 54px 24px 30px; border-top: 3px solid var(--main-color); }
+    .footer-inner { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+    .footer-logo-wrap { display: flex; align-items: center; gap: 11px; }
+    .footer-logo-mark { width: 34px; height: 34px; background: var(--main-color); display: flex; align-items: center; justify-content: center; transform: rotate(45deg); flex: none; }
+    .footer-logo-letter { transform: rotate(-45deg); font-family: 'Anton',sans-serif; color: #fff; font-size: 16px; }
+    .footer-club-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; letter-spacing: 1px; }
+    .footer-tagline { margin: 18px 0 0 0; color: #76767f; font-size: 13px; line-height: 1.9; }
+    .footer-links { display: flex; gap: 56px; flex-wrap: wrap; }
+    .footer-col { display: flex; flex-direction: column; gap: 11px; }
+    .footer-col-title { color: var(--main-color); font-family: 'Anton',sans-serif; font-size: 12px; letter-spacing: 2px; }
+    .footer-col a { color: #b6b6bc; font-size: 13px; }
+    .footer-bottom { max-width: 1240px; margin: 38px auto 0; padding-top: 20px; border-top: 1px solid #1d1d22; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .footer-copy { color: #55555c; font-size: 11px; letter-spacing: 1px; }
+
+    @media (max-width: 900px) {
+      .header-nav,.btn-login { display: none; }
+      .hamburger { display: flex; }
+      .sponsor-grid { grid-template-columns: 1fr; }
+      .partner-grid { grid-template-columns: 1fr 1fr; }
+      .footer-inner { flex-direction: column; gap: 32px; }
+    }
+    @media (max-width: 600px) {
+      .partner-grid { grid-template-columns: 1fr; }
+      .page-title { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo">
+        <div class="logo-mark">
+          <img id="club-logo" class="logo-mark-img" src="" alt="ロゴ">
+          <span class="logo-mark-letter" id="logo-abbr">G</span>
+        </div>
+        <div class="logo-text">
+          <span class="logo-name" id="club-name">クラブ名</span>
+          <span class="logo-sub">JUNIOR YOUTH</span>
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="club.html">CLUB</a>
+        <a href="results.html">試合・結果</a>
+        <a href="news.html">お知らせ</a>
+        <a href="team.html">選手</a>
+        <a href="partners.html" class="active">パートナー</a>
+        <a href="index.html#school">スクール・体験</a>
+      </nav>
+      <div class="header-actions">
+        <a href="index.html#members" class="btn-login">ログイン</a>
+        <a href="index.html#school" class="btn-trial">体験申込</a>
+      </div>
+      <button class="hamburger" id="hamburger-btn"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <nav class="mobile-nav" id="mobile-nav">
+    <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    <a href="club.html">CLUB</a>
+    <a href="results.html">試合・結果</a>
+    <a href="news.html">お知らせ</a>
+    <a href="team.html">選手</a>
+    <a href="partners.html">パートナー</a>
+    <a href="index.html#school">スクール・体験</a>
+  </nav>
+
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div class="page-en">SPONSOR &amp; PARTNER</div>
+      <h1 class="page-title">スポンサー・パートナー</h1>
+      <p class="page-desc">八ヶ岳グランデフットボールクラブの活動を支えてくださっている企業・団体の皆様をご紹介します。温かいご支援に心より感謝申し上げます。</p>
+      <div class="breadcrumb">
+        <a href="index.html">HOME</a>
+        <span class="breadcrumb-sep">›</span>
+        <span>スポンサー・パートナー</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- オフィシャルスポンサー -->
+  <div class="section">
+    <div class="section-label">OFFICIAL SPONSOR</div>
+    <h2 class="section-title">オフィシャルスポンサー</h2>
+    <p class="section-desc">クラブの活動を力強くサポートしてくださっているオフィシャルスポンサーです。</p>
+    <div class="sponsor-grid">
+
+      <div class="sponsor-card">
+        <div class="sponsor-card-top">
+          <div class="sponsor-logo-text">ATHLETA</div>
+        </div>
+        <div class="sponsor-card-body">
+          <span class="sponsor-badge">OFFICIAL SPONSOR</span>
+          <div class="sponsor-name">アスレタ株式会社</div>
+          <p class="sponsor-text">サッカー・フットサル専門ブランド。高品質なウェアとシューズでGRANDE FCをサポートしています。</p>
+          <a class="sponsor-link" href="https://www.athleta.co.jp/" target="_blank" rel="noopener">公式サイトを見る</a>
+        </div>
+      </div>
+
+      <div class="sponsor-card">
+        <div class="sponsor-card-top">
+          <div class="sponsor-logo-text">NOF</div>
+        </div>
+        <div class="sponsor-card-body">
+          <span class="sponsor-badge">OFFICIAL SPONSOR</span>
+          <div class="sponsor-name">NOF FOOTBALL</div>
+          <p class="sponsor-text">サッカー用品・グッズを取り扱うNOF FOOTBALLが、GRANDE FCの活動を応援しています。</p>
+          <a class="sponsor-link" href="https://nofootball.base.shop/" target="_blank" rel="noopener">公式サイトを見る</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- オフィシャルパートナー -->
+  <div class="section">
+    <div class="section-label">OFFICIAL PARTNER</div>
+    <h2 class="section-title">オフィシャルパートナー</h2>
+    <p class="section-desc">地域とともにGRANDE FCを支えてくださっているパートナー企業・団体です。</p>
+    <div class="partner-grid">
+
+      <div class="partner-card">
+        <span class="partner-badge">PARTNER</span>
+        <div class="partner-name">ひまわり市場</div>
+        <p class="partner-text">地域に根ざした食のパートナー。グランデ食堂でも地域食材をご提供いただいています。</p>
+        <a class="partner-link" href="https://himawari-ichiba.com/" target="_blank" rel="noopener">公式サイトを見る</a>
+      </div>
+
+      <div class="partner-card">
+        <span class="partner-badge">PARTNER</span>
+        <div class="partner-name">株式会社アルプス</div>
+        <p class="partner-text">地域の発展と選手たちの未来を応援してくださっているパートナー企業です。</p>
+        <a class="partner-link" href="https://www.alps-hs.co.jp/" target="_blank" rel="noopener">公式サイトを見る</a>
+      </div>
+
+      <div class="partner-card">
+        <span class="partner-badge">PARTNER</span>
+        <div class="partner-name">シミックウェル株式会社</div>
+        <p class="partner-text">選手の健康と体づくりをサポートしてくださっているウェルネスパートナーです。</p>
+        <a class="partner-link" href="https://cmic-well.com/" target="_blank" rel="noopener">公式サイトを見る</a>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- オフィシャルサポーター -->
+  <div class="section">
+    <div class="section-label">OFFICIAL SUPPORTER</div>
+    <h2 class="section-title">オフィシャルサポーター</h2>
+    <p class="section-desc">GRANDEの活動を陰から支えてくださっているサポーター企業・団体です。</p>
+    <div class="partner-grid">
+
+      <div class="partner-card">
+        <span class="partner-badge supporter">SUPPORTER</span>
+        <div class="partner-name">環境管理コンサルタント</div>
+        <p class="partner-text">環境・安全分野の専門家として、GRANDEの活動環境づくりを支えてくださっています。</p>
+        <a class="partner-link" href="http://kkcinc.co.jp/" target="_blank" rel="noopener">公式サイトを見る</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 支援バナー -->
+  <div class="support-banner">
+    <div class="support-banner-inner">
+      <div class="support-en">SUPPORT GRANDE</div>
+      <h2 class="support-title">GRANDEを支援する</h2>
+      <p class="support-desc">お金だけでなく、時間・経験・知識・人とのつながりなど、<br>さまざまな形でクラブを支援できます。</p>
+      <a href="contact.html" class="support-btn">支援・スポンサーについて問い合わせる →</a>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo-wrap">
+          <div class="footer-logo-mark"><span class="footer-logo-letter" id="footer-abbr">G</span></div>
+          <span class="footer-club-name" id="footer-club-name">クラブ名</span>
+        </div>
+        <p class="footer-tagline" id="footer-tagline">八ヶ岳を拠点とするジュニアユースクラブ。</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <span class="footer-col-title">MENU</span>
+          <a href="club.html">クラブ理念</a>
+          <a href="results.html">試合・結果</a>
+          <a href="news.html">お知らせ</a>
+          <a href="team.html">選手プロフィール</a>
+        </div>
+        <div class="footer-col">
+          <span class="footer-col-title">JOIN</span>
+          <a href="partners.html">スポンサー・パートナー</a>
+          <a href="index.html#school">スクール・体験</a>
+          <a href="contact.html">アクセス・お問い合わせ</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© <span id="footer-year"></span> <span id="footer-club-name-copy">クラブ名</span>. ALL RIGHTS RESERVED.</span>
+    </div>
+  </footer>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ document.getElementById('mobile-nav').classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ document.getElementById('mobile-nav').classList.remove('open'); });
+
+    ConfigLoader.apply({
+      pageTitle: 'スポンサー・パートナー',
+      onLoaded: function(c){
+        function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
+        var abbr = get(c,'club.abbreviation') || (get(c,'club.shortName')||'?')[0];
+        ['logo-abbr','footer-abbr'].forEach(function(id){ var el=document.getElementById(id); if(el)el.textContent=abbr; });
+        var logoSrc = get(c,'design.logo');
+        if(logoSrc){ var li=document.getElementById('club-logo'); if(li){li.src=logoSrc;li.style.display='block';var ll=document.getElementById('logo-abbr');if(ll)ll.style.display='none';} }
+        var name = get(c,'club.name') || '';
+        ['club-name','footer-club-name','footer-club-name-copy'].forEach(function(id){ var el=document.getElementById(id); if(el)el.textContent=name; });
+      }
+    });
+  </script>
+</body>
+</html>
