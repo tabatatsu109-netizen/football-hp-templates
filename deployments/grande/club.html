@@ -80,6 +80,15 @@
     .pillar-title { margin: 14px 0 12px 0; color: #16161a; font-size: 22px; font-weight: 900; letter-spacing: 1px; }
     .pillar-body { color: #76767f; font-size: 14px; line-height: 1.95; }
 
+    /* ── 沿革 ── */
+    .history-section { background: var(--dark2); padding: 80px 24px; }
+    .history-inner { max-width: 1240px; margin: 0 auto; }
+    .history-list { max-width: 800px; display: flex; flex-direction: column; gap: 0; }
+    .history-row { display: grid; grid-template-columns: 80px 1fr; gap: 24px; padding: 20px 0; border-bottom: 1px solid #1e1e24; align-items: baseline; }
+    .history-row:last-child { border-bottom: none; }
+    .history-year { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 20px; letter-spacing: 1px; }
+    .history-body { color: #a6a6ad; font-size: 14px; line-height: 1.8; }
+
     /* ── クラブ紹介文 ── */
     .message-section { background: var(--dark2); padding: 80px 24px; }
     .message-inner { max-width: 860px; margin: 0 auto; text-align: center; }
@@ -208,6 +217,31 @@
     </div>
   </section>
 
+  <!-- 沿革 -->
+  <section class="history-section">
+    <div class="history-inner">
+      <div class="section-head" style="margin-bottom:36px;">
+        <div>
+          <div class="section-en" style="color:var(--main-color);">HISTORY</div>
+          <h2 class="section-ja" style="color:#fff;">沿革</h2>
+        </div>
+      </div>
+      <div class="history-list">
+        <div class="history-row"><span class="history-year">1988</span><span class="history-body">現理事長が八ヶ岳へ移住。小淵沢サッカースポーツ少年団を創設。</span></div>
+        <div class="history-row"><span class="history-year">1996</span><span class="history-body">全日本少年フットサル選手権大会 山梨県大会 優勝。</span></div>
+        <div class="history-row"><span class="history-year">2001</span><span class="history-body">ジュニアユースクラブチーム設立。</span></div>
+        <div class="history-row"><span class="history-year">2004</span><span class="history-body">北杜市誕生。</span></div>
+        <div class="history-row"><span class="history-year">2005</span><span class="history-body">特定非営利活動法人（NPO法人）化。</span></div>
+        <div class="history-row"><span class="history-year">2006</span><span class="history-body">白州町スポーツ施設 指定管理業務受託。</span></div>
+        <div class="history-row"><span class="history-year">2010</span><span class="history-body">ヴァンフォーレ甲府と業務提携締結。</span></div>
+        <div class="history-row"><span class="history-year">2017</span><span class="history-body">提携終了。Amazing Sports Lab Japanとパートナーシップ契約。</span></div>
+        <div class="history-row"><span class="history-year">2018</span><span class="history-body">グランデ・アメージングアカデミー山梨 設立。</span></div>
+        <div class="history-row"><span class="history-year">2020</span><span class="history-body">ジュニアユース組織を統合。人間教育に重点を置いた活動へ。</span></div>
+        <div class="history-row"><span class="history-year">2021</span><span class="history-body">指定管理業務 4期目協定締結。</span></div>
+      </div>
+    </div>
+  </section>
+
   <!-- クラブメッセージ -->
   <section class="message-section">
     <div class="message-inner">
@@ -279,9 +313,11 @@
 
         // メタ情報
         var metaRows = [];
-        if(get(c,'club.location')) metaRows.push({ key:'活動地域', val: get(c,'club.location') });
-        if(get(c,'contact.ground')) metaRows.push({ key:'活動拠点', val: get(c,'contact.ground') });
+        if(get(c,'club.representative')) metaRows.push({ key:'代表者', val: get(c,'club.representative') });
         if(get(c,'club.founded')) metaRows.push({ key:'設立', val: get(c,'club.founded') });
+        if(get(c,'club.location')) metaRows.push({ key:'活動地域', val: get(c,'club.location') });
+        if(get(c,'club.address')) metaRows.push({ key:'所在地', val: get(c,'club.address') });
+        if(get(c,'contact.ground')) metaRows.push({ key:'活動拠点', val: get(c,'contact.ground') });
         var metaEl = document.getElementById('club-meta');
         if(metaEl && metaRows.length > 0){
           metaEl.innerHTML = metaRows.map(function(r){

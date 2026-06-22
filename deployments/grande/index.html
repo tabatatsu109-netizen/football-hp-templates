@@ -981,17 +981,21 @@
 
         // ヒーローキャッチフレーズ
         var catch_ = get(c, 'hero.catchphrase') || '';
-        var parts = catch_.split(/\s+IS\s+/i);
-        if (parts.length === 2) {
-          var l1 = document.getElementById('hero-catch-line1');
-          var l2 = document.getElementById('hero-catch-line2');
-          if (l1) l1.textContent = parts[0];
-          if (l2) l2.textContent = 'IS ' + parts[1];
+        var l1 = document.getElementById('hero-catch-line1');
+        var l2 = document.getElementById('hero-catch-line2');
+        var isParts = catch_.split(/\s+IS\s+/i);
+        if (isParts.length === 2) {
+          if (l1) l1.textContent = isParts[0];
+          if (l2) l2.textContent = 'IS ' + isParts[1];
         } else {
-          var l1 = document.getElementById('hero-catch-line1');
-          if (l1) l1.textContent = catch_;
-          var l2 = document.getElementById('hero-catch-line2');
-          if (l2) l2.textContent = '';
+          var spIdx = catch_.lastIndexOf(' ');
+          if (spIdx > 0) {
+            if (l1) l1.textContent = catch_.slice(0, spIdx);
+            if (l2) l2.textContent = catch_.slice(spIdx + 1);
+          } else {
+            if (l1) l1.textContent = catch_;
+            if (l2) l2.textContent = '';
+          }
         }
 
         // hero.description の改行
