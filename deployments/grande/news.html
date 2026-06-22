@@ -24,7 +24,9 @@
     .logo-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; letter-spacing: 1px; }
     .logo-sub  { color: #8d8d96; font-size: 10px; letter-spacing: 3px; margin-top: 3px; }
     .header-nav { flex: 1; display: flex; justify-content: center; gap: 22px; }
-    .header-nav a { color: #dcdce0; font-size: 13px; font-weight: 500; letter-spacing: 1px; }
+    .header-nav a { color: #dcdce0; font-size: 13px; font-weight: 500; letter-spacing: 1px; transition: color 0.2s; }
+    .header-nav a:hover { color: #fff; }
+    .header-nav a.active { color: #fff; border-bottom: 2px solid var(--main-color); padding-bottom: 2px; }
     .header-actions { display: flex; align-items: center; gap: 12px; flex: none; }
     .btn-login { color: #9a9aa2; font-size: 12px; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.18); padding: 9px 14px; border-radius: 2px; }
     .btn-trial { background: var(--main-color); color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 1px; padding: 11px 20px; border-radius: 2px; }
@@ -100,11 +102,11 @@
       </a>
       <nav class="header-nav">
         <a href="club.html">CLUB</a>
-        <a href="index.html#match">試合・結果</a>
-        <a href="news.html" style="color:#fff;border-bottom:2px solid var(--main-color);padding-bottom:2px;">お知らせ</a>
+        <a href="results.html">試合・結果</a>
+        <a href="news.html" class="active">お知らせ</a>
         <a href="team.html">選手</a>
+        <a href="partners.html">パートナー</a>
         <a href="index.html#school">スクール・体験</a>
-        <a href="index.html#members">クラブ員専用</a>
       </nav>
       <div class="header-actions">
         <a href="index.html#members" class="btn-login">ログイン</a>
@@ -117,11 +119,11 @@
   <nav class="mobile-nav" id="mobile-nav">
     <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
     <a href="club.html">CLUB</a>
-    <a href="index.html#match">試合・結果</a>
+    <a href="results.html">試合・結果</a>
     <a href="news.html">お知らせ</a>
     <a href="team.html">選手</a>
+    <a href="partners.html">パートナー</a>
     <a href="index.html#school">スクール・体験</a>
-    <a href="index.html#members">クラブ員専用</a>
   </nav>
 
   <div class="page-hero">

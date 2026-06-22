@@ -447,6 +447,25 @@
     }
     .members-forgot { color: #76767f; font-size: 12px; text-align: center; margin-top: 4px; }
 
+    /* ── パートナー ──────────────────────────────────── */
+    .partners-section { background: #fff; padding: 78px 24px; border-top: 1px solid #eceae5; }
+    .partners-inner { max-width: 1240px; margin: 0 auto; }
+    .partners-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 14px; flex-wrap: wrap; }
+    .partners-more { color: #16161a; font-size: 13px; font-weight: 700; letter-spacing: 1px; border-bottom: 2px solid var(--main-color); padding-bottom: 4px; }
+    .partners-desc { color: #76767f; font-size: 14px; margin-bottom: 36px; }
+    .partners-logos { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; }
+    .partner-logo-item {
+      background: var(--dark); border: 1px solid #232329;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px 32px; gap: 8px; min-width: 200px; flex: 1;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .partner-logo-item:hover { border-color: var(--main-color); transform: translateY(-3px); }
+    .partner-logo-item--sm { min-width: 150px; }
+    .partner-logo-label { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 10px; letter-spacing: 2px; }
+    .partner-logo-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 20px; letter-spacing: 2px; text-align: center; line-height: 1.2; }
+    .partner-logo-item--sm .partner-logo-name { font-size: 15px; }
+
     /* ── SNS・スポンサー ─────────────────────────────── */
     .sns-sponsors { background: var(--dark2); padding: 0 24px 70px; }
     .ss-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -625,8 +644,8 @@
         <a href="results.html">試合・結果</a>
         <a href="news.html">お知らせ</a>
         <a href="team.html">選手</a>
+        <a href="partners.html">パートナー</a>
         <a href="#school">スクール・体験</a>
-        <a href="#members">クラブ員専用</a>
       </nav>
       <div class="header-actions">
         <a href="#members" class="btn-login">ログイン</a>
@@ -641,12 +660,12 @@
   <!-- モバイルナビ -->
   <nav class="mobile-nav" id="mobile-nav">
     <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
-    <a href="club.html"    class="mobile-nav-link">CLUB</a>
-    <a href="results.html" class="mobile-nav-link">試合・結果</a>
-    <a href="news.html"    class="mobile-nav-link">お知らせ</a>
-    <a href="team.html"    class="mobile-nav-link">選手</a>
-    <a href="#school"      class="mobile-nav-link">スクール・体験</a>
-    <a href="#members"     class="mobile-nav-link">クラブ員専用</a>
+    <a href="club.html"     class="mobile-nav-link">CLUB</a>
+    <a href="results.html"  class="mobile-nav-link">試合・結果</a>
+    <a href="news.html"     class="mobile-nav-link">お知らせ</a>
+    <a href="team.html"     class="mobile-nav-link">選手</a>
+    <a href="partners.html" class="mobile-nav-link">パートナー</a>
+    <a href="#school"       class="mobile-nav-link">スクール・体験</a>
     <a href="#school" class="btn-trial" style="margin-top:12px;border-radius:2px;padding:14px 32px;">体験申込</a>
   </nav>
 
@@ -823,6 +842,42 @@
     </div>
   </section>
 
+  <!-- パートナー -->
+  <section class="partners-section">
+    <div class="partners-inner">
+      <div class="partners-head">
+        <div>
+          <div class="section-en">SPONSOR &amp; PARTNER</div>
+          <h2 class="section-ja">スポンサー・パートナー</h2>
+        </div>
+        <a href="partners.html" class="partners-more">一覧を見る →</a>
+      </div>
+      <p class="partners-desc">八ヶ岳グランデフットボールクラブの活動を支えてくださっている企業・団体の皆様です。</p>
+      <div class="partners-logos">
+        <a href="https://www.athleta.co.jp/" target="_blank" rel="noopener" class="partner-logo-item">
+          <span class="partner-logo-label">OFFICIAL SPONSOR</span>
+          <span class="partner-logo-name">ATHLETA</span>
+        </a>
+        <a href="https://nofootball.base.shop/" target="_blank" rel="noopener" class="partner-logo-item">
+          <span class="partner-logo-label">OFFICIAL SPONSOR</span>
+          <span class="partner-logo-name">NOF FOOTBALL</span>
+        </a>
+        <a href="https://himawari-ichiba.com/" target="_blank" rel="noopener" class="partner-logo-item partner-logo-item--sm">
+          <span class="partner-logo-label">PARTNER</span>
+          <span class="partner-logo-name">ひまわり市場</span>
+        </a>
+        <a href="https://www.alps-hs.co.jp/" target="_blank" rel="noopener" class="partner-logo-item partner-logo-item--sm">
+          <span class="partner-logo-label">PARTNER</span>
+          <span class="partner-logo-name">株式会社アルプス</span>
+        </a>
+        <a href="https://cmic-well.com/" target="_blank" rel="noopener" class="partner-logo-item partner-logo-item--sm">
+          <span class="partner-logo-label">PARTNER</span>
+          <span class="partner-logo-name">シミックウェル</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- SNS・スポンサー -->
   <section class="sns-sponsors">
     <div class="ss-inner">
@@ -832,9 +887,10 @@
         <div class="sns-list" id="sns-list"></div>
       </div>
       <div class="ss-block">
-        <div class="ss-en">SPONSORS</div>
-        <h3 class="ss-title">スポンサー</h3>
-        <div id="sponsors-grid"></div>
+        <div class="ss-en">SUPPORT US</div>
+        <h3 class="ss-title">GRANDEを支援する</h3>
+        <p style="color:#9a9aa2;font-size:14px;line-height:1.9;margin-bottom:16px;">お金だけでなく、時間・経験・スキルなど、さまざまな形で支援できます。</p>
+        <a href="contact.html" style="display:inline-block;background:var(--main-color);color:#fff;font-size:13px;font-weight:700;letter-spacing:1px;padding:12px 20px;">支援・スポンサーについて →</a>
       </div>
     </div>
   </section>
