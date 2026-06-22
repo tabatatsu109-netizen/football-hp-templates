@@ -75,6 +75,10 @@ const ConfigLoader = (function () {
     if (el && logoSrc) {
       el.src = logoSrc;
       el.style.display = 'block';
+      var container = el.parentElement;
+      if (container && container.classList) container.classList.add('logo-has-img');
+      var letter = document.getElementById('logo-abbr');
+      if (letter) letter.style.display = 'none';
     }
   }
 

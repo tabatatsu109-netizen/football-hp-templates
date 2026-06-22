@@ -17,6 +17,8 @@
     .header-logo { display: flex; align-items: center; gap: 11px; flex: none; }
     .logo-mark { width: 38px; height: 38px; background: var(--main-color); display: flex; align-items: center; justify-content: center; transform: rotate(45deg); flex: none; }
     .logo-mark-img { width: 38px; height: 38px; object-fit: contain; display: none; }
+    .logo-mark.logo-has-img { transform: none; background: transparent; width: 44px; height: 44px; }
+    .logo-mark.logo-has-img .logo-mark-img { width: 44px; height: 44px; }
     .logo-mark-letter { transform: rotate(-45deg); font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; line-height: 1; }
     .logo-text { display: flex; flex-direction: column; line-height: 1; }
     .logo-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; letter-spacing: 1px; }
@@ -117,8 +119,7 @@
           <span class="logo-mark-letter" id="logo-abbr">G</span>
         </div>
         <div class="logo-text">
-          <span class="logo-name" id="club-name">クラブ名</span>
-          <span class="logo-sub">JUNIOR YOUTH</span>
+          <span class="logo-name" id="club-short-name">クラブ名</span>
         </div>
       </a>
       <nav class="header-nav">
