@@ -1785,9 +1785,11 @@ async function sendToGrande() {
   const btn = $('#btn-send-grande');
   if (btn) { btn.disabled = true; btn.textContent = '送信中...'; }
 
+  var GRANDE_NEWS_URL = 'https://api.jsonbin.io/v3/b/' + GRANDE_NEWS_BIN;
+
   try {
-    // ── Step 1: GET で現在の posts を取得（matches/players も保持するため）
-    var getRes = await fetch(BIN_URL + '/latest', {
+    // ── Step 1: GET で現在の posts を取得
+    var getRes = await fetch(GRANDE_NEWS_URL + '/latest', {
       headers: { 'X-Master-Key': GRANDE_API_KEY }
     });
     if (!getRes.ok) throw new Error('GET失敗: HTTP ' + getRes.status);
@@ -1809,14 +1811,14 @@ async function sendToGrande() {
       posts.unshift(newPost);
     }
 
-    // ── Step 5: PUT で { players, matches, posts } をまとめて保存
-    var putRes = await fetch(BIN_URL, {
+    // ── Step 5: PUT でニュースBinに保存
+    var putRes = await fetch(GRANDE_NEWS_URL, {
       method:  'PUT',
       headers: {
         'Content-Type': 'application/json',
         'X-Master-Key': GRANDE_API_KEY
       },
-      body: JSON.stringify({ players: players, matches: matches, posts: posts })
+      body: JSON.stringify({ posts: posts })
     });
     if (!putRes.ok) throw new Error('PUT失敗: HTTP ' + putRes.status);
     savedPosts = posts;
