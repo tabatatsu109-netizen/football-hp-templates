@@ -40,10 +40,12 @@
     .mobile-nav-close { position: absolute; top: 20px; right: 24px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
 
     /* Page Hero */
-    .page-hero { background: var(--dark2); padding: 60px 24px 50px; border-bottom: 3px solid var(--main-color); }
-    .page-hero-inner { max-width: 1240px; margin: 0 auto; }
-    .page-en { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 13px; letter-spacing: 4px; }
-    .page-title { margin: 8px 0 0 0; color: #fff; font-size: 42px; font-weight: 900; letter-spacing: 1px; font-family: 'Anton',sans-serif; }
+    .page-hero { position: relative; background: #f5f4f1; padding: 60px 24px 50px; border-bottom: 3px solid var(--main-color); overflow: hidden; }
+    .page-hero::before { content: ''; position: absolute; top: 0; left: -200px; width: 400px; height: 100%; background: linear-gradient(135deg, #1a5c2d 0%, transparent 60%); clip-path: polygon(100% 0, 0 0, 100% 100%); }
+    .page-hero::after { content: ''; position: absolute; top: 0; right: -150px; width: 300px; height: 100%; background: linear-gradient(225deg, rgba(26,92,45,0.1) 0%, transparent 70%); clip-path: polygon(0 0, 100% 0, 0 100%); }
+    .page-hero-inner { position: relative; z-index: 2; max-width: 1240px; margin: 0 auto; }
+    .page-en { font-family: 'Anton',sans-serif; color: #1a5c2d; font-size: 13px; letter-spacing: 4px; }
+    .page-title { margin: 8px 0 0 0; color: #16161a; font-size: 42px; font-weight: 900; letter-spacing: 1px; font-family: 'Anton',sans-serif; }
     .breadcrumb { margin-top: 16px; display: flex; gap: 8px; align-items: center; font-size: 12px; color: #76767f; }
     .breadcrumb a { color: #76767f; }
     .breadcrumb-sep { color: #3a3a42; }
