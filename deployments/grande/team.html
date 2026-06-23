@@ -202,46 +202,63 @@
         var logoSrc=get(c,'design.logo');
         if(logoSrc){ var li=document.getElementById('club-logo'); if(li){li.src=logoSrc;li.style.display='block';var ll=document.getElementById('logo-abbr');if(ll)ll.style.display='none';} }
 
-        // 選手
-        var players = get(c,'players') || [];
-        var pgrid = document.getElementById('players-grid');
-        if(pgrid){
-          pgrid.innerHTML = players.map(function(p){
-            var pc = posColor[p.position] || '#76767f';
-            return '<div class="player-card">'+
-              '<div class="player-photo">'+
-                '<span class="player-number">'+esc(p.number)+'</span>'+
-                '<span class="player-photo-label">選手写真</span>'+
-                '<span class="player-pos-badge" style="background:'+pc+';">'+esc(p.position)+'</span>'+
-              '</div>'+
-              '<div class="player-info">'+
-                '<div class="player-name">'+esc(p.name)+'</div>'+
-                '<div class="player-meta">'+
-                  '<span class="player-grade">'+esc(p.grade||'')+'</span>'+
-                  '<span class="player-sep">/</span>'+
-                  '<span class="player-note">'+esc(p.note||'')+'</span>'+
-                '</div>'+
-              '</div>'+
-              '</div>';
-          }).join('');
-          if(players.length===0) pgrid.innerHTML='<p style="color:#76767f;font-size:14px;padding:20px 0;">選手情報は設定ファイルに登録してください</p>';
-        }
+        // JSONBinからプレイヤーデータを読み込む
+        var binId = get(c,'playerIntegration.jsonbinBinId');
+        var apiKey = get(c,'playerIntegration.jsonbinApiKey');
 
-        // スタッフ
-        var staff = get(c,'staff') || [];
-        if(staff.length > 0){
-          document.getElementById('staff-section').style.display = 'block';
-          var sgrid = document.getElementById('staff-grid');
-          if(sgrid){
-            sgrid.innerHTML = staff.map(function(s){
-              return '<div class="staff-card">'+
-                '<div class="staff-role">'+esc(s.role||'')+'</div>'+
-                '<div class="staff-name">'+esc(s.name||'')+'</div>'+
-                (s.license?'<span class="staff-license">'+esc(s.license)+'</span>':'')+
-                '<p class="staff-comment">'+esc(s.comment||'')+'</p>'+
-                '</div>';
-            }).join('');
-          }
+        if(binId && apiKey){
+          fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest',{
+            headers:{'X-Master-Key':apiKey}
+          }).then(function(res){ return res.json(); })
+            .then(function(data){
+              var allPlayers = (data.record && data.record.players) || [];
+
+              // カテゴリー別に分類
+              var players = allPlayers.filter(function(p){ return p.category !== 'staff'; });
+              var staff = allPlayers.filter(function(p){ return p.category === 'staff'; });
+
+              // 選手表示
+              var pgrid = document.getElementById('players-grid');
+              if(pgrid){
+                pgrid.innerHTML = players.map(function(p){
+                  var pc = posColor[p.position] || '#76767f';
+                  return '<div class="player-card">'+
+                    '<div class="player-photo" '+(p.photo?'style="background-image:url('+esc(p.photo)+');background-size:cover;background-position:center top;"':'')+'>'+
+                      '<span class="player-number">'+esc(p.number||'—')+'</span>'+
+                      (p.photo?'':'<span class="player-photo-label">選手写真</span>')+
+                      '<span class="player-pos-badge" style="background:'+pc+';">'+esc(p.position||'')+'</span>'+
+                    '</div>'+
+                    '<div class="player-info">'+
+                      '<div class="player-name">'+esc(p.name||'')+'</div>'+
+                      '<div class="player-meta">'+
+                        '<span class="player-grade">'+esc(p.nameEn||'')+'</span>'+
+                      '</div>'+
+                    '</div>'+
+                    '</div>';
+                }).join('');
+                if(players.length===0) pgrid.innerHTML='<p style="color:#76767f;font-size:14px;padding:20px 0;">選手情報を読み込み中...</p>';
+              }
+
+              // スタッフ表示
+              if(staff.length > 0){
+                document.getElementById('staff-section').style.display = 'block';
+                var sgrid = document.getElementById('staff-grid');
+                if(sgrid){
+                  sgrid.innerHTML = staff.map(function(s){
+                    return '<div class="staff-card">'+
+                      '<div class="staff-role">'+esc(s.position||'')+'</div>'+
+                      '<div class="staff-name">'+esc(s.name||'')+'</div>'+
+                      '<p class="staff-comment">'+esc(s.nameEn||'')+'</p>'+
+                      '</div>';
+                  }).join('');
+                }
+              }
+            })
+            .catch(function(e){
+              console.error('Failed to load players',e);
+              var pgrid = document.getElementById('players-grid');
+              if(pgrid) pgrid.innerHTML='<p style="color:#76767f;font-size:14px;padding:20px 0;">選手情報の読み込みに失敗しました</p>';
+            });
         }
       }
     });
