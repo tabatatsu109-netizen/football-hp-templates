@@ -447,13 +447,11 @@
 </div>
 
 <script>
-// Credentials は config から読み込む
-let API_KEY = null;
-let MANAGER_PASSWORD = null;
+const API_KEY = '$2a$10$fMVrBXjLBMllbrm18CDXy.ELqnMQmZbg65x13ZhaU55B/4Tuq4Ina';
 const PLAYERS_BIN_KEY = 'grande_players_bin_id';
-let FIXED_BIN_ID = null;
+const FIXED_BIN_ID = '6a1e3d81da38895dfe79631b';
 
-let binId = null;
+let binId = FIXED_BIN_ID;
 let players = [];
 let editingId = null;
 let currentTab = 'all';
@@ -463,7 +461,7 @@ let photoData = null;
 // ===== パスワード認証 =====
 function checkPw() {
   const val = document.getElementById('pwInput').value;
-  if (val === MANAGER_PASSWORD) {
+  if (val === 'tatti109') {
     document.getElementById('pwScreen').style.display = 'none';
     sessionStorage.setItem('grande_manager_auth', '1');
   } else {
@@ -837,28 +835,7 @@ function hideLoading() {
 }
 
 // ===== 起動 =====
-// config から credentials を読み込む
-</script>
-
-<script src="js/config-loader.js"></script>
-<script>
-ConfigLoader.apply({
-  pageTitle: '選手管理',
-  onLoaded: function(c) {
-    API_KEY = ConfigLoader.get(c, 'playerIntegration.jsonbinApiKey');
-    FIXED_BIN_ID = ConfigLoader.get(c, 'playerIntegration.jsonbinBinId');
-    MANAGER_PASSWORD = ConfigLoader.get(c, 'playerManager.password');
-    binId = FIXED_BIN_ID;
-
-    if (!API_KEY || !FIXED_BIN_ID || !MANAGER_PASSWORD) {
-      console.error('Config が不完全です', { API_KEY, FIXED_BIN_ID, MANAGER_PASSWORD });
-      showToast('設定の読み込みに失敗しました', true);
-      return;
-    }
-
-    initBin();
-  }
-});
+initBin();
 </script>
 </body>
 </html>
