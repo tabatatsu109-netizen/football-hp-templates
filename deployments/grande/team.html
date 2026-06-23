@@ -48,8 +48,16 @@
     .section-en { font-family:'Anton',sans-serif; color:var(--main-color); font-size:14px; letter-spacing:4px; }
     .section-title { margin:8px 0 28px 0; color:#fff; font-size:28px; font-weight:900; letter-spacing:1px; }
 
+    .player-controls { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+    .sort-select, .category-tabs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .sort-select select { padding: 8px 12px; background: var(--dark3); border: 1px solid #222228; color: #fff; border-radius: 4px; cursor: pointer; font-family: inherit; }
+    .category-tabs button { padding: 8px 16px; background: none; border: 1px solid #222228; color: #9a9aa2; cursor: pointer; border-radius: 4px; transition: all 0.2s; font-family: inherit; }
+    .category-tabs button.active { background: var(--main-color); color: #fff; border-color: var(--main-color); }
+    .category-tabs button:hover { border-color: var(--main-color); }
+
     .players-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:18px; margin-bottom:60px; }
-    .player-card { background:var(--dark3); border:1px solid #222228; overflow:hidden; display:flex; flex-direction:column; }
+    .player-card { background:var(--dark3); border:1px solid #222228; overflow:hidden; display:flex; flex-direction:column; cursor: pointer; transition: all 0.2s; }
+    .player-card:hover { border-color: var(--main-color); transform: translateY(-4px); }
     .player-photo { position:relative; height:280px; background-image:repeating-linear-gradient(45deg,#1f1f25 0 10px,#17171c 10px 20px); background-position:center; background-size:cover; }
     .player-number { position:absolute;top:0;left:0;background:var(--main-color);color:#fff;font-family:'Anton',sans-serif;font-size:26px;line-height:1;padding:8px 12px; }
     .player-pos-badge { position:absolute;right:10px;bottom:10px;font-size:11px;font-weight:700;letter-spacing:1px;color:#fff;padding:4px 9px; }
@@ -62,11 +70,23 @@
     .player-note  { color:#9a9aa2; font-size:12px; }
 
     .staff-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-    .staff-card { background:var(--dark3); border:1px solid #222228; padding:28px; }
+    .staff-card { background:var(--dark3); border:1px solid #222228; padding:28px; cursor: pointer; transition: all 0.2s; }
+    .staff-card:hover { border-color: var(--main-color); transform: translateY(-4px); }
     .staff-role { color:var(--main-color); font-size:12px; font-weight:700; letter-spacing:2px; }
     .staff-name { color:#fff; font-size:20px; font-weight:900; letter-spacing:1px; margin:8px 0; }
     .staff-license { display:inline-block; background:#222228; color:#9a9aa2; font-size:11px; padding:4px 10px; margin-bottom:12px; }
     .staff-comment { color:#9a9aa2; font-size:14px; line-height:1.75; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .modal.show { display: flex; }
+    .modal-content { background: var(--dark3); border: 1px solid #222228; border-radius: 8px; padding: 32px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; }
+    .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
+    .modal-photo { width: 100%; height: 300px; background-image: repeating-linear-gradient(45deg,#1f1f25 0 10px,#17171c 10px 20px); background-position: center; background-size: cover; border-radius: 4px; margin-bottom: 20px; }
+    .modal-title { color: #fff; font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+    .modal-subtitle { color: #9a9aa2; font-size: 14px; margin-bottom: 20px; }
+    .modal-field { margin-bottom: 16px; }
+    .modal-label { color: var(--main-color); font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    .modal-value { color: #fff; font-size: 14px; }
 
     .site-footer { background:var(--dark);padding:54px 24px 30px;border-top:3px solid var(--main-color); }
     .footer-inner { max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap; }
@@ -88,9 +108,11 @@
       .players-grid { grid-template-columns:repeat(2,1fr); }
       .staff-grid   { grid-template-columns:1fr; }
       .footer-inner { flex-direction:column;gap:32px; }
+      .player-controls { flex-direction: column; }
     }
     @media (max-width:600px) {
       .players-grid { grid-template-columns:1fr; }
+      .modal-content { padding: 20px; }
     }
   </style>
 </head>
@@ -145,14 +167,48 @@
     <div>
       <div class="section-en">PLAYERS</div>
       <h2 class="section-title">選手のプロフィール</h2>
+
+      <div class="player-controls">
+        <div class="sort-select">
+          <label style="color:#9a9aa2; font-size:12px;">表示順:</label>
+          <select id="sort-select">
+            <option value="number">背番号順</option>
+            <option value="grade">学年順</option>
+            <option value="position">ポジション順</option>
+          </select>
+        </div>
+        <div class="category-tabs">
+          <button class="category-btn active" data-category="all">全員</button>
+          <button class="category-btn" data-category="jy">ジュニアユース</button>
+          <button class="category-btn" data-category="jr">ジュニア</button>
+          <button class="category-btn" data-category="staff">スタッフ</button>
+        </div>
+      </div>
+
       <div class="players-grid" id="players-grid"></div>
     </div>
-    <div id="staff-section" style="display:none;">
-      <div class="section-en">STAFF</div>
-      <h2 class="section-title">スタッフ</h2>
-      <div class="staff-grid" id="staff-grid"></div>
-    </div>
   </main>
+
+  <div class="modal" id="player-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div class="modal-photo" id="modal-photo"></div>
+      <h2 class="modal-title" id="modal-name"></h2>
+      <p class="modal-subtitle" id="modal-nameEn"></p>
+      <div class="modal-field">
+        <div class="modal-label">背番号</div>
+        <div class="modal-value" id="modal-number"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">ポジション</div>
+        <div class="modal-value" id="modal-position"></div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">学年</div>
+        <div class="modal-value" id="modal-grade"></div>
+      </div>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div class="footer-inner">
@@ -191,7 +247,98 @@
     document.getElementById('mobile-nav-close').addEventListener('click',function(){ document.getElementById('mobile-nav').classList.remove('open'); });
 
     var posColor = { GK:'#b8870b', DF:'#2a6fd6', MF:'#1f8a4c', FW:'var(--main-color)' };
+    var allPlayersData = [];
+    var currentSort = 'number';
+    var currentCategory = 'all';
+
     function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    function getSortedPlayers(){
+      var filtered = allPlayersData.filter(function(p){
+        if(currentCategory === 'all') return p.category !== 'staff';
+        return p.category === currentCategory;
+      });
+
+      filtered.sort(function(a,b){
+        if(currentSort === 'number'){
+          return (parseInt(a.number)||999) - (parseInt(b.number)||999);
+        } else if(currentSort === 'grade'){
+          var gradeOrder = {'中1':1,'中2':2,'中3':3,'小1':10,'小2':11,'小3':12,'小4':13,'小5':14,'小6':15};
+          var aGrade = gradeOrder[a.grade] || 999;
+          var bGrade = gradeOrder[b.grade] || 999;
+          return aGrade - bGrade;
+        } else if(currentSort === 'position'){
+          var posOrder = {'GK':1,'DF':2,'MF':3,'FW':4};
+          return (posOrder[a.position]||5) - (posOrder[b.position]||5);
+        }
+      });
+      return filtered;
+    }
+
+    function renderPlayers(){
+      var players = getSortedPlayers();
+      var pgrid = document.getElementById('players-grid');
+      if(pgrid){
+        pgrid.innerHTML = players.map(function(p){
+          var pc = posColor[p.position] || '#76767f';
+          return '<div class="player-card" onclick="showPlayerDetail(\''+esc(p.id)+'\')">'+
+            '<div class="player-photo" '+(p.photo?'style="background-image:url('+esc(p.photo)+');background-size:cover;background-position:center top;"':'')+'>'+
+              '<span class="player-number">'+esc(p.number||'—')+'</span>'+
+              (p.photo?'':'<span class="player-photo-label">選手写真</span>')+
+              '<span class="player-pos-badge" style="background:'+pc+';">'+esc(p.position||'')+'</span>'+
+            '</div>'+
+            '<div class="player-info">'+
+              '<div class="player-name">'+esc(p.name||'')+'</div>'+
+              '<div class="player-meta">'+
+                '<span class="player-grade">'+esc(p.nameEn||'')+'</span>'+
+              '</div>'+
+            '</div>'+
+            '</div>';
+        }).join('');
+        if(players.length===0) pgrid.innerHTML='<p style="color:#76767f;font-size:14px;padding:20px 0;">該当する選手がいません</p>';
+      }
+    }
+
+    function showPlayerDetail(id){
+      var player = allPlayersData.find(function(p){ return p.id === id; });
+      if(!player) return;
+      document.getElementById('modal-name').textContent = player.name || '';
+      document.getElementById('modal-nameEn').textContent = player.nameEn || '';
+      document.getElementById('modal-number').textContent = player.number || '—';
+      document.getElementById('modal-position').textContent = player.position || '—';
+      document.getElementById('modal-grade').textContent = player.grade || '—';
+      var photoDiv = document.getElementById('modal-photo');
+      if(player.photo){
+        photoDiv.style.backgroundImage = 'url('+esc(player.photo)+')';
+        photoDiv.style.backgroundSize = 'cover';
+        photoDiv.style.backgroundPosition = 'center top';
+      } else {
+        photoDiv.style.backgroundImage = '';
+      }
+      document.getElementById('player-modal').classList.add('show');
+    }
+
+    function closeModal(){
+      document.getElementById('player-modal').classList.remove('show');
+    }
+
+    document.getElementById('sort-select').addEventListener('change', function(e){
+      currentSort = e.target.value;
+      renderPlayers();
+    });
+
+    document.querySelectorAll('.category-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.category-btn').forEach(function(b){ b.classList.remove('active'); });
+        this.classList.add('active');
+        currentCategory = this.dataset.category;
+        renderPlayers();
+      });
+    });
+
+    document.getElementById('player-modal').addEventListener('click', function(e){
+      if(e.target === this) closeModal();
+    });
 
     ConfigLoader.apply({
       pageTitle: '選手・スタッフ',
@@ -202,7 +349,6 @@
         var logoSrc=get(c,'design.logo');
         if(logoSrc){ var li=document.getElementById('club-logo'); if(li){li.src=logoSrc;li.style.display='block';var ll=document.getElementById('logo-abbr');if(ll)ll.style.display='none';} }
 
-        // JSONBinからプレイヤーデータを読み込む
         var binId = '6a3a1805da38895dfeef91b0';
         var apiKey = '$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq';
 
@@ -211,48 +357,8 @@
             headers:{'X-Master-Key':apiKey}
           }).then(function(res){ return res.json(); })
             .then(function(data){
-              var allPlayers = (data.record && data.record.players) || [];
-
-              // カテゴリー別に分類
-              var players = allPlayers.filter(function(p){ return p.category !== 'staff'; });
-              var staff = allPlayers.filter(function(p){ return p.category === 'staff'; });
-
-              // 選手表示
-              var pgrid = document.getElementById('players-grid');
-              if(pgrid){
-                pgrid.innerHTML = players.map(function(p){
-                  var pc = posColor[p.position] || '#76767f';
-                  return '<div class="player-card">'+
-                    '<div class="player-photo" '+(p.photo?'style="background-image:url('+esc(p.photo)+');background-size:cover;background-position:center top;"':'')+'>'+
-                      '<span class="player-number">'+esc(p.number||'—')+'</span>'+
-                      (p.photo?'':'<span class="player-photo-label">選手写真</span>')+
-                      '<span class="player-pos-badge" style="background:'+pc+';">'+esc(p.position||'')+'</span>'+
-                    '</div>'+
-                    '<div class="player-info">'+
-                      '<div class="player-name">'+esc(p.name||'')+'</div>'+
-                      '<div class="player-meta">'+
-                        '<span class="player-grade">'+esc(p.nameEn||'')+'</span>'+
-                      '</div>'+
-                    '</div>'+
-                    '</div>';
-                }).join('');
-                if(players.length===0) pgrid.innerHTML='<p style="color:#76767f;font-size:14px;padding:20px 0;">選手情報を読み込み中...</p>';
-              }
-
-              // スタッフ表示
-              if(staff.length > 0){
-                document.getElementById('staff-section').style.display = 'block';
-                var sgrid = document.getElementById('staff-grid');
-                if(sgrid){
-                  sgrid.innerHTML = staff.map(function(s){
-                    return '<div class="staff-card">'+
-                      '<div class="staff-role">'+esc(s.position||'')+'</div>'+
-                      '<div class="staff-name">'+esc(s.name||'')+'</div>'+
-                      '<p class="staff-comment">'+esc(s.nameEn||'')+'</p>'+
-                      '</div>';
-                  }).join('');
-                }
-              }
+              allPlayersData = (data.record && data.record.players) || [];
+              renderPlayers();
             })
             .catch(function(e){
               console.error('Failed to load players',e);
