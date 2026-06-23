@@ -64,7 +64,7 @@
     .shop-info { padding: 16px; }
     .shop-name { color: #fff; font-size: 14px; font-weight: 900; margin-bottom: 8px; }
     .shop-price { color: var(--main-color); font-size: 16px; font-weight: 900; margin-bottom: 12px; }
-    .shop-btn { width: 100%; padding: 10px; background: var(--main-color); color: #fff; border: none; border-radius: 2px; cursor: pointer; font-weight: 700; font-size: 12px; }
+    .shop-btn { display: block; width: 100%; padding: 10px; background: var(--main-color); color: #fff; border: none; border-radius: 2px; cursor: pointer; font-weight: 700; font-size: 12px; text-align: center; }
     .shop-btn:hover { opacity: 0.9; }
 
     .site-footer { background: var(--dark); padding: 54px 24px 30px; border-top: 3px solid var(--main-color); margin-top: 60px; }
@@ -100,6 +100,7 @@
         <a href="results.html">試合・結果</a>
         <a href="news.html">お知らせ</a>
         <a href="team.html">選手</a>
+        <a href="itemshop.html">ショップ</a>
       </nav>
       <div class="header-actions">
         <button class="btn-logout" onclick="handleLogout()">ログアウト</button>
@@ -222,7 +223,7 @@
           <div class="shop-info">
             <div class="shop-name">ユニフォーム</div>
             <div class="shop-price">¥8,800</div>
-            <button class="shop-btn">詳細を見る</button>
+            <a href="itemshop.html" class="shop-btn">詳細を見る</a>
           </div>
         </div>
         <div class="shop-item">
@@ -230,7 +231,7 @@
           <div class="shop-info">
             <div class="shop-name">キャップ</div>
             <div class="shop-price">¥2,500</div>
-            <button class="shop-btn">詳細を見る</button>
+            <a href="itemshop.html" class="shop-btn">詳細を見る</a>
           </div>
         </div>
         <div class="shop-item">
@@ -238,7 +239,7 @@
           <div class="shop-info">
             <div class="shop-name">メダルセット</div>
             <div class="shop-price">¥5,500</div>
-            <button class="shop-btn">詳細を見る</button>
+            <a href="itemshop.html" class="shop-btn">詳細を見る</a>
           </div>
         </div>
         <div class="shop-item">
@@ -246,7 +247,7 @@
           <div class="shop-info">
             <div class="shop-name">ボール</div>
             <div class="shop-price">¥6,800</div>
-            <button class="shop-btn">詳細を見る</button>
+            <a href="itemshop.html" class="shop-btn">詳細を見る</a>
           </div>
         </div>
       </div>
