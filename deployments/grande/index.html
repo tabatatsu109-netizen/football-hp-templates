@@ -1269,21 +1269,17 @@
       observer.observe(el);
     });
 
-    // Random Background Image Sections
-    var imageFiles = ['assets/logo3.jpg'];
-    var sections = document.querySelectorAll('.news-section, .philosophy, .match-section');
-    sections.forEach(function(sec, idx) {
-      if (Math.random() > 0.5) {
-        var bgSec = document.createElement('div');
-        bgSec.className = 'bg-image-section reveal';
-        bgSec.style.backgroundImage = 'url(' + imageFiles[Math.floor(Math.random() * imageFiles.length)] + ')';
-        bgSec.innerHTML = '<div class="bg-image-overlay"></div>';
-        if (sec.nextSibling) {
-          sec.parentNode.insertBefore(bgSec, sec.nextSibling);
-        } else {
-          sec.parentNode.appendChild(bgSec);
-        }
-        observer.observe(bgSec);
+    // Parallax: Text fades out as you scroll, leaving only background image
+    var heroSection = document.getElementById('top');
+    var heroContent = document.querySelector('.hero-content');
+    var tickerBar = document.querySelector('.ticker-bar');
+    window.addEventListener('scroll', function() {
+      if (heroSection && heroContent) {
+        var scrollPos = window.scrollY;
+        var heroHeight = heroSection.offsetHeight;
+        var progress = Math.min(scrollPos / (heroHeight * 0.7), 1);
+        heroContent.style.opacity = Math.max(1 - progress, 0);
+        if (tickerBar) tickerBar.style.opacity = Math.max(1 - progress, 0);
       }
     });
   </script>
