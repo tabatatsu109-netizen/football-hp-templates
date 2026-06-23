@@ -137,7 +137,7 @@
     <div class="page-hero-inner">
       <div class="page-en">PLAYERS</div>
       <h1 class="page-title">選手・スタッフ</h1>
-      <div class="breadcrumb"><a href="index.html">HOME</a><span style="color:#3a3a42;">›</span><span>選手・スタッフ</span></div>
+      <div class="breadcrumb"><a href="index.html">HOME</a><span style="color:#3a3a42;">›</span><span>選手・スタッフ</span><span style="margin-left:auto;"><a href="grande_player_manager.html" style="color:#76767f;font-size:11px;padding:4px 8px;border:1px solid rgba(255,255,255,0.2);border-radius:2px;text-decoration:none;">⚙️ 管理者向け</a></span></div>
     </div>
   </div>
 
@@ -204,7 +204,7 @@
 
         // JSONBinからプレイヤーデータを読み込む
         var binId = get(c,'playerIntegration.jsonbinBinId');
-        var apiKey = '$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq';
+        var apiKey = get(c,'playerIntegration.jsonbinApiKey');
 
         if(binId){
           fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest',{

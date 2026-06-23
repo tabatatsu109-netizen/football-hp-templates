@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>選手管理│GRANDE FC</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,800;0,900;1,900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --green:#1A6B3C; --green-dark:#0F4526; --green-deep:#071A0F;
+    --gold:#D4A820; --gold-light:#E8C040;
+    --white:#FFFFFF; --off-white:#F4F7FB;
+    --gray:#8A9BB0; --text:#0D1B2A; --border:#DDE4EF;
+    --red:#C0392B; --red-light:#FDECEA;
+  }
+  body { font-family:'Noto Sans JP',sans-serif; background:var(--off-white); color:var(--text); min-height:100vh; }
+
+  /* HEADER */
+  header {
+    background:var(--green-deep); padding:0 2rem; height:60px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:2px solid var(--gold); position:sticky; top:0; z-index:100;
+  }
+  .header-title {
+    display:flex; align-items:center; gap:12px;
+  }
+  .header-title .icon {
+    width:36px; height:36px; background:var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+  }
+  .header-title h1 {
+    font-family:'Barlow Condensed',sans-serif; font-size:20px;
+    font-weight:900; color:var(--white); letter-spacing:1px;
+  }
+  .header-title h1 span { color:var(--gold); }
+  .header-right { display:flex; align-items:center; gap:10px; }
+  .sync-status { font-size:12px; color:rgba(255,255,255,0.5); display:flex; align-items:center; gap:6px; }
+  .sync-dot { width:8px; height:8px; border-radius:50%; background:var(--gray); }
+  .sync-dot.synced { background:#2ECC71; }
+  .sync-dot.syncing { background:var(--gold); animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* LAYOUT */
+  .app { display:grid; grid-template-columns:320px 1fr; min-height:calc(100vh - 60px); }
+  @media(max-width:768px){ .app{grid-template-columns:1fr;} }
+
+  /* SIDEBAR */
+  .sidebar {
+    background:var(--white); border-right:1px solid var(--border);
+    display:flex; flex-direction:column;
+  }
+  .sidebar-head {
+    padding:16px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .sidebar-head h2 { font-size:13px; font-weight:700; color:var(--text); letter-spacing:0.5px; }
+  .btn-add {
+    background:var(--green); color:var(--white);
+    border:none; padding:8px 14px; font-size:13px; font-weight:700;
+    font-family:'Noto Sans JP',sans-serif; cursor:pointer;
+    display:flex; align-items:center; gap:6px; transition:all 0.2s;
+  }
+  .btn-add:hover { background:var(--green-dark); }
+
+  /* TAB FILTER */
+  .tab-bar { display:flex; border-bottom:1px solid var(--border); }
+  .tab-btn {
+    flex:1; padding:10px 4px; border:none; background:none;
+    font-size:11px; font-weight:700; letter-spacing:1px; color:var(--gray);
+    cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s;
+    font-family:'Barlow Condensed',sans-serif;
+  }
+  .tab-btn.active { color:var(--green); border-bottom-color:var(--gold); }
+
+  /* PLAYER LIST */
+  .player-list { flex:1; overflow-y:auto; }
+  .player-item {
+    padding:12px 16px; border-bottom:1px solid var(--border);
+    cursor:pointer; display:flex; align-items:center; gap:12px;
+    transition:background 0.15s;
+  }
+  .player-item:hover { background:var(--off-white); }
+  .player-item.active { background:#EEF7F2; border-left:3px solid var(--green); }
+  .player-num {
+    background:var(--green); color:var(--white);
+    font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:900;
+    width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .player-num.staff { background:var(--green-deep); }
+  .player-info { flex:1; min-width:0; }
+  .player-name { font-size:14px; font-weight:700; color:var(--text); }
+  .player-meta { font-size:11px; color:var(--gray); margin-top:1px; }
+  .player-pos {
+    font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
+    letter-spacing:1px; padding:2px 6px;
+  }
+  .pos-GK { background:#FEF3E2; color:#854F0B; }
+  .pos-DF { background:#E8F5EE; color:var(--green-dark); }
+  .pos-MF { background:#E8F5EE; color:var(--green-dark); }
+  .pos-FW { background:#FDECEA; color:var(--red); }
+  .pos-staff { background:#F0E8FF; color:#5A3E8A; }
+
+  .empty-list { padding:40px 16px; text-align:center; color:var(--gray); font-size:13px; }
+
+  /* MAIN */
+  .main { padding:0; display:flex; flex-direction:column; }
+
+  /* FORM PANEL */
+  .form-panel {
+    flex:1; padding:28px 32px; overflow-y:auto;
+    display:none;
+  }
+  .form-panel.show { display:block; }
+
+  .form-panel-title {
+    font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900;
+    color:var(--text); margin-bottom:4px;
+  }
+  .form-panel-sub { font-size:13px; color:var(--gray); margin-bottom:24px; }
+
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:900px){ .form-grid{grid-template-columns:1fr;} }
+
+  .form-group { margin-bottom:4px; }
+  .form-group.full { grid-column:1/-1; }
+  .form-label { display:block; font-size:12px; font-weight:700; color:var(--gray); margin-bottom:5px; letter-spacing:0.5px; }
+  .form-label .req { color:var(--gold); }
+  .form-input, .form-select {
+    width:100%; padding:10px 12px;
+    border:1px solid var(--border); background:var(--white);
+    color:var(--text); font-family:'Noto Sans JP',sans-serif; font-size:14px;
+    outline:none; transition:border-color 0.2s; border-radius:0; appearance:none;
+  }
+  .form-input:focus, .form-select:focus { border-color:var(--green); }
+
+  /* PHOTO UPLOAD */
+  .photo-upload {
+    border:2px dashed var(--border); padding:20px;
+    text-align:center; cursor:pointer; transition:all 0.2s;
+    position:relative;
+  }
+  .photo-upload:hover { border-color:var(--green); background:#F0F7F3; }
+  .photo-upload input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .photo-preview { width:100%; max-height:200px; object-fit:cover; object-position:center top; display:none; }
+  .photo-placeholder { color:var(--gray); font-size:13px; }
+  .photo-placeholder .icon { font-size:32px; margin-bottom:6px; }
+
+  /* FORM ACTIONS */
+  .form-actions { display:flex; gap:10px; margin-top:24px; flex-wrap:wrap; }
+  .btn-save {
+    background:var(--green); color:var(--white); border:none;
+    padding:12px 28px; font-size:14px; font-weight:900;
+    font-family:'Noto Sans JP',sans-serif; cursor:pointer; transition:all 0.2s;
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+  }
+  .btn-save:hover { background:var(--green-dark); }
+  .btn-save:disabled { background:var(--gray); cursor:not-allowed; }
+  .btn-cancel {
+    background:none; color:var(--gray); border:1px solid var(--border);
+    padding:12px 20px; font-size:14px; font-weight:500;
+    font-family:'Noto Sans JP',sans-serif; cursor:pointer; transition:all 0.2s;
+  }
+  .btn-cancel:hover { border-color:var(--gray); color:var(--text); }
+  .btn-delete {
+    background:none; color:var(--red); border:1px solid var(--red);
+    padding:12px 20px; font-size:14px; font-weight:700;
+    font-family:'Noto Sans JP',sans-serif; cursor:pointer; transition:all 0.2s;
+    margin-left:auto;
+  }
+  .btn-delete:hover { background:var(--red-light); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:40px; text-align:center; color:var(--gray);
+  }
+  .empty-state .big-icon { font-size:64px; margin-bottom:16px; opacity:0.4; }
+  .empty-state h3 { font-size:18px; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .empty-state p { font-size:13px; line-height:1.8; }
+
+  /* TOAST */
+  .toast {
+    position:fixed; bottom:24px; right:24px; z-index:999;
+    background:var(--green-deep); color:var(--white);
+    padding:12px 20px; font-size:13px; font-weight:700;
+    border-left:3px solid var(--gold);
+    transform:translateY(80px); opacity:0;
+    transition:all 0.3s ease;
+    pointer-events:none;
+  }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.error { border-left-color:var(--red); }
+
+  /* LOADING OVERLAY */
+  .loading-overlay {
+    position:fixed; inset:0; background:rgba(7,26,15,0.7);
+    display:none; align-items:center; justify-content:center; z-index:200;
+    flex-direction:column; gap:12px;
+  }
+  .loading-overlay.show { display:flex; }
+  .spinner { width:36px; height:36px; border:3px solid rgba(255,255,255,0.2); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loading-text { color:var(--white); font-size:13px; }
+
+  /* PASSWORD SCREEN */
+  .pw-screen {
+    position:fixed; inset:0; z-index:999;
+    background:var(--green-deep);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .pw-card {
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(212,168,32,0.2);
+    width:100%; max-width:360px;
+    padding:36px 28px;
+    animation: cardIn 0.4s ease;
+  }
+  @keyframes cardIn {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .pw-icon { font-size:40px; text-align:center; margin-bottom:14px; }
+  .pw-title {
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:28px; font-weight:900; color:var(--white);
+    text-align:center; margin-bottom:4px;
+  }
+  .pw-title span { color:var(--gold); }
+  .pw-desc { font-size:13px; color:rgba(255,255,255,0.5); text-align:center; margin-bottom:24px; }
+  .pw-input-wrap { position:relative; margin-bottom:10px; }
+  .pw-input {
+    width:100%; padding:13px 44px 13px 14px;
+    background:rgba(255,255,255,0.07);
+    border:1px solid rgba(255,255,255,0.15);
+    color:var(--white); font-size:16px;
+    font-family:'Noto Sans JP',sans-serif;
+    outline:none; transition:border-color 0.2s;
+  }
+  .pw-input:focus { border-color:var(--gold); }
+  .pw-input.shake { animation:shake 0.4s ease; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%,60%{transform:translateX(-6px)}
+    40%,80%{transform:translateX(6px)}
+  }
+  .pw-toggle {
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    background:none; border:none; color:rgba(255,255,255,0.4);
+    cursor:pointer; font-size:18px; transition:color 0.2s;
+  }
+  .pw-toggle:hover { color:var(--gold); }
+  .pw-error { font-size:12px; color:#FF8A8A; min-height:18px; margin-bottom:14px; }
+  .pw-btn {
+    width:100%; padding:14px;
+    background:var(--gold); color:var(--green-deep);
+    border:none; font-size:14px; font-weight:900;
+    font-family:'Noto Sans JP',sans-serif; cursor:pointer;
+    transition:all 0.2s;
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+  }
+  .pw-btn:hover { background:var(--gold-light); }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div class="pw-screen" id="pwScreen">
+  <div class="pw-card">
+    <div class="pw-icon">🔐</div>
+    <div class="pw-title">選手管理 <span>GRANDE</span></div>
+    <p class="pw-desc">管理者のみアクセスできます</p>
+    <div class="pw-input-wrap">
+      <input class="pw-input" type="password" id="pwInput" placeholder="パスワードを入力"
+        onkeydown="if(event.key==='Enter')checkPw()">
+      <button class="pw-toggle" onclick="togglePw()">👁</button>
+    </div>
+    <div class="pw-error" id="pwError"></div>
+    <button class="pw-btn" onclick="checkPw()">ログイン →</button>
+  </div>
+</div>
+
+<header>
+  <div class="header-title">
+    <div class="icon">⚽</div>
+    <h1>選手管理 <span>GRANDE FC</span></h1>
+  </div>
+  <div class="header-right" style="display:flex;align-items:center;gap:16px;">
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:6px;">
+      <span>BIN ID:</span>
+      <span id="binIdDisplay" style="color:var(--gold);font-family:monospace;font-size:11px;">取得中...</span>
+      <button onclick="copyBinId()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);padding:2px 8px;font-size:11px;cursor:pointer;border-radius:2px;">コピー</button>
+    </div>
+    <div class="sync-status">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncText">接続中...</span>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <h2>選手・スタッフ一覧</h2>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-add" onclick="document.getElementById('csvInput').click()" style="background:var(--green-dark);font-size:12px;padding:8px 10px;" title="CSVで一括インポート">📥 CSV</button>
+        <button class="btn-add" onclick="newPlayer()">＋ 追加</button>
+      </div>
+      <input type="file" id="csvInput" accept=".csv" style="display:none;" onchange="importCSV(this)">
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="setTab('all',this)">すべて</button>
+      <button class="tab-btn" onclick="setTab('jy',this)">JY</button>
+      <button class="tab-btn" onclick="setTab('jr',this)">JR</button>
+      <button class="tab-btn" onclick="setTab('staff',this)">スタッフ</button>
+    </div>
+    <div class="player-list" id="playerList"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+    <div style="padding:12px 16px; border-bottom:1px solid var(--border); background:#F9FCF9;">
+      <button onclick="downloadTemplate()" style="width:100%;padding:8px;border:1px dashed var(--green);background:none;color:var(--green);font-size:12px;font-weight:700;cursor:pointer;border-radius:2px;">
+        📄 CSVテンプレートをダウンロード
+      </button>
+    </div>
+    <div class="empty-state" id="emptyState">
+      <div class="big-icon">👤</div>
+      <h3>選手を選択または追加</h3>
+      <p>左のリストから選手を選ぶか、<br>「＋ 追加」ボタンで新規登録してください。</p>
+    </div>
+
+    <div class="form-panel" id="formPanel">
+      <div class="form-panel-title" id="formTitle">新規追加</div>
+      <div class="form-panel-sub" id="formSub">選手情報を入力してください</div>
+
+      <div class="form-grid">
+        <!-- 写真 -->
+        <div class="form-group full">
+          <label class="form-label">プロフィール写真URL</label>
+          <div style="display:flex; gap:8px; margin-bottom:8px;">
+            <input class="form-input" type="url" id="photoUrl" placeholder="Googleドライブのリンクをここにペースト" oninput="onUrlInput(this.value)" onpaste="setTimeout(()=>onUrlInput(this.value),50)" onchange="onUrlInput(this.value)" style="flex:1;">
+            <button type="button" onclick="clearPhoto()" style="padding:10px 12px; border:1px solid var(--border); background:none; color:var(--gray); cursor:pointer; font-size:12px; white-space:nowrap;">クリア</button>
+          </div>
+          <div id="photoPreviewWrap" style="display:none; margin-bottom:8px;">
+            <img id="photoPreview" src="" alt="" style="width:100%; max-height:200px; object-fit:cover; object-position:center top; display:block;">
+          </div>
+          <div style="background:#F0F7F3; border:1px solid #C8E6D4; padding:10px 12px; font-size:12px; color:#0F4526; line-height:1.9;">
+            <strong>📱 Googleドライブからの手順</strong><br>
+            ① ドライブアプリで写真を開く<br>
+            ② 右上「︙」→「リンクをコピー」<br>
+            ③ 上の欄に貼り付けるだけ！
+          </div>
+        </div>
+
+        <!-- 名前 -->
+        <div class="form-group">
+          <label class="form-label">名前 <span class="req">必須</span></label>
+          <input class="form-input" type="text" id="fName" placeholder="山田 太郎">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ローマ字</label>
+          <input class="form-input" type="text" id="fNameEn" placeholder="TARO YAMADA">
+        </div>
+
+        <!-- 学年 -->
+        <div class="form-group full">
+          <label class="form-label">学年</label>
+          <select class="form-select" id="fGrade">
+            <option value="">選択してください</option>
+            <optgroup label="ジュニアユース">
+              <option value="中1">中1</option>
+              <option value="中2">中2</option>
+              <option value="中3">中3</option>
+            </optgroup>
+            <optgroup label="ジュニア">
+              <option value="小1">小1</option>
+              <option value="小2">小2</option>
+              <option value="小3">小3</option>
+              <option value="小4">小4</option>
+              <option value="小5">小5</option>
+              <option value="小6">小6</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- 背番号・ポジション -->
+        <div class="form-group">
+          <label class="form-label">背番号</label>
+          <input class="form-input" type="number" id="fNumber" placeholder="10" min="1" max="99">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ポジション <span class="req">必須</span></label>
+          <select class="form-select" id="fPosition">
+            <option value="">選択してください</option>
+            <optgroup label="フィールドプレーヤー">
+              <option value="GK">GK</option>
+              <option value="DF">DF</option>
+              <option value="MF">MF</option>
+              <option value="FW">FW</option>
+            </optgroup>
+            <optgroup label="スタッフ">
+              <option value="代表">代表</option>
+              <option value="Jy監督">Jy監督</option>
+              <option value="Jr監督">Jr監督</option>
+              <option value="コーチ">コーチ</option>
+              <option value="GKコーチ">GKコーチ</option>
+              <option value="トレーナー">トレーナー</option>
+              <option value="マネージャー">マネージャー</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- カテゴリー -->
+        <div class="form-group full">
+          <label class="form-label">カテゴリー <span class="req">必須</span></label>
+          <select class="form-select" id="fCategory">
+            <option value="">選択してください</option>
+            <option value="jy">ジュニアユース</option>
+            <option value="jr">ジュニア</option>
+            <option value="staff">スタッフ</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-save" id="btnSave" onclick="savePlayer()">保存する</button>
+        <button class="btn-cancel" onclick="closeForm()">キャンセル</button>
+        <button class="btn-delete" id="btnDelete" onclick="deletePlayer()" style="display:none;">削除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">保存中...</div>
+</div>
+
+<script>
+// Credentials は config から読み込む
+let API_KEY = null;
+let MANAGER_PASSWORD = null;
+const PLAYERS_BIN_KEY = 'grande_players_bin_id';
+let FIXED_BIN_ID = null;
+
+let binId = null;
+let players = [];
+let editingId = null;
+let currentTab = 'all';
+let photoData = null;
+
+
+// ===== パスワード認証 =====
+function checkPw() {
+  const val = document.getElementById('pwInput').value;
+  if (val === MANAGER_PASSWORD) {
+    document.getElementById('pwScreen').style.display = 'none';
+    sessionStorage.setItem('grande_manager_auth', '1');
+  } else {
+    document.getElementById('pwError').textContent = 'パスワードが違います';
+    const inp = document.getElementById('pwInput');
+    inp.classList.add('shake');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('shake'), 400);
+  }
+}
+
+function togglePw() {
+  const inp = document.getElementById('pwInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// 認証済みチェック
+if (sessionStorage.getItem('grande_manager_auth') === '1') {
+  document.getElementById('pwScreen').style.display = 'none';
+  sessionStorage.setItem('grande_manager_auth', '1');
+}
+
+
+// ===== CSVインポート =====
+async function importCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const text = await file.text();
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) { showToast('データがありません', true); return; }
+
+  const rows = lines.slice(1);
+  const newPlayers = [];
+
+  rows.forEach(row => {
+    const cols = row.match(/(".*?"|[^,]+)(?=,|$)/g) || row.split(',');
+    const clean = cols.map(c => c.replace(/^"|"$/g, '').trim());
+
+    const name     = clean[0] || '';
+    const nameEn   = clean[1] || '';
+    const number   = clean[2] || '';
+    const position = clean[3] || '';
+    const grade    = clean[4] || '';
+
+    if (!name) return;
+
+    let category = 'jr';
+    if (grade.startsWith('中') || ['Jy監督','Jr監督','コーチ','GKコーチ','トレーナー','マネージャー','代表'].includes(position)) {
+      category = grade.startsWith('中') ? 'jy' : 'staff';
+    }
+    if (['代表','Jy監督','Jr監督','コーチ','GKコーチ','トレーナー','マネージャー'].includes(position)) {
+      category = 'staff';
+    }
+
+    newPlayers.push({
+      id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+      name, nameEn, number, position, grade, category,
+      photo: null,
+      updatedAt: new Date().toISOString()
+    });
+  });
+
+  if (!newPlayers.length) { showToast('有効なデータがありません', true); return; }
+
+  if (!confirm(`${newPlayers.length}人の選手をインポートします。既存データに追加されます。よろしいですか？`)) return;
+
+  showLoading(`${newPlayers.length}人をインポート中...`);
+  try {
+    players = [...players, ...newPlayers];
+    await savePlayers();
+    renderList();
+    showToast(`${newPlayers.length}人をインポートしました！`);
+    setSyncStatus('synced', '同期済み');
+  } catch(e) {
+    showToast('インポートに失敗しました', true);
+  } finally {
+    hideLoading();
+    input.value = '';
+  }
+}
+
+// ===== CSVテンプレートダウンロード =====
+function downloadTemplate() {
+  const header = '名前,ローマ字,背番号,ポジション,学年';
+  const sample = [
+    '田畑辰朗,TATSURO TABATA,10,DF,中2',
+    '山田太郎,TARO YAMADA,9,FW,小6',
+    '田畑雅宏,MASAHIRO TABATA,,代表,'
+  ].join('\n');
+  const bom = '﻿';
+  const content = bom + header + '\n' + sample;
+  const encoded = encodeURIComponent(content);
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encoded;
+  a.download = 'grande_players_template.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ===== BIN 初期化 =====
+async function initBin() {
+  setSyncStatus('syncing', '接続中...');
+  localStorage.setItem(PLAYERS_BIN_KEY, binId);
+  await loadPlayers();
+}
+
+// ===== データ読み込み =====
+async function loadPlayers() {
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    const json = await res.json();
+    players = json.record.players || [];
+    renderList();
+    setSyncStatus('synced', '同期済み');
+    updateBinDisplay();
+  } catch(e) {
+    setSyncStatus('error', 'エラー');
+    showToast('データの読み込みに失敗しました', true);
+  }
+}
+
+// ===== データ保存 =====
+async function savePlayers() {
+  const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': API_KEY
+    },
+    body: JSON.stringify({ players })
+  });
+  if (!res.ok) throw new Error('Save failed');
+}
+
+// ===== リスト描画 =====
+function renderList() {
+  const list = document.getElementById('playerList');
+  const filtered = currentTab === 'all' ? players : players.filter(p => p.category === currentTab);
+
+  const order = { staff:0, jy:1, jr:2 };
+  filtered.sort((a,b) => {
+    if ((order[a.category]||9) !== (order[b.category]||9)) return (order[a.category]||9) - (order[b.category]||9);
+    return (parseInt(a.number)||99) - (parseInt(b.number)||99);
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-list">選手がいません</div>';
+    return;
+  }
+
+  const posClass = { GK:'pos-GK', DF:'pos-DF', MF:'pos-MF', FW:'pos-FW' };
+  const catLabel = { jy:'JY', jr:'JR', staff:'STAFF' };
+
+  list.innerHTML = filtered.map(p => `
+    <div class="player-item ${editingId === p.id ? 'active' : ''}" onclick="editPlayer('${p.id}')">
+      <div class="player-num ${p.category === 'staff' ? 'staff' : ''}">${p.number || '—'}</div>
+      <div class="player-info">
+        <div class="player-name">${p.name || '名前未設定'}</div>
+        <div class="player-meta">${catLabel[p.category]||''} ${p.nameEn ? '/ ' + p.nameEn : ''}</div>
+      </div>
+      <span class="player-pos ${posClass[p.position] || 'pos-staff'}">${p.position || ''}</span>
+    </div>
+  `).join('');
+}
+
+// ===== タブ切替 =====
+function setTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+// ===== 新規追加 =====
+function newPlayer() {
+  editingId = null;
+  photoData = null;
+  document.getElementById('formTitle').textContent = '新規追加';
+  document.getElementById('formSub').textContent = '選手情報を入力してください';
+  document.getElementById('fName').value = '';
+  document.getElementById('fNameEn').value = '';
+  document.getElementById('fNumber').value = '';
+  document.getElementById('fPosition').value = '';
+  document.getElementById('fCategory').value = '';
+  document.getElementById('fGrade').value = '';
+  document.getElementById('photoUrl').value = '';
+  document.getElementById('photoPreviewWrap').style.display = 'none';
+  document.getElementById('btnDelete').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('formPanel').classList.add('show');
+}
+
+// ===== 編集 =====
+function editPlayer(id) {
+  const p = players.find(x => x.id === id);
+  if (!p) return;
+  editingId = id;
+  photoData = p.photo || null;
+
+  document.getElementById('formTitle').textContent = p.name || '選手編集';
+  document.getElementById('formSub').textContent = '情報を編集して保存してください';
+  document.getElementById('fName').value = p.name || '';
+  document.getElementById('fNameEn').value = p.nameEn || '';
+  document.getElementById('fNumber').value = p.number || '';
+  document.getElementById('fPosition').value = p.position || '';
+  document.getElementById('fCategory').value = p.category || '';
+  document.getElementById('fGrade').value = p.grade || '';
+
+  if (p.photo) {
+    document.getElementById('photoUrl').value = p.photo;
+    document.getElementById('photoPreview').src = p.photo;
+    document.getElementById('photoPreviewWrap').style.display = 'block';
+  } else {
+    document.getElementById('photoUrl').value = '';
+    document.getElementById('photoPreviewWrap').style.display = 'none';
+  }
+
+  document.getElementById('btnDelete').style.display = 'block';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('formPanel').classList.add('show');
+  renderList();
+}
+
+// ===== 写真プレビュー =====
+function convertDriveUrl(url) {
+  if (!url) return null;
+  const m1 = url.match(/\/file\/d\/([^\/\?]+)/);
+  if (m1) return 'https://lh3.googleusercontent.com/d/' + m1[1];
+  const m2 = url.match(/[?&]id=([^&]+)/);
+  if (m2) return 'https://lh3.googleusercontent.com/d/' + m2[1];
+  const m3 = url.match(/uc\?export=view&id=([^&]+)/);
+  if (m3) return 'https://lh3.googleusercontent.com/d/' + m3[1];
+  if (url.startsWith('http')) return url;
+  return null;
+}
+
+function onUrlInput(val) {
+  const converted = convertDriveUrl(val.trim());
+  if (converted) {
+    photoData = converted;
+    document.getElementById('photoPreview').src = converted;
+    document.getElementById('photoPreviewWrap').style.display = 'block';
+  } else {
+    photoData = null;
+    document.getElementById('photoPreviewWrap').style.display = 'none';
+  }
+}
+
+function clearPhoto() {
+  photoData = null;
+  document.getElementById('photoUrl').value = '';
+  document.getElementById('photoPreviewWrap').style.display = 'none';
+}
+
+// ===== 保存 =====
+async function savePlayer() {
+  const name = document.getElementById('fName').value.trim();
+  const pos  = document.getElementById('fPosition').value;
+  const cat  = document.getElementById('fCategory').value;
+
+  if (!name) { showToast('名前を入力してください', true); return; }
+  if (!pos)  { showToast('ポジションを選択してください', true); return; }
+  if (!cat)  { showToast('カテゴリーを選択してください', true); return; }
+
+  const playerData = {
+    id: editingId || 'p_' + Date.now(),
+    name,
+    nameEn: document.getElementById('fNameEn').value.trim(),
+    number: document.getElementById('fNumber').value,
+    position: pos,
+    category: cat,
+    photo: photoData || null,
+    updatedAt: new Date().toISOString()
+  };
+
+  showLoading('保存中...');
+  setSyncStatus('syncing', '保存中...');
+
+  try {
+    if (editingId) {
+      const idx = players.findIndex(p => p.id === editingId);
+      if (idx !== -1) players[idx] = playerData;
+    } else {
+      players.push(playerData);
+    }
+    await savePlayers();
+    setSyncStatus('synced', '同期済み');
+    showToast(editingId ? '更新しました！' : '追加しました！');
+    editingId = playerData.id;
+    renderList();
+    document.getElementById('formTitle').textContent = playerData.name;
+    document.getElementById('btnDelete').style.display = 'block';
+  } catch(e) {
+    showToast('保存に失敗しました', true);
+    setSyncStatus('error', 'エラー');
+  } finally {
+    hideLoading();
+  }
+}
+
+// ===== 削除 =====
+async function deletePlayer() {
+  if (!editingId) return;
+  const p = players.find(x => x.id === editingId);
+  if (!confirm(`「${p?.name || '選手'}」を削除しますか？`)) return;
+
+  showLoading('削除中...');
+  try {
+    players = players.filter(x => x.id !== editingId);
+    await savePlayers();
+    showToast('削除しました');
+    closeForm();
+    renderList();
+  } catch(e) {
+    showToast('削除に失敗しました', true);
+  } finally {
+    hideLoading();
+  }
+}
+
+// ===== フォームを閉じる =====
+function closeForm() {
+  editingId = null;
+  document.getElementById('formPanel').classList.remove('show');
+  document.getElementById('emptyState').style.display = 'flex';
+  renderList();
+}
+
+// ===== UI ヘルパー =====
+function copyBinId() {
+  const id = localStorage.getItem(PLAYERS_BIN_KEY);
+  if (!id) { showToast('Bin IDがまだありません', true); return; }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(id).then(() => showToast('Bin IDをコピーしました！'));
+  } else {
+    prompt('Bin IDをコピーしてください：', id);
+  }
+}
+
+function updateBinDisplay() {
+  const id = localStorage.getItem(PLAYERS_BIN_KEY);
+  const el = document.getElementById('binIdDisplay');
+  if (el) el.textContent = id ? id : 'なし';
+}
+
+function setSyncStatus(state, text) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot ' + (state === 'synced' ? 'synced' : state === 'syncing' ? 'syncing' : '');
+  txt.textContent = text;
+}
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showLoading(msg='処理中...') {
+  document.getElementById('loadingText').textContent = msg;
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+// ===== 起動 =====
+// config から credentials を読み込む
+</script>
+
+<script src="js/config-loader.js"></script>
+<script>
+ConfigLoader.apply({
+  pageTitle: '選手管理',
+  onLoaded: function(c) {
+    API_KEY = ConfigLoader.get(c, 'playerIntegration.jsonbinApiKey');
+    FIXED_BIN_ID = ConfigLoader.get(c, 'playerIntegration.jsonbinBinId');
+    MANAGER_PASSWORD = ConfigLoader.get(c, 'playerManager.password');
+    binId = FIXED_BIN_ID;
+
+    if (!API_KEY || !FIXED_BIN_ID || !MANAGER_PASSWORD) {
+      console.error('Config が不完全です', { API_KEY, FIXED_BIN_ID, MANAGER_PASSWORD });
+      showToast('設定の読み込みに失敗しました', true);
+      return;
+    }
+
+    initBin();
+  }
+});
+</script>
+</body>
+</html>

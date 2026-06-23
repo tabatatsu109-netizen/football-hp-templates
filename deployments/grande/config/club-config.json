@@ -113,7 +113,12 @@
   },
 
   "playerIntegration": {
-    "jsonbinBinId": "6a1e3d81da38895dfe79631b"
+    "jsonbinBinId": "6a1e3d81da38895dfe79631b",
+    "jsonbinApiKey": "$2a$10$fMVrBXjLBMllbrm18CDXy.ELqnMQmZbg65x13ZhaU55B/4Tuq4Ina"
+  },
+
+  "playerManager": {
+    "password": "tatti109"
   },
 
   "features": {
