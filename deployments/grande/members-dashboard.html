@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クラブ員専用ページ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --main-color: #e3001b; --dark: #0a0a0c; --dark2: #0e0e11; --dark3: #141418; --light: #f5f4f1; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN',sans-serif; background: var(--dark); color: #16161a; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+
+    .site-header { position: sticky; top: 0; z-index: 50; background: rgba(12,12,14,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .header-inner { max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 74px; display: flex; align-items: center; gap: 20px; }
+    .header-logo { display: flex; align-items: center; gap: 11px; flex: none; }
+    .logo-mark { width: 38px; height: 38px; background: var(--main-color); display: flex; align-items: center; justify-content: center; transform: rotate(45deg); flex: none; }
+    .logo-mark-img { width: 38px; height: 38px; object-fit: contain; display: none; }
+    .logo-mark.logo-has-img { transform: none; background: transparent; width: 44px; height: 44px; }
+    .logo-mark.logo-has-img .logo-mark-img { width: 44px; height: 44px; }
+    .logo-mark-letter { transform: rotate(-45deg); font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; line-height: 1; }
+    .logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .logo-name-img { height: 30px; object-fit: contain; }
+    .header-nav { flex: 1; display: flex; justify-content: center; gap: 22px; }
+    .header-nav a { color: #dcdce0; font-size: 13px; font-weight: 500; letter-spacing: 1px; }
+    .header-actions { display: flex; align-items: center; gap: 12px; flex: none; }
+    .btn-logout { background: var(--main-color); color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 1px; padding: 11px 20px; border-radius: 2px; cursor: pointer; border: none; }
+    .hamburger { display: none; }
+
+    .page-hero { background: var(--dark2); padding: 60px 24px 50px; border-bottom: 3px solid var(--main-color); }
+    .page-hero-inner { max-width: 1240px; margin: 0 auto; }
+    .page-title { margin: 0; color: #fff; font-size: 42px; font-weight: 900; letter-spacing: 1px; font-family: 'Anton',sans-serif; }
+
+    .main-content { max-width: 1240px; margin: 0 auto; padding: 60px 24px; }
+    .content-section { margin-bottom: 60px; }
+    .section-title { color: #fff; font-size: 24px; font-weight: 900; letter-spacing: 1px; margin-bottom: 28px; }
+    .section-desc { color: #a6a6ad; font-size: 14px; line-height: 1.8; margin-bottom: 24px; }
+
+    .item-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .item-card { background: var(--dark2); border: 1px solid #232329; border-radius: 4px; padding: 28px; }
+    .item-label { color: var(--main-color); font-size: 12px; font-weight: 700; letter-spacing: 2px; margin-bottom: 12px; }
+    .item-title { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 1px; margin-bottom: 10px; }
+    .item-desc { color: #76767f; font-size: 13px; line-height: 1.8; margin-bottom: 16px; }
+    .item-link { display: inline-block; color: var(--main-color); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+
+    .site-footer { background: var(--dark); padding: 54px 24px 30px; border-top: 3px solid var(--main-color); margin-top: 60px; }
+    .footer-inner { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+    .footer-club-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; letter-spacing: 1px; }
+    .footer-tagline { margin: 18px 0 0 0; color: #76767f; font-size: 13px; line-height: 1.9; }
+    .footer-col-title { color: var(--main-color); font-family: 'Anton',sans-serif; font-size: 12px; letter-spacing: 2px; }
+    .footer-col a { color: #b6b6bc; font-size: 13px; }
+    .footer-copy { color: #55555c; font-size: 11px; letter-spacing: 1px; }
+
+    @media (max-width: 900px) {
+      .header-nav { display: none; }
+      .hamburger { display: flex; }
+      .item-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo">
+        <div class="logo-mark">
+          <img id="club-logo" class="logo-mark-img" src="" alt="ロゴ">
+          <span class="logo-mark-letter" id="logo-abbr">G</span>
+        </div>
+        <div class="logo-text">
+          <img id="club-short-name" src="assets/logo2.png" alt="八ヶ岳グランデFC" class="logo-name-img" style="height:30px;object-fit:contain;">
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="club.html">CLUB</a>
+        <a href="results.html">試合・結果</a>
+        <a href="news.html">お知らせ</a>
+        <a href="team.html">選手</a>
+      </nav>
+      <div class="header-actions">
+        <button class="btn-logout" onclick="handleLogout()">ログアウト</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <h1 class="page-title">クラブ員専用ページ</h1>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <div class="content-section">
+      <h2 class="section-title">練習・試合スケジュール</h2>
+      <div class="item-grid">
+        <div class="item-card">
+          <div class="item-label">SCHEDULE</div>
+          <div class="item-title">週間練習予定</div>
+          <div class="item-desc">月～日の練習スケジュール、時間、場所をご確認ください。</div>
+          <a href="#" class="item-link">詳細を見る →</a>
+        </div>
+        <div class="item-card">
+          <div class="item-label">MATCH</div>
+          <div class="item-title">試合日程</div>
+          <div class="item-desc">今月の試合スケジュール、会場、チーム編成情報。</div>
+          <a href="#" class="item-link">詳細を見る →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2 class="section-title">資料・書類ダウンロード</h2>
+      <div class="item-grid">
+        <div class="item-card">
+          <div class="item-label">DOCUMENT</div>
+          <div class="item-title">規則・ルール</div>
+          <div class="item-desc">クラブ規則、サッカー規則などの資料をダウンロード。</div>
+          <a href="#" class="item-link">ダウンロード →</a>
+        </div>
+        <div class="item-card">
+          <div class="item-label">DOCUMENT</div>
+          <div class="item-title">会議資料</div>
+          <div class="item-desc">保護者会議やチーム会議の資料をご確認ください。</div>
+          <a href="#" class="item-link">ダウンロード →</a>
+        </div>
+        <div class="item-card">
+          <div class="item-label">MANAGEMENT</div>
+          <div class="item-title">連絡先管理</div>
+          <div class="item-desc">クラブスタッフ、チーム関係者の連絡先一覧。</div>
+          <a href="#" class="item-link">確認する →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2 class="section-title">動画・写真</h2>
+      <div class="item-grid">
+        <div class="item-card">
+          <div class="item-label">VIDEO</div>
+          <div class="item-title">試合映像</div>
+          <div class="item-desc">過去の試合映像をご覧いただけます。</div>
+          <a href="#" class="item-link">見る →</a>
+        </div>
+        <div class="item-card">
+          <div class="item-label">PHOTO</div>
+          <div class="item-title">練習・試合写真</div>
+          <div class="item-desc">練習や試合の写真ギャラリー。</div>
+          <a href="#" class="item-link">見る →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <span class="footer-club-name" id="footer-club-name">クラブ名</span>
+        <p class="footer-tagline" id="footer-tagline">八ヶ岳を拠点とするジュニアユースクラブ。</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© <span id="footer-year"></span> <span id="footer-club-name-copy">クラブ名</span>. ALL RIGHTS RESERVED.</span>
+    </div>
+  </footer>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    function handleLogout() {
+      localStorage.removeItem('memberLoggedIn');
+      localStorage.removeItem('memberLoginTime');
+      alert('ログアウトしました');
+      window.location.href = 'members.html';
+    }
+
+    // ログイン確認
+    if (!localStorage.getItem('memberLoggedIn')) {
+      window.location.href = 'members.html';
+    }
+
+    ConfigLoader.apply({
+      pageTitle: 'クラブ員専用ページ',
+      onLoaded: function(c){
+        function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
+        var abbr=get(c,'club.abbreviation')||(get(c,'club.shortName')||'?')[0];
+        document.getElementById('logo-abbr').textContent=abbr;
+        var logoSrc=get(c,'design.logo');
+        if(logoSrc){ var li=document.getElementById('club-logo'); if(li){li.src=logoSrc;li.style.display='block';document.getElementById('logo-abbr').style.display='none';} }
+      }
+    });
+  </script>
+</body>
+</html>
