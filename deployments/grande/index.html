@@ -625,6 +625,27 @@
       .score-num     { font-size: 22px; }
       .news-row      { grid-template-columns: 80px 1fr; }
     }
+
+    /* PICK UP PLAYER */
+    .pickup-section { background: var(--dark2); padding: 80px 24px; border-bottom: 3px solid var(--main-color); }
+    .pickup-inner { max-width: 1240px; margin: 0 auto; }
+    .pickup-head { margin-bottom: 48px; }
+    .pickup-head .section-en { display: block; font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 14px; letter-spacing: 4px; }
+    .pickup-head h2 { margin-top: 8px; color: #fff; font-size: 42px; font-weight: 900; letter-spacing: 1px; }
+    .pickup-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .pickup-card { position: relative; height: 480px; border: 1px solid #222228; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+    .pickup-card:hover { border-color: var(--main-color); transform: translateY(-8px); }
+    .pickup-card-bg { position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg,#1f1f25 0 10px,#17171c 10px 20px); background-position: center; background-size: cover; }
+    .pickup-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
+    .pickup-card-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px; color: #fff; z-index: 2; }
+    .pickup-card-number { font-family: 'Anton',sans-serif; font-size: 64px; font-weight: 900; line-height: 1; color: var(--main-color); opacity: 0.8; margin-bottom: 8px; }
+    .pickup-card-name { font-size: 22px; font-weight: 900; letter-spacing: 1px; margin-bottom: 4px; }
+    .pickup-card-pos { font-size: 12px; color: #b6b6bc; }
+
+    @media (max-width: 900px) {
+      .pickup-grid { grid-template-columns: 1fr; }
+      .pickup-head h2 { font-size: 32px; }
+    }
   </style>
 </head>
 <body>
@@ -769,6 +790,19 @@
         <a href="news.html" class="news-more">一覧を見る →</a>
       </div>
       <div id="news-list">
+        <p class="no-data">読み込み中...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PICK UP PLAYER -->
+  <section id="pickup" class="pickup-section">
+    <div class="pickup-inner">
+      <div class="pickup-head">
+        <div class="section-en">PICK UP</div>
+        <h2 class="section-ja-dark">注目選手</h2>
+      </div>
+      <div class="pickup-grid" id="pickup-grid">
         <p class="no-data">読み込み中...</p>
       </div>
     </div>
@@ -1163,6 +1197,40 @@
         var accessInfo = get(c, 'contact.access') || '';
         var accessInfoEl = document.getElementById('access-access');
         if (accessInfoEl) accessInfoEl.textContent = accessInfo;
+
+        // PICK UP PLAYER
+        var playerBinId = '6a3a1805da38895dfeef91b0';
+        var playerApiKey = '$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq';
+        if(playerBinId){
+          fetch('https://api.jsonbin.io/v3/b/'+playerBinId+'/latest',{
+            headers:{'X-Master-Key':playerApiKey}
+          }).then(function(res){ return res.json(); })
+            .then(function(data){
+              var allPlayers = (data.record && data.record.players) || [];
+              var players = allPlayers.filter(function(p){ return p.category !== 'staff'; });
+
+              // ランダムに3人を選択
+              function shuffle(arr){ for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp; } return arr; }
+              var shuffled = shuffle(players.slice());
+              var pickupPlayers = shuffled.slice(0, 3);
+
+              var pgrid = document.getElementById('pickup-grid');
+              if(pgrid){
+                pgrid.innerHTML = pickupPlayers.map(function(p){
+                  return '<div class="pickup-card" style="'+(p.photo?'background-image:url('+esc(p.photo)+');background-size:cover;background-position:center top;':'')+'">' +
+                    '<div class="pickup-card-bg"></div>' +
+                    '<div class="pickup-card-overlay"></div>' +
+                    '<div class="pickup-card-content">' +
+                      '<div class="pickup-card-number">'+esc(p.number||'—')+'</div>' +
+                      '<div class="pickup-card-name">'+esc(p.name||'')+'</div>' +
+                      '<div class="pickup-card-pos">'+esc(p.position||'')+'</div>' +
+                    '</div>' +
+                  '</div>';
+                }).join('');
+              }
+            })
+            .catch(function(e){ console.error('Failed to load pickup players',e); });
+        }
       }
     });
   </script>
