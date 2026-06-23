@@ -45,6 +45,29 @@
     .item-desc { color: #76767f; font-size: 13px; line-height: 1.8; margin-bottom: 16px; }
     .item-link { display: inline-block; color: var(--main-color); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
 
+    .calendar-tabs { display: flex; gap: 12px; margin-bottom: 28px; }
+    .calendar-tab { padding: 12px 24px; background: var(--dark2); border: 1px solid #232329; border-radius: 4px; cursor: pointer; color: #76767f; font-weight: 700; transition: all 0.2s; }
+    .calendar-tab.active { background: var(--main-color); color: #fff; border-color: var(--main-color); }
+    .calendar-container { display: none; }
+    .calendar-container.active { display: block; }
+    .calendar-iframe { width: 100%; height: 600px; border: 1px solid #232329; border-radius: 4px; }
+
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .video-card { background: var(--dark2); border: 1px solid #232329; border-radius: 4px; overflow: hidden; }
+    .video-thumbnail { width: 100%; height: 180px; background: #000; position: relative; cursor: pointer; }
+    .video-info { padding: 16px; }
+    .video-title { color: #fff; font-size: 14px; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .video-play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: var(--main-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px; }
+
+    .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .shop-item { background: var(--dark2); border: 1px solid #232329; border-radius: 4px; overflow: hidden; }
+    .shop-image { width: 100%; height: 160px; background: #1a1a1f; display: flex; align-items: center; justify-content: center; color: #55555c; font-size: 48px; }
+    .shop-info { padding: 16px; }
+    .shop-name { color: #fff; font-size: 14px; font-weight: 900; margin-bottom: 8px; }
+    .shop-price { color: var(--main-color); font-size: 16px; font-weight: 900; margin-bottom: 12px; }
+    .shop-btn { width: 100%; padding: 10px; background: var(--main-color); color: #fff; border: none; border-radius: 2px; cursor: pointer; font-weight: 700; font-size: 12px; }
+    .shop-btn:hover { opacity: 0.9; }
+
     .site-footer { background: var(--dark); padding: 54px 24px 30px; border-top: 3px solid var(--main-color); margin-top: 60px; }
     .footer-inner { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
     .footer-club-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; letter-spacing: 1px; }
@@ -135,19 +158,115 @@
     </div>
 
     <div class="content-section">
-      <h2 class="section-title">動画・写真</h2>
-      <div class="item-grid">
-        <div class="item-card">
-          <div class="item-label">VIDEO</div>
-          <div class="item-title">試合映像</div>
-          <div class="item-desc">過去の試合映像をご覧いただけます。</div>
-          <a href="#" class="item-link">見る →</a>
+      <h2 class="section-title">スケジュールカレンダー</h2>
+      <div class="calendar-tabs">
+        <button class="calendar-tab active" data-calendar="u15">ジュニアユース（U-15）</button>
+        <button class="calendar-tab" data-calendar="u12">ジュニア（U-12）</button>
+      </div>
+      <div class="calendar-container active" id="calendar-u15">
+        <iframe class="calendar-iframe" src="https://calendar.google.com/calendar/embed?src=a3F1a2FhanY5bXVvZzdhNWNwNnR0Z29uN2tAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&ctz=Asia%2FTokyo" style="border: 0" allowfullscreen="" loading="lazy"></iframe>
+      </div>
+      <div class="calendar-container" id="calendar-u12">
+        <iframe class="calendar-iframe" src="https://calendar.google.com/calendar/embed?src=ZGFjdmFmc2t1OW41NDBhaWZxdWxhMDdpbmNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&ctz=Asia%2FTokyo" style="border: 0" allowfullscreen="" loading="lazy"></iframe>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2 class="section-title">モチベーション動画</h2>
+      <p class="section-desc">グランデの試合映像やハイライトをご覧ください。</p>
+      <div class="video-grid">
+        <div class="video-card">
+          <div class="video-thumbnail" onclick="playVideo('GOheWb7Clu8')">
+            <img src="https://img.youtube.com/vi/GOheWb7Clu8/maxresdefault.jpg" style="width:100%;height:100%;object-fit:cover;">
+            <div class="video-play-btn">▶</div>
+          </div>
+          <div class="video-info">
+            <div class="video-title">ウィナーズカップ2025</div>
+          </div>
         </div>
-        <div class="item-card">
-          <div class="item-label">PHOTO</div>
-          <div class="item-title">練習・試合写真</div>
-          <div class="item-desc">練習や試合の写真ギャラリー。</div>
-          <a href="#" class="item-link">見る →</a>
+        <div class="video-card">
+          <div class="video-thumbnail" onclick="playVideo('nyggtqdo93k')">
+            <img src="https://img.youtube.com/vi/nyggtqdo93k/maxresdefault.jpg" style="width:100%;height:100%;object-fit:cover;">
+            <div class="video-play-btn">▶</div>
+          </div>
+          <div class="video-info">
+            <div class="video-title">ウィナーズカップ2025 FINAL</div>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumbnail" onclick="playVideo('eXjbI2FItIk')">
+            <img src="https://img.youtube.com/vi/eXjbI2FItIk/maxresdefault.jpg" style="width:100%;height:100%;object-fit:cover;">
+            <div class="video-play-btn">▶</div>
+          </div>
+          <div class="video-info">
+            <div class="video-title">高円宮杯2024</div>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumbnail" onclick="playVideo('CiqpImT08Yc')">
+            <img src="https://img.youtube.com/vi/CiqpImT08Yc/maxresdefault.jpg" style="width:100%;height:100%;object-fit:cover;">
+            <div class="video-play-btn">▶</div>
+          </div>
+          <div class="video-info">
+            <div class="video-title">ウィナーズカップ2023 Final</div>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumbnail" onclick="playVideo('8FDbPVfFNLM')">
+            <img src="https://img.youtube.com/vi/8FDbPVfFNLM/maxresdefault.jpg" style="width:100%;height:100%;object-fit:cover;">
+            <div class="video-play-btn">▶</div>
+          </div>
+          <div class="video-info">
+            <div class="video-title">高円宮杯2023</div>
+          </div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumbnail" onclick="playVideo('S5C40M5O3MQ')">
+            <img src="https://img.youtube.com/vi/S5C40M5O3MQ/maxresdefault.jpg" style="width:100%;height:100%;object-fit:cover;">
+            <div class="video-play-btn">▶</div>
+          </div>
+          <div class="video-info">
+            <div class="video-title">ウィナーズカップ2022</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2 class="section-title">グッズショップ</h2>
+      <p class="section-desc">グランデオフィシャルグッズをお買い求めいただけます。</p>
+      <div class="shop-grid">
+        <div class="shop-item">
+          <div class="shop-image">👕</div>
+          <div class="shop-info">
+            <div class="shop-name">ユニフォーム</div>
+            <div class="shop-price">¥8,800</div>
+            <button class="shop-btn">詳細を見る</button>
+          </div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-image">🧢</div>
+          <div class="shop-info">
+            <div class="shop-name">キャップ</div>
+            <div class="shop-price">¥2,500</div>
+            <button class="shop-btn">詳細を見る</button>
+          </div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-image">🏅</div>
+          <div class="shop-info">
+            <div class="shop-name">メダルセット</div>
+            <div class="shop-price">¥5,500</div>
+            <button class="shop-btn">詳細を見る</button>
+          </div>
+        </div>
+        <div class="shop-item">
+          <div class="shop-image">⚽</div>
+          <div class="shop-info">
+            <div class="shop-name">ボール</div>
+            <div class="shop-price">¥6,800</div>
+            <button class="shop-btn">詳細を見る</button>
+          </div>
         </div>
       </div>
     </div>
@@ -179,6 +298,22 @@
     // ログイン確認
     if (!localStorage.getItem('memberLoggedIn')) {
       window.location.href = 'members.html';
+    }
+
+    // カレンダータブ切り替え
+    document.querySelectorAll('.calendar-tab').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        document.querySelectorAll('.calendar-tab').forEach(function(t){ t.classList.remove('active'); });
+        document.querySelectorAll('.calendar-container').forEach(function(c){ c.classList.remove('active'); });
+        this.classList.add('active');
+        var cal = this.dataset.calendar;
+        document.getElementById('calendar-' + cal).classList.add('active');
+      });
+    });
+
+    // YouTube動画再生（新しいタブで開く）
+    function playVideo(videoId) {
+      window.open('https://youtu.be/' + videoId, '_blank');
     }
 
     ConfigLoader.apply({
