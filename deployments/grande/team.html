@@ -203,8 +203,8 @@
         if(logoSrc){ var li=document.getElementById('club-logo'); if(li){li.src=logoSrc;li.style.display='block';var ll=document.getElementById('logo-abbr');if(ll)ll.style.display='none';} }
 
         // JSONBinからプレイヤーデータを読み込む
-        var binId = get(c,'playerIntegration.jsonbinBinId');
-        var apiKey = get(c,'playerIntegration.jsonbinApiKey');
+        var binId = '6a3a1805da38895dfeef91b0';
+        var apiKey = '$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq';
 
         if(binId){
           fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest',{
