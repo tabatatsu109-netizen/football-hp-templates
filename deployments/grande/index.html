@@ -651,6 +651,22 @@
       .pickup-grid { grid-template-columns: 1fr; }
       .pickup-head h2 { font-size: 32px; }
     }
+
+    /* Scroll Reveal Animation */
+    @keyframes revealFadeIn {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; }
+    .reveal.active { animation: revealFadeIn 0.8s ease-out forwards; }
+
+    /* Random Background Image Sections */
+    .bg-image-section {
+      position: relative; min-height: 300px; background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+      margin: 40px 0;
+    }
+    .bg-image-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(26,92,45,0.5)); }
   </style>
 </head>
 <body>
@@ -1235,6 +1251,39 @@
             })
             .catch(function(e){ console.error('Failed to load pickup players',e); });
         }
+      }
+    });
+
+    // Scroll Reveal Animation
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.news-section, .philosophy, .match-section, .players-section, .pickup-section').forEach(function(el) {
+      el.classList.add('reveal');
+      observer.observe(el);
+    });
+
+    // Random Background Image Sections
+    var imageFiles = ['assets/logo3.jpg'];
+    var sections = document.querySelectorAll('.news-section, .philosophy, .match-section');
+    sections.forEach(function(sec, idx) {
+      if (Math.random() > 0.5) {
+        var bgSec = document.createElement('div');
+        bgSec.className = 'bg-image-section reveal';
+        bgSec.style.backgroundImage = 'url(' + imageFiles[Math.floor(Math.random() * imageFiles.length)] + ')';
+        bgSec.innerHTML = '<div class="bg-image-overlay"></div>';
+        if (sec.nextSibling) {
+          sec.parentNode.insertBefore(bgSec, sec.nextSibling);
+        } else {
+          sec.parentNode.appendChild(bgSec);
+        }
+        observer.observe(bgSec);
       }
     });
   </script>
