@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>八ヶ岳グランデFC OFFICIAL SHOP</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Noto Sans JP',sans-serif;background:#f2f5f2;color:#111}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:inherit;outline:none}
+input,select,textarea{font-family:inherit}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:16px}
+.flt-wrap{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.flt-wrap::-webkit-scrollbar{display:none}
+.size-wrap{display:flex;gap:5px;flex-wrap:wrap}
+.cart-group{padding:12px 0;border-bottom:1px solid #f0f0f0}
+.olist{display:flex;flex-direction:column;gap:8px}
+.dc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.st-szs{display:flex;gap:6px;flex-wrap:wrap}
+.sf-wrap{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
+.sc-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+@media(max-width:600px){.frow{grid-template-columns:1fr!important}}
+@media print{
+  body>*{display:none!important}
+  #inv{display:block!important;padding:32px;font-family:'Noto Sans JP',sans-serif}
+  #inv table{width:100%;border-collapse:collapse}
+  #inv th{background:#1a6b2f;color:#fff;padding:8px;text-align:left;font-size:13px}
+  #inv td{padding:7px 8px;font-size:13px;border-bottom:1px solid #eee}
+  #inv .meta td{border:1px solid #ddd;padding:5px 8px}
+  #inv .meta td:first-child{background:#f0faf0;font-weight:700;width:110px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="inv" style="display:none"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ───────── DATA ───────── */
+var PRODS = [
+  {id:1,name:"ユニフォーム（緑）",brand:"ATHLETA",desc:"公式戦の際に必要。1〜3年生はプラユニでも可。",price:8600,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
+  {id:2,name:"ユニフォーム（白）",brand:"ATHLETA",desc:"公式戦の際に必要。1〜3年生はプラユニでも可。",price:8600,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
+  {id:3,name:"プラクティスシャツ（白）",brand:"ATHLETA",desc:"練習時や試合前のアップ時に着用できます。",price:4800,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:true,reqJU:true},
+  {id:4,name:"ゲームパンツ（白）",brand:"ATHLETA",desc:"公式戦・練習時に使用。",price:5200,cat:"ボトムス",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
+  {id:5,name:"ソックス（緑）",brand:"ATHLETA",desc:"",price:1800,cat:"ソックス",sizes:["19-21","19-21（2足）","22-24","22-24（2足）","25-27","25-27（2足）"],reqJ:true,reqJU:true},
+  {id:6,name:"ソックス（白）",brand:"ATHLETA",desc:"",price:1800,cat:"ソックス",sizes:["19-21","19-21（2足）","22-24","22-24（2足）","25-27","25-27（2足）"],reqJ:true,reqJU:true},
+  {id:7,name:"ソックス（赤）",brand:"ATHLETA",desc:"※GKの選手のみ",price:1800,cat:"ソックス",sizes:["19-21","19-21（2足）","22-24","22-24（2足）","25-27","25-27（2足）"],reqJ:true,reqJU:true},
+  {id:8,name:"リバーシブルビブス",brand:"ATHLETA",desc:"",price:2500,cat:"その他",sizes:["ジュニアサイズ","ジュニアユースサイズ"],reqJ:true,reqJU:true},
+  {id:9,name:"バックパック",brand:"ATHLETA",desc:"クラブマーク付き。練習・試合・遠征時に。",price:9500,cat:"バッグ",sizes:["1個"],reqJ:true,reqJU:true},
+  {id:10,name:"ポロシャツ（ネイビー）",brand:"ATHLETA",desc:"※ATHLETAではありません。カラー：ネイビー",price:3500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:true},
+  {id:11,name:"プラユニ（緑）",brand:"ノーブランド",desc:"練習試合の際、ユニフォームとして着用できます。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
+  {id:12,name:"プラユニ（白）",brand:"ノーブランド",desc:"練習試合の際、ユニフォームとして着用できます。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
+  {id:13,name:"プラユニ（赤）",brand:"ノーブランド",desc:"練習試合・GK用。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
+  {id:14,name:"プラユニ（黄）",brand:"ノーブランド",desc:"練習試合・GK用。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
+  {id:15,name:"半袖プラクティスシャツ（白）",brand:"ノーブランド",desc:"練習時や着替え等に。※公式戦はATHLETAをご着用ください。",price:3200,cat:"トップス",sizes:["120","130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
+  {id:16,name:"長袖プラクティスシャツ（白）",brand:"ノーブランド",desc:"練習時や着替え等に。※公式戦はATHLETAをご着用ください。",price:3500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:false},
+  {id:17,name:"スウェット上下",brand:"ノーブランド",desc:"体育館練習や遠征先の部屋着等にも着用できます。",price:6500,cat:"セットアップ",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:false},
+  {id:18,name:"パーカー（選手用）",brand:"ノーブランド",desc:"合宿の部屋着や練習後の着替え等に着用できます。",price:4500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:false}
+];
+
+var CATS = ["すべて","ユニフォーム","トップス","ボトムス","ソックス","バッグ","セットアップ","その他"];
+var TEAMS = ["ジュニア（U-12）","ジュニアユース（U-15）","スクール"];
+var PAYS = ["現金払い","銀行振込","PayPay"];
+var STS = ["未確認","確認済み","発注済み","入荷済み","受け渡し完了"];
+var ST_COLORS = ["#F59E0B","#3B82F6","#8B5CF6","#10B981","#9CA3AF"];
+var ADM_PW = "grande2024";
+
+function fmt(n){ return "¥" + n.toLocaleString(); }
+function fmtD(d){ return new Date(d).toLocaleDateString("ja-JP",{year:"numeric",month:"2-digit",day:"2-digit"}); }
+function genId(){ return "ORD-" + Date.now().toString(36).toUpperCase(); }
+
+var DEMO_ORDERS = [
+  {id:"ORD-DEMO001",date:new Date(Date.now()-86400000*2).toISOString(),pName:"田中 花子",sName:"田中 翔",cat:"ジュニア（U-12）",email:"tanaka@example.com",items:[{pid:1,pname:"ユニフォーム（緑）",size:"140",qty:1,price:8600},{pid:5,pname:"ソックス（緑）",size:"22-24",qty:1,price:1800}],total:10400,pay:"現金払い",status:"未確認",note:""},
+  {id:"ORD-DEMO002",date:new Date(Date.now()-86400000*5).toISOString(),pName:"鈴木 美咲",sName:"鈴木 健太",cat:"ジュニアユース（U-15）",email:"suzuki@example.com",items:[{pid:10,pname:"ポロシャツ（ネイビー）",size:"M",qty:1,price:3500},{pid:17,pname:"スウェット上下",size:"L",qty:1,price:6500}],total:10000,pay:"銀行振込",status:"確認済み",note:""}
+];
+
+var G = {g1:"#1a6b2f", g2:"#145224", g3:"#0d3b1e", gold:"#c8a94a", lt:"#f2f5f2"};
+
+/* ───────── JSONBin CONFIG ───────── */
+var JSONBIN_BIN_ID = "6a34e735da38895dfedbccd2";
+var JSONBIN_MASTER_KEY = "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq";
+var JSONBIN_URL = "https://api.jsonbin.io/v3/b/" + JSONBIN_BIN_ID;
+
+function fetchOrdersFromBin(){
+  return fetch(JSONBIN_URL + "/latest", {
+    method: "GET",
+    headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  }).then(function(data){
+    var rec = data && data.record;
+    if(rec && Array.isArray(rec.orders)) return rec.orders;
+    return [];
+  });
+}
+
+function saveOrdersToBin(orders){
+  return fetch(JSONBIN_URL, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Master-Key": JSONBIN_MASTER_KEY
+    },
+    body: JSON.stringify({ orders: orders })
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
+
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+
+/* ───────── STATE ───────── */
+var S = {
+  page:"shop", cat:"すべて", cart:[], cartOpen:false, step:0,
+  orders: DEMO_ORDERS.map(function(o){ return Object.assign({}, o, {items:o.items.map(function(i){ return Object.assign({},i); })}); }),
+  lastOrder:null,
+  form:{pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""},
+  pwErr:"",
+  adminTab:"dash", selOid:null, sfSt:"すべて",
+  toast:null,
+  prodSel:{},
+  placing:false,
+  loadingAdmin:false,
+  statusUpdating:null,
+  ordersLoaded:false
+};
+
+function selFor(p){
+  if(!S.prodSel[p.id]) S.prodSel[p.id] = {size:p.sizes[0], qty:1, flash:false};
+  return S.prodSel[p.id];
+}
+
+/* ───────── TOAST ───────── */
+var toastTimer = null;
+function showToast(msg){
+  S.toast = {msg:msg, type:"ok"};
+  render();
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ S.toast=null; render(); }, 3000);
+}
+function showError(msg){
+  S.toast = {msg:msg, type:"error"};
+  render();
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ S.toast=null; render(); }, 6000);
+}
+
+/* ───────── CART ───────── */
+function addToCart(pid, size, qty){
+  var p = PRODS.filter(function(x){ return x.id===pid; })[0];
+  var idx = -1;
+  S.cart.forEach(function(i,ii){ if(i.pid===pid && i.size===size) idx=ii; });
+  if(idx>=0) S.cart[idx].qty += qty;
+  else S.cart.push({pid:p.id, pname:p.name, size:size, qty:qty, price:p.price});
+  var sel = selFor(p);
+  sel.flash = true;
+  render();
+  setTimeout(function(){ sel.flash=false; render(); }, 700);
+  showToast(p.name + "（" + size + "）× " + qty + " をカートに追加 ✓");
+}
+function cartTotal(){ return S.cart.reduce(function(s,i){ return s+i.price*i.qty; },0); }
+function cartCount(){ return S.cart.reduce(function(s,i){ return s+i.qty; },0); }
+function cartGrouped(){
+  var acc = {};
+  S.cart.forEach(function(it){
+    if(!acc[it.pid]) acc[it.pid] = {pname:it.pname, items:[]};
+    acc[it.pid].items.push(it);
+  });
+  return acc;
+}
+function changeCartQty(idx, delta){
+  S.cart[idx].qty = Math.max(1, S.cart[idx].qty+delta);
+  render();
+}
+function removeCartItem(idx){
+  S.cart.splice(idx,1);
+  render();
+}
+
+/* ───────── ORDER ───────── */
+function placeOrder(){
+  if(S.placing) return;
+  var oid = genId();
+  var order = Object.assign({}, S.form, {id:oid, date:new Date().toISOString(), items:S.cart.map(function(i){return Object.assign({},i);}), total:cartTotal(), status:"未確認"});
+  var newOrders = [order].concat(S.orders);
+
+  S.placing = true;
+  render();
+
+  saveOrdersToBin(newOrders).then(function(){
+    S.orders = newOrders;
+    S.lastOrder = order;
+    S.cart = [];
+    S.form = {pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""};
+    S.step = 3;
+    S.placing = false;
+    render();
+  }).catch(function(err){
+    console.error(err);
+    S.placing = false;
+    showError("注文の保存に失敗しました。通信環境をご確認のうえ、もう一度お試しください。");
+  });
+}
+
+function printInvoice(oid){
+  var o = S.orders.filter(function(x){ return x.id===oid; })[0];
+  if(!o) return;
+  var el = document.getElementById("inv");
+  var itemRows = o.items.map(function(i){
+    return "<tr><td>"+esc(i.pname)+"</td><td>"+esc(i.size)+"</td><td>"+i.qty+"点</td><td>"+fmt(i.price)+"</td><td>"+fmt(i.price*i.qty)+"</td></tr>";
+  }).join("");
+  el.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;border-bottom:3px solid #1a6b2f;padding-bottom:14px">'+
+      '<div><div style="font-size:20px;font-weight:900;color:#1a6b2f">⚽ 八ヶ岳グランデFC</div></div>'+
+      '<div style="font-size:28px;font-weight:900;letter-spacing:4px">請 求 書</div>'+
+    '</div>'+
+    '<table class="meta" style="margin-bottom:20px">'+
+      '<tr><td>注文ID</td><td>'+esc(o.id)+'</td></tr>'+
+      '<tr><td>発行日</td><td>'+fmtD(new Date().toISOString())+'</td></tr>'+
+      '<tr><td>注文日</td><td>'+fmtD(o.date)+'</td></tr>'+
+      '<tr><td>保護者氏名</td><td>'+esc(o.pName)+' 様</td></tr>'+
+      '<tr><td>選手氏名</td><td>'+esc(o.sName)+'（'+esc(o.cat)+'）</td></tr>'+
+      '<tr><td>支払方法</td><td>'+esc(o.pay)+'</td></tr>'+
+      (o.note ? '<tr><td>備考</td><td>'+esc(o.note)+'</td></tr>' : '')+
+    '</table>'+
+    '<table><thead><tr><th>商品名</th><th>サイズ</th><th>数量</th><th>単価</th><th>小計</th></tr></thead>'+
+    '<tbody>'+itemRows+'</tbody></table>'+
+    '<div style="text-align:right;font-size:18px;font-weight:900;margin-top:10px">合計金額：<span style="color:#1a6b2f;font-size:24px">'+fmt(o.total)+'</span></div>'+
+    '<div style="margin-top:18px;padding:10px;background:#f5f5f5;font-size:12px;color:#555;border-radius:6px">※ お支払いは「'+esc(o.pay)+'」でお願いします。ご不明点は八ヶ岳グランデFCまでお問い合わせください。</div>';
+  window.print();
+}
+
+/* ───────── ADMIN HELPERS ───────── */
+function adminStatsCalc(){
+  return PRODS.map(function(p){
+    var sc = {};
+    p.sizes.forEach(function(s){ sc[s]=0; });
+    S.orders.forEach(function(o){ o.items.forEach(function(i){ if(i.pid===p.id) sc[i.size]=(sc[i.size]||0)+i.qty; }); });
+    var total = Object.keys(sc).reduce(function(a,k){ return a+sc[k]; },0);
+    return Object.assign({}, p, {sc:sc, total:total});
+  }).filter(function(p){ return p.total>0; });
+}
+function totalSales(){ return S.orders.reduce(function(s,o){ return s+o.total; },0); }
+function bySt(s){ return S.orders.filter(function(o){ return o.status===s; }).length; }
+
+function downloadCsv(hdr, rows, filename){
+  var csv = [hdr].concat(rows).map(function(r){
+    return r.map(function(v){
+      var s = String(v);
+      return (s.indexOf(",")>=0 || s.indexOf('"')>=0) ? '"'+s.replace(/"/g,'""')+'"' : s;
+    }).join(",");
+  }).join("\n");
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download = filename;
+  a.click();
+}
+function downloadOrderListCsv(){
+  var hdr=["注文ID","注文日","保護者氏名","選手氏名","チーム","メール","支払方法","合計","ステータス","備考","商品サマリー"];
+  var rows = S.orders.map(function(o){
+    return [o.id,fmtD(o.date),o.pName,o.sName,o.cat,o.email,o.pay,o.total,o.status,o.note||"",o.items.map(function(i){return i.pname+"("+i.size+")×"+i.qty;}).join(" / ")];
+  });
+  downloadCsv(hdr, rows, "注文一覧.csv");
+  showToast("注文一覧CSVをダウンロードしました");
+}
+function downloadOrderDetailCsv(){
+  var hdr=["注文ID","注文日","保護者氏名","選手氏名","チーム","メール","支払方法","ステータス","商品名","サイズ","数量","単価","小計","備考"];
+  var rows=[];
+  S.orders.forEach(function(o){ o.items.forEach(function(it){ rows.push([o.id,fmtD(o.date),o.pName,o.sName,o.cat,o.email,o.pay,o.status,it.pname,it.size,it.qty,it.price,it.price*it.qty,o.note||""]); }); });
+  downloadCsv(hdr, rows, "注文明細.csv");
+  showToast("注文明細CSVをダウンロードしました");
+}
+
+/* ───────── SMALL RENDER HELPERS ───────── */
+function badge(bg,color,text){
+  return '<span style="background:'+bg+';color:'+color+';font-size:9px;font-weight:700;padding:3px 7px;border-radius:3px;white-space:nowrap">'+text+'</span>';
+}
+function statusBadge(status){
+  var i = STS.indexOf(status);
+  var bg = ["#FEF3C7","#DBEAFE","#EDE9FE","#D1FAE5","#F3F4F6"][i] || "#F3F4F6";
+  var col = ["#92400E","#1E40AF","#5B21B6","#065F46","#374151"][i] || "#374151";
+  var dot = ST_COLORS[i] || "#9CA3AF";
+  return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;background:'+bg+';color:'+col+';white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:'+dot+';display:inline-block"></span>'+esc(status)+'</span>';
+}
+
+/* ───────── PRODUCT CARD ───────── */
+function productCardHtml(p){
+  var sel = selFor(p);
+  var icon = p.cat==="ユニフォーム"?"👕":p.cat==="ソックス"?"🧦":p.cat==="バッグ"?"🎒":p.cat==="ボトムス"?"👖":"👕";
+  var badges = "";
+  if(p.reqJ) badges += badge("#f4c430","#333","🟡 ジュニア必需品");
+  if(p.reqJU) badges += badge("#e53935","#fff","🔴 ジュニアユース必需品");
+  if(!p.reqJ && !p.reqJU) badges += badge("#888","#fff","任意");
+  badges += badge(G.g3,"#fff", esc(p.brand));
+  var sizesHtml = p.sizes.map(function(s){
+    var active = s===sel.size;
+    return '<button onclick=\'App.setProdSize('+p.id+',"'+s+'")\' style="padding:5px 9px;border-radius:6px;border:'+(active?("1.5px solid "+G.g1):"1.5px solid #ddd")+';background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#444")+';font-size:12px;font-weight:700">'+esc(s)+'</button>';
+  }).join("");
+  return (
+    '<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">'+
+      '<div style="background:#f0f4f0;padding:20px;text-align:center;position:relative;min-height:120px;display:flex;align-items:center;justify-content:center">'+
+        '<div style="font-size:40px">'+icon+'</div>'+
+        '<div style="position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap">'+badges+'</div>'+
+      '</div>'+
+      '<div style="padding:14px">'+
+        '<div style="font-weight:900;font-size:15px;margin-bottom:4px">'+esc(p.name)+'</div>'+
+        (p.desc ? '<div style="font-size:11px;color:#888;line-height:1.5;margin-bottom:10px">'+esc(p.desc)+'</div>' : '')+
+        '<div style="font-size:24px;font-weight:900;color:'+G.g1+';margin-bottom:12px">'+fmt(p.price)+'<span style="font-size:12px;color:#bbb;font-weight:400"> /点</span></div>'+
+        '<div style="font-size:10px;font-weight:700;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">SIZE</div>'+
+        '<div class="size-wrap" style="margin-bottom:10px">'+sizesHtml+'</div>'+
+        '<div style="display:flex;gap:8px;align-items:center">'+
+          '<div style="display:flex;align-items:center;border:1.5px solid #ddd;border-radius:8px;overflow:hidden">'+
+            '<button onclick="App.changeProdQty('+p.id+',-1)" style="width:34px;height:38px;background:#f5f5f5;font-size:16px;color:#333">−</button>'+
+            '<span style="width:32px;text-align:center;font-weight:700;font-size:14px">'+sel.qty+'</span>'+
+            '<button onclick="App.changeProdQty('+p.id+',1)" style="width:34px;height:38px;background:#f5f5f5;font-size:16px;color:#333">＋</button>'+
+          '</div>'+
+          '<button onclick="App.addProdToCart('+p.id+')" style="flex:1;height:38px;background:'+(sel.flash?G.gold:G.g1)+';color:'+(sel.flash?G.g3:"#fff")+';border-radius:8px;font-weight:700;font-size:13px;transition:background .3s">'+(sel.flash?"✓ 追加済み":"カートに追加")+'</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'
+  );
+}
+
+/* ───────── SHOP PAGE ───────── */
+function shopHeaderHtml(){
+  var cc = cartCount();
+  return (
+    '<div style="position:sticky;top:0;z-index:100;background:'+G.g3+';border-bottom:3px solid '+G.gold+'">'+
+      '<div style="max-width:1200px;margin:0 auto;padding:0 16px;height:60px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="display:flex;align-items:center;gap:10px">'+
+          '<div style="width:38px;height:38px;background:'+G.gold+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:'+G.g3+';font-size:18px">G</div>'+
+          '<div>'+
+            '<div style="color:#fff;font-weight:900;font-size:16px;letter-spacing:2px;font-family:\'Barlow Condensed\',sans-serif">GRANDE FC</div>'+
+            '<div style="color:'+G.gold+';font-size:10px;letter-spacing:2px">OFFICIAL SHOP</div>'+
+          '</div>'+
+        '</div>'+
+        '<button onclick="App.openCart()" style="font-size:26px;color:#fff;position:relative;padding:6px">'+
+          '🛒'+
+          (cc>0 ? '<span style="position:absolute;top:0;right:0;background:#e53935;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">'+cc+'</span>' : '')+
+        '</button>'+
+      '</div>'+
+    '</div>'
+  );
+}
+function heroHtml(){
+  return (
+    '<div style="background:'+G.g3+';padding:60px 16px 48px;text-align:center;position:relative;overflow:hidden">'+
+      '<div style="position:absolute;top:-10%;right:-5%;width:40%;height:120%;background:'+G.gold+';opacity:.04;transform:skewX(-15deg)"></div>'+
+      '<div style="position:relative">'+
+        '<div style="display:inline-block;border:1px solid rgba(200,169,74,.5);color:'+G.gold+';font-size:11px;font-weight:700;letter-spacing:3px;padding:5px 14px;border-radius:99px;margin-bottom:14px">⚽ 八ヶ岳グランデFC</div>'+
+        '<div style="color:#fff;font-size:clamp(36px,8vw,64px);font-weight:900;letter-spacing:3px;line-height:1;margin-bottom:6px;font-family:\'Barlow Condensed\',sans-serif">OFFICIAL<br><span style="color:'+G.gold+'">ITEM SHOP</span></div>'+
+        '<div style="color:rgba(255,255,255,.55);font-size:14px;margin-bottom:22px;line-height:1.8">公式クラブウェア・グッズの注文はこちらから</div>'+
+        '<button onclick="App.openCart()" style="background:'+G.gold+';color:'+G.g3+';padding:13px 28px;font-weight:900;font-size:16px;border-radius:6px;letter-spacing:1px">カートを見る 🛒</button>'+
+      '</div>'+
+    '</div>'
+  );
+}
+function productsSectionHtml(){
+  var catsHtml = CATS.map(function(c){
+    var active = c===S.cat;
+    return '<button onclick=\'App.setCat("'+c+'")\' style="white-space:nowrap;padding:7px 16px;border-radius:99px;border:'+(active?("2px solid "+G.g1):"2px solid #ccc")+';background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#555")+';font-weight:700;font-size:13px">'+esc(c)+'</button>';
+  }).join("");
+  var list = (S.cat==="すべて" ? PRODS : PRODS.filter(function(p){ return p.cat===S.cat; }));
+  var prodsHtml = list.map(productCardHtml).join("");
+  return (
+    '<div style="max-width:1200px;margin:0 auto;padding:36px 16px 60px">'+
+      '<div style="font-size:11px;font-weight:700;color:'+G.g1+';letter-spacing:4px;text-transform:uppercase;margin-bottom:6px">ITEMS</div>'+
+      '<div style="font-size:clamp(24px,5vw,36px);font-weight:900;letter-spacing:2px;margin-bottom:20px">商品一覧</div>'+
+      '<div style="display:flex;gap:16px;flex-wrap:wrap;background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#555;box-shadow:0 1px 6px rgba(0,0,0,.06)">'+
+        '<span>🟡 黄：ジュニア（4〜6年生）必需品</span><span>🔴 赤：ジュニアユース必需品</span>'+
+      '</div>'+
+      '<div class="flt-wrap" style="margin-bottom:20px">'+catsHtml+'</div>'+
+      '<div class="pgrid">'+prodsHtml+'</div>'+
+    '</div>'
+  );
+}
+function footerHtml(){
+  return (
+    '<div style="background:'+G.g3+';padding:28px 16px;text-align:center;border-top:3px solid '+G.gold+'">'+
+      '<div style="color:'+G.gold+';font-weight:900;font-size:20px;letter-spacing:4px;margin-bottom:4px;font-family:\'Barlow Condensed\',sans-serif">GRANDE FC</div>'+
+      '<div style="color:rgba(255,255,255,.3);font-size:12px;margin-bottom:14px">八ヶ岳グランデフットボールクラブ</div>'+
+      '<button onclick="App.goLogin()" style="background:transparent;border:1px solid rgba(200,169,74,.25);color:rgba(255,255,255,.3);padding:6px 12px;border-radius:6px;font-size:11px">管理者ページ</button>'+
+    '</div>'
+  );
+}
+function shopPageHtml(){
+  return shopHeaderHtml()+heroHtml()+productsSectionHtml()+footerHtml();
+}
+
+/* ───────── CART DRAWER ───────── */
+function cartDrawerHtml(){
+  if(!S.cartOpen) return "";
+  var grouped = cartGrouped();
+  var body;
+  var keys = Object.keys(grouped);
+  if(!S.cart.length){
+    body = '<div style="text-align:center;padding:50px 0;color:#aaa"><div style="font-size:44px;margin-bottom:10px">🛒</div><div>カートが空です</div></div>';
+  } else {
+    body = keys.map(function(k){
+      var g = grouped[k];
+      var rows = g.items.map(function(it){
+        var idx = S.cart.indexOf(it);
+        return (
+          '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">'+
+            '<div style="font-size:13px;color:#555">サイズ: <strong>'+esc(it.size)+'</strong></div>'+
+            '<div style="display:flex;align-items:center;gap:6px">'+
+              '<button onclick="App.changeCartQty('+idx+',-1)" style="width:22px;height:22px;border:1px solid #ddd;border-radius:4px;background:#f5f5f5;font-size:12px">−</button>'+
+              '<span style="font-weight:700;font-size:13px;width:22px;text-align:center">'+it.qty+'</span>'+
+              '<button onclick="App.changeCartQty('+idx+',1)" style="width:22px;height:22px;border:1px solid #ddd;border-radius:4px;background:#f5f5f5;font-size:12px">＋</button>'+
+              '<span style="font-weight:700;font-size:13px;margin-left:6px">'+fmt(it.price*it.qty)+'</span>'+
+              '<button onclick="App.removeCartItem('+idx+')" style="color:#ccc;font-size:16px">✕</button>'+
+            '</div>'+
+          '</div>'
+        );
+      }).join("");
+      return '<div class="cart-group"><div style="font-weight:700;font-size:14px;color:'+G.g1+';margin-bottom:8px">'+esc(g.pname)+'</div>'+rows+'</div>';
+    }).join("");
+  }
+  var ct = cartTotal();
+  return (
+    '<div style="position:fixed;inset:0;z-index:200">'+
+      '<div onclick="App.closeCart()" style="position:absolute;inset:0;background:rgba(0,0,0,.5)"></div>'+
+      '<div style="position:absolute;top:0;right:0;width:min(400px,100vw);height:100%;background:#fff;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(0,0,0,.15)">'+
+        '<div style="background:'+G.g3+';padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid '+G.gold+'">'+
+          '<div style="color:#fff;font-weight:900;font-size:20px;letter-spacing:2px;font-family:\'Barlow Condensed\',sans-serif">CART 🛒</div>'+
+          '<button onclick="App.closeCart()" style="color:#fff;font-size:24px">✕</button>'+
+        '</div>'+
+        '<div style="flex:1;overflow-y:auto;padding:16px">'+body+'</div>'+
+        '<div style="padding:16px 20px;border-top:2px solid #f0f0f0">'+
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
+            '<span style="font-weight:700;color:#555">合計</span>'+
+            '<span style="font-size:26px;font-weight:900;color:'+G.g1+'">'+fmt(ct)+'</span>'+
+          '</div>'+
+          '<button onclick="App.goCheckout()" '+(S.cart.length?"":"disabled")+' style="width:100%;padding:14px;background:'+(S.cart.length?G.g1:"#ccc")+';color:#fff;border-radius:8px;font-weight:900;font-size:18px;letter-spacing:1px;'+(S.cart.length?"":"cursor:not-allowed")+'">注文へ進む →</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'
+  );
+}
+
+/* ───────── ORDER MODAL ───────── */
+function stepsIndicatorHtml(){
+  var labels=[["1","情報入力"],["2","確認"],["3","完了"]];
+  return '<div style="display:flex;justify-content:center;padding:16px 0 4px">'+labels.map(function(pair,i){
+    var n=pair[0], l=pair[1];
+    var s=i+1, done=s<S.step, cur=s===S.step;
+    return (
+      '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative">'+
+        (i<2 ? '<div style="position:absolute;top:14px;left:60%;width:80%;height:2px;background:'+(done?G.g1:"#ddd")+'"></div>' : '')+
+        '<div style="width:28px;height:28px;border-radius:50%;background:'+((done||cur)?G.g1:"#ddd")+';color:'+((done||cur)?"#fff":"#999")+';font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;position:relative;z-index:1">'+(done?"✓":n)+'</div>'+
+        '<div style="font-size:10px;color:'+((done||cur)?"#111":"#aaa")+';font-weight:'+((done||cur)?700:400)+';white-space:nowrap">'+l+'</div>'+
+      '</div>'
+    );
+  }).join("")+'</div>';
+}
+function step1Html(){
+  return (
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" class="frow">'+
+      '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">保護者氏名 *</label>'+
+        '<input data-bind="form.pName" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="山田 花子"></div>'+
+      '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">選手氏名 *</label>'+
+        '<input data-bind="form.sName" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="山田 一郎"></div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" class="frow">'+
+      '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">チーム</label>'+
+        '<select data-bind="form.cat" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa">'+TEAMS.map(function(t){return '<option>'+esc(t)+'</option>';}).join("")+'</select></div>'+
+      '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">支払方法</label>'+
+        '<select data-bind="form.pay" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa">'+PAYS.map(function(p){return '<option>'+esc(p)+'</option>';}).join("")+'</select></div>'+
+    '</div>'+
+    '<div style="margin-bottom:14px"><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">メールアドレス *</label>'+
+      '<input type="email" data-bind="form.email" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="yamada@example.com"></div>'+
+    '<div style="margin-bottom:14px"><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">備考・ご要望</label>'+
+      '<textarea data-bind="form.note" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa;height:70px;resize:vertical" placeholder="名前印刷希望など"></textarea></div>'+
+    '<button onclick="App.confirmStep1()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">注文内容を確認する →</button>'
+  );
+}
+function step2Html(){
+  var f = S.form;
+  var rows = S.cart.map(function(it){
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee;font-size:14px"><span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'</span><span>'+fmt(it.price*it.qty)+'</span></div>';
+  }).join("");
+  var infoRows = [["保護者氏名",f.pName],["選手氏名",f.sName],["チーム",f.cat],["メールアドレス",f.email],["支払方法",f.pay]];
+  if(f.note) infoRows.push(["備考",f.note]);
+  var info = infoRows.map(function(pair){
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid #eee"><span style="color:#888">'+esc(pair[0])+'</span><span style="font-weight:700">'+esc(pair[1])+'</span></div>';
+  }).join("");
+  return (
+    '<div style="background:#f8faf8;border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid #dde8dd">'+
+      '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px;margin-bottom:8px">注文商品</div>'+rows+
+      '<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-weight:900;font-size:17px"><span>合計</span><span style="color:'+G.g1+';font-size:20px">'+fmt(cartTotal())+'</span></div>'+
+    '</div>'+
+    '<div style="background:#f8faf8;border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid #dde8dd">'+
+      '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px;margin-bottom:8px">注文者情報</div>'+info+
+    '</div>'+
+    '<button onclick="App.backToStep1()" '+(S.placing?"disabled":"")+' style="width:100%;padding:13px;background:#f0f0f0;color:#555;border-radius:8px;font-weight:700;font-size:15px;margin-bottom:8px'+(S.placing?";cursor:not-allowed;opacity:.6":"")+'">← 戻る</button>'+
+    '<button onclick="App.placeOrder()" '+(S.placing?"disabled":"")+' style="width:100%;padding:13px;background:'+(S.placing?"#ccc":G.gold)+';color:'+(S.placing?"#888":G.g3)+';border-radius:8px;font-weight:900;font-size:15px;'+(S.placing?"cursor:not-allowed":"")+'">'+(S.placing?"保存中...":"✓ 注文を確定する")+'</button>'
+  );
+}
+function step3Html(){
+  var o = S.lastOrder;
+  if(!o) return "";
+  var rows = o.items.map(function(it){
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;border-bottom:1px solid #eee"><span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span><span>'+fmt(it.price*it.qty)+'</span></div>';
+  }).join("");
+  return (
+    '<div style="width:68px;height:68px;background:'+G.g1+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;color:#fff">✓</div>'+
+    '<div style="font-weight:900;font-size:22px;text-align:center;margin-bottom:6px">注文完了！</div>'+
+    '<div style="text-align:center;color:#888;font-size:13px;margin-bottom:16px">ご注文ありがとうございます</div>'+
+    '<div style="background:#f0faf0;border:1px solid #b2d8b2;border-radius:8px;padding:12px;text-align:center;margin-bottom:14px;font-size:13px">注文IDをメモしてください<br><span style="font-size:20px;font-weight:900;color:'+G.g1+';letter-spacing:2px">'+esc(o.id)+'</span></div>'+
+    '<div style="background:#f8faf8;border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid #dde8dd">'+
+      '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px;margin-bottom:8px">注文内容</div>'+rows+
+      '<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-weight:900;font-size:16px"><span>合計</span><span style="color:'+G.g1+'">'+fmt(o.total)+'</span></div>'+
+    '</div>'+
+    '<button onclick="App.closeOrderDone()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">ショップに戻る</button>'
+  );
+}
+function orderModalHtml(){
+  if(S.step<=0) return "";
+  var title = S.step===1?"ORDER INFO":S.step===2?"CONFIRM":"COMPLETE ✓";
+  var closeBtn = (S.step<3 && !S.placing) ? '<button onclick="App.closeOrderModal()" style="color:#fff;font-size:24px">✕</button>' : '';
+  var content = S.step===1?step1Html():S.step===2?step2Html():step3Html();
+  return (
+    '<div style="position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.65);overflow-y:auto;padding:20px 16px;display:flex;align-items:flex-start;justify-content:center">'+
+      '<div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden">'+
+        '<div style="background:'+G.g3+';padding:18px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid '+G.gold+'">'+
+          '<div style="color:#fff;font-weight:900;font-size:20px;letter-spacing:2px;font-family:\'Barlow Condensed\',sans-serif">'+title+'</div>'+closeBtn+
+        '</div>'+
+        stepsIndicatorHtml()+
+        '<div style="padding:22px">'+content+'</div>'+
+      '</div>'+
+    '</div>'
+  );
+}
+
+/* ───────── LOGIN PAGE ───────── */
+function loginPageHtml(){
+  return (
+    '<div style="background:'+G.g3+';min-height:100vh;padding:60px 16px;display:flex;align-items:center;justify-content:center">'+
+      '<div style="background:rgba(255,255,255,.06);border-radius:16px;padding:32px;width:100%;max-width:360px;border:1px solid rgba(200,169,74,.3)">'+
+        '<div style="text-align:center;font-size:36px;margin-bottom:12px">🔐</div>'+
+        '<div style="color:#fff;font-weight:900;font-size:26px;letter-spacing:3px;text-align:center;margin-bottom:4px;font-family:\'Barlow Condensed\',sans-serif">ADMIN</div>'+
+        '<div style="text-align:center;color:'+G.gold+';font-size:11px;margin-bottom:16px">パスワード: grande2024</div>'+
+        '<input type="password" id="loginPw" onkeydown="if(event.key===\'Enter\')App.doLogin()" style="width:100%;padding:11px 13px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.08);color:#fff;outline:none;margin-bottom:6px" placeholder="パスワードを入力">'+
+        (S.pwErr ? '<div style="color:#f88;font-size:13px;text-align:center;margin-bottom:8px">'+esc(S.pwErr)+'</div>' : '')+
+        '<button onclick="App.doLogin()" style="width:100%;padding:13px;background:'+G.gold+';color:'+G.g3+';border-radius:8px;font-weight:900;font-size:15px;margin-top:8px;margin-bottom:8px">ログイン</button>'+
+        '<button onclick="App.goShop()" style="width:100%;padding:13px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-weight:700;font-size:14px">← ショップに戻る</button>'+
+      '</div>'+
+    '</div>'
+  );
+}
+
+/* ───────── ADMIN PAGE ───────── */
+function adminHeaderHtml(){
+  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["cfg","⚙️ EmailJS"]];
+  var tabsHtml = tabs.map(function(pair){
+    var t=pair[0], l=pair[1];
+    var active = S.adminTab===t;
+    return '<button onclick=\'App.setAdminTab("'+t+'")\' style="padding:14px 16px;color:'+(active?"#fff":"rgba(255,255,255,.4)")+';font-weight:700;font-size:12px;white-space:nowrap;border-bottom:'+(active?("3px solid "+G.gold):"3px solid transparent")+'">'+l+'</button>';
+  }).join("");
+  var syncBtn = '<button onclick="App.refreshOrders()" '+(S.loadingAdmin?"disabled":"")+' style="background:transparent;border:1px solid rgba(200,169,74,.3);color:rgba(255,255,255,.5);padding:5px 12px;border-radius:6px;font-size:11px;'+(S.loadingAdmin?"opacity:.5;cursor:not-allowed":"")+'">'+(S.loadingAdmin?"🔄 同期中…":"🔄 最新を取得")+'</button>';
+  return (
+    '<div style="background:'+G.g3+';padding:0 16px;border-bottom:3px solid '+G.gold+'">'+
+      '<div style="max-width:1200px;margin:0 auto;height:54px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="color:#fff;font-weight:900;font-size:18px;letter-spacing:3px;font-family:\'Barlow Condensed\',sans-serif">GRANDE <span style="color:'+G.gold+'">ADMIN</span></div>'+
+        '<div style="display:flex;gap:8px">'+
+          syncBtn+
+          '<button onclick="App.goShop()" style="background:transparent;border:1px solid rgba(200,169,74,.3);color:rgba(255,255,255,.5);padding:5px 12px;border-radius:6px;font-size:11px">← ショップ</button>'+
+          '<button onclick="App.logout()" style="background:transparent;border:1px solid rgba(200,169,74,.3);color:rgba(255,255,255,.5);padding:5px 12px;border-radius:6px;font-size:11px">ログアウト</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="background:#145224;border-bottom:1px solid rgba(200,169,74,.2);display:flex;overflow-x:auto">'+tabsHtml+'</div>'
+  );
+}
+function dashboardHtml(){
+  var cards = [
+    {l:"総売上金額",v:fmt(totalSales()),ic:"💰",c:G.g1},
+    {l:"総注文件数",v:S.orders.length+"件",ic:"📦",c:"#3B82F6"},
+    {l:"未確認件数",v:bySt("未確認")+"件",ic:"🔔",c:G.gold},
+    {l:"発注待ち",v:bySt("確認済み")+"件",ic:"⏳",c:"#f59e0b"},
+    {l:"受け渡し完了",v:bySt("受け渡し完了")+"件",ic:"✅",c:"#9CA3AF"}
+  ];
+  var cardsHtml = cards.map(function(c){
+    return '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border-left:4px solid '+c.c+'"><div style="font-size:20px;margin-bottom:6px">'+c.ic+'</div><div style="font-size:20px;font-weight:900;margin-bottom:2px">'+c.v+'</div><div style="font-size:11px;color:#888">'+c.l+'</div></div>';
+  }).join("");
+  var recent = S.orders.slice(0,5).map(function(o){
+    return (
+      '<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">'+
+          '<div><div style="font-weight:700;font-size:14px">'+esc(o.pName)+' / '+esc(o.sName)+'</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+fmtD(o.date)+'</div></div>'+
+          statusBadge(o.status)+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center">'+
+          '<span style="font-size:12px;color:#888">'+esc(o.pay)+'</span>'+
+          '<span style="font-size:18px;font-weight:900;color:'+G.g1+'">'+fmt(o.total)+'</span>'+
+        '</div>'+
+      '</div>'
+    );
+  }).join("");
+  return (
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:16px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">DASHBOARD</div>'+
+    '<div class="dc-grid">'+cardsHtml+'</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">'+
+      '<button onclick="App.downloadOrderListCsv()" style="padding:9px 14px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 注文一覧CSV</button>'+
+      '<button onclick="App.downloadOrderDetailCsv()" style="padding:9px 14px;background:'+G.g2+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 注文明細CSV</button>'+
+    '</div>'+
+    '<div style="font-weight:700;font-size:14px;margin-bottom:10px">最近の注文</div>'+
+    '<div class="olist">'+recent+'</div>'
+  );
+}
+function orderCardHtml(o){
+  var expanded = S.selOid===o.id;
+  var itemsLine = o.items.map(function(i){ return esc(i.pname)+'（'+esc(i.size)+'）×'+i.qty; }).join("　");
+  var detail = "";
+  if(expanded){
+    var itemsDetail = o.items.map(function(it){
+      return '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid #eee"><span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span><span>'+fmt(it.price*it.qty)+'</span></div>';
+    }).join("");
+    var updating = S.statusUpdating === o.id;
+    var statusBtns = STS.map(function(s,si){
+      var active = o.status===s;
+      return '<button onclick="App.setOrderStatus(\''+o.id+'\',\''+s+'\')" '+(updating?"disabled":"")+' style="padding:5px 9px;border-radius:6px;font-size:11px;font-weight:700;background:'+(active?ST_COLORS[si]:"#f0f0f0")+';color:'+(active?"#fff":"#555")+';'+(updating?"opacity:.5;cursor:not-allowed":"")+'">'+esc(s)+'</button>';
+    }).join("");
+    detail = (
+      '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0" onclick="event.stopPropagation()">'+
+        '<div style="font-size:13px;color:#555;margin-bottom:6px">📧 '+esc(o.email)+(o.note?(' · 備考: '+esc(o.note)):'')+'</div>'+
+        '<div style="background:#f8faf8;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #dde8dd">'+
+          '<div style="font-size:11px;font-weight:700;color:#888;margin-bottom:6px">注文明細</div>'+itemsDetail+
+          '<div style="display:flex;justify-content:space-between;padding:8px 0 0;font-weight:900;font-size:15px"><span>合計</span><span style="color:'+G.g1+'">'+fmt(o.total)+'</span></div>'+
+        '</div>'+
+        '<div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px">ステータス変更:'+(updating?' <span style="color:#888;font-weight:400">（更新中…）</span>':'')+'</div>'+
+        '<div class="sc-btns">'+statusBtns+'</div>'+
+        '<button onclick="App.printInvoice(\''+o.id+'\')" style="margin-top:10px;padding:8px 14px;background:'+G.g3+';color:#fff;border-radius:8px;font-size:12px;font-weight:700">🖨️ 請求書を印刷する</button>'+
+      '</div>'
+    );
+  }
+  return (
+    '<div onclick="App.toggleOrder(\''+o.id+'\')" style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;border:'+(expanded?("2px solid "+G.g1):"2px solid transparent")+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">'+
+        '<div><div style="font-weight:700;font-size:14px">'+esc(o.pName)+' / '+esc(o.sName)+'（'+esc(o.cat)+'）</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+fmtD(o.date)+' · '+esc(o.id)+'</div></div>'+
+        statusBadge(o.status)+
+      '</div>'+
+      '<div style="font-size:12px;color:#666;margin-bottom:6px;line-height:1.6">'+itemsLine+'</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<span style="font-size:12px;color:#888">'+esc(o.pay)+'</span>'+
+        '<span style="font-size:18px;font-weight:900;color:'+G.g1+'">'+fmt(o.total)+'</span>'+
+      '</div>'+
+      detail+
+    '</div>'
+  );
+}
+function ordersTabHtml(){
+  var filtered = S.sfSt==="すべて" ? S.orders : S.orders.filter(function(o){ return o.status===S.sfSt; });
+  var sfBtns = ["すべて"].concat(STS).map(function(s){
+    var active = S.sfSt===s;
+    return '<button onclick=\'App.setSfSt("'+s+'")\' style="padding:5px 11px;border-radius:99px;font-weight:700;font-size:11px;white-space:nowrap;background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#555")+';box-shadow:0 1px 4px rgba(0,0,0,.08)">'+esc(s)+'</button>';
+  }).join("");
+  var list = filtered.map(orderCardHtml).join("") || '<div style="color:#aaa;padding:20px 0">注文がありません</div>';
+  return (
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:12px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">ORDERS</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">'+
+      '<button onclick="App.downloadOrderListCsv()" style="padding:8px 14px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 一覧CSV</button>'+
+      '<button onclick="App.downloadOrderDetailCsv()" style="padding:8px 14px;background:'+G.g2+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 明細CSV</button>'+
+    '</div>'+
+    '<div class="sf-wrap">'+sfBtns+'</div>'+
+    '<div class="olist">'+list+'</div>'
+  );
+}
+function statsTabHtml(){
+  var stats = adminStatsCalc();
+  var body = stats.length ? stats.map(function(p){
+    var icon = p.cat==="ソックス"?"🧦":p.cat==="バッグ"?"🎒":p.cat==="ボトムス"?"👖":"👕";
+    var szs = p.sizes.map(function(s){
+      return '<div style="background:#f8faf8;border-radius:8px;padding:8px 12px;text-align:center;min-width:52px"><div style="font-size:9px;color:#888;margin-bottom:2px">'+esc(s)+'</div><div style="font-size:18px;font-weight:900;color:'+G.g1+'">'+(p.sc[s]||0)+'</div><div style="font-size:9px;color:#bbb">点</div></div>';
+    }).join("");
+    return (
+      '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);margin-bottom:10px">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'+
+          '<div style="width:46px;height:46px;border-radius:8px;background:#f0f4f0;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">'+icon+'</div>'+
+          '<div><div style="font-weight:700;font-size:14px">'+esc(p.name)+'</div><div style="font-size:12px;color:#888">合計: '+p.total+'点 / '+fmt(p.price*p.total)+'</div></div>'+
+        '</div>'+
+        '<div class="st-szs">'+szs+'</div>'+
+      '</div>'
+    );
+  }).join("") : '<div style="color:#aaa">注文データがありません</div>';
+  return '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:16px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">STATS</div>'+body;
+}
+function cfgTabHtml(){
+  var sections = [
+    {t:"🔑 基本設定",fields:[{l:"Public Key",p:"user_xxxxxxxxx"},{l:"Service ID",p:"service_xxxxxxx"}]},
+    {t:"📧 管理者通知",fields:[{l:"管理者メール",p:"admin@example.com"},{l:"管理者用 Template ID",p:"template_xxxxxxx"}]},
+    {t:"📨 保護者確認メール",fields:[{l:"保護者用 Template ID",p:"template_xxxxxxx"}]}
+  ];
+  var secHtml = sections.map(function(sec){
+    var fields = sec.fields.map(function(f){
+      return '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">'+esc(f.l)+'</label><input style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="'+esc(f.p)+'"></div>';
+    }).join("");
+    return (
+      '<div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #ddd">'+
+        '<div style="font-weight:700;font-size:14px;margin-bottom:12px">'+esc(sec.t)+'</div>'+
+        '<div style="display:grid;grid-template-columns:'+(sec.fields.length>1?"1fr 1fr":"1fr")+';gap:10px" class="frow">'+fields+'</div>'+
+      '</div>'
+    );
+  }).join("");
+  return (
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">EMAILJS設定</div>'+
+    '<div style="color:#888;font-size:13px;margin-bottom:16px"><a href="https://www.emailjs.com" target="_blank" rel="noreferrer" style="color:'+G.g1+'">emailjs.com</a> で無料アカウントを作成してください。</div>'+
+    secHtml+
+    '<div style="background:#f8faf8;border-radius:8px;padding:10px;font-size:12px;color:#666;line-height:1.9;margin-bottom:14px">テンプレート変数：{{order_id}} {{date}} {{parent_name}} {{player_name}} {{category}} {{items}} {{total}} {{payment}} {{note}} {{to_email}}</div>'+
+    '<button onclick="App.saveCfg()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">設定を保存する</button>'
+  );
+}
+function adminPageHtml(){
+  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():cfgTabHtml();
+  return (
+    '<div style="background:'+G.lt+';min-height:100vh">'+
+      adminHeaderHtml()+
+      '<div style="max-width:1200px;margin:0 auto;padding:24px 16px">'+tabContent+'</div>'+
+    '</div>'
+  );
+}
+
+/* ───────── TOAST ───────── */
+function toastHtml(){
+  if(!S.toast) return "";
+  var isErr = S.toast.type === "error";
+  var bg = isErr ? "#b91c1c" : G.g3;
+  var border = isErr ? "#e53935" : G.gold;
+  var icon = isErr ? "⚠" : "✓";
+  return '<div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+bg+';color:#fff;padding:11px 20px;border-radius:99px;font-size:14px;font-weight:600;z-index:9999;border:1px solid '+border+';white-space:nowrap;pointer-events:none;max-width:90vw;overflow:hidden;text-overflow:ellipsis">'+icon+' '+esc(S.toast.msg)+'</div>';
+}
+
+/* ───────── MASTER RENDER ───────── */
+function getPath(obj, path){
+  var keys = path.split(".");
+  var o = obj;
+  for(var i=0;i<keys.length;i++){ o = o[keys[i]]; }
+  return o;
+}
+function setPath(obj, path, val){
+  var keys = path.split(".");
+  var o = obj;
+  for(var i=0;i<keys.length-1;i++){ o = o[keys[i]]; }
+  o[keys[keys.length-1]] = val;
+}
+function bindInputs(){
+  var els = document.querySelectorAll("[data-bind]");
+  for(var i=0;i<els.length;i++){
+    (function(el){
+      var path = el.getAttribute("data-bind");
+      el.value = getPath(S, path);
+      var evt = el.tagName==="SELECT" ? "change" : "input";
+      el.addEventListener(evt, function(e){ setPath(S, path, e.target.value); });
+    })(els[i]);
+  }
+}
+function render(){
+  var html = "";
+  if(S.page==="shop") html = shopPageHtml();
+  else if(S.page==="login") html = loginPageHtml();
+  else if(S.page==="admin") html = adminPageHtml();
+  html += cartDrawerHtml();
+  html += orderModalHtml();
+  html += toastHtml();
+  document.getElementById("app").innerHTML = html;
+  bindInputs();
+}
+
+/* ───────── APP API (called from onclick attributes) ───────── */
+window.App = {
+  openCart:function(){ S.cartOpen=true; render(); },
+  closeCart:function(){ S.cartOpen=false; render(); },
+  setCat:function(c){ S.cat=c; render(); },
+  addProdToCart:function(pid){ var p=PRODS.filter(function(x){return x.id===pid;})[0]; if(p){ var sel=selFor(p); addToCart(pid, sel.size, sel.qty); } },
+  setProdSize:function(pid,sz){ selFor(PRODS.filter(function(x){return x.id===pid;})[0]).size=sz; render(); },
+  changeProdQty:function(pid,d){ var s=selFor(PRODS.filter(function(x){return x.id===pid;})[0]); s.qty=Math.max(1,s.qty+d); render(); },
+  changeCartQty:function(idx,d){ changeCartQty(idx,d); },
+  removeCartItem:function(idx){ removeCartItem(idx); },
+  goCheckout:function(){ S.step=1; render(); },
+  confirmStep1:function(){ if(S.form.pName && S.form.sName && S.form.email){ S.step=2; render(); } else showError("必須項目を入力してください"); },
+  backToStep1:function(){ S.step=1; render(); },
+  closeOrderModal:function(){ S.step=0; render(); },
+  closeOrderDone:function(){ S.step=0; S.cart=[]; render(); },
+  placeOrder:placeOrder,
+  goLogin:function(){ S.page="login"; render(); },
+  doLogin:function(){
+    var pw = document.getElementById("loginPw").value;
+    if(pw === ADM_PW){ S.page="admin"; S.pwErr=""; S.loadingAdmin=true; render(); fetchOrdersFromBin().then(function(o){ S.orders=o; S.loadingAdmin=false; render(); }).catch(function(e){ S.loadingAdmin=false; showError("データ取得に失敗しました"); }); }
+    else { S.pwErr="パスワードが正しくありません"; render(); }
+  },
+  goShop:function(){ S.page="shop"; S.pwErr=""; render(); },
+  logout:function(){ S.page="shop"; render(); },
+  setAdminTab:function(t){ S.adminTab=t; render(); },
+  toggleOrder:function(oid){ S.selOid = S.selOid===oid ? null : oid; render(); },
+  setOrderStatus:function(oid, st){
+    S.statusUpdating = oid;
+    render();
+    var o = S.orders.filter(function(x){return x.id===oid;})[0];
+    if(o) o.status = st;
+    saveOrdersToBin(S.orders).then(function(){ S.statusUpdating=null; showToast("ステータスを更新しました"); render(); }).catch(function(e){ S.statusUpdating=null; showError("更新に失敗しました"); });
+  },
+  setSfSt:function(s){ S.sfSt=s; render(); },
+  downloadOrderListCsv:downloadOrderListCsv,
+  downloadOrderDetailCsv:downloadOrderDetailCsv,
+  printInvoice:printInvoice,
+  refreshOrders:function(){
+    S.loadingAdmin=true;
+    render();
+    fetchOrdersFromBin().then(function(o){ S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render(); }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
+  },
+  saveCfg:function(){ showToast("設定を保存しました（デモ）"); }
+};
+
+render();
+
+})();
+</script>
+</body>
+</html>
