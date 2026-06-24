@@ -457,23 +457,65 @@
     .members-forgot { color: #76767f; font-size: 12px; text-align: center; margin-top: 4px; }
 
     /* ── パートナー ──────────────────────────────────── */
-    .partners-section { background: #fff; padding: 78px 24px; border-top: 1px solid #eceae5; }
-    .partners-inner { max-width: 1240px; margin: 0 auto; }
-    .partners-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 14px; flex-wrap: wrap; }
-    .partners-more { color: #16161a; font-size: 13px; font-weight: 700; letter-spacing: 1px; border-bottom: 2px solid var(--main-color); padding-bottom: 4px; }
-    .partners-desc { color: #76767f; font-size: 14px; margin-bottom: 36px; }
-    .partners-logos { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; }
-    .partner-logo-item {
-      background: var(--dark); border: 1px solid #232329;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px 32px; gap: 8px; min-width: 200px; flex: 1;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-    .partner-logo-item:hover { border-color: var(--main-color); transform: translateY(-3px); }
-    .partner-logo-item--sm { min-width: 150px; }
-    .partner-logo-label { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 10px; letter-spacing: 2px; }
-    .partner-logo-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 20px; letter-spacing: 2px; text-align: center; line-height: 1.2; }
-    .partner-logo-item--sm .partner-logo-name { font-size: 15px; }
+    /* ── スポンサー・パートナー（リニューアル） ── */
+    .sp-section { background: var(--dark); }
+    .sp-hero { display: flex; align-items: stretch; overflow: hidden; }
+    .sp-hero-content { flex: 1; padding: 48px 40px; max-width: 680px; margin: 0 auto 0 auto; display: flex; flex-direction: column; justify-content: center; background: var(--dark); position: relative; z-index: 1; }
+    .sp-hero-en { font-family: 'Anton',sans-serif; font-size: clamp(26px,3.5vw,50px); color: #fff; letter-spacing: 2px; font-style: italic; line-height: 1; margin-bottom: 6px; }
+    .sp-hero-ja { color: var(--main-color); font-size: 12px; letter-spacing: 3px; margin-bottom: 14px; font-family: 'Anton',sans-serif; }
+    .sp-hero-desc { color: #76767f; font-size: 13px; line-height: 1.8; margin-bottom: 20px; }
+    .sp-hero-more { color: #fff; font-size: 13px; font-weight: 700; border-bottom: 2px solid var(--main-color); padding-bottom: 3px; align-self: flex-end; text-decoration: none; transition: color 0.2s; }
+    .sp-hero-more:hover { color: var(--main-color); }
+    .sp-hero-img { flex: 0 0 42%; background-size: cover; background-position: center 30%; min-height: 200px; position: relative; }
+    .sp-hero-img::before { content:''; position: absolute; inset: 0; background: linear-gradient(to right, var(--dark) 0%, rgba(10,10,12,0.3) 100%); }
+    .sp-sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 12px; }
+    .sp-sec-labels { display: flex; align-items: baseline; gap: 12px; }
+    .sp-sec-en { font-family: 'Anton',sans-serif; font-size: 16px; color: var(--main-color); letter-spacing: 3px; }
+    .sp-sec-ja { font-size: 11px; color: #76767f; letter-spacing: 2px; }
+    .sp-nav { display: flex; gap: 6px; }
+    .sp-nav-btn { width: 34px; height: 34px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; line-height: 1; }
+    .sp-nav-btn:hover { background: var(--main-color); border-color: var(--main-color); }
+    .sp-nav-btn--dark { border-color: #ddd; color: #16161a; }
+    .sp-nav-btn--dark:hover { background: var(--main-color); border-color: var(--main-color); color: #fff; }
+    .sp-official { background: var(--dark2); padding: 36px 24px 44px; border-top: 1px solid rgba(255,255,255,0.06); }
+    .sp-official-inner { max-width: 1240px; margin: 0 auto; }
+    .sp-official-slider { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+    .sp-official-card { display: flex; background: #fff; text-decoration: none; color: inherit; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+    .sp-official-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .sp-official-logo { flex: 0 0 180px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .sp-official-logo img { max-width: 130px; max-height: 72px; object-fit: contain; }
+    .sp-official-body { flex: 1; padding: 22px 24px; display: flex; flex-direction: column; justify-content: center; border-left: 1px solid #eee; }
+    .sp-official-label { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 9px; letter-spacing: 3px; margin-bottom: 6px; }
+    .sp-official-name { font-family: 'Anton',sans-serif; font-size: 20px; color: #16161a; margin-bottom: 8px; letter-spacing: 1px; }
+    .sp-official-desc { font-size: 12px; color: #76767f; line-height: 1.7; margin-bottom: 14px; flex: 1; }
+    .sp-official-link { font-size: 11px; color: var(--main-color); font-weight: 700; border-bottom: 1px solid var(--main-color); padding-bottom: 1px; align-self: flex-start; }
+    .sp-partner { background: #f8f7f4; padding: 36px 24px 44px; border-top: 1px solid #e4e3de; }
+    .sp-partner-inner { max-width: 1240px; margin: 0 auto; }
+    .sp-partner-head-right { display: flex; align-items: center; gap: 14px; }
+    .sp-partner-count { font-family: 'Anton',sans-serif; font-size: 11px; color: #76767f; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .sp-partner-progress { width: 72px; height: 2px; background: #ddd; position: relative; }
+    .sp-partner-bar { position: absolute; left: 0; top: 0; height: 100%; background: var(--main-color); transition: width 0.3s; width: 20%; }
+    .sp-partner-slider { display: flex; gap: 14px; overflow: hidden; }
+    .sp-partner-card { flex: 0 0 210px; background: #fff; border: 1px solid #e4e3de; padding: 20px; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; display: flex; flex-direction: column; }
+    .sp-partner-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: var(--main-color); }
+    .sp-partner-logo { height: 68px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .sp-partner-logo img { max-width: 100%; max-height: 56px; object-fit: contain; }
+    .sp-partner-logo--text { font-family: 'Anton',sans-serif; font-size: 26px; color: var(--main-color); height: 68px; display: flex; align-items: center; justify-content: center; }
+    .sp-partner-label { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 9px; letter-spacing: 2px; margin-bottom: 5px; }
+    .sp-partner-name { font-size: 13px; font-weight: 900; color: #16161a; margin-bottom: 5px; line-height: 1.4; }
+    .sp-partner-desc { font-size: 11px; color: #76767f; line-height: 1.6; flex: 1; margin-bottom: 12px; }
+    .sp-partner-link { font-size: 11px; color: var(--main-color); font-weight: 700; border-bottom: 1px solid var(--main-color); padding-bottom: 1px; align-self: flex-start; }
+    .sp-dots { display: flex; gap: 5px; justify-content: center; margin-top: 18px; }
+    .sp-dot { width: 22px; height: 3px; background: #ddd; cursor: pointer; transition: background 0.2s; }
+    .sp-dot.active { background: var(--main-color); }
+    .sp-cta { background: var(--dark); padding: 28px 24px; border-top: 3px solid var(--main-color); }
+    .sp-cta-inner { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .sp-cta-title { color: #fff; font-size: clamp(15px,2vw,18px); font-weight: 900; margin-bottom: 4px; }
+    .sp-cta-desc { color: #76767f; font-size: 12px; }
+    .sp-cta-btn { border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 13px 26px; font-size: 13px; font-weight: 700; white-space: nowrap; transition: all 0.2s; text-decoration: none; flex-shrink: 0; }
+    .sp-cta-btn:hover { border-color: #fff; background: rgba(255,255,255,0.07); }
+    @media (max-width: 960px) { .sp-hero-img { display: none; } .sp-official-slider { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .sp-official-logo { flex: 0 0 120px; } .sp-official-name { font-size: 16px; } .sp-partner-card { flex: 0 0 175px; } .sp-cta-inner { flex-direction: column; } .sp-partner-count { display: none; } }
 
     /* ── SNS・スポンサー ─────────────────────────────── */
     .sns-sponsors { background: var(--dark2); padding: 0 24px 70px; }
@@ -899,39 +941,119 @@
   </section>
 
   <!-- パートナー -->
-  <section class="partners-section">
-    <div class="partners-inner">
-      <div class="partners-head">
-        <div>
-          <div class="section-en">SPONSOR &amp; PARTNER</div>
-          <h2 class="section-ja">スポンサー・パートナー</h2>
-        </div>
-        <a href="partners.html" class="partners-more">一覧を見る →</a>
+  <section class="sp-section">
+
+    <!-- ヒーローバナー -->
+    <div class="sp-hero">
+      <div class="sp-hero-content">
+        <div class="sp-hero-en">SPONSOR &amp; PARTNER</div>
+        <div class="sp-hero-ja">スポンサー＆パートナー</div>
+        <p class="sp-hero-desc">八ヶ岳グランデフットボールクラブの活動を支えてくださっている企業・団体の皆様です。</p>
+        <a href="partners.html" class="sp-hero-more">一覧を見る →</a>
       </div>
-      <p class="partners-desc">八ヶ岳グランデフットボールクラブの活動を支えてくださっている企業・団体の皆様です。</p>
-      <div class="partners-logos">
-        <a href="https://www.athleta.co.jp/" target="_blank" rel="noopener" class="partner-logo-item">
-          <span class="partner-logo-label">OFFICIAL SPONSOR</span>
-          <span class="partner-logo-name">ATHLETA</span>
-        </a>
-        <a href="https://nofootball.base.shop/" target="_blank" rel="noopener" class="partner-logo-item">
-          <span class="partner-logo-label">OFFICIAL SPONSOR</span>
-          <span class="partner-logo-name">NOF FOOTBALL</span>
-        </a>
-        <a href="https://himawari-ichiba.com/" target="_blank" rel="noopener" class="partner-logo-item partner-logo-item--sm">
-          <span class="partner-logo-label">PARTNER</span>
-          <span class="partner-logo-name">ひまわり市場</span>
-        </a>
-        <a href="https://www.alps-hs.co.jp/" target="_blank" rel="noopener" class="partner-logo-item partner-logo-item--sm">
-          <span class="partner-logo-label">PARTNER</span>
-          <span class="partner-logo-name">株式会社アルプス</span>
-        </a>
-        <a href="https://cmic-well.com/" target="_blank" rel="noopener" class="partner-logo-item partner-logo-item--sm">
-          <span class="partner-logo-label">PARTNER</span>
-          <span class="partner-logo-name">シミックウェル</span>
-        </a>
+      <div class="sp-hero-img" style="background-image:url('assets/logo3.jpg')"></div>
+    </div>
+
+    <!-- OFFICIAL SPONSOR -->
+    <div class="sp-official">
+      <div class="sp-official-inner">
+        <div class="sp-sec-head">
+          <div class="sp-sec-labels">
+            <span class="sp-sec-en">OFFICIAL SPONSOR</span>
+            <span class="sp-sec-ja">オフィシャルスポンサー</span>
+          </div>
+          <div class="sp-nav">
+            <button class="sp-nav-btn" id="official-prev">&#8249;</button>
+            <button class="sp-nav-btn" id="official-next">&#8250;</button>
+          </div>
+        </div>
+        <div class="sp-official-slider" id="official-slider">
+          <a href="https://www.athleta.co.jp/" class="sp-official-card" target="_blank" rel="noopener">
+            <div class="sp-official-logo"><img src="assets/sponsor-athleta.png" alt="ATHLETA"></div>
+            <div class="sp-official-body">
+              <span class="sp-official-label">OFFICIAL WEAR PARTNER</span>
+              <div class="sp-official-name">ATHLETA</div>
+              <p class="sp-official-desc">クラブ公式ウェアサプライヤー。高品質なウェアで選手たちの挑戦を支えます。</p>
+              <span class="sp-official-link">企業サイトを見る →</span>
+            </div>
+          </a>
+          <a href="https://nofootball.base.shop/" class="sp-official-card" target="_blank" rel="noopener">
+            <div class="sp-official-logo"><img src="assets/sponsor-nof.png" alt="NOF FOOTBALL"></div>
+            <div class="sp-official-body">
+              <span class="sp-official-label">OFFICIAL PARTNER</span>
+              <div class="sp-official-name">NOF FOOTBALL</div>
+              <p class="sp-official-desc">サッカーを通じて、未来の可能性を広げます。</p>
+              <span class="sp-official-link">企業サイトを見る →</span>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
+
+    <!-- PARTNER -->
+    <div class="sp-partner">
+      <div class="sp-partner-inner">
+        <div class="sp-sec-head">
+          <div class="sp-sec-labels">
+            <span class="sp-sec-en" style="color:var(--main-color)">PARTNER</span>
+            <span class="sp-sec-ja">パートナー</span>
+          </div>
+          <div class="sp-partner-head-right">
+            <div class="sp-nav">
+              <button class="sp-nav-btn sp-nav-btn--dark" id="partner-prev">&#8249;</button>
+              <button class="sp-nav-btn sp-nav-btn--dark" id="partner-next">&#8250;</button>
+            </div>
+            <div class="sp-partner-count">
+              <span id="partner-current">01</span> / <span id="partner-total">04</span>
+              <div class="sp-partner-progress"><div class="sp-partner-bar" id="partner-bar"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sp-partner-slider" id="partner-slider">
+          <a href="https://himawari-ichiba.com/" class="sp-partner-card" target="_blank" rel="noopener">
+            <div class="sp-partner-logo"><img src="assets/sponsor-himawari.png" alt="ひまわり市場"></div>
+            <span class="sp-partner-label">PARTNER</span>
+            <div class="sp-partner-name">ひまわり市場</div>
+            <p class="sp-partner-desc">地域に根ざした新鮮な食材をお届けします。</p>
+            <span class="sp-partner-link">企業サイトを見る →</span>
+          </a>
+          <a href="https://www.alps-hs.co.jp/" class="sp-partner-card" target="_blank" rel="noopener">
+            <div class="sp-partner-logo"><img src="assets/sponsor-alps.png" alt="株式会社アルプス"></div>
+            <span class="sp-partner-label">PARTNER</span>
+            <div class="sp-partner-name">株式会社アルプス</div>
+            <p class="sp-partner-desc">精密技術で、未来を支えるモノづくり。</p>
+            <span class="sp-partner-link">企業サイトを見る →</span>
+          </a>
+          <a href="https://cmic-well.com/" class="sp-partner-card" target="_blank" rel="noopener">
+            <div class="sp-partner-logo"><img src="assets/sponsor-cmic.webp" alt="シミックウェル"></div>
+            <span class="sp-partner-label">PARTNER</span>
+            <div class="sp-partner-name">シミックウェル</div>
+            <p class="sp-partner-desc">健康と笑顔をつくるパートナー。</p>
+            <span class="sp-partner-link">企業サイトを見る →</span>
+          </a>
+          <a href="http://kkcinc.co.jp/" class="sp-partner-card" target="_blank" rel="noopener">
+            <div class="sp-partner-logo sp-partner-logo--text">KKC</div>
+            <span class="sp-partner-label">SUPPORTER</span>
+            <div class="sp-partner-name">環境管理コンサルタント</div>
+            <p class="sp-partner-desc">環境と地域の未来を守るために。</p>
+            <span class="sp-partner-link">企業サイトを見る →</span>
+          </a>
+        </div>
+        <div class="sp-dots" id="sp-dots"></div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="sp-cta">
+      <div class="sp-cta-inner">
+        <div>
+          <p class="sp-cta-title">共に、未来を育てるパートナーを募集しています。</p>
+          <p class="sp-cta-desc">八ヶ岳グランデフットボールクラブの活動にご賛同いただける企業・団体様を募集しています。</p>
+        </div>
+        <a href="partners.html" class="sp-cta-btn">パートナーになる →</a>
+      </div>
+    </div>
+
   </section>
 
   <!-- SNS・スポンサー -->
@@ -1282,6 +1404,52 @@
         if (tickerBar) tickerBar.style.opacity = Math.max(1 - progress, 0);
       }
     });
+
+    // Partner carousel
+    (function() {
+      var slider = document.getElementById('partner-slider');
+      if (!slider) return;
+      var cards = slider.querySelectorAll('.sp-partner-card');
+      var total = cards.length;
+      var current = 0;
+      var dotsWrap = document.getElementById('sp-dots');
+      document.getElementById('partner-total').textContent = String(total).padStart(2,'0');
+
+      for (var i = 0; i < total; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'sp-dot' + (i === 0 ? ' active' : '');
+        (function(idx){ dot.addEventListener('click', function(){ goTo(idx); }); })(i);
+        dotsWrap.appendChild(dot);
+      }
+
+      function goTo(idx) {
+        current = Math.max(0, Math.min(idx, total - 1));
+        var cardW = cards[0].offsetWidth + 14;
+        slider.scrollTo({ left: current * cardW, behavior: 'smooth' });
+        document.getElementById('partner-current').textContent = String(current + 1).padStart(2,'0');
+        var bar = document.getElementById('partner-bar');
+        if (bar) bar.style.width = ((current + 1) / total * 100) + '%';
+        dotsWrap.querySelectorAll('.sp-dot').forEach(function(d, i){ d.classList.toggle('active', i === current); });
+      }
+
+      document.getElementById('partner-prev').addEventListener('click', function(){ goTo(current - 1); });
+      document.getElementById('partner-next').addEventListener('click', function(){ goTo(current + 1); });
+
+      // Official sponsor slider (scroll)
+      var oSlider = document.getElementById('official-slider');
+      var oCards = oSlider ? oSlider.querySelectorAll('.sp-official-card') : [];
+      var oCurrent = 0;
+      if (oCards.length > 0) {
+        document.getElementById('official-prev').addEventListener('click', function(){
+          oCurrent = Math.max(0, oCurrent - 1);
+          oSlider.scrollTo({ left: oCurrent * (oCards[0].offsetWidth + 3), behavior: 'smooth' });
+        });
+        document.getElementById('official-next').addEventListener('click', function(){
+          oCurrent = Math.min(oCards.length - 1, oCurrent + 1);
+          oSlider.scrollTo({ left: oCurrent * (oCards[0].offsetWidth + 3), behavior: 'smooth' });
+        });
+      }
+    })();
   </script>
 
 </body>
