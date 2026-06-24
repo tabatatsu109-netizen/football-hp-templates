@@ -221,7 +221,7 @@
     .ticker-item { color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
 
     /* ── 育成方針 ─────────────────────────────────────── */
-    .philosophy { background: var(--dark2); padding: 78px 24px; }
+    .philosophy { background: var(--dark2); padding: 80px 24px; }
     .section-head { max-width: 1240px; margin: 0 auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 42px; flex-wrap: wrap; }
     .section-en { font-family: 'Anton', sans-serif; color: var(--main-color); font-size: 15px; letter-spacing: 4px; }
     .section-ja { margin: 8px 0 0 0; color: #fff; font-size: 34px; font-weight: 900; letter-spacing: 1px; }
@@ -236,7 +236,7 @@
     .pillar-body { margin: 0; color: #9a9aa2; font-size: 14px; line-height: 1.85; }
 
     /* ── 試合・結果 ───────────────────────────────────── */
-    .match-section { background: var(--light); padding: 78px 24px; }
+    .match-section { background: var(--light); padding: 80px 24px; }
     .match-inner { max-width: 1240px; margin: 0 auto; }
     .match-head-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 30px; }
     .section-ja-dark { margin: 8px 0 0 0; color: #16161a; font-size: 34px; font-weight: 900; letter-spacing: 1px; }
@@ -336,7 +336,7 @@
     .no-data { color: #aaa; font-size: 14px; padding: 20px 26px; }
 
     /* ── ニュース ─────────────────────────────────────── */
-    .news-section { background: #fff; padding: 78px 24px; border-top: 1px solid #eceae5; }
+    .news-section { background: #fff; padding: 80px 24px; border-top: 1px solid #eceae5; }
     .news-inner { max-width: 1240px; margin: 0 auto; }
     .news-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 34px; }
     .news-more { color: #16161a; font-size: 13px; font-weight: 700; letter-spacing: 1px; border-bottom: 2px solid var(--main-color); padding-bottom: 4px; }
@@ -352,7 +352,7 @@
     .news-arrow { color: #c4c3bd; font-size: 18px; }
 
     /* ── 選手プロフィール ────────────────────────────── */
-    .players-section { background: var(--dark2); padding: 80px 24px; }
+    .players-section { background: var(--dark); padding: 80px 24px; }
     .players-inner { max-width: 1240px; margin: 0 auto; }
     .players-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 34px; }
     .players-more {
@@ -394,7 +394,7 @@
     .school-inner { max-width: 1240px; margin: 0 auto; position: relative; display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: center; }
     .school-en { font-family: 'Anton', sans-serif; color: #fff; font-size: 15px; letter-spacing: 4px; opacity: 0.8; }
     .school-title { margin: 10px 0 0 0; color: #fff; font-size: 42px; font-weight: 900; line-height: 1.2; letter-spacing: 1px; }
-    .school-desc { margin: 20px 0 0 0; color: #ffe2e5; font-size: 15px; line-height: 1.95; }
+    .school-desc { margin: 20px 0 0 0; color: rgba(255,255,255,0.82); font-size: 15px; line-height: 1.95; }
     .school-tags { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
     .school-tag { background: rgba(0,0,0,0.18); color: #fff; font-size: 13px; font-weight: 700; padding: 8px 14px; }
     .school-cta {
@@ -428,7 +428,7 @@
     }
 
     /* ── 会員専用 ─────────────────────────────────────── */
-    .members-section { background: var(--dark); padding: 74px 24px; }
+    .members-section { background: var(--dark); padding: 80px 24px; }
     .members-inner {
       max-width: 1240px; margin: 0 auto;
       background: var(--dark3); border: 1px solid #26262d;
@@ -517,33 +517,36 @@
     @media (max-width: 960px) { .sp-hero-img { display: none; } .sp-official-slider { grid-template-columns: 1fr; } }
     @media (max-width: 600px) { .sp-official-logo { flex: 0 0 120px; } .sp-official-name { font-size: 16px; } .sp-partner-card { flex: 0 0 175px; } .sp-cta-inner { flex-direction: column; } .sp-partner-count { display: none; } }
 
-    /* ── SNS・スポンサー ─────────────────────────────── */
-    .sns-sponsors { background: var(--dark2); padding: 0 24px 70px; }
-    .ss-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .ss-block { background: var(--dark3); border: 1px solid #222228; padding: 34px; }
-    .ss-en { font-family: 'Anton', sans-serif; color: var(--main-color); font-size: 14px; letter-spacing: 4px; }
-    .ss-title { margin: 8px 0 22px 0; color: #fff; font-size: 22px; font-weight: 900; letter-spacing: 1px; }
-    .sns-list { display: flex; flex-direction: column; gap: 12px; }
-    .sns-link {
-      display: flex; align-items: center; justify-content: space-between;
-      background: var(--dark2); border: 1px solid #26262d;
-      padding: 16px 20px;
-    }
-    .sns-link-info { display: flex; flex-direction: column; }
-    .sns-name   { color: #fff; font-weight: 700; font-size: 14px; letter-spacing: 1px; }
-    .sns-handle { color: #76767f; font-size: 12px; margin-top: 2px; }
-    .sns-arrow  { color: var(--main-color); font-size: 18px; }
-    #sponsors-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
-    .sponsor-item {
-      height: 74px; background: var(--dark2); border: 1px solid #26262d;
-      display: flex; align-items: center; justify-content: center;
-      font-family: ui-monospace,monospace; font-size: 10px; color: #55555c;
-      text-align: center; padding: 8px;
-    }
-    .sponsor-item img { max-width: 100%; max-height: 50px; object-fit: contain; }
+    /* ── SNS セクション ── */
+    .sns-section { background: var(--dark); border-top: 1px solid rgba(255,255,255,0.07); }
+    .sns-header { max-width: 1240px; margin: 0 auto; padding: 52px 24px 28px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .sns-header-en { font-family: 'Anton',sans-serif; color: var(--main-color); font-size: 12px; letter-spacing: 4px; margin-bottom: 6px; }
+    .sns-header-title { color: #fff; font-size: 30px; font-weight: 900; letter-spacing: 1px; margin-bottom: 4px; }
+    .sns-header-desc { color: #76767f; font-size: 13px; }
+    .sns-header-more { color: #fff; font-size: 13px; font-weight: 700; border-bottom: 2px solid var(--main-color); padding-bottom: 3px; text-decoration: none; white-space: nowrap; transition: color 0.2s; }
+    .sns-header-more:hover { color: var(--main-color); }
+    .sns-cards { display: flex; flex-direction: column; }
+    .sns-card { position: relative; display: block; min-height: 130px; overflow: hidden; text-decoration: none; color: inherit; transition: filter 0.25s; }
+    .sns-card:hover { filter: brightness(1.12); }
+    .sns-card-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .sns-card-overlay { position: absolute; inset: 0; }
+    .sns-card--instagram .sns-card-overlay { background: linear-gradient(to right, rgba(80,0,160,0.88) 0%, rgba(200,20,90,0.68) 100%); }
+    .sns-card--youtube   .sns-card-overlay { background: linear-gradient(to right, rgba(160,0,0,0.92) 0%, rgba(180,50,50,0.68) 100%); }
+    .sns-card--line      .sns-card-overlay { background: linear-gradient(to right, rgba(0,140,55,0.92) 0%, rgba(0,180,80,0.68) 100%); }
+    .sns-card--twitter   .sns-card-overlay { background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, rgba(20,30,50,0.75) 100%); }
+    .sns-card-content { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .sns-card-left { display: flex; align-items: center; gap: 22px; }
+    .sns-card-icon { width: 54px; height: 54px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .sns-card-icon svg { width: 50px; height: 50px; }
+    .sns-card-platform { font-family: 'Anton',sans-serif; font-size: 10px; letter-spacing: 3px; color: rgba(255,255,255,0.75); margin-bottom: 4px; }
+    .sns-card-handle { font-size: clamp(16px,2.2vw,26px); font-weight: 900; color: #fff; margin-bottom: 5px; letter-spacing: 0.5px; }
+    .sns-card-desc { font-size: 12px; color: rgba(255,255,255,0.65); line-height: 1.7; }
+    .sns-card-arrow { color: rgba(255,255,255,0.6); font-size: 26px; flex-shrink: 0; }
+    @media (max-width: 900px) { .sns-card-content { padding: 22px 24px; } }
+    @media (max-width: 600px) { .sns-card-icon { width: 40px; height: 40px; } .sns-card-icon svg { width: 38px; height: 38px; } .sns-card-handle { font-size: 16px; } .sns-card-desc { display: none; } .sns-card-content { padding: 18px 16px; gap: 14px; } }
 
     /* ── アクセス ─────────────────────────────────────── */
-    .access-section { background: var(--light); padding: 70px 24px; }
+    .access-section { background: var(--light); padding: 80px 24px; }
     .access-inner {
       max-width: 1240px; margin: 0 auto;
       display: grid; grid-template-columns: 1fr 1.1fr;
@@ -1056,21 +1059,17 @@
 
   </section>
 
-  <!-- SNS・スポンサー -->
-  <section class="sns-sponsors">
-    <div class="ss-inner">
-      <div class="ss-block">
-        <div class="ss-en">FOLLOW US</div>
-        <h3 class="ss-title">SNS</h3>
-        <div class="sns-list" id="sns-list"></div>
+  <!-- SNS -->
+  <section class="sns-section">
+    <div class="sns-header">
+      <div>
+        <div class="sns-header-en">FOLLOW US</div>
+        <h2 class="sns-header-title">SNS</h2>
+        <p class="sns-header-desc">クラブの最新情報を各SNSでチェック！</p>
       </div>
-      <div class="ss-block">
-        <div class="ss-en">SUPPORT US</div>
-        <h3 class="ss-title">GRANDEを支援する</h3>
-        <p style="color:#9a9aa2;font-size:14px;line-height:1.9;margin-bottom:16px;">お金だけでなく、時間・経験・スキルなど、さまざまな形で支援できます。</p>
-        <a href="contact.html" style="display:inline-block;background:var(--main-color);color:#fff;font-size:13px;font-weight:700;letter-spacing:1px;padding:12px 20px;">支援・スポンサーについて →</a>
-      </div>
+      <a href="#" class="sns-header-more" id="sns-all-link" style="display:none">すべてのSNSを見る →</a>
     </div>
+    <div class="sns-cards" id="sns-cards"></div>
   </section>
 
   <!-- アクセス -->
@@ -1297,25 +1296,65 @@
         }
 
         // SNS
+        var snsConf = {
+          instagram: {
+            label: 'INSTAGRAM', cls: 'sns-card--instagram', bg: 'assets/photo1.jpg',
+            desc: '練習風景や試合の様子、イベント情報など<br>日々の活動を写真や動画でお届けします。',
+            icon: '<svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>'
+          },
+          youtube: {
+            label: 'YOUTUBE', cls: 'sns-card--youtube', bg: 'assets/photo2.jpg',
+            desc: '試合ハイライトやチーム紹介、インタビューなど<br>動画でクラブの魅力をお届けします。',
+            icon: '<svg viewBox="0 0 24 24" fill="white"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>'
+          },
+          line: {
+            label: 'LINE', cls: 'sns-card--line', bg: 'assets/photo3.jpg',
+            desc: 'イベント情報やお得な情報を<br>いち早くお届けします。',
+            icon: '<svg viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>'
+          },
+          twitter: {
+            label: 'X', cls: 'sns-card--twitter', bg: 'assets/logo3.jpg',
+            desc: 'クラブの最新ニュースをリアルタイムでお届けします。',
+            icon: '<svg viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>'
+          },
+          facebook: {
+            label: 'FACEBOOK', cls: 'sns-card--facebook', bg: 'assets/logo3.jpg',
+            desc: 'クラブの活動報告やイベント情報をお届けします。',
+            icon: '<svg viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>'
+          }
+        };
         var snsMap = [
-          { key: 'instagram', name: 'Instagram', handle: get(c, 'sns.instagram') ? '@' + (get(c, 'sns.instagram') || '').replace(/.*instagram\.com\/([^/]+).*/,'$1') : null, url: get(c, 'sns.instagram') },
-          { key: 'youtube',   name: 'YouTube',   handle: get(c, 'sns.youtube') ? 'FC ' + (get(c, 'club.shortName') || '') + ' CHANNEL' : null, url: get(c, 'sns.youtube') },
-          { key: 'twitter',   name: 'X (旧Twitter)', handle: get(c, 'sns.twitter') ? '@' + (get(c, 'sns.twitter') || '').replace(/.*twitter\.com\/([^/]+).*/,'$1') : null, url: get(c, 'sns.twitter') },
-          { key: 'facebook',  name: 'Facebook',  handle: get(c, 'sns.facebook') ? get(c, 'club.name') : null, url: get(c, 'sns.facebook') },
-          { key: 'line',      name: 'LINE',       handle: get(c, 'sns.lineUrl') ? '公式LINE' : null, url: get(c, 'sns.lineUrl') },
+          { key: 'instagram', handle: get(c,'sns.instagram') ? '@'+(get(c,'sns.instagram')||'').replace(/.*instagram\.com\/([^/?]+).*/,'$1') : null, url: get(c,'sns.instagram') },
+          { key: 'youtube',   handle: get(c,'sns.youtube')   ? 'FC '+(get(c,'club.shortName')||'')+' CHANNEL' : null, url: get(c,'sns.youtube') },
+          { key: 'line',      handle: get(c,'sns.lineUrl')   ? '公式LINE' : null, url: get(c,'sns.lineUrl') },
+          { key: 'twitter',   handle: get(c,'sns.twitter')   ? '@'+(get(c,'sns.twitter')||'').replace(/.*twitter\.com\/([^/?]+).*/,'$1') : null, url: get(c,'sns.twitter') },
+          { key: 'facebook',  handle: get(c,'sns.facebook')  ? get(c,'club.name') : null, url: get(c,'sns.facebook') },
         ];
-        var snsList = document.getElementById('sns-list');
-        if (snsList) {
-          var snsHtml = snsMap.filter(function (s) { return s.url; }).map(function (s) {
-            return '<a href="' + esc(s.url) + '" target="_blank" rel="noopener" class="sns-link">' +
-              '<span class="sns-link-info">' +
-                '<span class="sns-name">' + esc(s.name) + '</span>' +
-                '<span class="sns-handle">' + esc(s.handle || '') + '</span>' +
-              '</span>' +
-              '<span class="sns-arrow">›</span>' +
-              '</a>';
+        var snsCards = document.getElementById('sns-cards');
+        if (snsCards) {
+          var active = snsMap.filter(function(s){ return s.url; });
+          snsCards.innerHTML = active.map(function(s){
+            var cf = snsConf[s.key] || { label: s.key.toUpperCase(), cls: '', bg: 'assets/logo3.jpg', desc: '', icon: '' };
+            return '<a href="'+esc(s.url)+'" target="_blank" rel="noopener" class="sns-card '+cf.cls+'">' +
+              '<div class="sns-card-bg" style="background-image:url(\''+cf.bg+'\')"></div>' +
+              '<div class="sns-card-overlay"></div>' +
+              '<div class="sns-card-content">' +
+                '<div class="sns-card-left">' +
+                  '<div class="sns-card-icon">'+cf.icon+'</div>' +
+                  '<div>' +
+                    '<div class="sns-card-platform">'+cf.label+'</div>' +
+                    '<div class="sns-card-handle">'+esc(s.handle||s.key)+'</div>' +
+                    '<div class="sns-card-desc">'+cf.desc+'</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="sns-card-arrow">›</div>' +
+              '</div>' +
+            '</a>';
           }).join('');
-          snsList.innerHTML = snsHtml || '<p style="color:#76767f;font-size:13px;">SNSは現在設定されていません</p>';
+          if (active.length > 0) {
+            var allLink = document.getElementById('sns-all-link');
+            if (allLink) { allLink.href = active[0].url; allLink.style.display = ''; }
+          }
         }
 
         // スポンサー
