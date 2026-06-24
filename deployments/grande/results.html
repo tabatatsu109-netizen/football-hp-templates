@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>試合日程・結果</title>
+  <title>試合結果</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -12,6 +12,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN',sans-serif; background: var(--light); color: #16161a; -webkit-font-smoothing: antialiased; }
     a { text-decoration: none; color: inherit; }
+
     .site-header { position: sticky; top: 0; z-index: 50; background: rgba(12,12,14,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.08); }
     .header-inner { max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 74px; display: flex; align-items: center; gap: 20px; }
     .header-logo { display: flex; align-items: center; gap: 11px; flex: none; }
@@ -51,24 +52,9 @@
     .tab-btn { font-family:'Anton',sans-serif; font-size:15px; letter-spacing:2px; padding:11px 22px; border-radius:2px; cursor:pointer; border:1px solid #d8d7d2; background:transparent; color:#16161a; transition:background 0.15s,color 0.15s,border-color 0.15s; }
     .tab-btn.tab-active { background:var(--main-color); color:#fff; border-color:var(--main-color); }
 
-    /* 次の試合 */
+    /* 結果テーブル */
     .section-title { font-family:'Anton',sans-serif; font-size:13px; letter-spacing:3px; color:var(--main-color); margin-bottom:16px; }
-    .next-panel { background:var(--dark); color:#fff; padding:30px; margin-bottom:32px; display:flex; gap:32px; align-items:center; flex-wrap:wrap; }
-    .next-badge { display:inline-block; background:var(--main-color); color:#fff; font-size:11px; font-weight:700; letter-spacing:2px; padding:4px 10px; margin-bottom:10px; }
-    .next-comp  { color:#9a9aa2; font-size:13px; }
-    .next-date-display { font-family:'Anton',sans-serif; font-size:32px; margin:6px 0; }
-    .next-detail{ color:#dcdce0; font-size:13px; line-height:1.8; margin-top:8px; }
-    .next-vs { display:flex; align-items:center; gap:24px; flex:1; justify-content:center; min-width:260px; }
-    .next-team { text-align:center; }
-    .next-logo-home { width:60px;height:60px;margin:0 auto;background:var(--main-color);display:flex;align-items:center;justify-content:center;transform:rotate(45deg); }
-    .next-logo-abbr { transform:rotate(-45deg);font-family:'Anton',sans-serif;font-size:22px;color:#fff; }
-    .next-logo-away { width:60px;height:60px;margin:0 auto;background:#22222a;border:1px solid #34343d;display:flex;align-items:center;justify-content:center;font-size:9px;color:#76767f;font-family:ui-monospace,monospace; }
-    .next-team-name { margin-top:10px;font-weight:900;font-size:14px;letter-spacing:1px; }
-    .next-team-label{ color:#6f6f78;font-size:11px; }
-    .next-vs-text { font-family:'Anton',sans-serif;font-size:28px;color:#3a3a42;font-style:italic; }
-
-    /* 結果・予定テーブル */
-    .results-block, .schedule-block { background:#fff; border:1px solid #e4e3de; margin-bottom:32px; }
+    .results-block { background:#fff; border:1px solid #e4e3de; margin-bottom:32px; }
     .block-head { display:flex;align-items:center;justify-content:space-between;padding:18px 26px;border-bottom:1px solid #efeee9; }
     .block-title { font-weight:900;font-size:15px;letter-spacing:1px; }
     .result-row {
@@ -86,15 +72,6 @@
     .badge-win  { background:#1f8a4c; }
     .badge-draw { background:#b8870b; }
     .badge-lose { background:#8a8a90; }
-
-    .schedule-row { display:grid;grid-template-columns:80px 1fr 1fr;align-items:start;gap:16px;padding:18px 26px;border-bottom:1px solid #f1f0eb; }
-    .schedule-row:last-child { border-bottom:none; }
-    .s-date { font-family:ui-monospace,monospace;font-size:13px;color:#86868f; }
-    .s-comp { font-size:12px;color:#a6a6ad;margin-top:3px; }
-    .s-match { font-weight:700;font-size:14px; }
-    .s-venue { font-size:12px;color:#a6a6ad;margin-top:3px; }
-    .s-time  { font-size:13px;color:#46464d;text-align:right; }
-
     .no-data { color:#aaa;font-size:14px;padding:30px 26px; }
 
     .site-footer { background:var(--dark);padding:54px 24px 30px;border-top:3px solid var(--main-color); }
@@ -115,9 +92,6 @@
       .header-nav,.btn-login { display:none; }
       .hamburger { display:flex; }
       .result-row { grid-template-columns:60px 1fr 110px 1fr 40px;gap:8px; }
-      .schedule-row { grid-template-columns:70px 1fr; }
-      .s-time { display:none; }
-      .next-panel { flex-direction:column; }
       .footer-inner { flex-direction:column;gap:32px; }
     }
   </style>
@@ -129,7 +103,7 @@
       <a href="index.html" class="header-logo">
         <div class="logo-mark">
           <img id="club-logo" class="logo-mark-img" src="" alt="ロゴ">
-          <span class="logo-mark-letter" id="logo-abbr">A</span>
+          <span class="logo-mark-letter" id="logo-abbr">G</span>
         </div>
         <div class="logo-text">
           <img id="club-short-name" src="assets/logo2.png" alt="八ヶ岳グランデFC" class="logo-name-img" style="height:30px;object-fit:contain;">
@@ -163,33 +137,18 @@
 
   <div class="page-hero">
     <div class="page-hero-inner">
-      <div class="page-en">MATCH</div>
-      <h1 class="page-title">試合日程・結果</h1>
-      <div class="breadcrumb"><a href="index.html">HOME</a><span style="color:#3a3a42;">›</span><span>試合日程・結果</span></div>
+      <div class="page-en">MATCH RESULTS</div>
+      <h1 class="page-title">試合結果</h1>
+      <div class="breadcrumb"><a href="index.html">HOME</a><span style="color:#3a3a42;">›</span><span>試合結果</span></div>
     </div>
   </div>
 
   <main class="main-content">
     <div id="tab-buttons"></div>
-    <div id="next-section">
-      <div class="section-title">NEXT MATCH</div>
-      <div class="next-panel" id="next-panel">
-        <p style="color:#9a9aa2;font-size:14px;">読み込み中...</p>
-      </div>
-    </div>
-    <div id="results-section">
-      <div class="section-title">RECENT RESULTS</div>
-      <div class="results-block">
-        <div class="block-head"><span class="block-title">試合結果</span></div>
-        <div id="results-list"><p class="no-data">読み込み中...</p></div>
-      </div>
-    </div>
-    <div id="schedule-section">
-      <div class="section-title">UPCOMING MATCHES</div>
-      <div class="schedule-block">
-        <div class="block-head"><span class="block-title">試合予定</span></div>
-        <div id="schedule-list"><p class="no-data">読み込み中...</p></div>
-      </div>
+    <div class="section-title">RESULTS</div>
+    <div class="results-block">
+      <div class="block-head"><span class="block-title">試合結果</span></div>
+      <div id="results-list"><p class="no-data">読み込み中...</p></div>
     </div>
   </main>
 
@@ -197,10 +156,10 @@
     <div class="footer-inner">
       <div>
         <div class="footer-logo-wrap">
-          <div class="footer-logo-mark"><span class="footer-logo-letter" id="footer-abbr">A</span></div>
+          <div class="footer-logo-mark"><span class="footer-logo-letter" id="footer-abbr">G</span></div>
           <span class="footer-club-name" id="footer-club-name">クラブ名</span>
         </div>
-        <p class="footer-tagline">横浜を拠点とする中学生年代の育成サッカークラブ。</p>
+        <p class="footer-tagline">八ヶ岳の大自然のもと、子どもたちがサッカーを通じて<br>心と身体を磨き、夢に向かって努力できるクラブ。</p>
       </div>
       <div class="footer-links">
         <div class="footer-col">
@@ -231,10 +190,8 @@
 
     function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function toDate(s){ if(!s)return null; var d=new Date(s); return isNaN(d.getTime())?null:d; }
-    function formatDate(s){ return String(s||'').replace(/-/g,'/'); }
     function resultClass(rs){ if(!rs)return'badge-draw'; if(/勝|win/i.test(rs))return'badge-win'; if(/負|敗|lose/i.test(rs))return'badge-lose'; return'badge-draw'; }
     function resultLetter(rs){ if(!rs)return'D'; if(/勝|win/i.test(rs))return'W'; if(/負|敗|lose/i.test(rs))return'L'; return'D'; }
-    function days(d){ return['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date(d).getDay()]||''; }
 
     var state = { config:null, allMatches:[], activeCategory:'', categories:[] };
 
@@ -245,77 +202,40 @@
         return '<button class="tab-btn'+(k===state.activeCategory?' tab-active':'')+'" data-cat="'+esc(k)+'">'+esc(k)+'</button>';
       }).join('');
       c.querySelectorAll('.tab-btn').forEach(function(btn){
-        btn.addEventListener('click',function(){ state.activeCategory=this.dataset.cat; renderTabs(); renderPage(); });
+        btn.addEventListener('click',function(){ state.activeCategory=this.dataset.cat; renderTabs(); renderResults(); });
       });
     }
 
-    function renderPage(){
+    function renderResults(){
       var cat = state.activeCategory;
-      var matches = state.allMatches.filter(function(m){ return m.category===cat; });
-      var today = new Date(); today.setHours(0,0,0,0);
+      var matches = state.allMatches.filter(function(m){ return !m.category || m.category===cat; });
       var clubName = state.config&&state.config.club?state.config.club.name||'FC':'FC';
-      var abbr = state.config&&state.config.club?(state.config.club.abbreviation||(state.config.club.shortName||'?')[0]):'?';
 
-      // 次の試合
-      var upcoming = matches.filter(function(m){ return !(m.result&&m.result.myScore!=null&&m.result.oppScore!=null); }).filter(function(m){ var d=toDate(m.date); return d&&d>=today; }).sort(function(a,b){ return(toDate(a.date)||0)-(toDate(b.date)||0); });
-      var next = upcoming[0];
-      var npEl = document.getElementById('next-panel');
-      if(npEl){
-        if(!next){ npEl.innerHTML='<p style="color:#9a9aa2;font-size:14px;">次の試合予定はありません</p>'; }
-        else{
-          npEl.innerHTML =
-            '<div>' +
-              '<div class="next-badge">NEXT MATCH</div>' +
-              '<div class="next-comp">'+esc(next.competitionName||next.type||'')+'</div>' +
-              '<div class="next-date-display">'+esc((next.date||'').replace(/-/g,'.'))+' <span style="color:var(--main-color);font-size:20px;">'+days(next.date)+'</span></div>' +
-              '<div class="next-detail">KICK OFF &nbsp;'+esc(next.time||next.kickoff||'-')+'<br>'+esc(next.venue||'')+'</div>' +
-            '</div>' +
-            '<div class="next-vs">' +
-              '<div class="next-team"><div class="next-logo-home"><span class="next-logo-abbr">'+esc(abbr)+'</span></div><div class="next-team-name">'+esc(clubName)+'</div><div class="next-team-label">HOME</div></div>' +
-              '<div class="next-vs-text">VS</div>' +
-              '<div class="next-team"><div class="next-logo-away">LOGO</div><div class="next-team-name">'+esc(next.opponent||'')+'</div><div class="next-team-label">AWAY</div></div>' +
-            '</div>';
-        }
-      }
+      var results = matches
+        .filter(function(m){ return m.result && m.result.publish!==false && m.result.myScore!=null && m.result.oppScore!=null; })
+        .sort(function(a,b){ return(toDate(b.date)||0)-(toDate(a.date)||0); });
 
-      // 結果
-      var results = matches.filter(function(m){ return m.result&&m.result.publish!==false&&m.result.myScore!=null&&m.result.oppScore!=null; }).sort(function(a,b){ return(toDate(b.date)||0)-(toDate(a.date)||0); }).slice(0,10);
       var rl = document.getElementById('results-list');
-      if(rl){
-        if(results.length===0){ rl.innerHTML='<p class="no-data">試合結果はありません</p>'; }
-        else{
-          rl.innerHTML = results.map(function(m){
-            var rc=resultClass(m.result.resultStr); var rl2=resultLetter(m.result.resultStr);
-            return '<div class="result-row">'+
-              '<span class="r-date">'+esc(m.date?m.date.slice(5).replace('-','.'):'')+'</span>'+
-              '<span class="r-home">'+esc(clubName)+'</span>'+
-              '<span class="r-score"><span class="r-score-num">'+m.result.myScore+'</span><span class="r-sep">-</span><span class="r-score-num">'+m.result.oppScore+'</span></span>'+
-              '<span class="r-opp">'+esc(m.opponent||'')+'</span>'+
-              '<span class="r-badge '+rc+'">'+rl2+'</span>'+
-              '</div>';
-          }).join('');
-        }
+      if(!rl) return;
+      if(results.length===0){
+        rl.innerHTML='<p class="no-data">試合結果はありません</p>';
+        return;
       }
-
-      // 予定
-      var schedule = matches.filter(function(m){ return !(m.result&&m.result.myScore!=null); }).filter(function(m){ var d=toDate(m.date); return d&&d>=today; }).sort(function(a,b){ return(toDate(a.date)||0)-(toDate(b.date)||0); });
-      var sl = document.getElementById('schedule-list');
-      if(sl){
-        if(schedule.length===0){ sl.innerHTML='<p class="no-data">今後の試合予定はありません</p>'; }
-        else{
-          sl.innerHTML = schedule.map(function(m){
-            return '<div class="schedule-row">'+
-              '<div><div class="s-date">'+esc(formatDate(m.date))+'</div><div class="s-comp">'+esc(m.competitionName||m.type||'')+'</div></div>'+
-              '<div><div class="s-match">vs '+esc(m.opponent||'')+'</div><div class="s-venue">'+esc(m.venue||'')+'</div></div>'+
-              '<div class="s-time">'+esc(m.time||m.kickoff||'')+'</div>'+
-              '</div>';
-          }).join('');
-        }
-      }
+      rl.innerHTML = results.map(function(m){
+        var rc=resultClass(m.result.resultStr);
+        var rb=resultLetter(m.result.resultStr);
+        return '<div class="result-row">'+
+          '<span class="r-date">'+esc(m.date?m.date.slice(5).replace('-','.'):'')+'</span>'+
+          '<span class="r-home">'+esc(clubName)+'</span>'+
+          '<span class="r-score"><span class="r-score-num">'+m.result.myScore+'</span><span class="r-sep">-</span><span class="r-score-num">'+m.result.oppScore+'</span></span>'+
+          '<span class="r-opp">'+esc(m.opponent||'')+'</span>'+
+          '<span class="r-badge '+rc+'">'+rb+'</span>'+
+          '</div>';
+      }).join('');
     }
 
     ConfigLoader.apply({
-      pageTitle: '試合日程・結果',
+      pageTitle: '試合結果',
       onLoaded: function(c){
         function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
         state.config = c;
@@ -330,15 +250,15 @@
 
         var binId=get(c,'integration.jsonbinBinId')||get(c,'matchPlanner.jsonbinBinId');
         var apiKey=get(c,'integration.jsonbinApiKey')||get(c,'matchPlanner.jsonbinApiKey');
-        if(!binId||/^DUMMY/i.test(binId)){ renderPage(); return; }
+        if(!binId||/^DUMMY/i.test(binId)){ renderResults(); return; }
         fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest',{headers:{'X-Master-Key':apiKey}})
           .then(function(r){ return r.json(); })
           .then(function(json){
             var m=json&&json.record&&json.record.matches;
             state.allMatches=Array.isArray(m)?m:[];
-            renderPage();
+            renderResults();
           })
-          .catch(function(){ renderPage(); });
+          .catch(function(){ renderResults(); });
       }
     });
   </script>
