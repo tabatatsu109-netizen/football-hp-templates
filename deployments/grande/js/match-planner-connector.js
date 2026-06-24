@@ -207,10 +207,14 @@ const AuroraConnector = (function () {
     var container = document.getElementById('match-next-inner');
     if (!container) return;
 
+    var panel = container.parentElement;
+
     if (!next) {
-      container.innerHTML = '<p style="color:#9a9aa2;font-size:14px;padding:30px 20px;text-align:center;">次の試合予定はありません</p>';
+      if (panel) panel.style.display = 'none';
       return;
     }
+
+    if (panel) panel.style.display = '';
 
     var dateDisp = next.date ? next.date.replace(/-/g, '.') : '';
     var day = dayLabel(next.date);
