@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRANDEを応援する│八ヶ岳グランデフットボールクラブ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --main-color: #e3001b; --dark: #0a0a0c; --dark2: #0e0e11; --dark3: #141418; --light: #f5f4f1;
+            --green:#1A6B3C; --green-dark:#0F4526; --green-deep:#071A0F;
+            --gold:#D4A820; --gold-light:#E8C040;
+            --white:#FFFFFF; --off-white:#F4F7FB;
+            --gray:#8A9BB0; --light-gray:#F0F4F8;
+            --text:#0D1B2A; --border:#DDE4EF; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans JP','Zen Kaku Gothic New','Hiragino Kaku Gothic ProN',sans-serif; background: var(--light); color: #16161a; -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── ヘッダー ── */
+    .site-header { position: sticky; top: 0; z-index: 50; background: rgba(12,12,14,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .header-inner { max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 74px; display: flex; align-items: center; gap: 20px; }
+    .header-logo { display: flex; align-items: center; gap: 11px; flex: none; }
+    .logo-mark { width: 38px; height: 38px; background: var(--main-color); display: flex; align-items: center; justify-content: center; transform: rotate(45deg); flex: none; }
+    .logo-mark-img { width: 38px; height: 38px; object-fit: contain; display: none; }
+    .logo-mark.logo-has-img { transform: none; background: transparent; width: 44px; height: 44px; }
+    .logo-mark.logo-has-img .logo-mark-img { width: 44px; height: 44px; }
+    .logo-mark-letter { transform: rotate(-45deg); font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; line-height: 1; }
+    .logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .logo-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; letter-spacing: 1px; }
+    .logo-sub  { color: #8d8d96; font-size: 10px; letter-spacing: 3px; margin-top: 3px; }
+    .header-nav { flex: 1; display: flex; justify-content: center; gap: 22px; }
+    .header-nav a { color: #dcdce0; font-size: 13px; font-weight: 500; letter-spacing: 1px; transition: color 0.2s; }
+    .header-nav a:hover { color: #fff; }
+    .header-nav a.active { color: #fff; border-bottom: 2px solid var(--main-color); padding-bottom: 2px; }
+    .header-actions { display: flex; align-items: center; gap: 12px; flex: none; }
+    .btn-login { color: #9a9aa2; font-size: 12px; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.18); padding: 9px 14px; border-radius: 2px; }
+    .btn-trial { background: var(--main-color); color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 1px; padding: 11px 20px; border-radius: 2px; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 1px; }
+    .mobile-nav { display: none; position: fixed; inset: 0; z-index: 49; background: rgba(10,10,12,0.97); flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { color: #fff; font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+    .mobile-nav-close { position: absolute; top: 20px; right: 24px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--green-deep);
+      padding: 100px 1.4rem 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 3px solid var(--gold);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 60%, rgba(26,107,60,0.4) 0%, transparent 60%),
+                 radial-gradient(ellipse at 70% 30%, rgba(212,168,32,0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .hero-label { font-family: 'Barlow Condensed',sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 5px; color: var(--gold); margin-bottom: 20px; position: relative; }
+    .hero h1 { font-family: 'Barlow Condensed',sans-serif; font-size: clamp(48px,10vw,88px); font-weight: 900; color: var(--white); line-height: 1; margin-bottom: 20px; position: relative; letter-spacing: -1px; }
+    .hero h1 em { color: var(--gold); font-style: normal; display: block; }
+    .hero-sub { font-size: clamp(14px,2vw,17px); color: rgba(255,255,255,0.75); line-height: 1.9; margin-bottom: 36px; position: relative; max-width: 540px; margin-left: auto; margin-right: auto; }
+    .hero-btn { display: inline-block; background: var(--gold); color: var(--green-deep); padding: 15px 40px; font-size: 14px; font-weight: 900; text-decoration: none; transition: all 0.2s; position: relative; }
+    .hero-btn:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,168,32,0.4); }
+
+    /* ── キャッチ ── */
+    .catch { background: var(--green); padding: 48px 1.4rem; text-align: center; }
+    .catch p { font-size: clamp(15px,2.5vw,20px); color: rgba(255,255,255,0.9); line-height: 2; max-width: 680px; margin: 0 auto; font-weight: 500; }
+    .catch strong { color: var(--gold); font-weight: 900; }
+
+    /* ── 応援方法 ── */
+    .ways { padding: 72px 1.4rem; max-width: 1000px; margin: 0 auto; }
+    .ways-header { text-align: center; margin-bottom: 48px; }
+    .ways-label { font-family: 'Barlow Condensed',sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 4px; color: var(--gold); margin-bottom: 8px; }
+    .ways-title { font-family: 'Barlow Condensed',sans-serif; font-size: clamp(28px,5vw,44px); font-weight: 900; color: var(--text); line-height: 1.15; }
+    .ways-title em { color: var(--green); font-style: normal; }
+    .ways-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 20px; }
+    .way-card { background: var(--white); border: 1px solid var(--border); padding: 28px 24px; transition: all 0.25s; cursor: default; position: relative; overflow: hidden; }
+    .way-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--green); transform: scaleX(0); transition: transform 0.3s ease; transform-origin: left; }
+    .way-card:hover { border-color: var(--green); box-shadow: 0 12px 40px rgba(26,107,60,0.14); transform: translateY(-4px); }
+    .way-card:hover::after { transform: scaleX(1); }
+    .way-icon-wrap { width: 56px; height: 56px; background: var(--green); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; transition: background 0.25s; flex-shrink: 0; }
+    .way-card:hover .way-icon-wrap { background: var(--green-dark); }
+    .way-icon-wrap svg { width: 28px; height: 28px; fill: none; stroke: var(--white); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .way-title { font-size: 15px; font-weight: 900; color: var(--text); margin-bottom: 12px; }
+    .way-list { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+    .way-list li { background: var(--light-gray); color: var(--text); font-size: 12px; padding: 4px 10px; font-weight: 500; transition: background 0.2s; }
+    .way-card:hover .way-list li { background: #E8F5EE; color: var(--green-dark); }
+
+    /* ── 活動紹介 ── */
+    .activities { background: var(--off-white); padding: 72px 1.4rem; }
+    .activities-inner { max-width: 1000px; margin: 0 auto; }
+    .activities-header { text-align: center; margin-bottom: 48px; }
+    .act-label { font-family: 'Barlow Condensed',sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 4px; color: var(--gold); margin-bottom: 8px; }
+    .act-title { font-family: 'Barlow Condensed',sans-serif; font-size: clamp(26px,4vw,40px); font-weight: 900; color: var(--text); }
+    .act-title em { color: var(--green); font-style: normal; }
+    .act-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 20px; }
+    .act-card { background: var(--white); border: 1px solid var(--border); overflow: hidden; transition: all 0.25s; }
+    .act-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.1); transform: translateY(-3px); }
+    .act-card-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+    .act-card-img.green { background: linear-gradient(135deg, var(--green-deep), var(--green)); }
+    .act-card-img.gold  { background: linear-gradient(135deg, #6B4E0F, var(--gold)); }
+    .act-card-img.gray  { background: linear-gradient(135deg, #2A3A4A, #4A6070); }
+    .act-card-body { padding: 18px 20px; }
+    .act-card-title { font-size: 15px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
+    .act-card-desc { font-size: 13px; color: var(--gray); line-height: 1.7; }
+
+    /* ── メッセージ ── */
+    .message { padding: 80px 1.4rem; text-align: center; background: var(--white); border-top: 1px solid var(--border); }
+    .message-inner { max-width: 680px; margin: 0 auto; }
+    .message-icon { font-size: 48px; margin-bottom: 20px; }
+    .message-title { font-family: 'Barlow Condensed',sans-serif; font-size: clamp(26px,4vw,40px); font-weight: 900; color: var(--text); margin-bottom: 24px; line-height: 1.2; }
+    .message-title em { color: var(--green); font-style: normal; }
+    .message-body { font-size: 15px; color: var(--text); line-height: 2.1; }
+    .message-body strong { color: var(--green); font-weight: 900; }
+    .message-sig { margin-top: 32px; font-size: 13px; color: var(--gray); font-style: italic; }
+
+    /* ── CTA ── */
+    .cta { background: var(--green-deep); padding: 80px 1.4rem; text-align: center; border-top: 3px solid var(--gold); }
+    .cta-label { font-family: 'Barlow Condensed',sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 4px; color: var(--gold); margin-bottom: 14px; }
+    .cta-title { font-family: 'Barlow Condensed',sans-serif; font-size: clamp(24px,4vw,40px); font-weight: 900; color: var(--white); margin-bottom: 14px; line-height: 1.2; }
+    .cta-desc { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 32px; line-height: 1.9; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .cta-btn-gold { display: inline-block; background: var(--gold); color: var(--green-deep); padding: 14px 36px; font-size: 14px; font-weight: 900; text-decoration: none; transition: all 0.2s; }
+    .cta-btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .cta-btn-outline { display: inline-block; background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.4); padding: 14px 36px; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+    .cta-btn-outline:hover { border-color: var(--white); background: rgba(255,255,255,0.05); }
+
+    /* ── フッター ── */
+    .site-footer { background: var(--dark); padding: 54px 24px 30px; border-top: 3px solid var(--main-color); }
+    .footer-inner { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+    .footer-logo-wrap { display: flex; align-items: center; gap: 11px; }
+    .footer-logo-mark { width: 34px; height: 34px; background: var(--main-color); display: flex; align-items: center; justify-content: center; transform: rotate(45deg); flex: none; }
+    .footer-logo-letter { transform: rotate(-45deg); font-family: 'Anton',sans-serif; color: #fff; font-size: 16px; }
+    .footer-club-name { font-family: 'Anton',sans-serif; color: #fff; font-size: 18px; letter-spacing: 1px; }
+    .footer-tagline { margin: 18px 0 0 0; color: #76767f; font-size: 13px; line-height: 1.9; }
+    .footer-links { display: flex; gap: 56px; flex-wrap: wrap; }
+    .footer-col { display: flex; flex-direction: column; gap: 11px; }
+    .footer-col-title { color: var(--main-color); font-family: 'Anton',sans-serif; font-size: 12px; letter-spacing: 2px; }
+    .footer-col a { color: #b6b6bc; font-size: 13px; }
+    .footer-bottom { max-width: 1240px; margin: 38px auto 0; padding-top: 20px; border-top: 1px solid #1d1d22; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .footer-copy { color: #55555c; font-size: 11px; letter-spacing: 1px; }
+
+    @media (max-width: 900px) {
+      .header-nav, .btn-login { display: none; }
+      .hamburger { display: flex; }
+      .footer-inner { flex-direction: column; gap: 32px; }
+    }
+    @media (max-width: 600px) {
+      .ways, .activities { padding: 48px 1rem; }
+      .ways-grid { grid-template-columns: 1fr; }
+      .act-grid { grid-template-columns: 1fr 1fr; }
+      .cta-btns { flex-direction: column; align-items: center; }
+      .page-title { font-size: 32px; }
+    }
+    @media (max-width: 400px) {
+      .act-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo">
+        <div class="logo-mark">
+          <img id="club-logo" class="logo-mark-img" src="" alt="ロゴ">
+          <span class="logo-mark-letter" id="logo-abbr">G</span>
+        </div>
+        <div class="logo-text">
+          <img id="club-short-name" src="assets/logo2.png" alt="八ヶ岳グランデFC" class="logo-name-img" style="height:30px;object-fit:contain;">
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="club.html">CLUB</a>
+        <a href="results.html">試合・結果</a>
+        <a href="news.html">お知らせ</a>
+        <a href="team.html">選手</a>
+        <a href="partners.html">パートナー</a>
+        <a href="index.html#school">スクール・体験</a>
+      </nav>
+      <div class="header-actions">
+        <a href="index.html#members" class="btn-login">ログイン</a>
+        <a href="index.html#school" class="btn-trial">体験申込</a>
+      </div>
+      <button class="hamburger" id="hamburger-btn"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <nav class="mobile-nav" id="mobile-nav">
+    <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+    <a href="club.html">CLUB</a>
+    <a href="results.html">試合・結果</a>
+    <a href="news.html">お知らせ</a>
+    <a href="team.html">選手</a>
+    <a href="partners.html">パートナー</a>
+    <a href="index.html#school">スクール・体験</a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">SUPPORT GRANDE FC</div>
+    <h1>GRANDEを<em>応援する</em></h1>
+    <p class="hero-sub">選手たちの未来を、一緒につくる。<br>あなたの応援が、子どもたちの挑戦と成長につながります。</p>
+    <a class="hero-btn" href="contact.html">応援について問い合わせる →</a>
+  </div>
+
+  <!-- キャッチ -->
+  <div class="catch">
+    <p>応援は、<strong>お金だけではありません。</strong><br>
+    時間、経験、知識、モノ、人とのつながり。<br>
+    <strong>さまざまな形でクラブを応援できます。</strong></p>
+  </div>
+
+  <!-- 応援方法 -->
+  <div class="ways">
+    <div class="ways-header">
+      <div class="ways-label">HOW TO SUPPORT</div>
+      <div class="ways-title">あなたにできる<em>応援の形</em></div>
+    </div>
+    <div class="ways-grid">
+
+      <div class="way-card">
+        <div class="way-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93V18c0-.55-.45-1-1-1s-1 .45-1 1v1.93C7.06 19.44 4.56 16.94 4.07 14H6c.55 0 1-.45 1-1s-.45-1-1-1H4.07C4.56 9.06 7.06 6.56 10 6.07V8c0 .55.45 1 1 1s1-.45 1-1V6.07c2.94.49 5.44 2.99 5.93 5.93H16c-.55 0-1 .45-1 1s.45 1 1 1h1.93c-.49 2.94-2.99 5.44-5.93 5.93zM12 11c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z" stroke="none" fill="white"/></svg>
+        </div>
+        <div class="way-title">パートナーとして応援する</div>
+        <ul class="way-list">
+          <li>法人パートナー</li><li>個人サポーター</li>
+          <li>マンスリーサポーター</li><li>協賛金</li>
+        </ul>
+      </div>
+
+      <div class="way-card">
+        <div class="way-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" stroke="none" fill="white"/></svg>
+        </div>
+        <div class="way-title">グランデ食堂を応援する</div>
+        <ul class="way-list">
+          <li>お米の提供</li><li>食材の提供</li>
+          <li>協賛金</li><li>ボランティア参加</li>
+        </ul>
+      </div>
+
+      <div class="way-card">
+        <div class="way-icon-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <div class="way-title">モノで応援する</div>
+        <ul class="way-list">
+          <li>サッカー用品</li><li>ボール</li>
+          <li>トレーニング用品</li><li>備品</li>
+        </ul>
+      </div>
+
+      <div class="way-card">
+        <div class="way-icon-wrap">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <div class="way-title">遠征・イベントを応援する</div>
+        <ul class="way-list">
+          <li>バス協賛</li><li>宿泊協力</li>
+          <li>ガソリン協賛</li><li>イベント協賛</li>
+        </ul>
+      </div>
+
+      <div class="way-card">
+        <div class="way-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div class="way-title">スキルで応援する</div>
+        <ul class="way-list">
+          <li>写真撮影</li><li>動画制作</li>
+          <li>デザイン</li><li>WEB制作</li>
+          <li>栄養指導</li><li>通訳</li>
+        </ul>
+      </div>
+
+      <div class="way-card">
+        <div class="way-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="way-title">ボランティアとして応援する</div>
+        <ul class="way-list">
+          <li>イベント運営</li><li>会場設営</li>
+          <li>大会運営</li><li>グランデ食堂</li>
+        </ul>
+      </div>
+
+      <div class="way-card">
+        <div class="way-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div class="way-title">OB・OGサポーター</div>
+        <ul class="way-list">
+          <li>練習参加</li><li>職業講話</li>
+          <li>キャリア相談</li><li>進路サポート</li>
+        </ul>
+      </div>
+
+      <div class="way-card">
+        <div class="way-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="way-title">クラブを広める</div>
+        <ul class="way-list">
+          <li>SNSシェア</li><li>選手募集の紹介</li>
+          <li>イベント告知協力</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 活動紹介 -->
+  <div class="activities">
+    <div class="activities-inner">
+      <div class="activities-header">
+        <div class="act-label">YOUR SUPPORT IN ACTION</div>
+        <div class="act-title">応援が<em>活きている場所</em></div>
+      </div>
+      <div class="act-grid">
+        <div class="act-card">
+          <div class="act-card-img green">🍚</div>
+          <div class="act-card-body">
+            <div class="act-card-title">グランデ食堂</div>
+            <div class="act-card-desc">地元食材・白州米・栄養士監修の食事で選手の心と体を育てる食育プロジェクト。毎週月曜日に実施中。</div>
+          </div>
+        </div>
+        <div class="act-card">
+          <div class="act-card-img gold">✈️</div>
+          <div class="act-card-body">
+            <div class="act-card-title">遠征活動</div>
+            <div class="act-card-desc">県外大会や合宿への遠征。選手たちが全国の強豪チームと戦う機会を支えています。</div>
+          </div>
+        </div>
+        <div class="act-card">
+          <div class="act-card-img gray">🏘️</div>
+          <div class="act-card-body">
+            <div class="act-card-title">地域イベント</div>
+            <div class="act-card-desc">巡回サッカー教室や地域行事への参加。サッカーを通じて地域とつながる取り組み。</div>
+          </div>
+        </div>
+        <div class="act-card">
+          <div class="act-card-img green">⚽</div>
+          <div class="act-card-body">
+            <div class="act-card-title">育成環境整備</div>
+            <div class="act-card-desc">トレーニング用具・ウェア・設備の充実で、選手たちが最高の環境で練習できるよう整えています。</div>
+          </div>
+        </div>
+        <div class="act-card">
+          <div class="act-card-img gold">🌡️</div>
+          <div class="act-card-body">
+            <div class="act-card-title">BMI・体調管理</div>
+            <div class="act-card-desc">毎月のBMI測定と栄養指導で、選手一人ひとりの体づくりをサポートしています。</div>
+          </div>
+        </div>
+        <div class="act-card">
+          <div class="act-card-img gray">🎓</div>
+          <div class="act-card-body">
+            <div class="act-card-title">キャリア教育</div>
+            <div class="act-card-desc">OBによる職業講話や進路相談など、サッカー以外の人生設計も一緒に考えます。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- メッセージ -->
+  <div class="message">
+    <div class="message-inner">
+      <div class="message-icon">🌱</div>
+      <div class="message-title">応援の形は、<em>人それぞれ。</em></div>
+      <div class="message-body">
+        GRANDE FCは、多くの人の支えによって活動しています。<br><br>
+        応援は、お金だけではありません。<br>
+        時間、経験、知識、人とのつながり。<br><br>
+        <strong>どんな形でも、子どもたちにとって大きな力になります。</strong><br><br>
+        あなたもGRANDEの仲間として、一緒に未来をつくりませんか。
+      </div>
+      <div class="message-sig">— 八ヶ岳グランデフットボールクラブ</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="cta-label">JOIN US</div>
+    <div class="cta-title">あなたの応援が、<br>選手たちの未来につながる。</div>
+    <p class="cta-desc">どんな形の応援でも、まずはお気軽にご連絡ください。<br>一緒にできることを考えます。</p>
+    <div class="cta-btns">
+      <a class="cta-btn-gold" href="contact.html">応援について問い合わせる</a>
+      <a class="cta-btn-outline" href="partners.html">スポンサー・パートナー一覧を見る</a>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo-wrap">
+          <div class="footer-logo-mark"><span class="footer-logo-letter" id="footer-abbr">G</span></div>
+          <span class="footer-club-name" id="footer-club-name">クラブ名</span>
+        </div>
+        <p class="footer-tagline" id="footer-tagline">八ヶ岳を拠点とするジュニアユースクラブ。</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <span class="footer-col-title">MENU</span>
+          <a href="club.html">クラブ理念</a>
+          <a href="results.html">試合・結果</a>
+          <a href="news.html">お知らせ</a>
+          <a href="team.html">選手プロフィール</a>
+        </div>
+        <div class="footer-col">
+          <span class="footer-col-title">JOIN</span>
+          <a href="partners.html">スポンサー・パートナー</a>
+          <a href="index.html#school">スクール・体験</a>
+          <a href="contact.html">アクセス・お問い合わせ</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© <span id="footer-year"></span> <span id="footer-club-name-copy">クラブ名</span>. ALL RIGHTS RESERVED.</span>
+    </div>
+  </footer>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ document.getElementById('mobile-nav').classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ document.getElementById('mobile-nav').classList.remove('open'); });
+
+    ConfigLoader.apply({
+      pageTitle: 'GRANDEを応援する',
+      onLoaded: function(c){
+        function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
+        var abbr = get(c,'club.abbreviation') || (get(c,'club.shortName')||'?')[0];
+        ['logo-abbr','footer-abbr'].forEach(function(id){ var el=document.getElementById(id); if(el)el.textContent=abbr; });
+        var logoSrc = get(c,'design.logo');
+        if(logoSrc){ var li=document.getElementById('club-logo'); if(li){li.src=logoSrc;li.style.display='block';var ll=document.getElementById('logo-abbr');if(ll)ll.style.display='none';} }
+        var name = get(c,'club.name') || '';
+        ['club-name','footer-club-name','footer-club-name-copy'].forEach(function(id){ var el=document.getElementById(id); if(el)el.textContent=name; });
+      }
+    });
+  </script>
+</body>
+</html>
