@@ -221,10 +221,17 @@ async function saveToJsonBin() {
   if (isSaving) return;
   isSaving = true; showSyncStatus('saving'); setSaveBtnState(true);
   try {
+    // snsThumb は base64 画像で大きすぎるため JSONBin には含めない（localStorage のみ）
+    const matchesForBin = matches.map(function(m) {
+      if (!m.result || !m.result.snsThumb) return m;
+      var r = Object.assign({}, m.result);
+      delete r.snsThumb;
+      return Object.assign({}, m, { result: r });
+    });
     const res = await fetch(BIN_URL, {
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},
-      body: JSON.stringify({players, matches, posts: savedPosts})
+      body: JSON.stringify({players, matches: matchesForBin, posts: savedPosts})
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     showSyncStatus('ok'); showToast('✅ クラウドに保存しました');
