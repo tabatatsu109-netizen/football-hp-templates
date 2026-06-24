@@ -195,6 +195,15 @@
 
     var state = { config:null, allMatches:[], activeCategory:'', categories:[] };
 
+    function getMatchCategory(m) {
+      if (m.category) return m.category;
+      var name = (m.competitionName || '').toLowerCase();
+      if (name.includes('u-15') || name.includes('u15')) return 'U-15';
+      if (name.includes('u-13') || name.includes('u13')) return 'U-13';
+      if (name.includes('u-12') || name.includes('u12')) return 'U-12';
+      return null;
+    }
+
     function renderTabs(){
       var c = document.getElementById('tab-buttons');
       if(!c)return;
@@ -208,7 +217,10 @@
 
     function renderResults(){
       var cat = state.activeCategory;
-      var matches = state.allMatches.filter(function(m){ return !m.category || m.category===cat; });
+      var matches = state.allMatches.filter(function(m){
+        var mc = getMatchCategory(m);
+        return !mc || mc === cat;
+      });
       var clubName = state.config&&state.config.club?state.config.club.name||'FC':'FC';
 
       var results = matches
