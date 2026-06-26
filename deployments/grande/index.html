@@ -458,7 +458,7 @@
 
     /* ── パートナー ──────────────────────────────────── */
     /* ── スポンサー・パートナー（リニューアル） ── */
-    .sp-section { background: var(--dark); }
+    .sp-section { background: transparent; }
     .sp-hero { display: flex; align-items: stretch; overflow: hidden; }
     .sp-hero-content { flex: 1; padding: 48px 40px; max-width: 680px; margin: 0 auto 0 auto; display: flex; flex-direction: column; justify-content: center; background: var(--dark); position: relative; z-index: 1; }
     .sp-hero-en { font-family: 'Anton',sans-serif; font-size: clamp(26px,3.5vw,50px); color: #fff; letter-spacing: 2px; font-style: italic; line-height: 1; margin-bottom: 6px; }
@@ -516,6 +516,38 @@
     .sp-cta-btn:hover { border-color: #fff; background: rgba(255,255,255,0.07); }
     @media (max-width: 960px) { .sp-hero-img { display: none; } .sp-official-slider { grid-template-columns: 1fr; } }
     @media (max-width: 600px) { .sp-official-logo { flex: 0 0 120px; } .sp-official-name { font-size: 16px; } .sp-partner-card { flex: 0 0 175px; } .sp-cta-inner { flex-direction: column; } .sp-partner-count { display: none; } }
+
+    /* ── SPONSOR セクション 新デザイン ── */
+    .sp-hero-v2 { display: grid; grid-template-columns: 1fr 1fr; min-height: 380px; overflow: hidden; }
+    .sp-hero-v2-left { background: var(--dark); padding: 64px 52px; display: flex; flex-direction: column; justify-content: center; }
+    .sp-hero-v2-en { font-family: 'Anton', sans-serif; font-size: 13px; letter-spacing: 5px; color: var(--main-color); margin-bottom: 16px; font-style: normal; }
+    .sp-hero-v2-title { color: #fff; font-size: clamp(28px,3.2vw,42px); font-weight: 900; line-height: 1.25; margin-bottom: 22px; }
+    .sp-hero-v2-bar { width: 40px; height: 3px; background: var(--main-color); margin-bottom: 26px; }
+    .sp-hero-v2-desc { color: rgba(255,255,255,0.52); font-size: 14px; line-height: 2; }
+    .sp-hero-v2-right { background-size: cover; background-position: center 30%; position: relative; }
+    .sp-hero-v2-right::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 36%; background: linear-gradient(to right, var(--dark), transparent); }
+
+    .sp-grid-wrap { background: var(--light); padding: 76px 24px 64px; }
+    .sp-grid-head { max-width: 1240px; margin: 0 auto 52px; text-align: center; }
+    .sp-grid-en { font-family: 'Anton', sans-serif; font-size: 13px; letter-spacing: 5px; color: var(--main-color); margin-bottom: 14px; }
+    .sp-grid-title { font-size: clamp(26px,3vw,36px); font-weight: 900; color: #16161a; letter-spacing: 0.5px; margin-bottom: 20px; }
+    .sp-grid-bar { width: 40px; height: 3px; background: var(--main-color); margin: 0 auto 22px; }
+    .sp-grid-desc { color: #76767f; font-size: 14px; line-height: 1.9; }
+    .sp-grid-cards { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .sp-card { background: #fff; border: 1px solid #e4e3de; padding: 28px 22px 24px; display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s; }
+    .sp-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.09); transform: translateY(-4px); border-color: var(--main-color); }
+    .sp-card-logo { height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .sp-card-logo img { max-width: 100%; max-height: 80px; object-fit: contain; }
+    .sp-card-logo--text { font-family: 'Anton', sans-serif; font-size: 32px; color: var(--main-color); }
+    .sp-card-label { font-family: 'Anton', sans-serif; font-size: 10px; letter-spacing: 3px; color: var(--main-color); margin-bottom: 8px; }
+    .sp-card-name { font-size: 15px; font-weight: 900; color: #16161a; margin-bottom: 8px; line-height: 1.4; }
+    .sp-card-desc { font-size: 12px; color: #76767f; line-height: 1.75; flex: 1; margin-bottom: 18px; }
+    .sp-card-link { font-size: 12px; font-weight: 700; color: var(--main-color); border-bottom: 1px solid var(--main-color); padding-bottom: 2px; align-self: flex-start; }
+    .sp-grid-cta-wrap { max-width: 1240px; margin: 44px auto 0; }
+    .sp-grid-cta-btn { display: block; background: var(--main-color); color: #fff; text-align: center; font-size: 15px; font-weight: 700; letter-spacing: 1px; padding: 22px 24px; text-decoration: none; transition: opacity 0.2s; }
+    .sp-grid-cta-btn:hover { opacity: 0.85; }
+    @media (max-width: 960px) { .sp-hero-v2 { grid-template-columns: 1fr; } .sp-hero-v2-right { display: none; } .sp-hero-v2-left { padding: 48px 24px; } .sp-grid-cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .sp-grid-cards { grid-template-columns: 1fr; } }
 
     /* ── SNS セクション ── */
     .sns-section { background: var(--dark); border-top: 1px solid rgba(255,255,255,0.07); }
@@ -815,6 +847,75 @@
     .pickup-head .section-en { color: var(--main-color); }
 
     /* 全セクション共通 — 上下パディング統一（既存 80px を維持、追記なし） */
+
+    /* ── SNS セクション リニューアル ─────────────────────────
+       全幅グラデーションカード → 白背景 × カードグリッドへ
+    ────────────────────────────────────────────────── */
+    .sns-section {
+      background: #fff;
+      border-top: 1px solid #eceae5;
+      padding: 80px 24px;
+    }
+    .sns-header {
+      padding: 0 0 40px;
+    }
+    /* ヘッダーテキスト — light bg なので dark に切り替え */
+    .sns-header-en    { color: var(--main-color); }
+    .sns-header-title { color: #16161a; font-size: 34px; font-weight: 900; letter-spacing: 1px; margin-bottom: 6px; }
+    .sns-header-desc  { color: #76767f; font-size: 14px; }
+    .sns-header-more  { color: #16161a; border-bottom: 2px solid var(--main-color); padding-bottom: 3px; font-size: 13px; font-weight: 700; }
+
+    /* カードグリッド */
+    .sns-cards {
+      display: grid !important;
+      flex-direction: unset;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .sns-cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px) { .sns-cards { grid-template-columns: 1fr; } }
+
+    /* 新カードスタイル */
+    .sns-card-new {
+      background: #fff; border: 1px solid #e4e3de;
+      padding: 28px 24px; display: flex; flex-direction: column;
+      text-decoration: none; color: inherit;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .sns-card-new:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.10); transform: translateY(-3px); }
+
+    .sns-card-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .sns-icon-wrap {
+      width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sns-icon-wrap svg { width: 26px; height: 26px; }
+    .sns-icon-instagram { background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+    .sns-icon-youtube   { background: #FF0000; }
+    .sns-icon-line      { background: #06C755; }
+    .sns-icon-twitter   { background: #000; }
+    .sns-icon-facebook  { background: #1877F2; }
+
+    .sns-platform-name { font-weight: 900; font-size: 17px; color: #16161a; line-height: 1.2; }
+    .sns-handle-text   { font-size: 12px; color: #86868f; margin-top: 3px; }
+    .sns-desc-text     { font-size: 13px; color: #76767f; line-height: 1.75; flex: 1; margin-bottom: 20px; }
+
+    .sns-view-btn {
+      display: block; text-align: center;
+      padding: 11px 16px; border: 1px solid; border-radius: 2px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sns-btn-instagram { color: #dc2743; border-color: #dc2743; }
+    .sns-btn-instagram:hover { background: #dc2743; color: #fff; }
+    .sns-btn-youtube   { color: #FF0000; border-color: #FF0000; }
+    .sns-btn-youtube:hover { background: #FF0000; color: #fff; }
+    .sns-btn-line      { color: #06C755; border-color: #06C755; }
+    .sns-btn-line:hover { background: #06C755; color: #fff; }
+    .sns-btn-twitter   { color: #000; border-color: #000; }
+    .sns-btn-twitter:hover { background: #000; color: #fff; }
+    .sns-btn-facebook  { color: #1877F2; border-color: #1877F2; }
+    .sns-btn-facebook:hover { background: #1877F2; color: #fff; }
   </style>
 </head>
 <body>
@@ -1049,114 +1150,57 @@
   <!-- パートナー -->
   <section class="sp-section">
 
-    <!-- ヒーローバナー -->
-    <div class="sp-hero">
-      <div class="sp-hero-content">
-        <div class="sp-hero-en">SPONSOR &amp; PARTNER</div>
-        <div class="sp-hero-ja">スポンサー＆パートナー</div>
-        <p class="sp-hero-desc">八ヶ岳グランデフットボールクラブの活動を支えてくださっている企業・団体の皆様です。</p>
-        <a href="partners.html" class="sp-hero-more">一覧を見る →</a>
+    <!-- Hero V2: 左テキスト / 右フォト -->
+    <div class="sp-hero-v2">
+      <div class="sp-hero-v2-left">
+        <div class="sp-hero-v2-en">SPONSOR &amp; SUPPORTER</div>
+        <h2 class="sp-hero-v2-title">スポンサー＆<br>サポーター</h2>
+        <div class="sp-hero-v2-bar"></div>
+        <p class="sp-hero-v2-desc">八ヶ岳グランデフットボールクラブの活動を支えてくださっている<br>企業・団体の皆様です。</p>
       </div>
-      <div class="sp-hero-img" style="background-image:url('assets/logo3.jpg')"></div>
+      <div class="sp-hero-v2-right" style="background-image:url('assets/logo3.jpg')"></div>
     </div>
 
-    <!-- OFFICIAL SPONSOR -->
-    <div class="sp-official">
-      <div class="sp-official-inner">
-        <div class="sp-sec-head">
-          <div class="sp-sec-labels">
-            <span class="sp-sec-en">OFFICIAL SPONSOR</span>
-            <span class="sp-sec-ja">オフィシャルスポンサー</span>
-          </div>
-          <div class="sp-nav">
-            <button class="sp-nav-btn" id="official-prev">&#8249;</button>
-            <button class="sp-nav-btn" id="official-next">&#8250;</button>
-          </div>
-        </div>
-        <div class="sp-official-slider" id="official-slider">
-          <a href="https://www.athleta.co.jp/" class="sp-official-card" target="_blank" rel="noopener">
-            <div class="sp-official-logo"><img src="assets/sponsor-athleta.png" alt="ATHLETA"></div>
-            <div class="sp-official-body">
-              <span class="sp-official-label">OFFICIAL WEAR PARTNER</span>
-              <div class="sp-official-name">ATHLETA</div>
-              <p class="sp-official-desc">クラブ公式ウェアサプライヤー。高品質なウェアで選手たちの挑戦を支えます。</p>
-              <span class="sp-official-link">企業サイトを見る →</span>
-            </div>
-          </a>
-          <a href="https://nofootball.base.shop/" class="sp-official-card" target="_blank" rel="noopener">
-            <div class="sp-official-logo"><img src="assets/sponsor-nof.png" alt="NOF FOOTBALL"></div>
-            <div class="sp-official-body">
-              <span class="sp-official-label">OFFICIAL PARTNER</span>
-              <div class="sp-official-name">NOF FOOTBALL</div>
-              <p class="sp-official-desc">サッカーを通じて、未来の可能性を広げます。</p>
-              <span class="sp-official-link">企業サイトを見る →</span>
-            </div>
-          </a>
-        </div>
+    <!-- パートナーグリッド -->
+    <div class="sp-grid-wrap">
+      <div class="sp-grid-head">
+        <div class="sp-grid-en">PARTNER</div>
+        <h2 class="sp-grid-title">パートナー＆サポーター</h2>
+        <div class="sp-grid-bar"></div>
+        <p class="sp-grid-desc">地域に根ざした活動をともに支えてくださる企業・団体の皆様です。</p>
       </div>
-    </div>
-
-    <!-- PARTNER -->
-    <div class="sp-partner">
-      <div class="sp-partner-inner">
-        <div class="sp-sec-head">
-          <div class="sp-sec-labels">
-            <span class="sp-sec-en" style="color:var(--main-color)">PARTNER</span>
-            <span class="sp-sec-ja">パートナー</span>
-          </div>
-          <div class="sp-partner-head-right">
-            <div class="sp-nav">
-              <button class="sp-nav-btn sp-nav-btn--dark" id="partner-prev">&#8249;</button>
-              <button class="sp-nav-btn sp-nav-btn--dark" id="partner-next">&#8250;</button>
-            </div>
-            <div class="sp-partner-count">
-              <span id="partner-current">01</span> / <span id="partner-total">04</span>
-              <div class="sp-partner-progress"><div class="sp-partner-bar" id="partner-bar"></div></div>
-            </div>
-          </div>
-        </div>
-        <div class="sp-partner-slider" id="partner-slider">
-          <a href="https://himawari-ichiba.com/" class="sp-partner-card" target="_blank" rel="noopener">
-            <div class="sp-partner-logo"><img src="assets/sponsor-himawari.png" alt="ひまわり市場"></div>
-            <span class="sp-partner-label">PARTNER</span>
-            <div class="sp-partner-name">ひまわり市場</div>
-            <p class="sp-partner-desc">地域に根ざした新鮮な食材をお届けします。</p>
-            <span class="sp-partner-link">企業サイトを見る →</span>
-          </a>
-          <a href="https://www.alps-hs.co.jp/" class="sp-partner-card" target="_blank" rel="noopener">
-            <div class="sp-partner-logo"><img src="assets/sponsor-alps.png" alt="株式会社アルプス"></div>
-            <span class="sp-partner-label">PARTNER</span>
-            <div class="sp-partner-name">株式会社アルプス</div>
-            <p class="sp-partner-desc">精密技術で、未来を支えるモノづくり。</p>
-            <span class="sp-partner-link">企業サイトを見る →</span>
-          </a>
-          <a href="https://cmic-well.com/" class="sp-partner-card" target="_blank" rel="noopener">
-            <div class="sp-partner-logo"><img src="assets/sponsor-cmic.webp" alt="シミックウェル"></div>
-            <span class="sp-partner-label">PARTNER</span>
-            <div class="sp-partner-name">シミックウェル</div>
-            <p class="sp-partner-desc">健康と笑顔をつくるパートナー。</p>
-            <span class="sp-partner-link">企業サイトを見る →</span>
-          </a>
-          <a href="http://kkcinc.co.jp/" class="sp-partner-card" target="_blank" rel="noopener">
-            <div class="sp-partner-logo sp-partner-logo--text">KKC</div>
-            <span class="sp-partner-label">SUPPORTER</span>
-            <div class="sp-partner-name">環境管理コンサルタント</div>
-            <p class="sp-partner-desc">環境と地域の未来を守るために。</p>
-            <span class="sp-partner-link">企業サイトを見る →</span>
-          </a>
-        </div>
-        <div class="sp-dots" id="sp-dots"></div>
+      <div class="sp-grid-cards">
+        <a href="https://himawari-ichiba.com/" class="sp-card" target="_blank" rel="noopener">
+          <div class="sp-card-logo"><img src="assets/sponsor-himawari.png" alt="ひまわり市場"></div>
+          <span class="sp-card-label">PARTNER</span>
+          <div class="sp-card-name">ひまわり市場</div>
+          <p class="sp-card-desc">地域に根ざした新鮮な食材をお届けします。</p>
+          <span class="sp-card-link">企業サイトを見る ↗</span>
+        </a>
+        <a href="https://www.alps-hs.co.jp/" class="sp-card" target="_blank" rel="noopener">
+          <div class="sp-card-logo"><img src="assets/sponsor-alps.png" alt="株式会社アルプス"></div>
+          <span class="sp-card-label">PARTNER</span>
+          <div class="sp-card-name">株式会社アルプス</div>
+          <p class="sp-card-desc">精密技術で、未来を支えるモノづくり。</p>
+          <span class="sp-card-link">企業サイトを見る ↗</span>
+        </a>
+        <a href="https://cmic-well.com/" class="sp-card" target="_blank" rel="noopener">
+          <div class="sp-card-logo"><img src="assets/sponsor-cmic.webp" alt="シミックウェル"></div>
+          <span class="sp-card-label">PARTNER</span>
+          <div class="sp-card-name">シミックウェル</div>
+          <p class="sp-card-desc">健康と笑顔をつくるパートナー。</p>
+          <span class="sp-card-link">企業サイトを見る ↗</span>
+        </a>
+        <a href="http://kkcinc.co.jp/" class="sp-card" target="_blank" rel="noopener">
+          <div class="sp-card-logo sp-card-logo--text">KKC</div>
+          <span class="sp-card-label">SUPPORTER</span>
+          <div class="sp-card-name">環境管理コンサルタント</div>
+          <p class="sp-card-desc">環境と地域の未来を守るために。</p>
+          <span class="sp-card-link">企業サイトを見る ↗</span>
+        </a>
       </div>
-    </div>
-
-    <!-- CTA -->
-    <div class="sp-cta">
-      <div class="sp-cta-inner">
-        <div>
-          <p class="sp-cta-title">共に、未来を育てるパートナーを募集しています。</p>
-          <p class="sp-cta-desc">八ヶ岳グランデフットボールクラブの活動にご賛同いただける企業・団体様を募集しています。</p>
-        </div>
-        <a href="partners.html" class="sp-cta-btn">パートナーになる →</a>
+      <div class="sp-grid-cta-wrap">
+        <a href="partners.html" class="sp-grid-cta-btn">パートナー＆サポーター一覧を見る ›</a>
       </div>
     </div>
 
@@ -1438,27 +1482,36 @@
         var snsCards = document.getElementById('sns-cards');
         if (snsCards) {
           var active = snsMap.filter(function(s){ return s.url; });
+
+          // カードデザイン設定（新）
+          var snsStyle = {
+            instagram: { label: 'Instagram', btnLabel: 'Instagramを見る', iconCls: 'sns-icon-instagram', btnCls: 'sns-btn-instagram' },
+            youtube:   { label: 'YouTube',   btnLabel: 'YouTubeを見る',   iconCls: 'sns-icon-youtube',   btnCls: 'sns-btn-youtube' },
+            line:      { label: 'LINE',      btnLabel: 'LINEを見る',      iconCls: 'sns-icon-line',      btnCls: 'sns-btn-line' },
+            twitter:   { label: 'X',         btnLabel: 'Xを見る',          iconCls: 'sns-icon-twitter',   btnCls: 'sns-btn-twitter' },
+            facebook:  { label: 'Facebook',  btnLabel: 'Facebookを見る',  iconCls: 'sns-icon-facebook',  btnCls: 'sns-btn-facebook' },
+          };
+
           snsCards.innerHTML = active.map(function(s){
-            var cf = snsConf[s.key] || { label: s.key.toUpperCase(), cls: '', bg: 'assets/logo3.jpg', desc: '', icon: '' };
-            return '<a href="'+esc(s.url)+'" target="_blank" rel="noopener" class="sns-card '+cf.cls+'">' +
-              '<div class="sns-card-bg" style="background-image:url(\''+cf.bg+'\')"></div>' +
-              '<div class="sns-card-overlay"></div>' +
-              '<div class="sns-card-content">' +
-                '<div class="sns-card-left">' +
-                  '<div class="sns-card-icon">'+cf.icon+'</div>' +
-                  '<div>' +
-                    '<div class="sns-card-platform">'+cf.label+'</div>' +
-                    '<div class="sns-card-handle">'+esc(s.handle||s.key)+'</div>' +
-                    '<div class="sns-card-desc">'+cf.desc+'</div>' +
-                  '</div>' +
+            var cf  = snsConf[s.key]   || { icon: '', desc: '' };
+            var st  = snsStyle[s.key]  || { label: s.key, btnLabel: '見る', iconCls: '', btnCls: '' };
+            var descText = cf.desc.replace(/<br>/g, ' ');
+            return '<a href="'+esc(s.url)+'" target="_blank" rel="noopener" class="sns-card-new">' +
+              '<div class="sns-card-top">' +
+                '<div class="sns-icon-wrap '+st.iconCls+'">'+cf.icon+'</div>' +
+                '<div>' +
+                  '<div class="sns-platform-name">'+st.label+'</div>' +
+                  '<div class="sns-handle-text">'+esc(s.handle||'')+'</div>' +
                 '</div>' +
-                '<div class="sns-card-arrow">›</div>' +
               '</div>' +
+              '<p class="sns-desc-text">'+esc(descText)+'</p>' +
+              '<span class="sns-view-btn '+st.btnCls+'">'+st.btnLabel+' ›</span>' +
             '</a>';
           }).join('');
+
           if (active.length > 0) {
             var allLink = document.getElementById('sns-all-link');
-            if (allLink) { allLink.href = active[0].url; allLink.style.display = ''; }
+            if (allLink) { allLink.style.display = ''; allLink.href = active[0].url; }
           }
         }
 
