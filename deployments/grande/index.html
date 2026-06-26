@@ -713,6 +713,108 @@
       margin: 40px 0;
     }
     .bg-image-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(26,92,45,0.5)); }
+
+    /* ── デザイン統一パッチ ─────────────────────────────
+       各セクションの EN ラベル・見出し・ボタンを共通言語に揃える
+    ────────────────────────────────────────────────── */
+
+    /* セクション EN ラベル — 全セクション共通化 */
+    .section-en,
+    .school-en,
+    .members-en {
+      font-family: 'Anton', sans-serif;
+      font-size: 14px;
+      letter-spacing: 4px;
+      display: block;
+    }
+    /* SCHOOL は緑背景なのでラベルは白。透過なし（opacity:0.8 を上書き） */
+    .school-en { color: rgba(255,255,255,0.9); opacity: 1; }
+    /* MEMBERS は暗背景なのでラベルはグリーン — section-en と同じ */
+    .members-en { color: var(--main-color); }
+
+    /* セクションタイトル — dark背景は白、light背景は黒を徹底 */
+    .section-ja,
+    .school-title,
+    .members-title,
+    .pickup-head h2 {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+    /* dark 背景セクション見出しは白 */
+    .section-ja,
+    .school-title,
+    .members-title { color: #fff; }
+    /* light 背景セクション見出しは黒 */
+    .section-ja-dark { color: #16161a; }
+
+    /* PICKUP は dark2 背景 → 白 */
+    .pickup-head h2 { color: #fff; margin-top: 8px; }
+
+    /* SCHOOL タイトルは左カラム内なので少し大きくてOK（CTA強調） */
+    .school-title { font-size: 38px; line-height: 1.25; }
+
+    /* MEMBERS title 統一 */
+    .members-title { font-size: 34px; margin-top: 12px; }
+
+    /* SPONSOR — sp-hero-en の italic を解除して他と統一 */
+    .sp-hero-en {
+      font-style: normal !important;
+      font-family: 'Anton', sans-serif;
+      font-size: 14px;
+      letter-spacing: 4px;
+      color: var(--main-color);
+      margin-bottom: 8px;
+    }
+    .sp-hero-ja {
+      font-size: 12px;
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+    }
+
+    /* CTA ボタン統一 — アウトラインより塗りつぶしを基本に */
+    .school-cta {
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(255,255,255,0.40);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 16px 32px;
+      display: inline-block;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .school-cta:hover {
+      background: rgba(0,0,0,0.50);
+      border-color: rgba(255,255,255,0.70);
+    }
+
+    /* access-cta もメインカラー塗りに統一 */
+    .access-cta {
+      background: var(--main-color);
+      color: #fff;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 15px 28px;
+      display: inline-block;
+      transition: opacity 0.2s;
+    }
+    .access-cta:hover { opacity: 0.88; }
+
+    /* MEMBERS ログインボタン — hero-btn-primary と同スタイル */
+    .members-login-btn {
+      background: var(--main-color);
+      border-radius: 2px;
+      letter-spacing: 1px;
+    }
+
+    /* pickup-section の見出しスペース統一 */
+    .pickup-head { margin-bottom: 36px; }
+    .pickup-head .section-en { color: var(--main-color); }
+
+    /* 全セクション共通 — 上下パディング統一（既存 80px を維持、追記なし） */
   </style>
 </head>
 <body>
@@ -767,13 +869,13 @@
     <div class="hero-accent-bar"></div>
 
     <div class="hero-content">
-      <span class="hero-location" id="hero-location">KANAGAWA · YOKOHAMA</span>
+      <span class="hero-location" id="hero-location">YAMANASHI · YATSUGATAKE</span>
       <h1 class="hero-title">
-        <span id="hero-catch-line1">FUTURE</span><br>
-        <span class="hero-title-accent" id="hero-catch-line2">IS OURS.</span>
+        <span id="hero-catch-line1">CORAZON</span><br>
+        <span class="hero-title-accent" id="hero-catch-line2">GRANDE</span>
       </h1>
-      <p class="hero-subcopy" id="hero-subcopy">未来は、自分の足で掴み取れ</p>
-      <p class="hero-desc" id="hero-desc">FC AURORA U-15 は、横浜を拠点とする中学生（ジュニアユース）の育成クラブ。<br>技術と人間性をともに育て、一人ひとりの次のステージへ送り出します。</p>
+      <p class="hero-subcopy" id="hero-subcopy">感動するサッカーの追求</p>
+      <p class="hero-desc" id="hero-desc">八ヶ岳の大自然のもと、子どもたちがサッカーを通じて<br>心と身体を磨き、夢に向かって努力できるクラブ。</p>
       <div class="hero-btns">
         <a href="#school" class="hero-btn-primary">体験会に申し込む →</a>
         <a href="#match"  class="hero-btn-secondary">試合日程を見る</a>
@@ -867,7 +969,7 @@
     <div class="pickup-inner">
       <div class="pickup-head">
         <div class="section-en">PICK UP</div>
-        <h2 class="section-ja-dark">注目選手</h2>
+        <h2 class="section-ja">注目選手</h2>
       </div>
       <div class="pickup-grid" id="pickup-grid">
         <p class="no-data">読み込み中...</p>
@@ -1120,9 +1222,9 @@
           <div class="footer-logo-mark">
             <span class="footer-logo-letter" id="footer-abbr">A</span>
           </div>
-          <span class="footer-club-name" id="footer-club-name">クラブ名</span>
+          <span class="footer-club-name" id="footer-club-name">八ヶ岳グランデFC</span>
         </div>
-        <p class="footer-tagline" id="club-description">横浜を拠点とする中学生年代の育成サッカークラブ。<br>技術と人間性を、ともに。</p>
+        <p class="footer-tagline" id="club-description">八ヶ岳の大自然のもと、子どもたちがサッカーを通じて<br>心と身体を磨き、夢に向かって努力できるクラブ。</p>
       </div>
       <div class="footer-links">
         <div class="footer-col">
@@ -1141,7 +1243,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span class="footer-copy">© <span id="footer-year"></span> <span id="footer-club-name-copy">クラブ名</span>. ALL RIGHTS RESERVED.</span>
+      <span class="footer-copy">© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
       <span class="footer-policy">PRIVACY POLICY ／ お問い合わせ</span>
     </div>
   </footer>
@@ -1184,6 +1286,8 @@
         { path: 'club.description',   selector: '#club-description' },
         { path: 'school.description', selector: '#school-desc' },
         { path: 'school.scheduleLabel', selector: '#school-schedule-label' },
+        { path: 'club.shortName',     selector: '#footer-club-name' },
+        { path: 'club.shortName',     selector: '#footer-club-name-copy' },
       ],
       onLoaded: function (c) {
         function get(obj, path) {
@@ -1426,7 +1530,7 @@
       });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.news-section, .philosophy, .match-section, .players-section, .pickup-section').forEach(function(el) {
+    document.querySelectorAll('.news-section, .philosophy, .match-section, .players-section, .pickup-section, .school-section, .members-section, .sns-section, .access-section').forEach(function(el) {
       el.classList.add('reveal');
       observer.observe(el);
     });
