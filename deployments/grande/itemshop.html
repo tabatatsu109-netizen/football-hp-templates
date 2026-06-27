@@ -85,7 +85,7 @@ var JSONBIN_BIN_ID = "6a34e735da38895dfedbccd2";
 var JSONBIN_MASTER_KEY = "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq";
 var JSONBIN_URL = "https://api.jsonbin.io/v3/b/" + JSONBIN_BIN_ID;
 
-function fetchOrdersFromBin(){
+function fetchFromBin(){
   return fetch(JSONBIN_URL + "/latest", {
     method: "GET",
     headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
@@ -94,23 +94,56 @@ function fetchOrdersFromBin(){
     return res.json();
   }).then(function(data){
     var rec = data && data.record;
-    if(rec && Array.isArray(rec.orders)) return rec.orders;
-    return [];
+    if(rec){
+      if(rec.productImages) S.productImages = rec.productImages;
+      if(rec.imgbbKey) S.imgbbKey = rec.imgbbKey;
+    }
+    return (rec && Array.isArray(rec.orders)) ? rec.orders : [];
   });
 }
+function fetchOrdersFromBin(){ return fetchFromBin(); }
 
-function saveOrdersToBin(orders){
+function saveToBin(payload){
   return fetch(JSONBIN_URL, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Master-Key": JSONBIN_MASTER_KEY
-    },
-    body: JSON.stringify({ orders: orders })
+    headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_MASTER_KEY },
+    body: JSON.stringify(payload)
   }).then(function(res){
     if(!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   });
+}
+function saveOrdersToBin(orders){
+  return saveToBin({ orders: orders, productImages: S.productImages, imgbbKey: S.imgbbKey });
+}
+function saveProductData(){
+  return saveToBin({ orders: S.orders, productImages: S.productImages, imgbbKey: S.imgbbKey });
+}
+
+function uploadToImgBB(file, pid){
+  if(!S.imgbbKey){ showError("ImgBBのAPIキーを設定してください（管理者 > ⚙️設定タブ）"); return; }
+  S.photoUploading = pid;
+  render();
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var base64 = e.target.result.split(",")[1];
+    var fd = new FormData();
+    fd.append("image", base64);
+    fetch("https://api.imgbb.com/1/upload?key=" + encodeURIComponent(S.imgbbKey), {
+      method: "POST", body: fd
+    }).then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.data && data.data.display_url){
+        S.productImages[pid] = data.data.display_url;
+        return saveProductData().then(function(){
+          S.photoUploading = null;
+          showToast("写真を保存しました ✓");
+          render();
+        });
+      } else { throw new Error("ImgBB error: " + JSON.stringify(data)); }
+    }).catch(function(err){ console.error(err); S.photoUploading = null; showError("アップロードに失敗しました"); render(); });
+  };
+  reader.readAsDataURL(file);
 }
 
 function esc(s){
@@ -132,7 +165,10 @@ var S = {
   placing:false,
   loadingAdmin:false,
   statusUpdating:null,
-  ordersLoaded:false
+  ordersLoaded:false,
+  productImages:{},
+  imgbbKey:"",
+  photoUploading:null
 };
 
 function selFor(p){
@@ -306,10 +342,14 @@ function productCardHtml(p){
     var active = s===sel.size;
     return '<button onclick=\'App.setProdSize('+p.id+',"'+s+'")\' style="padding:5px 9px;border-radius:6px;border:'+(active?("1.5px solid "+G.g1):"1.5px solid #ddd")+';background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#444")+';font-size:12px;font-weight:700">'+esc(s)+'</button>';
   }).join("");
+  var imgUrl = S.productImages[p.id];
+  var imgArea = imgUrl
+    ? '<img src="'+esc(imgUrl)+'" style="width:100%;height:180px;object-fit:cover;display:block">'
+    : '<div style="background:#f0f4f0;padding:20px;min-height:120px;display:flex;align-items:center;justify-content:center"><div style="font-size:40px">'+icon+'</div></div>';
   return (
     '<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">'+
-      '<div style="background:#f0f4f0;padding:20px;text-align:center;position:relative;min-height:120px;display:flex;align-items:center;justify-content:center">'+
-        '<div style="font-size:40px">'+icon+'</div>'+
+      '<div style="position:relative">'+
+        imgArea+
         '<div style="position:absolute;top:8px;left:8px;display:flex;gap:4px;flex-wrap:wrap">'+badges+'</div>'+
       '</div>'+
       '<div style="padding:14px">'+
@@ -561,7 +601,7 @@ function loginPageHtml(){
 
 /* ───────── ADMIN PAGE ───────── */
 function adminHeaderHtml(){
-  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["cfg","⚙️ EmailJS"]];
+  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["photos","📸 商品画像"],["cfg","⚙️ 設定"]];
   var tabsHtml = tabs.map(function(pair){
     var t=pair[0], l=pair[1];
     var active = S.adminTab===t;
@@ -695,6 +735,40 @@ function statsTabHtml(){
   }).join("") : '<div style="color:#aaa">注文データがありません</div>';
   return '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:16px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">STATS</div>'+body;
 }
+function photosTabHtml(){
+  var cardsHtml = PRODS.map(function(p){
+    var url = S.productImages[p.id];
+    var uploading = S.photoUploading === p.id;
+    var icon = p.cat==="ソックス"?"🧦":p.cat==="バッグ"?"🎒":p.cat==="ボトムス"?"👖":"👕";
+    var imgHtml = url
+      ? '<img src="'+esc(url)+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;flex-shrink:0">'
+      : '<div style="width:80px;height:80px;border-radius:8px;background:#f0f4f0;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0">'+icon+'</div>';
+    return (
+      '<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:14px">'+
+        imgHtml+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-weight:700;font-size:14px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name)+'</div>'+
+          '<div style="font-size:12px;color:#888;margin-bottom:10px">'+fmt(p.price)+'</div>'+
+          '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+            '<label style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:'+(uploading?"#aaa":G.g1)+';color:#fff;border-radius:6px;font-size:12px;font-weight:700;cursor:'+(uploading?"not-allowed":"pointer")+'">'+
+              (uploading?'⏳ アップロード中…':'📷 写真を選択')+
+              '<input type="file" accept="image/*" '+(uploading?"disabled":"")+' onchange="App.handlePhotoUpload('+p.id+',this)" style="display:none">'+
+            '</label>'+
+            (url?'<button onclick="App.deletePhoto('+p.id+')" style="padding:7px 14px;background:#fff;border:1.5px solid #e0e0e0;border-radius:6px;font-size:12px;color:#e53935;cursor:pointer;font-weight:700">✕ 削除</button>':'')+'</div>'+
+        '</div>'+
+      '</div>'
+    );
+  }).join("");
+  return (
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:12px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">PHOTOS</div>'+
+    '<div style="background:#f0f8f0;border:1px solid #b2d8b2;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#555;line-height:1.8">'+
+      '📸 各商品の写真を設定します。写真は <strong>ImgBB</strong>（無料）にアップロードされ、URLがJSONBinに保存されます。<br>'+
+      '初回は <strong>⚙️ 設定タブ</strong> で ImgBB APIキーを入力・保存してください（<a href="https://api.imgbb.com/" target="_blank" style="color:'+G.g1+'">api.imgbb.com</a> で無料取得）。'+
+    '</div>'+
+    '<div class="olist">'+cardsHtml+'</div>'
+  );
+}
+
 function cfgTabHtml(){
   var sections = [
     {t:"🔑 基本設定",fields:[{l:"Public Key",p:"user_xxxxxxxxx"},{l:"Service ID",p:"service_xxxxxxx"}]},
@@ -713,15 +787,24 @@ function cfgTabHtml(){
     );
   }).join("");
   return (
-    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">EMAILJS設定</div>'+
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">設定</div>'+
+    '<div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #ddd">'+
+      '<div style="font-weight:700;font-size:14px;margin-bottom:6px">📸 ImgBB APIキー（商品写真アップロード用）</div>'+
+      '<div style="font-size:12px;color:#888;margin-bottom:10px"><a href="https://api.imgbb.com/" target="_blank" style="color:'+G.g1+'">api.imgbb.com</a> で無料取得できます</div>'+
+      '<div style="display:flex;gap:8px">'+
+        '<input id="imgbb-key-input" type="text" value="'+esc(S.imgbbKey)+'" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="flex:1;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;outline:none;background:#fafafa;font-family:monospace">'+
+        '<button onclick="App.saveImgbbKey()" style="padding:11px 18px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:13px;white-space:nowrap">保存</button>'+
+      '</div>'+
+    '</div>'+
+    '<div style="font-weight:900;font-size:18px;letter-spacing:1px;margin-bottom:8px;color:'+G.g3+'">EmailJS設定</div>'+
     '<div style="color:#888;font-size:13px;margin-bottom:16px"><a href="https://www.emailjs.com" target="_blank" rel="noreferrer" style="color:'+G.g1+'">emailjs.com</a> で無料アカウントを作成してください。</div>'+
     secHtml+
     '<div style="background:#f8faf8;border-radius:8px;padding:10px;font-size:12px;color:#666;line-height:1.9;margin-bottom:14px">テンプレート変数：{{order_id}} {{date}} {{parent_name}} {{player_name}} {{category}} {{items}} {{total}} {{payment}} {{note}} {{to_email}}</div>'+
-    '<button onclick="App.saveCfg()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">設定を保存する</button>'
+    '<button onclick="App.saveCfg()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">EmailJS設定を保存する</button>'
   );
 }
 function adminPageHtml(){
-  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():cfgTabHtml();
+  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():S.adminTab==="photos"?photosTabHtml():cfgTabHtml();
   return (
     '<div style="background:'+G.lt+';min-height:100vh">'+
       adminHeaderHtml()+
@@ -816,12 +899,34 @@ window.App = {
   refreshOrders:function(){
     S.loadingAdmin=true;
     render();
-    fetchOrdersFromBin().then(function(o){ S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render(); }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
+    fetchFromBin().then(function(o){ S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render(); }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
   },
-  saveCfg:function(){ showToast("設定を保存しました（デモ）"); }
+  saveCfg:function(){ showToast("設定を保存しました（デモ）"); },
+  handlePhotoUpload:function(pid, input){ if(input.files && input.files[0]) uploadToImgBB(input.files[0], pid); },
+  deletePhoto:function(pid){
+    if(!confirm("この写真を削除しますか？")) return;
+    delete S.productImages[pid];
+    saveProductData().then(function(){ showToast("写真を削除しました"); render(); }).catch(function(){ showError("削除に失敗しました"); });
+  },
+  saveImgbbKey:function(){
+    var input = document.getElementById("imgbb-key-input");
+    if(input) S.imgbbKey = input.value.trim();
+    saveProductData().then(function(){ showToast("APIキーを保存しました ✓"); render(); }).catch(function(){ showError("保存に失敗しました"); });
+  }
 };
 
 render();
+
+/* ページ読み込み時に写真URLを取得してショップに反映 */
+fetch(JSONBIN_URL + "/latest", {
+  method: "GET",
+  headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
+}).then(function(res){ return res.json(); })
+.then(function(data){
+  var rec = data && data.record;
+  if(rec && rec.productImages){ S.productImages = rec.productImages; render(); }
+  if(rec && rec.imgbbKey){ S.imgbbKey = rec.imgbbKey; }
+}).catch(function(){});
 
 })();
 </script>
