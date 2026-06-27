@@ -388,45 +388,6 @@
     .player-sep   { color: #3a3a42; }
     .player-note  { color: #9a9aa2; font-size: 12px; }
 
-    /* ── スクール・体験会 ────────────────────────────── */
-    .school-section { background: var(--main-color); padding: 80px 24px; position: relative; overflow: hidden; }
-    .school-bg { position: absolute; inset: 0; background-image: repeating-linear-gradient(45deg,rgba(255,255,255,0.05) 0 18px,transparent 18px 36px); }
-    .school-inner { max-width: 1240px; margin: 0 auto; position: relative; display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: center; }
-    .school-en { font-family: 'Anton', sans-serif; color: #fff; font-size: 15px; letter-spacing: 4px; opacity: 0.8; }
-    .school-title { margin: 10px 0 0 0; color: #fff; font-size: 42px; font-weight: 900; line-height: 1.2; letter-spacing: 1px; }
-    .school-desc { margin: 20px 0 0 0; color: rgba(255,255,255,0.82); font-size: 15px; line-height: 1.95; }
-    .school-tags { margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .school-tag { background: rgba(0,0,0,0.18); color: #fff; font-size: 13px; font-weight: 700; padding: 8px 14px; }
-    .school-cta {
-      margin-top: 30px; display: inline-block;
-      background: var(--dark); color: #fff;
-      font-size: 16px; font-weight: 700; letter-spacing: 1px;
-      padding: 18px 36px;
-    }
-    .school-calendar { background: #fff; padding: 8px; }
-    .school-cal-head {
-      background: var(--dark); color: #fff;
-      padding: 16px 22px; font-weight: 900; letter-spacing: 1px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .school-cal-label { font-family: 'Anton', sans-serif; color: var(--main-color); font-size: 14px; letter-spacing: 1px; }
-    #trials-list { }
-    .trial-row {
-      display: grid; grid-template-columns: 92px 1fr auto;
-      align-items: center; gap: 18px;
-      padding: 18px 22px; border-bottom: 1px solid #efeee9;
-    }
-    .trial-date-wrap { text-align: center; }
-    .trial-date { font-family: 'Anton', sans-serif; font-size: 26px; line-height: 1; color: #16161a; }
-    .trial-day  { font-size: 11px; color: var(--main-color); font-weight: 700; letter-spacing: 1px; }
-    .trial-target { font-size: 14px; font-weight: 700; color: #16161a; }
-    .trial-meta   { font-size: 12px; color: #86868f; margin-top: 3px; }
-    .trial-apply {
-      background: var(--main-color); color: #fff;
-      font-size: 12px; font-weight: 700; letter-spacing: 1px;
-      padding: 10px 16px;
-    }
-
     /* ── 会員専用 ─────────────────────────────────────── */
     .members-section { background: var(--dark); }
     .members-hero { background: var(--dark2); border-bottom: 1px solid #26262d; padding: 80px 24px; text-align: center; position: relative; overflow: hidden; }
@@ -1088,31 +1049,6 @@
     </div>
   </section>
 
-  <!-- スクール・体験会 -->
-  <section id="school" class="school-section">
-    <div class="school-bg"></div>
-    <div class="school-inner">
-      <div>
-        <div class="school-en">SCHOOL &amp; TRIAL</div>
-        <h2 class="school-title">体験会・<br>セレクションへ</h2>
-        <p class="school-desc" id="school-desc">小学6年・中学生を対象に、年2回の体験会を開催しています。<br>参加は無料、クラブの雰囲気と練習をぜひ体感してください。</p>
-        <div class="school-tags">
-          <span class="school-tag">参加無料</span>
-          <span class="school-tag">運動できる服装でOK</span>
-          <span class="school-tag">保護者見学歓迎</span>
-        </div>
-        <a href="contact.html" class="school-cta">体験申込フォームへ →</a>
-      </div>
-      <div class="school-calendar">
-        <div class="school-cal-head">
-          <span>開催スケジュール</span>
-          <span class="school-cal-label" id="school-schedule-label">2026 SUMMER</span>
-        </div>
-        <div id="trials-list"></div>
-      </div>
-    </div>
-  </section>
-
   <!-- 会員専用 -->
   <section id="members" class="members-section">
     <div class="members-hero">
@@ -1554,7 +1490,7 @@
       });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.news-section, .philosophy, .match-section, .players-section, .pickup-section, .school-section, .members-section, .sns-section, .recruit-section').forEach(function(el) {
+    document.querySelectorAll('.news-section, .philosophy, .match-section, .players-section, .pickup-section, .members-section, .sns-section, .recruit-section').forEach(function(el) {
       el.classList.add('reveal');
       observer.observe(el);
     });
