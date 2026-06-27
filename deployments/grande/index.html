@@ -119,7 +119,7 @@
     /* ── ヒーロー ────────────────────────────────────── */
     .hero {
       position: relative; min-height: 88vh;
-      background: linear-gradient(rgba(0,0,0,0.35),rgba(26,92,45,0.4)), url('assets/logo3.jpg');
+      background: linear-gradient(rgba(0,0,0,0.35),rgba(26,92,45,0.4)), url('assets/toprandom/photo2.jpg');
       background-size: cover; background-position: center; background-attachment: fixed;
       display: flex; align-items: stretch; overflow: hidden;
     }
@@ -1572,6 +1572,32 @@
         if (tickerBar) tickerBar.style.opacity = Math.max(1 - progress, 0);
       }
     });
+
+    // ランダム写真（トップヒーロー）
+    (function() {
+      var topPhotos = [
+        'photo2.jpg',
+        'photo3.jpg',
+        'LINE_ALBUM_エルドラード、ラーゴ_260627_10.jpg',
+        'LINE_ALBUM_エルドラード、ラーゴ_260627_22.jpg',
+        'LINE_ALBUM_エルドラード、ラーゴ_260627_52.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_1.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_19.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_20.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_22.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_31.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_32.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_36.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_39.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_40.jpg',
+        'LINE_ALBUM_20251012石和中_260627_2.jpg'
+      ];
+      var hero = document.getElementById('top');
+      if (hero) {
+        var file = topPhotos[Math.floor(Math.random() * topPhotos.length)];
+        hero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35),rgba(26,92,45,0.4)), url('assets/toprandom/" + encodeURIComponent(file) + "')";
+      }
+    })();
 
     // ランダム写真（選手募集・パートナーセクション共通）
     (function() {
