@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -1250,7 +1250,7 @@
         </div>
         <a href="grande_recruit.html" class="recruit-cta">選手募集ページへ →</a>
       </div>
-      <div class="recruit-photo" style="background-image:url('assets/photo1.jpg')"></div>
+      <div class="recruit-photo" id="recruit-photo"></div>
     </div>
   </section>
 
@@ -1597,6 +1597,29 @@
         if (tickerBar) tickerBar.style.opacity = Math.max(1 - progress, 0);
       }
     });
+
+    // 選手募集セクション ランダム写真
+    (function() {
+      var photos = [
+        'LINE_ALBUM_20251004高円宮杯エルドラード_260627_1.jpg',
+        'LINE_ALBUM_20251004高円宮杯エルドラード_260627_2.jpg',
+        'LINE_ALBUM_20251012石和中_260627_4.jpg',
+        'LINE_ALBUM_20251012石和中_260627_5.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_10.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_11.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_12.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_13.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_14.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_15.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_41.jpg',
+        'LINE_ALBUM_高円宮杯アズール_260627_5.jpg'
+      ];
+      var el = document.getElementById('recruit-photo');
+      if (el) {
+        var file = photos[Math.floor(Math.random() * photos.length)];
+        el.style.backgroundImage = "url('assets/random/" + encodeURIComponent(file) + "')";
+      }
+    })();
 
     // Partner carousel
     (function() {
