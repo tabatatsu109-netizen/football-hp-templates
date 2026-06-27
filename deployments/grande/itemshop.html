@@ -97,6 +97,23 @@ var DEMO_ORDERS = [
 
 var G = {g1:"#1a6b2f", g2:"#145224", g3:"#0d3b1e", gold:"#c8a94a", lt:"#f2f5f2"};
 
+/* ───────── HERO IMAGE ───────── */
+var HERO_IMG = (function(){
+  var files = [
+    'photo2.jpg','photo3.jpg',
+    'LINE_ALBUM_エルドラード、ラーゴ_260627_10.jpg',
+    'LINE_ALBUM_エルドラード、ラーゴ_260627_52.jpg',
+    'LINE_ALBUM_ジュニア20251124_260627_8.jpg',
+    'LINE_ALBUM_ジュニア20251124_260627_19.jpg',
+    'LINE_ALBUM_ジュニア20251124_260627_31.jpg',
+    'LINE_ALBUM_ジュニア20251124_260627_39.jpg',
+    'LINE_ALBUM_高円宮杯アズール_260627_1.jpg',
+    'LINE_ALBUM_20251012石和中_260627_2.jpg'
+  ];
+  var f = files[Math.floor(Math.random()*files.length)];
+  return "assets/toprandom/" + encodeURIComponent(f);
+})();
+
 /* ───────── JSONBin CONFIG ───────── */
 var JSONBIN_BIN_ID = "6a34e735da38895dfedbccd2";
 var JSONBIN_MASTER_KEY = "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq";
@@ -434,14 +451,26 @@ function shopHeaderHtml(){
 }
 function heroHtml(){
   return (
-    '<div style="background:'+G.g3+';padding:60px 16px 48px;text-align:center;position:relative;overflow:hidden">'+
-      '<div style="position:absolute;top:-10%;right:-5%;width:40%;height:120%;background:'+G.gold+';opacity:.04;transform:skewX(-15deg)"></div>'+
-      '<div style="position:relative">'+
-        '<div style="display:inline-block;border:1px solid rgba(200,169,74,.5);color:'+G.gold+';font-size:11px;font-weight:700;letter-spacing:3px;padding:5px 14px;border-radius:99px;margin-bottom:14px">⚽ 八ヶ岳グランデFC</div>'+
-        '<div style="color:#fff;font-size:clamp(36px,8vw,64px);font-weight:900;letter-spacing:3px;line-height:1;margin-bottom:6px;font-family:\'Barlow Condensed\',sans-serif">OFFICIAL<br><span style="color:'+G.gold+'">ITEM SHOP</span></div>'+
-        '<div style="color:rgba(255,255,255,.55);font-size:14px;margin-bottom:22px;line-height:1.8">公式クラブウェア・グッズの注文はこちらから</div>'+
-        '<button onclick="App.openCart()" style="background:'+G.gold+';color:'+G.g3+';padding:13px 28px;font-weight:900;font-size:16px;border-radius:6px;letter-spacing:1px">カートを見る 🛒</button>'+
+    '<div style="background:'+G.g3+';min-height:440px;display:flex;align-items:center;position:relative;overflow:hidden;border-bottom:3px solid '+G.gold+'">'+
+      '<div style="position:absolute;inset:0;background-image:url(\''+HERO_IMG+'\');background-size:cover;background-position:center 30%;opacity:.18"></div>'+
+      '<div style="position:absolute;inset:0;background:linear-gradient(105deg,'+G.g3+' 42%,rgba(10,35,18,0.55) 100%)"></div>'+
+      '<div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,'+G.g3+',transparent)"></div>'+
+      '<div style="position:absolute;top:0;bottom:0;left:46%;width:1px;background:linear-gradient(to bottom,transparent,rgba(200,169,74,.25),transparent)"></div>'+
+      '<div style="position:absolute;top:0;bottom:0;right:18%;width:1px;background:linear-gradient(to bottom,transparent,rgba(200,169,74,.12),transparent)"></div>'+
+      '<div style="position:relative;max-width:1200px;margin:0 auto;padding:72px 24px 80px;width:100%">'+
+        '<div style="display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(200,169,74,.35);color:'+G.gold+';font-size:10px;font-weight:700;letter-spacing:4px;padding:5px 14px;margin-bottom:22px">⚽ YAMANASHI TATSUGATAKE GRANDE FC</div>'+
+        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;line-height:0.9;letter-spacing:0px">'+
+          '<div style="color:#fff;font-size:clamp(56px,10vw,96px)">OFFICIAL</div>'+
+          '<div style="color:'+G.gold+';font-size:clamp(56px,10vw,96px)">ITEM SHOP</div>'+
+        '</div>'+
+        '<div style="width:52px;height:3px;background:'+G.gold+';margin:22px 0"></div>'+
+        '<div style="color:rgba(255,255,255,.5);font-size:14px;line-height:2;margin-bottom:36px;max-width:440px">公式クラブウェア・グッズの注文はこちらから。<br>ご入会時の必要アイテムもこちらからご注文いただけます。</div>'+
+        '<div style="display:flex;gap:12px;flex-wrap:wrap">'+
+          '<button onclick="App.openCart()" style="background:'+G.gold+';color:'+G.g3+';padding:15px 38px;font-weight:900;font-size:15px;letter-spacing:2px;display:inline-flex;align-items:center;gap:10px">カートを見る <span>🛒</span></button>'+
+          '<button onclick=\'App.setView("junior")\' style="background:transparent;border:1px solid rgba(200,169,74,.4);color:rgba(255,255,255,.7);padding:15px 24px;font-weight:700;font-size:13px;letter-spacing:1px">ジュニア必需品を見る →</button>'+
+        '</div>'+
       '</div>'+
+      '<div style="position:absolute;right:-12px;bottom:-20px;font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:min(260px,28vw);color:rgba(200,169,74,.04);line-height:1;pointer-events:none;user-select:none">SHOP</div>'+
     '</div>'
   );
 }
