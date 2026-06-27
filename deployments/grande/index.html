@@ -835,6 +835,22 @@
     }
     .access-cta:hover { opacity: 0.88; }
 
+    /* ── 選手募集セクション ── */
+    .recruit-section { background: var(--dark); overflow: hidden; }
+    .recruit-inner { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; min-height: 420px; }
+    .recruit-content { padding: 80px 52px 80px 24px; display: flex; flex-direction: column; justify-content: center; }
+    .recruit-en { font-family: 'Anton', sans-serif; font-size: 13px; letter-spacing: 5px; color: var(--main-color); margin-bottom: 16px; }
+    .recruit-title { color: #fff; font-size: clamp(40px,4.5vw,60px); font-weight: 900; line-height: 1; margin-bottom: 22px; }
+    .recruit-bar { width: 40px; height: 3px; background: var(--main-color); margin-bottom: 26px; }
+    .recruit-desc { color: rgba(255,255,255,0.52); font-size: 14px; line-height: 2; margin-bottom: 28px; }
+    .recruit-cats { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 36px; }
+    .recruit-cat { border: 1px solid rgba(255,255,255,0.22); color: rgba(255,255,255,0.65); font-size: 12px; font-weight: 700; letter-spacing: 1px; padding: 7px 16px; }
+    .recruit-cta { display: inline-block; background: var(--main-color); color: #fff; font-size: 15px; font-weight: 700; letter-spacing: 1px; padding: 18px 40px; text-decoration: none; align-self: flex-start; transition: opacity 0.2s; }
+    .recruit-cta:hover { opacity: 0.85; }
+    .recruit-photo { background-size: cover; background-position: center; position: relative; }
+    .recruit-photo::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 40%; background: linear-gradient(to right, var(--dark), transparent); }
+    @media (max-width: 960px) { .recruit-inner { grid-template-columns: 1fr; } .recruit-photo { display: none; } .recruit-content { padding: 60px 24px; } }
+
     /* MEMBERS ログインボタン — hero-btn-primary と同スタイル */
     .members-login-btn {
       background: var(--main-color);
@@ -1219,42 +1235,22 @@
     <div class="sns-cards" id="sns-cards"></div>
   </section>
 
-  <!-- アクセス -->
-  <section id="access" class="access-section">
-    <div class="access-inner">
-      <div class="access-info">
-        <div class="access-en">ACCESS</div>
-        <h2 class="access-title">アクセス・お問い合わせ</h2>
-        <div class="access-rows">
-          <div class="access-row">
-            <span class="access-key">活動拠点</span>
-            <span class="access-val" id="access-ground">—</span>
-          </div>
-          <div class="access-row">
-            <span class="access-key">住所</span>
-            <span class="access-val" id="footer-address">—</span>
-          </div>
-          <div class="access-row">
-            <span class="access-key">最寄り</span>
-            <span class="access-val" id="access-access">—</span>
-          </div>
-          <div class="access-row">
-            <span class="access-key">TEL</span>
-            <span class="access-val" id="footer-phone">—</span>
-          </div>
-          <div class="access-row">
-            <span class="access-key">MAIL</span>
-            <span class="access-val" id="footer-email">—</span>
-          </div>
+  <!-- 選手募集 -->
+  <section id="recruit" class="recruit-section">
+    <div class="recruit-inner">
+      <div class="recruit-content">
+        <div class="recruit-en">PLAYER RECRUIT</div>
+        <h2 class="recruit-title">選手募集</h2>
+        <div class="recruit-bar"></div>
+        <p class="recruit-desc">八ヶ岳グランデフットボールクラブでは、サッカーへの情熱を持つ選手を募集しています。<br>体験練習は随時受付中。まずは一度グラウンドへお越しください。</p>
+        <div class="recruit-cats">
+          <span class="recruit-cat">U-15 ジュニアユース</span>
+          <span class="recruit-cat">U-12 ジュニア</span>
+          <span class="recruit-cat">スクール</span>
         </div>
-        <a href="contact.html" class="access-cta">お問い合わせ・体験申込</a>
+        <a href="grande_recruit.html" class="recruit-cta">選手募集ページへ →</a>
       </div>
-      <div class="access-map">
-        <div class="access-map-inner">
-          <div class="map-pin"></div>
-          <div class="map-label">【 Google マップ 】</div>
-        </div>
-      </div>
+      <div class="recruit-photo" style="background-image:url('assets/photo1.jpg')"></div>
     </div>
   </section>
 
@@ -1282,7 +1278,7 @@
           <span class="footer-col-title">JOIN</span>
           <a href="#school">スクール・体験</a>
           <a href="#members">クラブ員専用ページ</a>
-          <a href="#access">アクセス・お問い合わせ</a>
+          <a href="grande_recruit.html">選手募集</a>
         </div>
       </div>
     </div>
@@ -1583,7 +1579,7 @@
       });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.news-section, .philosophy, .match-section, .players-section, .pickup-section, .school-section, .members-section, .sns-section, .access-section').forEach(function(el) {
+    document.querySelectorAll('.news-section, .philosophy, .match-section, .players-section, .pickup-section, .school-section, .members-section, .sns-section, .recruit-section').forEach(function(el) {
       el.classList.add('reveal');
       observer.observe(el);
     });
