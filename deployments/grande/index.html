@@ -1174,7 +1174,7 @@
         <div class="sp-hero-v2-bar"></div>
         <p class="sp-hero-v2-desc">八ヶ岳グランデフットボールクラブの活動を支えてくださっている<br>企業・団体の皆様です。</p>
       </div>
-      <div class="sp-hero-v2-right" style="background-image:url('assets/logo3.jpg')"></div>
+      <div class="sp-hero-v2-right" id="sp-hero-photo"></div>
     </div>
 
     <!-- パートナーグリッド -->
@@ -1598,7 +1598,7 @@
       }
     });
 
-    // 選手募集セクション ランダム写真
+    // ランダム写真（選手募集・パートナーセクション共通）
     (function() {
       var photos = [
         'LINE_ALBUM_20251004高円宮杯エルドラード_260627_1.jpg',
@@ -1614,11 +1614,18 @@
         'LINE_ALBUM_ジュニア20251124_260627_41.jpg',
         'LINE_ALBUM_高円宮杯アズール_260627_5.jpg'
       ];
-      var el = document.getElementById('recruit-photo');
-      if (el) {
-        var file = photos[Math.floor(Math.random() * photos.length)];
-        el.style.backgroundImage = "url('assets/random/" + encodeURIComponent(file) + "')";
+      function pickRandom(exclude) {
+        var pool = exclude ? photos.filter(function(p){ return p !== exclude; }) : photos;
+        return pool[Math.floor(Math.random() * pool.length)];
       }
+      function setPhoto(id, file) {
+        var el = document.getElementById(id);
+        if (el) el.style.backgroundImage = "url('assets/random/" + encodeURIComponent(file) + "')";
+      }
+      var f1 = pickRandom();
+      var f2 = pickRandom(f1);
+      setPhoto('sp-hero-photo', f1);
+      setPhoto('recruit-photo', f2);
     })();
 
     // Partner carousel
