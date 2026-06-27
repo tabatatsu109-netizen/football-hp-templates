@@ -114,6 +114,7 @@ function fetchFromBin(){
     if(rec){
       if(rec.productImages) S.productImages = rec.productImages;
       if(rec.imgbbKey) S.imgbbKey = rec.imgbbKey;
+      if(rec.productOrder && rec.productOrder.length) S.productOrder = rec.productOrder;
     }
     return (rec && Array.isArray(rec.orders)) ? rec.orders : [];
   });
@@ -131,10 +132,31 @@ function saveToBin(payload){
   });
 }
 function saveOrdersToBin(orders){
-  return saveToBin({ orders: orders, productImages: S.productImages, imgbbKey: S.imgbbKey });
+  return saveToBin({ orders: orders, productImages: S.productImages, imgbbKey: S.imgbbKey, productOrder: S.productOrder });
 }
 function saveProductData(){
-  return saveToBin({ orders: S.orders, productImages: S.productImages, imgbbKey: S.imgbbKey });
+  return saveToBin({ orders: S.orders, productImages: S.productImages, imgbbKey: S.imgbbKey, productOrder: S.productOrder });
+}
+
+function getOrderedProds(){
+  if(!S.productOrder.length) return PRODS.slice();
+  var map = {};
+  PRODS.forEach(function(p){ map[p.id] = p; });
+  var ordered = S.productOrder.map(function(id){ return map[id]; }).filter(Boolean);
+  var inOrder = S.productOrder;
+  PRODS.forEach(function(p){ if(inOrder.indexOf(p.id)<0) ordered.push(p); });
+  return ordered;
+}
+
+function moveProduct(pid, dir){
+  var order = S.productOrder.length ? S.productOrder.slice() : PRODS.map(function(p){ return p.id; });
+  var idx = order.indexOf(pid);
+  if(idx<0){ order = PRODS.map(function(p){ return p.id; }); idx = order.indexOf(pid); }
+  var newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=order.length) return;
+  var tmp = order[idx]; order[idx] = order[newIdx]; order[newIdx] = tmp;
+  S.productOrder = order;
+  saveProductData().then(function(){ render(); }).catch(function(){ showError("保存に失敗しました"); });
 }
 
 function uploadToImgBB(file, pid){
@@ -171,7 +193,7 @@ function esc(s){
 
 /* ───────── STATE ───────── */
 var S = {
-  page:"shop", cat:"すべて", cart:[], cartOpen:false, step:0,
+  page:"shop", view:"all", cart:[], cartOpen:false, step:0,
   orders: DEMO_ORDERS.map(function(o){ return Object.assign({}, o, {items:o.items.map(function(i){ return Object.assign({},i); })}); }),
   lastOrder:null,
   form:{pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""},
@@ -185,7 +207,8 @@ var S = {
   ordersLoaded:false,
   productImages:{},
   imgbbKey:"",
-  photoUploading:null
+  photoUploading:null,
+  productOrder:[]
 };
 
 function selFor(p){
@@ -423,20 +446,40 @@ function heroHtml(){
   );
 }
 function productsSectionHtml(){
-  var catsHtml = CATS.map(function(c){
-    var active = c===S.cat;
-    return '<button onclick=\'App.setCat("'+c+'")\' style="white-space:nowrap;padding:7px 16px;border-radius:99px;border:'+(active?("2px solid "+G.g1):"2px solid #ccc")+';background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#555")+';font-weight:700;font-size:13px">'+esc(c)+'</button>';
+  var views = [
+    {v:"all",      label:"すべて",           color:"#555",  bg:"#fff"},
+    {v:"junior",   label:"🟡 ジュニア必需品",  color:G.g1,   bg:G.g1},
+    {v:"junioryouth", label:"🔴 ジュニアユース必需品", color:G.g1, bg:G.g1},
+    {v:"optional", label:"⚪ 希望者アイテム",   color:"#555",  bg:"#555"}
+  ];
+  var tabsHtml = views.map(function(vd){
+    var active = S.view===vd.v;
+    return '<button onclick=\'App.setView("'+vd.v+'")\' style="white-space:nowrap;padding:8px 18px;border-radius:99px;border:2px solid '+(active?vd.bg:"#ccc")+';background:'+(active?vd.bg:"#fff")+';color:'+(active?"#fff":"#555")+';font-weight:700;font-size:13px">'+esc(vd.label)+'</button>';
   }).join("");
-  var list = (S.cat==="すべて" ? PRODS : PRODS.filter(function(p){ return p.cat===S.cat; }));
-  var prodsHtml = list.map(productCardHtml).join("");
+
+  var allOrdered = getOrderedProds();
+  var list;
+  var guideHtml = "";
+  if(S.view==="junior"){
+    list = allOrdered.filter(function(p){ return p.reqJ; });
+    guideHtml = '<div style="background:#fffbea;border:1px solid #f4c430;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#5a4a00;line-height:1.8">🟡 <strong>ジュニア（U-12）の選手が入会時に必要なアイテムです。</strong><br>サイズを確認の上ご注文ください。GKの選手は赤・黄のGKユニフォーム・ゲームパンツ・ソックスも必要です。</div>';
+  } else if(S.view==="junioryouth"){
+    list = allOrdered.filter(function(p){ return p.reqJU; });
+    guideHtml = '<div style="background:#fff0f0;border:1px solid #e53935;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#5a0000;line-height:1.8">🔴 <strong>ジュニアユース（U-15）の選手が入会時に必要なアイテムです。</strong><br>サイズを確認の上ご注文ください。GKの選手は赤・黄のGKユニフォーム・ゲームパンツ・ソックスも必要です。</div>';
+  } else if(S.view==="optional"){
+    list = allOrdered.filter(function(p){ return !p.reqJ && !p.reqJU; });
+    guideHtml = '<div style="background:#f0f4f0;border:1px solid #ccc;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#444;line-height:1.8">⚪ <strong>必須ではありませんが、あると便利なアイテムです。</strong><br>保護者の方もご購入いただけるアイテムも含まれています。</div>';
+  } else {
+    list = allOrdered;
+  }
+
+  var prodsHtml = list.map(productCardHtml).join("") || '<div style="color:#aaa;padding:40px 0;text-align:center">商品がありません</div>';
   return (
     '<div style="max-width:1200px;margin:0 auto;padding:36px 16px 60px">'+
       '<div style="font-size:11px;font-weight:700;color:'+G.g1+';letter-spacing:4px;text-transform:uppercase;margin-bottom:6px">ITEMS</div>'+
       '<div style="font-size:clamp(24px,5vw,36px);font-weight:900;letter-spacing:2px;margin-bottom:20px">商品一覧</div>'+
-      '<div style="display:flex;gap:16px;flex-wrap:wrap;background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#555;box-shadow:0 1px 6px rgba(0,0,0,.06)">'+
-        '<span>🟡 黄：ジュニア（4〜6年生）必需品</span><span>🔴 赤：ジュニアユース必需品</span>'+
-      '</div>'+
-      '<div class="flt-wrap" style="margin-bottom:20px">'+catsHtml+'</div>'+
+      '<div class="flt-wrap" style="margin-bottom:16px">'+tabsHtml+'</div>'+
+      guideHtml+
       '<div class="pgrid">'+prodsHtml+'</div>'+
     '</div>'
   );
@@ -753,25 +796,33 @@ function statsTabHtml(){
   return '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:16px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">STATS</div>'+body;
 }
 function photosTabHtml(){
-  var cardsHtml = PRODS.map(function(p){
+  var ordered = getOrderedProds();
+  var total = ordered.length;
+  var cardsHtml = ordered.map(function(p, i){
     var url = S.productImages[p.id];
     var uploading = S.photoUploading === p.id;
     var icon = p.cat==="ソックス"?"🧦":p.cat==="バッグ"?"🎒":p.cat==="ボトムス"?"👖":"👕";
     var imgHtml = url
-      ? '<img src="'+esc(url)+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;flex-shrink:0">'
-      : '<div style="width:80px;height:80px;border-radius:8px;background:#f0f4f0;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0">'+icon+'</div>';
+      ? '<img src="'+esc(url)+'" style="width:72px;height:72px;object-fit:cover;border-radius:8px;flex-shrink:0">'
+      : '<div style="width:72px;height:72px;border-radius:8px;background:#f0f4f0;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">'+icon+'</div>';
+    var moveHtml =
+      '<div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">'+
+        '<button onclick="App.moveProduct('+p.id+',-1)" '+(i===0?"disabled":"")+' style="width:28px;height:28px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:14px;cursor:'+(i===0?"not-allowed":"pointer")+';color:'+(i===0?"#ccc":"#333")+'">↑</button>'+
+        '<button onclick="App.moveProduct('+p.id+',1)" '+(i===total-1?"disabled":"")+' style="width:28px;height:28px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:14px;cursor:'+(i===total-1?"not-allowed":"pointer")+';color:'+(i===total-1?"#ccc":"#333")+'">↓</button>'+
+      '</div>';
     return (
-      '<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:14px">'+
+      '<div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px">'+
+        moveHtml+
         imgHtml+
         '<div style="flex:1;min-width:0">'+
-          '<div style="font-weight:700;font-size:14px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name)+'</div>'+
-          '<div style="font-size:12px;color:#888;margin-bottom:10px">'+fmt(p.price)+'</div>'+
-          '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
-            '<label style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:'+(uploading?"#aaa":G.g1)+';color:#fff;border-radius:6px;font-size:12px;font-weight:700;cursor:'+(uploading?"not-allowed":"pointer")+'">'+
-              (uploading?'⏳ アップロード中…':'📷 写真を選択')+
+          '<div style="font-weight:700;font-size:13px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name)+'</div>'+
+          '<div style="font-size:11px;color:#888;margin-bottom:8px">'+fmt(p.price)+' · '+esc(p.cat)+'</div>'+
+          '<div style="display:flex;gap:5px;flex-wrap:wrap">'+
+            '<label style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:'+(uploading?"#aaa":G.g1)+';color:#fff;border-radius:6px;font-size:11px;font-weight:700;cursor:'+(uploading?"not-allowed":"pointer")+'">'+
+              (uploading?'⏳ 中…':'📷 写真を選択')+
               '<input type="file" accept="image/*" '+(uploading?"disabled":"")+' onchange="App.handlePhotoUpload('+p.id+',this)" style="display:none">'+
             '</label>'+
-            (url?'<button onclick="App.deletePhoto('+p.id+')" style="padding:7px 14px;background:#fff;border:1.5px solid #e0e0e0;border-radius:6px;font-size:12px;color:#e53935;cursor:pointer;font-weight:700">✕ 削除</button>':'')+'</div>'+
+            (url?'<button onclick="App.deletePhoto('+p.id+')" style="padding:6px 10px;background:#fff;border:1.5px solid #e0e0e0;border-radius:6px;font-size:11px;color:#e53935;cursor:pointer;font-weight:700">✕</button>':'')+'</div>'+
         '</div>'+
       '</div>'
     );
@@ -880,7 +931,7 @@ function render(){
 window.App = {
   openCart:function(){ S.cartOpen=true; render(); },
   closeCart:function(){ S.cartOpen=false; render(); },
-  setCat:function(c){ S.cat=c; render(); },
+  setView:function(v){ S.view=v; render(); },
   addProdToCart:function(pid){ var p=PRODS.filter(function(x){return x.id===pid;})[0]; if(p){ var sel=selFor(p); addToCart(pid, sel.size, sel.qty); } },
   setProdSize:function(pid,sz){ selFor(PRODS.filter(function(x){return x.id===pid;})[0]).size=sz; render(); },
   changeProdQty:function(pid,d){ var s=selFor(PRODS.filter(function(x){return x.id===pid;})[0]); s.qty=Math.max(1,s.qty+d); render(); },
@@ -919,6 +970,7 @@ window.App = {
     fetchFromBin().then(function(o){ S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render(); }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
   },
   saveCfg:function(){ showToast("設定を保存しました（デモ）"); },
+  moveProduct:function(pid, dir){ moveProduct(pid, dir); },
   handlePhotoUpload:function(pid, input){ if(input.files && input.files[0]) uploadToImgBB(input.files[0], pid); },
   deletePhoto:function(pid){
     if(!confirm("この写真を削除しますか？")) return;
@@ -941,8 +993,11 @@ fetch(JSONBIN_URL + "/latest", {
 }).then(function(res){ return res.json(); })
 .then(function(data){
   var rec = data && data.record;
-  if(rec && rec.productImages){ S.productImages = rec.productImages; render(); }
+  var changed = false;
+  if(rec && rec.productImages){ S.productImages = rec.productImages; changed = true; }
   if(rec && rec.imgbbKey){ S.imgbbKey = rec.imgbbKey; }
+  if(rec && rec.productOrder && rec.productOrder.length){ S.productOrder = rec.productOrder; changed = true; }
+  if(changed) render();
 }).catch(function(){});
 
 })();
