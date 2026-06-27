@@ -50,7 +50,7 @@
     .breadcrumb a { color: #55555c; }
     .breadcrumb a:hover { color: rgba(255,255,255,0.5); }
     .breadcrumb-sep { color: #3a3a42; }
-    .page-hero-right { background-image: url('assets/logo3.jpg'); background-size: cover; background-position: center 30%; position: relative; }
+    .page-hero-right { background-size: cover; background-position: center 30%; position: relative; }
     .page-hero-right::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 36%; background: linear-gradient(to right, var(--dark), transparent); }
 
     /* ── グリッドセクション ── */
@@ -271,6 +271,23 @@
   <script src="js/config-loader.js"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    (function(){
+      var photos = [
+        'photo2.jpg','photo3.jpg',
+        'LINE_ALBUM_エルドラード、ラーゴ_260627_10.jpg',
+        'LINE_ALBUM_エルドラード、ラーゴ_260627_52.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_8.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_19.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_31.jpg',
+        'LINE_ALBUM_ジュニア20251124_260627_39.jpg',
+        'LINE_ALBUM_高円宮杯アズール_260627_1.jpg',
+        'LINE_ALBUM_20251012石和中_260627_2.jpg'
+      ];
+      var file = photos[Math.floor(Math.random() * photos.length)];
+      var el = document.querySelector('.page-hero-right');
+      if(el) el.style.backgroundImage = "url('assets/toprandom/" + encodeURIComponent(file) + "')";
+    })();
     document.getElementById('hamburger-btn').addEventListener('click', function(){ document.getElementById('mobile-nav').classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ document.getElementById('mobile-nav').classList.remove('open'); });
 
