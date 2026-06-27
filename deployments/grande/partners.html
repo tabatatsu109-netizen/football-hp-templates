@@ -238,34 +238,36 @@
     </div>
   </div>
 
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div>
-        <div class="footer-logo-wrap">
-          <div class="footer-logo-mark"><span class="footer-logo-letter" id="footer-abbr">G</span></div>
-          <span class="footer-club-name" id="footer-club-name">クラブ名</span>
-        </div>
-        <p class="footer-tagline" id="footer-tagline">八ヶ岳を拠点とするジュニアユースクラブ。</p>
+  <footer class="site-footer" style="padding:0">
+    <!-- キャッチコピー + CTA -->
+    <div style="text-align:center;padding:88px 24px 72px;border-top:3px solid var(--main-color);position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden;z-index:0;">
+        <span style="font-family:'Anton',sans-serif;font-size:min(240px,28vw);color:rgba(255,255,255,0.025);white-space:nowrap;letter-spacing:-6px;user-select:none;line-height:1;">GRANDE</span>
       </div>
-      <div class="footer-links">
-        <div class="footer-col">
-          <span class="footer-col-title">MENU</span>
-          <a href="club.html">クラブ理念</a>
-          <a href="results.html">試合・結果</a>
-          <a href="news.html">お知らせ</a>
-          <a href="team.html">選手プロフィール</a>
-        </div>
-        <div class="footer-col">
-          <span class="footer-col-title">JOIN</span>
-          <a href="partners.html">パートナー＆サポーター</a>
-          <a href="index.html#school">スクール・体験</a>
-          <a href="contact.html">アクセス・お問い合わせ</a>
-        </div>
+      <div style="position:relative;z-index:1;max-width:580px;margin:0 auto;">
+        <div style="font-family:'Anton',sans-serif;color:var(--main-color);font-size:11px;letter-spacing:5px;margin-bottom:20px;">YAMANASHI GRANDE FC</div>
+        <div style="color:#fff;font-size:clamp(30px,5vw,54px);font-weight:900;line-height:1.2;margin-bottom:22px;letter-spacing:0.5px;">感動するサッカーの<br>追求</div>
+        <div style="width:44px;height:3px;background:var(--main-color);margin:0 auto 24px;"></div>
+        <p id="footer-tagline" style="color:rgba(255,255,255,0.4);font-size:14px;line-height:2;margin-bottom:40px;">八ヶ岳の大自然のもと、子どもたちがサッカーを通じて<br>心と身体を磨き、夢に向かって努力できるクラブ。</p>
+        <a href="grande_recruit.html" style="display:inline-block;background:var(--main-color);color:#fff;font-size:14px;font-weight:700;letter-spacing:2px;padding:17px 52px;transition:opacity 0.2s;">体験申込はこちら →</a>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span class="footer-copy">© <span id="footer-year"></span> <span id="footer-club-name-copy">クラブ名</span>. ALL RIGHTS RESERVED.</span>
+    <!-- ボトムバー -->
+    <div style="border-top:1px solid #1d1d22;padding:22px 24px;">
+      <div style="max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+        <span style="color:#55555c;font-size:11px;letter-spacing:1px;">© <span id="footer-year"></span> <span id="footer-club-name-copy">クラブ名</span>. ALL RIGHTS RESERVED.</span>
+        <nav style="display:flex;gap:20px;flex-wrap:wrap;">
+          <a href="club.html" style="color:#55555c;font-size:12px;">クラブ理念</a>
+          <a href="results.html" style="color:#55555c;font-size:12px;">試合・結果</a>
+          <a href="news.html" style="color:#55555c;font-size:12px;">お知らせ</a>
+          <a href="team.html" style="color:#55555c;font-size:12px;">選手</a>
+          <a href="partners.html" style="color:#55555c;font-size:12px;">パートナー</a>
+          <a href="contact.html" style="color:#55555c;font-size:12px;">お問い合わせ</a>
+        </nav>
+      </div>
     </div>
+    <span id="footer-club-name" style="display:none"></span>
+    <span id="footer-abbr" style="display:none">G</span>
   </footer>
 
   <script src="js/config-loader.js"></script>
