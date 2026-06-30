@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "description": "サッカークラブ ホームページ設定ファイル。このファイルを書き換えるだけで別クラブへ展開できます。"
+  },
+  "club": {
+    "name": "FC アラセリオ",
+    "shortName": "ALASERIO",
+    "founded": 2019,
+    "location": "",
+    "description": ""
+  },
+  "design": {
+    "logo": "",
+    "favicon": "",
+    "mainColor": "#F07820",
+    "subColor": "#1A1A1A",
+    "accentColor": "#e84040"
+  },
+  "pages": {
+    "home": {
+      "heroTitle": "常に本気、全力であれ",
+      "heroSubtitle": "FC アラセリオ オフィシャルサイト",
+      "heroImage": ""
+    }
+  },
+  "philosophy": {
+    "title": "クラブフィロソフィー",
+    "text": ""
+  },
+  "mission": {
+    "title": "育成方針",
+    "text": ""
+  },
+  "contact": {
+    "address": "山梨県南アルプス市在家塚650-2",
+    "phone": "055-284-7717",
+    "email": ""
+  },
+  "sns": {
+    "instagram": "https://www.instagram.com/alaserio_2019/",
+    "facebook": "",
+    "youtube": "",
+    "lineUrl": ""
+  },
+  "matchPlanner": {
+    "jsonbinBinId": "6a427bd6da38895dfe1053c7",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+  "integration": {
+    "jsonbinBinId": "6a427bd6da38895dfe1053c7",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+  "newsIntegration": {
+    "jsonbinBinId": "6a427bd6da38895dfe1053c7",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+  "features": {
+    "showNews": true,
+    "showResults": true,
+    "showSchedule": true,
+    "showSponsors": false,
+    "showInstagram": true,
+    "showSchool": false,
+    "showStaff": false,
+    "showPartners": false
+  },
+  "sponsors": [],
+  "partners": [],
+  "school": null,
+  "staff": [],
+  "players": []
+}

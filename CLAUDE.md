@@ -83,12 +83,14 @@
 
 ## 新クラブ展開（自動セットアップ）
 
-ユーザーが「新しいチームのホームページを作りたい」と言ったら、必ず [skills/new-club.md](skills/new-club.md) の手順に従う。
+ユーザーが「ホームページを作りたい」「新しいチームのサイトを作って」などと言ったら、必ず [skills/new-club.md](skills/new-club.md) の手順に従う。
 
 **流れ:**
-1. AskUserQuestion でクラブ情報をヒアリング（名称・略称・カラー）
-2. `node scripts/new-club.mjs '<JSON>'` を実行（JSONBin自動作成・テンプレートコピー・設定完了）
+1. テキストで質問しながらクラブ情報をヒアリング（名称・略称・カラー・プラン・デザインスタイルなど）
+2. ユーザーが確認OKを出したら `node scripts/new-club.mjs '<JSON>'` を実行（JSONBin自動作成・テンプレートコピー・設定完了）
 3. 生成された URL をユーザーに報告
+
+詳細な質問順序・選択肢の説明文は [skills/new-club.md](skills/new-club.md) に定義されている。
 
 生成先: `deployments/{slug}/`（HP）と `deployments/{slug}-match-planner/`（Match Planner）
 

@@ -27,6 +27,52 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
+function generatePhotoGuide(clubName, plan) {
+  const isStandardOrAbove = !plan.startsWith('light');
+  const isPremium = plan.startsWith('premium');
+
+  let guide = `# 写真配置ガイド — ${clubName}\n\n`;
+  guide += `写真をこのフォルダに入れると、ホームページに自動で反映されます。\n\n`;
+  guide += `## 必須（まずここから）\n\n`;
+  guide += `| ファイル名 | サイズ目安 | 説明 |\n`;
+  guide += `|-----------|----------|------|\n`;
+  guide += `| \`assets/logo.png\` | 200×200px以上、正方形 | クラブロゴ（PNG透過推奨） |\n`;
+  guide += `| \`assets/hero.jpg\` | 1920×600px以上、横長 | トップページのメイン写真 |\n\n`;
+
+  if (isStandardOrAbove) {
+    guide += `## スタッフ写真（team.html に表示）\n\n`;
+    guide += `\`assets/staff/\` フォルダに以下の名前で入れてください：\n\n`;
+    guide += `- \`staff-01.jpg\` 〜 \`staff-06.jpg\`\n`;
+    guide += `- 顔写真、正方形に近いもの（表示時に丸くトリミングされます）\n\n`;
+
+    guide += `## 選手写真（team.html に表示）\n\n`;
+    guide += `\`assets/players/\` フォルダに以下の名前で入れてください：\n\n`;
+    guide += `- \`player-01.jpg\` 〜 \`player-30.jpg\`\n`;
+    guide += `- ユニフォーム着用写真推奨\n\n`;
+
+    guide += `## ニュース用写真\n\n`;
+    guide += `\`assets/news/\` フォルダに自由な名前で追加できます。\n`;
+    guide += `Match Planner からニュースを投稿するときに参照します。\n\n`;
+  }
+
+  if (isPremium) {
+    guide += `## スポンサーロゴ\n\n`;
+    guide += `\`assets/sponsors/\` フォルダに以下の名前で入れてください：\n\n`;
+    guide += `- \`sponsor-01.png\` 〜 \`sponsor-06.png\`\n`;
+    guide += `- 横長ロゴ画像（PNG透過推奨）\n\n`;
+
+    guide += `## パートナーロゴ\n\n`;
+    guide += `\`assets/partners/\` フォルダに以下の名前で入れてください：\n\n`;
+    guide += `- \`partner-01.png\` 〜 \`partner-06.png\`\n\n`;
+  }
+
+  guide += `---\n\n`;
+  guide += `写真を追加したら、ブラウザをリロードして確認してください。\n`;
+  guide += `ファイル名が合っていれば自動で反映されます。\n`;
+
+  return guide;
+}
+
 // ── 入力解析
 if (!process.argv[2]) {
   console.error('使い方: node scripts/new-club.mjs <JSONファイルパス>');
@@ -126,6 +172,23 @@ mkdirSync(join(ROOT, 'deployments'), { recursive: true });
 cpSync(srcTemplate, dstHomepage, { recursive: true });
 console.log(`   ✅ deployments/${slug}/`);
 
+// 写真フォルダ構造を生成
+const assetFolders = ['hero', 'logo'];
+if (!plan.startsWith('light')) {
+  assetFolders.push('staff', 'players', 'news');
+}
+if (plan.startsWith('premium')) {
+  assetFolders.push('sponsors', 'partners');
+}
+for (const folder of assetFolders) {
+  mkdirSync(join(dstHomepage, 'assets', folder), { recursive: true });
+  writeFileSync(join(dstHomepage, 'assets', folder, '.gitkeep'), '');
+}
+
+const photoGuide = generatePhotoGuide(name, plan);
+writeFileSync(join(dstHomepage, 'PHOTO_GUIDE.md'), photoGuide, 'utf8');
+console.log(`   ✅ 写真フォルダ作成: ${assetFolders.map(f => `assets/${f}/`).join(', ')}`);
+
 // ====================================================
 // Step 3: club-config.json を生成・書き込み
 // ====================================================
@@ -212,4 +275,7 @@ console.log(`  JSONBin ID    : ${binId}`);
 console.log(line);
 console.log(`  ホームページ  : http://localhost:3000/deployments/${slug}/`);
 console.log(`  Match Planner : http://localhost:3000/deployments/${slug}-match-planner/`);
+console.log(line);
+console.log(`  📷 写真ガイド  : deployments/${slug}/PHOTO_GUIDE.md`);
+console.log(`  → logo.png と hero.jpg を入れると一気に本物らしくなります！`);
 console.log(line);

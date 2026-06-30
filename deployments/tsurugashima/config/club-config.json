@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "description": "サッカークラブ ホームページ設定ファイル。このファイルを書き換えるだけで別クラブへ展開できます。"
+  },
+  "club": {
+    "name": "鶴ヶ島SC",
+    "shortName": "TSURUGASHIMA",
+    "founded": null,
+    "location": "",
+    "description": ""
+  },
+  "design": {
+    "logo": "",
+    "favicon": "",
+    "mainColor": "#1461BB",
+    "subColor": "#FFFFFF",
+    "accentColor": "#e84040"
+  },
+  "pages": {
+    "home": {
+      "heroTitle": "無限の可能性へ挑戦",
+      "heroSubtitle": "鶴ヶ島SC オフィシャルサイト",
+      "heroImage": ""
+    }
+  },
+  "philosophy": {
+    "title": "クラブフィロソフィー",
+    "text": ""
+  },
+  "mission": {
+    "title": "育成方針",
+    "text": ""
+  },
+  "contact": {
+    "address": "",
+    "phone": "",
+    "email": "tsurugashima.sc@gmail.com"
+  },
+  "sns": {
+    "instagram": "https://www.instagram.com/tsurugashima.sc/",
+    "facebook": "",
+    "youtube": "",
+    "lineUrl": ""
+  },
+  "matchPlanner": {
+    "jsonbinBinId": "6a428217da38895dfe10791a",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+  "integration": {
+    "jsonbinBinId": "6a428217da38895dfe10791a",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+  "newsIntegration": {
+    "jsonbinBinId": "6a428217da38895dfe10791a",
+    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
+  },
+  "features": {
+    "showNews": true,
+    "showResults": true,
+    "showSchedule": true,
+    "showSponsors": false,
+    "showInstagram": true,
+    "showSchool": false,
+    "showStaff": false,
+    "showPartners": false
+  },
+  "sponsors": [],
+  "partners": [],
+  "school": null,
+  "staff": [],
+  "players": []
+}
