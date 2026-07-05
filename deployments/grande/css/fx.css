@@ -1,0 +1,196 @@
+/* ================================================
+   GRANDE FX — トップページ演出用（fx.js とセット）
+   既存スタイルには触れず、追加レイヤーのみ定義
+   ================================================ */
+
+/* ---- ヒーロー：写真スライドショー ---- */
+.hero-slides {
+  position: absolute; inset: 0;
+  z-index: 1; overflow: hidden;
+}
+.hero-slides .fx-slide {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.hero-slides::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(10, 30, 16, 0.55));
+}
+
+/* ---- ヒーロー：光の粒キャンバス ---- */
+#hero-fx {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 2; pointer-events: none;
+}
+
+/* ---- ヒーロー：光のライン ---- */
+.hero-sweep {
+  position: absolute; top: -10%;
+  left: -30%;
+  width: 26%; height: 120%;
+  z-index: 2; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(190, 255, 190, 0.16), transparent);
+  transform: skewX(-18deg);
+  opacity: 0;
+}
+
+/* ---- ヒーロータイトルの文字分解 ---- */
+.hero-title .fx-ch { display: inline-block; will-change: transform, opacity; }
+
+/* ---- スクロール出現（fx.js が付与） ---- */
+.fx-reveal { opacity: 0; transform: translateY(30px); }
+
+/* ---- ヘッダーの隠れ演出 ---- */
+.site-header { transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1); }
+.site-header.fx-header-hidden { transform: translateY(-100%); }
+
+/* ---- カスタムカーソル（サッカーボールが転がりながら追従・デスクトップのみ） ---- */
+.fx-cursor {
+  position: fixed; top: 0; left: 0;
+  width: 30px; height: 30px;
+  pointer-events: none; z-index: 9999;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
+  display: none;
+}
+.fx-cursor::before {
+  content: "⚽";
+  display: block;
+  font-size: 24px; line-height: 30px; text-align: center;
+  animation: fx-ball-spin 3.4s linear infinite;
+  transition: font-size 0.25s;
+}
+.fx-cursor.is-on { display: block; }
+.fx-cursor.is-active::before { font-size: 38px; animation-duration: 0.9s; }
+@keyframes fx-ball-spin { to { transform: rotate(360deg); } }
+
+/* ---- 試合結果：スタジアム掲示板演出 ---- */
+.score-num.fx-roll {
+  display: inline-block;
+  overflow: hidden;
+  height: 1em;
+  line-height: 1;
+}
+.fx-roll-col { display: flex; flex-direction: column; will-change: transform; }
+.fx-roll-col span { display: block; height: 1em; line-height: 1; }
+
+.result-badge.fx-stamp.badge-win  { animation: fx-glow-win 0.9s ease-out both; }
+.result-badge.fx-stamp.badge-lose { animation: fx-glow-lose 0.9s ease-out both; }
+.result-badge.fx-stamp.badge-draw { animation: fx-glow-draw 0.9s ease-out both; }
+@keyframes fx-glow-win {
+  0%   { box-shadow: 0 0 0 0 rgba(31, 138, 76, 0.65); }
+  100% { box-shadow: 0 0 0 20px rgba(31, 138, 76, 0); }
+}
+@keyframes fx-glow-lose {
+  0%   { box-shadow: 0 0 0 0 rgba(200, 60, 60, 0.55); }
+  100% { box-shadow: 0 0 0 20px rgba(200, 60, 60, 0); }
+}
+@keyframes fx-glow-draw {
+  0%   { box-shadow: 0 0 0 0 rgba(184, 135, 11, 0.6); }
+  100% { box-shadow: 0 0 0 20px rgba(184, 135, 11, 0); }
+}
+
+/* ---- ローディング演出（エンブレム） ---- */
+#fx-loader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #05080a;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 28px;
+  /* JSが動かない場合の保険：5秒で自動消滅 */
+  animation: fx-loader-failsafe 5s ease forwards;
+}
+.fx-loader-logo {
+  width: min(180px, 42vw);
+  opacity: 0;
+  filter: drop-shadow(0 0 30px rgba(63, 174, 99, 0.4));
+  animation: fx-loader-in 0.9s ease 0.1s forwards, fx-loader-breath 2.4s ease-in-out 1s infinite;
+}
+.fx-loader-text {
+  font-family: 'Anton', sans-serif;
+  color: #3fae63; font-size: 13px; letter-spacing: 9px;
+  padding-left: 9px;
+  opacity: 0;
+  animation: fx-loader-in 0.8s ease 0.4s forwards, fx-loader-blink 1.3s ease 1.2s infinite;
+}
+@keyframes fx-loader-in { to { opacity: 1; } }
+@keyframes fx-loader-breath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.045); }
+}
+@keyframes fx-loader-blink { 50% { opacity: 0.3; } }
+@keyframes fx-loader-failsafe {
+  0%, 92% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+/* ---- FACES：顔ピーカブー・グリッド ---- */
+.faces-section {
+  background: var(--main-color, #1a5c2d);
+  padding: clamp(70px, 10vw, 110px) 24px;
+  overflow: hidden;
+}
+.faces-inner {
+  max-width: 1240px; margin: 0 auto;
+  display: grid; grid-template-columns: 1.15fr 1fr;
+  gap: clamp(30px, 5vw, 70px);
+  align-items: center;
+}
+.faces-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: clamp(10px, 1.8vw, 20px);
+}
+.faces-cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.06);
+}
+.faces-cell img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  /* 既定で表示（JSが動く場合のみ、JS側が隠してピーカブー演出を行う） */
+  will-change: transform;
+}
+.faces-cell--ring { border-color: rgba(255, 255, 255, 0.35); background: transparent; }
+.faces-cell--dot { border: none; background: rgba(255, 255, 255, 0.92); border-radius: 18px; transform: scale(0.62); }
+.faces-en {
+  font-family: 'Anton', sans-serif;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px; letter-spacing: 6px; margin-bottom: 14px;
+}
+.faces-title {
+  color: #fff; font-size: clamp(30px, 4.6vw, 52px);
+  font-weight: 900; line-height: 1.35; margin-bottom: 22px;
+}
+.faces-desc {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px; line-height: 2.1; margin-bottom: 34px;
+}
+.faces-btn {
+  display: inline-block;
+  background: #fff; color: var(--main-color, #1a5c2d);
+  font-weight: 900; font-size: 15px; letter-spacing: 1px;
+  padding: 16px 34px; border-radius: 2px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.faces-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25); }
+@media (max-width: 900px) {
+  .faces-inner { grid-template-columns: 1fr; }
+  .faces-copy { order: -1; }
+  .faces-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ---- reduced motion：演出を全停止 ---- */
+@media (prefers-reduced-motion: reduce) {
+  #hero-fx, .hero-sweep, .fx-cursor { display: none !important; }
+  #fx-loader { display: none !important; }
+  .fx-reveal { opacity: 1; transform: none; }
+  .site-header { transition: none; }
+  .faces-cell img { transform: none; }
+}

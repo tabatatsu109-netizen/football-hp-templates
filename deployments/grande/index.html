@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ホームページ</title>
+  <title>八ヶ岳グランデFC 公式サイト</title>
+  <link rel="stylesheet" href="css/fx.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -119,7 +120,7 @@
     /* ── ヒーロー ────────────────────────────────────── */
     .hero {
       position: relative; min-height: 88vh;
-      background: linear-gradient(rgba(0,0,0,0.35),rgba(26,92,45,0.4)), url('assets/toprandom/photo2.jpg');
+      background: linear-gradient(rgba(0,0,0,0.35),rgba(26,92,45,0.4)), url('assets/hero/slide1.jpg');
       background-size: cover; background-position: center; background-attachment: fixed;
       display: flex; align-items: stretch; overflow: hidden;
     }
@@ -891,6 +892,12 @@
 </head>
 <body>
 
+  <!-- ローディング演出（fx.js が読み込み完了で閉じる。JS無効時はCSSの保険で自動消滅） -->
+  <div id="fx-loader" aria-hidden="true">
+    <img src="assets/logo.png" alt="" class="fx-loader-logo">
+    <span class="fx-loader-text">LOADING</span>
+  </div>
+
   <!-- ヘッダー -->
   <header class="site-header">
     <div class="header-inner">
@@ -938,6 +945,9 @@
     <div class="hero-bg-stripe"></div>
     <div class="hero-bg-overlay"></div>
     <div class="hero-placeholder">【 メインビジュアル：試合・選手の躍動シーン 】</div>
+    <div class="hero-slides" id="hero-slides" aria-hidden="true"></div>
+    <canvas id="hero-fx" aria-hidden="true"></canvas>
+    <div class="hero-sweep" aria-hidden="true"></div>
     <div class="hero-accent-bar"></div>
 
     <div class="hero-content">
@@ -1171,6 +1181,36 @@
       <a href="#" class="sns-header-more" id="sns-all-link" style="display:none">すべてのSNSを見る →</a>
     </div>
     <div class="sns-cards" id="sns-cards"></div>
+  </section>
+
+  <!-- FACES（選手の顔がひょこひょこ出るグリッド。fx.js が選手写真で自動生成） -->
+  <section id="faces" class="faces-section" aria-label="クラブの仲間たち">
+    <div class="faces-inner">
+      <div class="faces-grid" id="faces-grid" aria-hidden="true">
+        <div class="faces-cell"><img src="assets/faces/face01.jpg" alt=""></div>
+        <div class="faces-cell"><img src="assets/faces/face02.jpg" alt=""></div>
+        <div class="faces-cell"><img src="assets/faces/face03.jpg" alt=""></div>
+        <div class="faces-cell"><img src="assets/faces/face04.jpg" alt=""></div>
+        <div class="faces-cell"><img src="assets/faces/face05.jpg" alt=""></div>
+        <div class="faces-cell faces-cell--dot"></div>
+        <div class="faces-cell"><img src="assets/faces/face06.jpg" alt=""></div>
+        <div class="faces-cell"><img src="assets/faces/face07.jpg" alt=""></div>
+        <div class="faces-cell"><img src="assets/faces/face08.jpg" alt=""></div>
+        <div class="faces-cell"><img src="assets/faces/face09.jpg" alt=""></div>
+        <div class="faces-cell faces-cell--ring"></div>
+        <div class="faces-cell"><img src="assets/faces/face10.jpg" alt=""></div>
+      </div>
+      <div class="faces-copy">
+        <div class="faces-en">FACES</div>
+        <h2 class="faces-title">ピッチは、<br>"いい顔"で<br>あふれてる。</h2>
+        <p class="faces-desc">
+          真剣な顔。悔しい顔。笑い転げる顔。<br>
+          サッカーは、子どもの全部を引き出します。<br>
+          次に"いい顔"になるのは、きみの番。
+        </p>
+        <a href="#school" class="faces-btn">体験会に申し込む →</a>
+      </div>
+    </div>
   </section>
 
   <!-- 選手募集 -->
@@ -1576,7 +1616,8 @@
         'LINE_ALBUM_20251012石和中_260627_2.jpg'
       ];
       var hero = document.getElementById('top');
-      if (hero) {
+      // fx.js のスライドショーが有効な場合はランダム背景をスキップ（二重読み込み防止）
+      if (hero && !document.getElementById('hero-slides')) {
         var file = topPhotos[Math.floor(Math.random() * topPhotos.length)];
         hero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35),rgba(26,92,45,0.4)), url('assets/toprandom/" + encodeURIComponent(file) + "')";
       }
@@ -1659,5 +1700,10 @@
     })();
   </script>
 
+  <!-- FX演出（GSAP + Three.js）— 既存機能から独立 -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="js/fx.js"></script>
 </body>
 </html>
