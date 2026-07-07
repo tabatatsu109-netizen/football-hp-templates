@@ -1551,19 +1551,19 @@
         }
         window.doPickupShuffle = renderPickup;
 
-        var playerBinId = '6a3a1805da38895dfeef91b0';
-        var playerApiKey = '$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq';
-        if(playerBinId){
-          fetch('https://api.jsonbin.io/v3/b/'+playerBinId+'/latest',{
-            headers:{'X-Master-Key':playerApiKey}
-          }).then(function(res){ return res.json(); })
-            .then(function(data){
-              var allPlayers = (data.record && data.record.players) || [];
-              _pickupPool = allPlayers.filter(function(p){ return p.category !== 'staff'; });
-              renderPickup();
-            })
-            .catch(function(e){ console.error('Failed to load pickup players',e); });
-        }
+        // Firebase（最新版 Match Planner の保存先）から選手データを取得
+        var fbUrl = get(c,'integration.firebaseUrl') || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var fbClubId = get(c,'integration.firebaseClubId') || 'grande';
+        fetch(fbUrl + '/clubs/' + fbClubId + '.json')
+          .then(function(res){ return res.json(); })
+          .then(function(data){
+            var allPlayers = (data && data.players) || [];
+            // 旧形式(nameEn)と新プランナー形式(nameRoman)の両対応
+            allPlayers.forEach(function(p){ if(!p.nameEn && p.nameRoman) p.nameEn = p.nameRoman; });
+            _pickupPool = allPlayers.filter(function(p){ return p.category !== 'staff'; });
+            renderPickup();
+          })
+          .catch(function(e){ console.error('Failed to load pickup players',e); });
       }
     });
 
