@@ -72,6 +72,25 @@ var G = {
 
 /* ───────── FIREBASE（注文データ保存先: /shops/{clubId}/orders） ───────── */
 var FB_ORDERS_URL = SHOP_CONFIG.firebaseUrl + "/shops/" + SHOP_CONFIG.clubId + "/orders";
+// 商品写真のURL置き場（/clubs/ 配下＝公開読み取り可の領域）
+var FB_IMAGES_URL = SHOP_CONFIG.firebaseUrl + "/clubs/" + SHOP_CONFIG.clubId + "/shopImages";
+// 管理用設定（imgbbキー等。公開読み取り不可の領域）
+var FB_ADMIN_URL = SHOP_CONFIG.firebaseUrl + "/shops/" + SHOP_CONFIG.clubId + "/admin";
+
+// 管理画面でアップロードされた商品写真を読み込んで反映する
+function loadProductImages() {
+  fetch(FB_IMAGES_URL + ".json").then(function (res) {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  }).then(function (map) {
+    if (!map) return;
+    var changed = false;
+    PRODS.forEach(function (p) {
+      if (map[p.id]) { p.img = map[p.id]; changed = true; }
+    });
+    if (changed) render();
+  }).catch(function () { /* 未設定時はアイコン表示のまま */ });
+}
 
 // 保護者の注文送信：新規作成のみ（キー不要・Firebaseルールで作成のみ許可）
 function pushOrderToCloud(order){
@@ -122,6 +141,7 @@ function esc(s){
 var S = {
   page:"shop", cat:"すべて", cart:[], cartOpen:false, step:0,
   orders: [],
+  imgbbKey:null, uploadingPid:null,
   lastOrder:null,
   form:{pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""},
   pwErr:"",
@@ -563,7 +583,7 @@ function loginPageHtml(){
 
 /* ───────── ADMIN PAGE ───────── */
 function adminHeaderHtml(){
-  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["cfg","⚙️ EmailJS"]];
+  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["photos","🖼 商品写真"]];
   var tabsHtml = tabs.map(function(pair){
     var t=pair[0], l=pair[1];
     var active = S.adminTab===t;
@@ -697,33 +717,38 @@ function statsTabHtml(){
   }).join("") : '<div style="color:#aaa">注文データがありません</div>';
   return '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:16px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">STATS</div>'+body;
 }
-function cfgTabHtml(){
-  var sections = [
-    {t:"🔑 基本設定",fields:[{l:"Public Key",p:"user_xxxxxxxxx"},{l:"Service ID",p:"service_xxxxxxx"}]},
-    {t:"📧 管理者通知",fields:[{l:"管理者メール",p:"admin@example.com"},{l:"管理者用 Template ID",p:"template_xxxxxxx"}]},
-    {t:"📨 保護者確認メール",fields:[{l:"保護者用 Template ID",p:"template_xxxxxxx"}]}
-  ];
-  var secHtml = sections.map(function(sec){
-    var fields = sec.fields.map(function(f){
-      return '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">'+esc(f.l)+'</label><input style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="'+esc(f.p)+'"></div>';
-    }).join("");
-    return (
-      '<div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #ddd">'+
-        '<div style="font-weight:700;font-size:14px;margin-bottom:12px">'+esc(sec.t)+'</div>'+
-        '<div style="display:grid;grid-template-columns:'+(sec.fields.length>1?"1fr 1fr":"1fr")+';gap:10px" class="frow">'+fields+'</div>'+
-      '</div>'
-    );
-  }).join("");
+function photosTabHtml(){
+  var keySetup = S.imgbbKey ? '' : (
+    '<div style="background:#fff8e1;border:1px solid #e8d491;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#6b5715;line-height:1.8">'+
+      '画像アップロード用のキー（imgbb）が未設定です。<a href="https://api.imgbb.com/" target="_blank" rel="noreferrer" style="color:'+G.g1+';text-decoration:underline">api.imgbb.com</a> で無料取得できます。<br>'+
+      '<input id="imgbbKeyInput" style="width:100%;margin:8px 0;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:13px" placeholder="imgbb APIキーを貼り付け">'+
+      '<button onclick="App.saveImgbbKey()" style="background:'+G.g1+';color:#fff;padding:9px 18px;border-radius:8px;font-weight:700;font-size:13px">キーを保存</button>'+
+    '</div>');
+  var rows = PRODS.map(function(p){
+    var uploading = S.uploadingPid === p.id;
+    var thumb = p.img
+      ? '<img src="'+esc(p.img)+'" alt="" style="width:60px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0">'
+      : '<div style="width:60px;height:60px;border-radius:8px;background:#eef2ee;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📷</div>';
+    var actions = uploading
+      ? '<span style="font-size:12px;color:#888;white-space:nowrap">アップロード中…</span>'
+      : '<label style="background:'+G.g1+';color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">'+(p.img?'変更':'写真を追加')+
+          '<input type="file" accept="image/*" hidden onchange="App.uploadProductImage('+p.id+', this)">'+
+        '</label>'+
+        (p.img ? '<button onclick="App.removeProductImage('+p.id+')" style="color:#b33;font-size:12px;border:1px solid #e6c9c9;border-radius:8px;padding:8px 10px;white-space:nowrap;background:#fff">削除</button>' : '');
+    return '<div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:10px;padding:10px 14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
+      thumb+
+      '<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">'+esc(p.name)+'</div><div style="font-size:11px;color:#999">'+fmt(p.price)+'</div></div>'+
+      actions+
+    '</div>';
+  }).join('');
   return (
-    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">EMAILJS設定</div>'+
-    '<div style="color:#888;font-size:13px;margin-bottom:16px"><a href="https://www.emailjs.com" target="_blank" rel="noreferrer" style="color:'+G.g1+'">emailjs.com</a> で無料アカウントを作成してください。</div>'+
-    secHtml+
-    '<div style="background:#f8faf8;border-radius:8px;padding:10px;font-size:12px;color:#666;line-height:1.9;margin-bottom:14px">テンプレート変数：{{order_id}} {{date}} {{parent_name}} {{player_name}} {{category}} {{items}} {{total}} {{payment}} {{note}} {{to_email}}</div>'+
-    '<button onclick="App.saveCfg()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">設定を保存する</button>'
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">PHOTOS</div>'+
+    '<div style="color:#888;font-size:13px;margin-bottom:16px">商品写真をアップロードすると、ショップに即時反映されます（スマホからでもOK）。</div>'+
+    keySetup + rows
   );
 }
 function adminPageHtml(){
-  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():cfgTabHtml();
+  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():photosTabHtml();
   return (
     '<div style="background:'+G.lt+';min-height:100vh">'+
       adminHeaderHtml()+
@@ -827,6 +852,11 @@ window.App = {
       S.loadingAdmin = false;
       S.page = "admin"; S.adminTab = "dash";
       render();
+      // 管理用設定（imgbbキー）を読み込む
+      fetch(FB_ADMIN_URL + ".json?auth=" + encodeURIComponent(getSecret()))
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(a){ if(a && a.imgbbKey){ S.imgbbKey = a.imgbbKey; render(); } })
+        .catch(function(){});
     }).catch(function(err){
       console.error(err);
       S.loadingAdmin = false;
@@ -874,12 +904,92 @@ window.App = {
   printInvoice: printInvoice,
   downloadOrderListCsv: downloadOrderListCsv,
   downloadOrderDetailCsv: downloadOrderDetailCsv,
-  saveCfg: function(){ showToast("設定を保存しました（実際の保存はEmailJS設定後に実装してください）"); }
+
+  /* ── 商品写真管理 ── */
+  uploadProductImage: function(pid, input){
+    var file = input.files && input.files[0];
+    input.value = "";
+    if(!file) return;
+    if(!S.imgbbKey){ showError("先に画像アップロード用キー（imgbb）を設定してください"); return; }
+    if(S.uploadingPid) return;
+    S.uploadingPid = pid;
+    render();
+    compressForUpload(file, function(b64){
+      if(!b64){ S.uploadingPid = null; render(); showError("画像を読み込めませんでした"); return; }
+      var fd = new FormData();
+      fd.append("image", b64);
+      fetch("https://api.imgbb.com/1/upload?key=" + encodeURIComponent(S.imgbbKey), { method:"POST", body: fd })
+        .then(function(r){ return r.json(); })
+        .then(function(j){
+          var url = j && j.data && (j.data.display_url || j.data.url);
+          if(!url) throw new Error("upload failed");
+          return fetch(FB_IMAGES_URL + "/" + pid + ".json?auth=" + encodeURIComponent(getSecret()), {
+            method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(url)
+          }).then(function(res){ if(!res.ok) throw new Error("save failed"); return url; });
+        })
+        .then(function(url){
+          var p = PRODS.filter(function(x){ return x.id===pid; })[0];
+          if(p) p.img = url;
+          S.uploadingPid = null;
+          render();
+          showToast("商品写真を更新しました ✓");
+        })
+        .catch(function(){
+          S.uploadingPid = null;
+          render();
+          showError("アップロードに失敗しました。キーと通信環境をご確認ください。");
+        });
+    });
+  },
+  removeProductImage: function(pid){
+    fetch(FB_IMAGES_URL + "/" + pid + ".json?auth=" + encodeURIComponent(getSecret()), { method:"DELETE" })
+      .then(function(res){
+        if(!res.ok) throw new Error();
+        var p = PRODS.filter(function(x){ return x.id===pid; })[0];
+        if(p) delete p.img;
+        render();
+        showToast("写真を削除しました");
+      })
+      .catch(function(){ showError("削除に失敗しました"); });
+  },
+  saveImgbbKey: function(){
+    var inp = document.getElementById("imgbbKeyInput");
+    var key = inp ? inp.value.trim() : "";
+    if(!key){ showError("キーを入力してください"); return; }
+    fetch(FB_ADMIN_URL + "/imgbbKey.json?auth=" + encodeURIComponent(getSecret()), {
+      method:"PUT", headers:{"Content-Type":"application/json"}, body: JSON.stringify(key)
+    }).then(function(res){
+      if(!res.ok) throw new Error();
+      S.imgbbKey = key;
+      render();
+      showToast("キーを保存しました ✓");
+    }).catch(function(){ showError("保存に失敗しました"); });
+  }
 };
+
+/* 画像をブラウザ内で縮小してbase64化（アップロード用） */
+function compressForUpload(file, cb){
+  var img = new Image();
+  var url = URL.createObjectURL(file);
+  img.onload = function(){
+    URL.revokeObjectURL(url);
+    var maxW = 700;
+    var scale = Math.min(1, maxW / img.width);
+    var w = Math.max(1, Math.round(img.width * scale));
+    var h = Math.max(1, Math.round(img.height * scale));
+    var cv = document.createElement("canvas");
+    cv.width = w; cv.height = h;
+    cv.getContext("2d").drawImage(img, 0, 0, w, h);
+    cb(cv.toDataURL("image/jpeg", 0.78).split(",")[1]);
+  };
+  img.onerror = function(){ URL.revokeObjectURL(url); cb(null); };
+  img.src = url;
+}
 
 /* ───────── INIT ───────── */
 // 注文データは管理者ログイン後にのみ取得する（保護者側は読み取り不可）
 render();
+loadProductImages();
 
 })();
 </script>
