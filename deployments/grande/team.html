@@ -349,15 +349,22 @@
         var logoSrc=get(c,'design.logo');
         if(logoSrc){ var li=document.getElementById('club-logo'); if(li){li.src=logoSrc;li.style.display='block';var ll=document.getElementById('logo-abbr');if(ll)ll.style.display='none';} }
 
-        var binId = '6a3a1805da38895dfeef91b0';
-        var apiKey = '$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq';
+        // Firebase（最新版 Match Planner の保存先）から選手データを取得
+        var fbUrl = get(c,'integration.firebaseUrl')||'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId = get(c,'integration.firebaseClubId')||'grande';
 
-        if(binId){
-          fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest',{
-            headers:{'X-Master-Key':apiKey}
-          }).then(function(res){ return res.json(); })
+        if(fbUrl){
+          fetch(fbUrl+'/clubs/'+clubId+'.json')
+            .then(function(res){ return res.json(); })
             .then(function(data){
-              allPlayersData = (data.record && data.record.players) || [];
+              var raw = (data && data.players) || [];
+              // 旧形式(position/nameEn)と新プランナー形式(mainGroup/nameRoman)の両対応
+              allPlayersData = raw.map(function(p){
+                var q = {}; for (var k in p) { q[k] = p[k]; }
+                q.position = p.position || p.mainGroup || '';
+                q.nameEn = p.nameEn || p.nameRoman || '';
+                return q;
+              });
               renderPlayers();
             })
             .catch(function(e){

@@ -1,11 +1,12 @@
 /**
- * AuroraConnector  –  standard-04
+ * AuroraConnector  –  standard-04（Firebase版）
  *
- * JSONBin からデータを取得し、index.html の各セクションへ反映する。
+ * Firebase Realtime Database（最新版 Match Planner の保存先 /clubs/{clubId}/）から
+ * データを取得し、index.html の各セクションへ反映する。
+ * ※ 2026-07 に JSONBin から移行。描画ロジックは無変更
  *
  * ▼ 設定 (club-config.json)
- *   integration.jsonbinBinId / jsonbinApiKey  … 試合データ
- *   newsIntegration.jsonbinBinId / jsonbinApiKey  … ニュースデータ
+ *   integration.firebaseUrl / firebaseClubId  … データ取得先
  *   matchCategories  … タブカテゴリ例: ["U-15","U-14","U-13"]
  *
  * ▼ 試合データ (json.record.matches[n]) の主要フィールド
@@ -30,8 +31,6 @@
  */
 
 const AuroraConnector = (function () {
-
-  const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
 
   const state = {
     config: null,
@@ -106,42 +105,30 @@ const AuroraConnector = (function () {
     return res.json();
   }
 
-  async function fetchMatches(config) {
-    var binId  = get(config, 'integration.jsonbinBinId')
-              || get(config, 'matchPlanner.jsonbinBinId');
-    var apiKey = get(config, 'integration.jsonbinApiKey')
-              || get(config, 'matchPlanner.jsonbinApiKey');
-
-    if (!binId || /^DUMMY/i.test(binId)) {
-      var e = new Error('Match Planner未設定');
-      e.code = 'UNCONFIGURED';
-      throw e;
+  // Firebase（最新版 Match Planner の保存先）から一括取得してキャッシュする
+  var clubDataPromise = null;
+  function fetchClubData(config) {
+    if (!clubDataPromise) {
+      var fbUrl  = get(config, 'integration.firebaseUrl')
+                || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+      var clubId = get(config, 'integration.firebaseClubId') || 'grande';
+      clubDataPromise = fetch(fbUrl + '/clubs/' + clubId + '.json').then(function (res) {
+        if (!res.ok) throw new Error('Firebase 取得失敗 (' + res.status + ')');
+        return res.json();
+      });
     }
+    return clubDataPromise;
+  }
 
-    var res = await fetch(JSONBIN_BASE + '/' + binId + '/latest', {
-      headers: { 'X-Master-Key': apiKey }
-    });
-    if (!res.ok) throw new Error('JSONBin 取得失敗 (' + res.status + ')');
-    var json = await res.json();
-    var matches = get(json, 'record.matches');
+  async function fetchMatches(config) {
+    var data = await fetchClubData(config);
+    var matches = data && data.matches;
     return Array.isArray(matches) ? matches : [];
   }
 
   async function fetchNews(config) {
-    var binId  = get(config, 'newsIntegration.jsonbinBinId');
-    var apiKey = get(config, 'newsIntegration.jsonbinApiKey');
-    if (!binId || /^DUMMY/i.test(binId)) {
-      var e = new Error('News未設定');
-      e.code = 'UNCONFIGURED';
-      throw e;
-    }
-    var res = await fetch(JSONBIN_BASE + '/' + binId + '/latest', {
-      headers: { 'X-Master-Key': apiKey }
-    });
-    if (!res.ok) throw new Error('news JSONBin取得失敗 (' + res.status + ')');
-    var json = await res.json();
-    // Match Planner は 'posts' キーで保存するため両方に対応
-    var items = get(json, 'record.news') || get(json, 'record.posts');
+    var data = await fetchClubData(config);
+    var items = (data && data.news) || (data && data.posts);
     return Array.isArray(items) ? items : [];
   }
 

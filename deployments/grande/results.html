@@ -260,13 +260,13 @@
         state.categories=cats; state.activeCategory=cats[0];
         renderTabs();
 
-        var binId=get(c,'integration.jsonbinBinId')||get(c,'matchPlanner.jsonbinBinId');
-        var apiKey=get(c,'integration.jsonbinApiKey')||get(c,'matchPlanner.jsonbinApiKey');
-        if(!binId||/^DUMMY/i.test(binId)){ renderResults(); return; }
-        fetch('https://api.jsonbin.io/v3/b/'+binId+'/latest',{headers:{'X-Master-Key':apiKey}})
+        // Firebase（最新版 Match Planner の保存先）から取得
+        var fbUrl=get(c,'integration.firebaseUrl')||'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId=get(c,'integration.firebaseClubId')||'grande';
+        fetch(fbUrl+'/clubs/'+clubId+'.json')
           .then(function(r){ return r.json(); })
           .then(function(json){
-            var m=json&&json.record&&json.record.matches;
+            var m=json&&json.matches;
             state.allMatches=Array.isArray(m)?m:[];
             renderResults();
           })
