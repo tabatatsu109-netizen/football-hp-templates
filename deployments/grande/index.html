@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -894,7 +894,12 @@
 
   <!-- ローディング演出（fx.js が読み込み完了で閉じる。JS無効時はCSSの保険で自動消滅） -->
   <div id="fx-loader" aria-hidden="true">
-    <img src="assets/logo.png" alt="" class="fx-loader-logo">
+    <div class="fx-loader-mark">
+      <span class="fx-loader-ring"></span>
+      <span class="fx-loader-ring fx-loader-ring--2"></span>
+      <span class="fx-loader-burst"></span>
+      <img src="assets/logo.png" alt="" class="fx-loader-logo">
+    </div>
     <span class="fx-loader-text">LOADING</span>
   </div>
 
@@ -916,7 +921,7 @@
         <a href="news.html">お知らせ</a>
         <a href="team.html">選手</a>
         <a href="partners.html">パートナー</a>
-        <a href="#school">スクール・体験</a>
+        <a href="grande_recruit.html">スクール・体験</a>
       </nav>
       <div class="header-actions">
         <a href="members.html" class="btn-login">ログイン</a>
@@ -935,8 +940,8 @@
     <a href="news.html"     class="mobile-nav-link">お知らせ</a>
     <a href="team.html"     class="mobile-nav-link">選手</a>
     <a href="partners.html" class="mobile-nav-link">パートナー</a>
-    <a href="#school"       class="mobile-nav-link">スクール・体験</a>
-    <a href="#school" class="btn-trial" style="margin-top:12px;border-radius:2px;padding:14px 32px;">体験申込</a>
+    <a href="grande_recruit.html"       class="mobile-nav-link">スクール・体験</a>
+    <a href="grande_recruit.html" class="btn-trial" style="margin-top:12px;border-radius:2px;padding:14px 32px;">体験申込</a>
   </nav>
 
   <!-- ヒーロー -->
@@ -959,7 +964,7 @@
       <p class="hero-subcopy" id="hero-subcopy">感動するサッカーの追求</p>
       <p class="hero-desc" id="hero-desc">八ヶ岳の大自然のもと、子どもたちがサッカーを通じて<br>心と身体を磨き、夢に向かって努力できるクラブ。</p>
       <div class="hero-btns">
-        <a href="#school" class="hero-btn-primary">体験会に申し込む →</a>
+        <a href="grande_recruit.html" class="hero-btn-primary">体験会に申し込む →</a>
         <a href="#match"  class="hero-btn-secondary">試合日程を見る</a>
       </div>
     </div>
@@ -1208,7 +1213,7 @@
           サッカーは、子どもの全部を引き出します。<br>
           次に"いい顔"になるのは、きみの番。
         </p>
-        <a href="#school" class="faces-btn">体験会に申し込む →</a>
+        <a href="grande_recruit.html" class="faces-btn">体験会に申し込む →</a>
       </div>
     </div>
   </section>

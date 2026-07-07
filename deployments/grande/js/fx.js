@@ -28,16 +28,21 @@
     if (!loader) return 0;
     if (reduceMotion || typeof gsap === 'undefined') { loader.remove(); return 0; }
 
-    var MIN_SHOW = 1100; // ms（読み込みが速くても一瞬で消えない）
+    var MIN_SHOW = 2400; // ms（読み込みが速くても一瞬で消えない）
     var wait = Math.max(0, MIN_SHOW - performance.now()) / 1000;
 
+    // 退場演出：エンブレムがひと呼吸ため→光のバーストと共に弾けて幕が上がる
     gsap.timeline({ delay: wait })
-      .to('.fx-loader-logo', { scale: 1.14, duration: 0.35, ease: 'power2.in' })
-      .to('.fx-loader-text', { opacity: 0, duration: 0.25 }, '<')
-      .to(loader, { yPercent: -100, duration: 0.75, ease: 'power3.inOut' }, '-=0.05')
+      .to('.fx-loader-text', { opacity: 0, y: 10, duration: 0.3 })
+      .to('.fx-loader-logo', { scale: 0.9, duration: 0.28, ease: 'power2.in' }, '<')
+      .to('.fx-loader-burst', { opacity: 1, scale: 2.6, duration: 0.55, ease: 'power2.out' })
+      .to('.fx-loader-logo', { scale: 2.4, opacity: 0, duration: 0.5, ease: 'power3.in' }, '<')
+      .to('.fx-loader-ring', { opacity: 0, duration: 0.3 }, '<')
+      .to('.fx-loader-burst', { opacity: 0, duration: 0.3 }, '-=0.15')
+      .to(loader, { yPercent: -100, duration: 0.7, ease: 'power4.inOut' }, '-=0.25')
       .add(function () { loader.remove(); });
 
-    return wait + 0.6; // ヒーロー演出はカーテンが上がり始めてから
+    return wait + 1.1; // ヒーロー演出はカーテンが上がり始めてから
   }
 
   /* ================================================
