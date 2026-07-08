@@ -291,7 +291,11 @@ function loadSurvey(){
       if (survey.identifyRespondent) {
         return fetch(CLUB_BASE + '/players.json')
           .then(function(res){ return res.ok ? res.json() : []; })
-          .then(function(players){ S.players = Array.isArray(players) ? players : Object.values(players || {}); });
+          .then(function(players){
+            var all = Array.isArray(players) ? players : Object.values(players || {});
+            var ids = survey.participants;
+            S.players = (Array.isArray(ids) && ids.length) ? all.filter(function(p){ return ids.indexOf(p.id) >= 0; }) : all;
+          });
       }
     })
     .then(function(){

@@ -164,9 +164,13 @@ let oppSearchQuery = '';
 let surveys = [];
 let editingSurveyIdx = null;
 let surveyQuestions = [];
+let surveyParticipants = [];
+let participantSearchQuery = '';
 let currentSurveyId = null;
 let surveyResponses = [];
 let surveyResultsLoading = false;
+let responseSearchQuery = '';
+let expandedResponseKeys = new Set();
 
 // ===== SETTINGS =====
 // clubName/clubId/firebaseUrl は mp-config.js のみ。LocalStorageには firebaseSecret だけ保存。
@@ -2322,6 +2326,7 @@ function openSurveyModal(idx = null) {
       options: q.options ? [...q.options] : ['', ''],
       dates: q.dates ? [...q.dates] : [''],
     }));
+    surveyParticipants = [...(s.participants || [])];
   } else {
     title.textContent = 'アンケートを作成';
     document.getElementById('svf-title').value = '';
@@ -2330,9 +2335,46 @@ function openSurveyModal(idx = null) {
     document.getElementById('svf-identify').checked = true;
     document.getElementById('svf-published').checked = true;
     surveyQuestions = [];
+    surveyParticipants = [];
   }
+  participantSearchQuery = '';
+  document.getElementById('sf-participant-search').value = '';
+  document.getElementById('sf-participants-wrap').hidden = !document.getElementById('svf-identify').checked;
   renderSurveyQuestionEditor();
+  renderSurveyParticipantPicker();
   openModal('modal-survey');
+}
+
+function renderSurveyParticipantPicker() {
+  const el = document.getElementById('sf-participants');
+  const countEl = document.getElementById('sf-participant-count');
+  if (!el) return;
+  const q = participantSearchQuery.toLowerCase();
+  const filtered = q ? players.filter(p => (p.name || '').toLowerCase().includes(q)) : players;
+  if (players.length === 0) {
+    el.innerHTML = `<div style="font-size:12.5px;color:var(--c-muted)">選手が登録されていません</div>`;
+  } else if (filtered.length === 0) {
+    el.innerHTML = `<div style="font-size:12.5px;color:var(--c-muted)">「${participantSearchQuery}」に一致する選手がいません</div>`;
+  } else {
+    el.innerHTML = filtered.map(p => {
+      const checked = surveyParticipants.includes(p.id);
+      return `<label class="cat-check-label"><input type="checkbox" class="sf-participant-check" value="${p.id}" ${checked ? 'checked' : ''} onchange="toggleSurveyParticipant('${p.id}', this.checked)"> ${p.name}</label>`;
+    }).join('');
+  }
+  countEl.textContent = surveyParticipants.length === 0 ? '全選手が対象' : `${surveyParticipants.length}人を選択中`;
+}
+function toggleSurveyParticipant(playerId, checked) {
+  if (checked) { if (!surveyParticipants.includes(playerId)) surveyParticipants.push(playerId); }
+  else { surveyParticipants = surveyParticipants.filter(id => id !== playerId); }
+  document.getElementById('sf-participant-count').textContent = surveyParticipants.length === 0 ? '全選手が対象' : `${surveyParticipants.length}人を選択中`;
+}
+function selectAllSurveyParticipants() {
+  surveyParticipants = players.map(p => p.id);
+  renderSurveyParticipantPicker();
+}
+function clearSurveyParticipants() {
+  surveyParticipants = [];
+  renderSurveyParticipantPicker();
 }
 
 function renderSurveyQuestionEditor() {
@@ -2445,6 +2487,7 @@ function saveSurveyForm() {
     deadline: document.getElementById('svf-deadline').value || '',
     identifyRespondent: document.getElementById('svf-identify').checked,
     published: document.getElementById('svf-published').checked,
+    participants: [...surveyParticipants],
     questions: validQuestions,
     createdAt: existing ? existing.createdAt : new Date().toISOString(),
   };
@@ -2521,11 +2564,28 @@ async function renderSurveyResults() {
     return;
   }
   surveyResultsLoading = false;
+  responseSearchQuery = '';
+  expandedResponseKeys = new Set();
+  renderSurveyResultsBody();
+}
+
+function surveyTargetPlayers(survey) {
+  return (survey.participants && survey.participants.length) ? players.filter(p => survey.participants.includes(p.id)) : players;
+}
+
+function renderSurveyResultsBody() {
+  const survey = surveys.find(s => s.id === currentSurveyId);
+  const body = document.getElementById('survey-results-body');
+  if (!survey || !body) return;
+
+  const shareUrl = buildSurveyShareUrl(survey.id);
+  const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(shareUrl)}`;
 
   const total = surveyResponses.length;
+  const targetPlayers = surveyTargetPlayers(survey);
   const respondentPlayerIds = new Set(surveyResponses.filter(r => r.playerId).map(r => r.playerId));
-  const unanswered = survey.identifyRespondent ? players.filter(p => !respondentPlayerIds.has(p.id)) : [];
-  const rate = (survey.identifyRespondent && players.length) ? Math.round((respondentPlayerIds.size / players.length) * 100) : null;
+  const unanswered = survey.identifyRespondent ? targetPlayers.filter(p => !respondentPlayerIds.has(p.id)) : [];
+  const rate = (survey.identifyRespondent && targetPlayers.length) ? Math.round((respondentPlayerIds.size / targetPlayers.length) * 100) : null;
 
   const questionBlocks = survey.questions.map(q => {
     if (q.type === 'text') {
@@ -2591,6 +2651,28 @@ async function renderSurveyResults() {
       </div>`;
   }).join('');
 
+  const gradeGroups = {};
+  if (survey.identifyRespondent) {
+    targetPlayers.forEach(p => {
+      const g = p.grade || '未設定';
+      if (!gradeGroups[g]) gradeGroups[g] = { total: 0, answered: 0 };
+      gradeGroups[g].total++;
+      if (respondentPlayerIds.has(p.id)) gradeGroups[g].answered++;
+    });
+  }
+  const gradeKeys = Object.keys(gradeGroups);
+  const gradeBreakdownHtml = (survey.identifyRespondent && gradeKeys.length > 1) ? `
+    <div class="form-group">
+      <div class="form-label">学年別回答率</div>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        ${gradeKeys.map(g => {
+          const gr = gradeGroups[g];
+          const pct = gr.total ? Math.round((gr.answered / gr.total) * 100) : 0;
+          return `<div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px;padding:6px 0;border-bottom:1px solid var(--c-border)"><span>${g}</span><span>${gr.answered}/${gr.total}人（${pct}%）</span></div>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
   body.innerHTML = `
     <div class="opp-card" style="flex-wrap:wrap">
       <div class="opp-card-info">
@@ -2617,9 +2699,62 @@ async function renderSurveyResults() {
         ` : '<div style="font-size:12.5px;color:var(--c-green)">全員回答済みです 🎉</div>'}
       </div>
     ` : ''}
+    ${gradeBreakdownHtml}
     <div class="spacer"></div>
     ${questionBlocks}
+    <div class="spacer"></div>
+    <div class="form-group">
+      <div class="form-label">個別回答一覧（${total}件）</div>
+      <input class="form-input" type="search" id="survey-response-search" placeholder="名前で検索..." style="margin-bottom:8px" oninput="filterSurveyResponses(this.value)">
+      <div id="survey-response-list">${buildResponseCardsHtml(survey)}</div>
+    </div>
   `;
+}
+
+function buildResponseCardsHtml(survey) {
+  const respQuery = responseSearchQuery.toLowerCase();
+  const respFiltered = respQuery ? surveyResponses.filter(r => (r.playerName || r.respondentName || '').toLowerCase().includes(respQuery)) : surveyResponses;
+  const respSorted = [...respFiltered].sort((a, b) => (b.submittedAt || '').localeCompare(a.submittedAt || ''));
+  if (respSorted.length === 0) return `<div style="font-size:12.5px;color:var(--c-muted)">該当する回答がありません</div>`;
+  return respSorted.map(r => {
+    const name = r.playerName || r.respondentName || '匿名';
+    const isOpen = expandedResponseKeys.has(r.fbKey);
+    const dt = r.submittedAt ? new Date(r.submittedAt).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    return `
+      <div style="border:1px solid var(--c-border);border-radius:8px;margin-bottom:8px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;cursor:pointer" onclick="toggleResponseDetail('${r.fbKey}')">
+          <div><span style="font-weight:600;font-size:13.5px">${name}</span> <span style="font-size:11px;color:var(--c-muted)">${dt}</span></div>
+          <span style="font-size:12px;color:var(--c-muted)">${isOpen ? '閉じる ▲' : '詳細 ▼'}</span>
+        </div>
+        ${isOpen ? `
+          <div style="padding:0 12px 12px;border-top:1px solid var(--c-border)">
+            ${survey.questions.map(q => `<div style="padding-top:8px;font-size:12.5px"><span style="color:var(--c-muted)">${q.label}：</span>${fmtSurveyAnswerForDisplay(q, (r.answers || {})[q.id])}</div>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+function fmtSurveyAnswerForDisplay(q, v) {
+  if (v == null || v === '' || (Array.isArray(v) && v.length === 0)) return '（未回答）';
+  if (q.type === 'schedule') return q.dates.map(d => `${fmtDate(d)}:${v[d] || '-'}`).join('　');
+  if (Array.isArray(v)) return v.join('、');
+  return String(v);
+}
+function renderResponseListOnly() {
+  const survey = surveys.find(s => s.id === currentSurveyId);
+  const el = document.getElementById('survey-response-list');
+  if (!survey || !el) return;
+  el.innerHTML = buildResponseCardsHtml(survey);
+}
+function toggleResponseDetail(fbKey) {
+  if (expandedResponseKeys.has(fbKey)) expandedResponseKeys.delete(fbKey);
+  else expandedResponseKeys.add(fbKey);
+  renderResponseListOnly();
+}
+function filterSurveyResponses(value) {
+  responseSearchQuery = value;
+  renderResponseListOnly();
 }
 
 function exportSurveyResultsCsv() {
@@ -2649,7 +2784,7 @@ function copyUnansweredReminder() {
   const survey = surveys.find(s => s.id === currentSurveyId);
   if (!survey) return;
   const respondentPlayerIds = new Set(surveyResponses.filter(r => r.playerId).map(r => r.playerId));
-  const unanswered = players.filter(p => !respondentPlayerIds.has(p.id));
+  const unanswered = surveyTargetPlayers(survey).filter(p => !respondentPlayerIds.has(p.id));
   const url = buildSurveyShareUrl(survey.id);
   const text = `【アンケートのお願い】\n「${survey.title}」にまだご回答いただいていません。\n対象: ${unanswered.map(p => p.name).join('、')}\nこちらからご回答をお願いします → ${url}`;
   navigator.clipboard.writeText(text).then(() => {
@@ -2793,6 +2928,15 @@ function bindEvents() {
   document.getElementById('btn-close-survey-modal')?.addEventListener('click', () => closeModal('modal-survey'));
   document.getElementById('btn-survey-add-question')?.addEventListener('click', addSurveyQuestion);
   document.getElementById('btn-back-survey-results')?.addEventListener('click', popPage);
+  document.getElementById('svf-identify')?.addEventListener('change', e => {
+    document.getElementById('sf-participants-wrap').hidden = !e.target.checked;
+  });
+  document.getElementById('sf-participant-search')?.addEventListener('input', e => {
+    participantSearchQuery = e.target.value;
+    renderSurveyParticipantPicker();
+  });
+  document.getElementById('btn-survey-select-all-participants')?.addEventListener('click', selectAllSurveyParticipants);
+  document.getElementById('btn-survey-clear-participants')?.addEventListener('click', clearSurveyParticipants);
 
   // Player import
   document.getElementById('btn-download-template')?.addEventListener('click', downloadPlayerTemplate);
