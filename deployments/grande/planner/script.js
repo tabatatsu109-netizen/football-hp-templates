@@ -350,6 +350,7 @@ function showPage(pageId, opts = {}) {
   if (pageId === 'page-opponents')    renderOpponents();
   if (pageId === 'page-survey')       renderSurveyList();
   if (pageId === 'page-survey-results') renderSurveyResults();
+  if (pageId === 'page-sns')          renderSnsPage();
   if (pageId === 'page-news')         renderNews();
   if (pageId === 'page-announcement') renderAnnouncement();
   if (pageId === 'page-result-entry') renderResultEntry();
@@ -1337,7 +1338,7 @@ async function publishToHP() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -1367,7 +1368,7 @@ async function unpublish() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -1998,7 +1999,7 @@ async function sendPost() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -2032,7 +2033,7 @@ async function deletePost(id) {
         await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ players, matches, schedules, posts, opponents }),
+          body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
         });
       } catch(e) { /* silent */ }
     }
@@ -2198,7 +2199,7 @@ async function postAnnouncement() {
     type: '試合告知',
     date: sc?.date || todayStr(),
     body,
-    image: null,
+    image: announcementSnsImage || null,
     source: 'announcement',
     published: true,
   };
@@ -2222,7 +2223,7 @@ async function postAnnouncement() {
     const res = await fetch(`${getFirebaseUrl(sconf)}.json?auth=${sconf.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -2938,6 +2939,25 @@ function bindEvents() {
   document.getElementById('btn-survey-select-all-participants')?.addEventListener('click', selectAllSurveyParticipants);
   document.getElementById('btn-survey-clear-participants')?.addEventListener('click', clearSurveyParticipants);
 
+  // SNS画像作成
+  document.getElementById('btn-back-sns')?.addEventListener('click', popPage);
+  document.querySelectorAll('.sns-kind-btn').forEach(b => {
+    b.addEventListener('click', () => snsApplyKind(b.dataset.kind));
+  });
+  document.getElementById('btn-sns-photo')?.addEventListener('click', () => document.getElementById('sns-photo-input')?.click());
+  document.getElementById('sns-photo-input')?.addEventListener('change', e => snsLoadPhotoFile(e.target.files && e.target.files[0]));
+  document.getElementById('btn-sns-photo-clear')?.addEventListener('click', snsClearPhoto);
+  document.getElementById('sns-zoom')?.addEventListener('input', e => {
+    snsPhotoState.scale = Math.max(1, Math.min(3, Number(e.target.value) / 100));
+    snsDrawPhoto();
+  });
+  document.getElementById('btn-sns-save')?.addEventListener('click', snsExport);
+  document.getElementById('btn-close-sns-export')?.addEventListener('click', () => closeModal('modal-sns-export'));
+  document.getElementById('btn-sns-set-thumb')?.addEventListener('click', snsSetThumb);
+  snsBindFieldsOnce();
+  snsBindDrag();
+  window.addEventListener('resize', snsFitPreview);
+
   // Player import
   document.getElementById('btn-download-template')?.addEventListener('click', downloadPlayerTemplate);
   document.getElementById('btn-import-excel')?.addEventListener('click', triggerPlayerImport);
@@ -2993,6 +3013,548 @@ function bindEvents() {
     });
   });
 }
+
+// ===== SNS画像メーカー（試合告知・試合結果） =====
+const SNS_TEMPLATES = [
+  { id: 'resultA', kind: 'result', name: '試合結果A', desc: 'フォト×ネイビー' },
+  { id: 'resultB', kind: 'result', name: '試合結果B', desc: '対戦カード型' },
+  { id: 'resultC', kind: 'result', name: '試合結果C', desc: 'Jクラブ風' },
+  { id: 'noticeA', kind: 'notice', name: '試合告知A', desc: 'NEXT MATCH' },
+  { id: 'noticeB', kind: 'notice', name: '試合告知B', desc: '黒×ネイビー' },
+  { id: 'noticeC', kind: 'notice', name: '試合告知C', desc: '写真重視' },
+];
+const snsData = {
+  templateId: 'resultA', kind: 'result',
+  club: localStorage.getItem('mp_sns_club') || '',
+  competition: '', opponent: '',
+  myScore: '', oppScore: '', scorers: '',
+  date: '', time: '', venue: '',
+};
+const snsPhotoState = { img: null, scale: 1, x: 0, y: 0 };
+let snsOrigin = 'home'; // 'home' | 'match' | 'schedule'
+let announcementSnsImage = '';
+let lastSnsThumb = (function () {
+  try { return localStorage.getItem('mp_sns_last_thumb') || ''; } catch (e) { return ''; }
+})();
+
+function snsEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function snsFmtDate(d) {
+  if (!d) return { ymd: '', dow: '' };
+  const dt = new Date(d + 'T00:00:00');
+  if (isNaN(dt)) return { ymd: d, dow: '' };
+  const dows = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  return { ymd: `${dt.getFullYear()}.${dt.getMonth() + 1}.${dt.getDate()}`, dow: dows[dt.getDay()] };
+}
+function snsScorerLines() {
+  return String(snsData.scorers || '').split(/\n|、|,/).map(s => s.trim()).filter(Boolean);
+}
+function snsResultWord() {
+  const a = parseInt(snsData.myScore, 10), b = parseInt(snsData.oppScore, 10);
+  if (isNaN(a) || isNaN(b)) return '';
+  return a > b ? 'WIN' : a < b ? 'LOSE' : 'DRAW';
+}
+function snsBadgeHtml(cls) {
+  const w = snsResultWord();
+  if (!w) return '';
+  return `<div class="sns-badge sns-badge-${w.toLowerCase()} ${cls || ''}">${w}</div>`;
+}
+function snsScoreTxt(v) {
+  const n = parseInt(v, 10);
+  return isNaN(n) ? '0' : String(n);
+}
+function snsClubInitial(name) {
+  const c = String(name || 'C').trim().charAt(0);
+  return snsEsc(c.toUpperCase ? c.toUpperCase() : c);
+}
+function snsClubBadge() {
+  return `<div class="sns-club-badge">
+    <span class="sns-club-mark">${snsClubInitial(snsData.club)}</span>
+    <span class="sns-club-name">${snsEsc(snsData.club)}</span>
+  </div>`;
+}
+function snsPhotoBlock() {
+  if (snsPhotoState.img) {
+    return `<div class="snsP"><canvas class="sns-photo-cv" width="1080" height="1080"></canvas></div>`;
+  }
+  return `<div class="snsP snsP-ph"></div>`;
+}
+
+const SNS_TPL = {
+  resultA(d) {
+    const f = snsFmtDate(d.date);
+    const lines = snsScorerLines();
+    return `
+      ${snsPhotoBlock()}
+      <div class="ovl ovl-navy"></div>
+      <div class="tplA-frame"></div>
+      <div class="tplA-top">
+        ${snsClubBadge()}
+        <div class="tplA-comp">${snsEsc(d.competition)}</div>
+      </div>
+      <div class="tplA-center">
+        <div class="tplA-ft">FULL TIME</div>
+        <div class="tplA-score sns-num">${snsScoreTxt(d.myScore)}<span class="tplA-dash">-</span>${snsScoreTxt(d.oppScore)}</div>
+        <div class="tplA-teams">${snsEsc(d.club)}<span class="tplA-vs">vs</span>${snsEsc(d.opponent)}</div>
+        ${snsBadgeHtml('tplA-badge')}
+      </div>
+      <div class="tplA-bottom">
+        <div class="tplA-scorers">${lines.map(s => `<span>⚽ ${snsEsc(s)}</span>`).join('')}</div>
+        <div class="tplA-date sns-num">${snsEsc(f.ymd)}${f.dow ? ` <em>${f.dow}</em>` : ''}</div>
+      </div>`;
+  },
+  resultB(d) {
+    const f = snsFmtDate(d.date);
+    const lines = snsScorerLines();
+    return `
+      ${snsPhotoBlock()}
+      <div class="ovl"></div>
+      <div class="tplB-stripe"></div>
+      <div class="tplB-comp">${snsEsc(d.competition)}</div>
+      <div class="tplB-row">
+        <div class="tplB-team"><small>HOME</small>${snsEsc(d.club)}</div>
+        <div class="tplB-scorebox">
+          <div class="tplB-ft">FULL TIME</div>
+          <div class="tplB-score sns-num">${snsScoreTxt(d.myScore)}<span>-</span>${snsScoreTxt(d.oppScore)}</div>
+          ${snsBadgeHtml('tplB-badge')}
+        </div>
+        <div class="tplB-team"><small>AWAY</small>${snsEsc(d.opponent)}</div>
+      </div>
+      <div class="tplB-bottom">
+        ${lines.length ? `<div class="tplB-scorers">${lines.map(s => `<span>⚽ ${snsEsc(s)}</span>`).join('')}</div>` : ''}
+        <div class="tplB-date sns-num">${snsEsc(f.ymd)}${f.dow ? ` ${f.dow}` : ''}</div>
+      </div>`;
+  },
+  resultC(d) {
+    const f = snsFmtDate(d.date);
+    const lines = snsScorerLines();
+    return `
+      ${snsPhotoBlock()}
+      <div class="tplC-photo-ovl"></div>
+      <div class="tplC-chip">${snsEsc(d.competition)}</div>
+      ${snsBadgeHtml('tplC-badge')}
+      <div class="tplC-panel">
+        <div class="tplC-panel-row">
+          <div class="tplC-score sns-num">${snsScoreTxt(d.myScore)}<span>-</span>${snsScoreTxt(d.oppScore)}</div>
+          <div class="tplC-info">
+            <div class="tplC-teams">${snsEsc(d.club)}<em>vs</em>${snsEsc(d.opponent)}</div>
+            ${lines.length ? `<div class="tplC-scorers">⚽ ${lines.map(snsEsc).join('　')}</div>` : ''}
+          </div>
+        </div>
+        <div class="tplC-foot">
+          <span><b>MATCH RESULT</b></span>
+          <span class="sns-num">${snsEsc(f.ymd)}${f.dow ? ` ${f.dow}` : ''}</span>
+        </div>
+      </div>`;
+  },
+  noticeA(d) {
+    const f = snsFmtDate(d.date);
+    return `
+      ${snsPhotoBlock()}
+      <div class="ovl"></div>
+      <div class="tplNA-head">
+        <div class="tplNA-next">NEXT <b>MATCH</b></div>
+        <div class="tplNA-comp">${snsEsc(d.competition)}</div>
+      </div>
+      <div class="tplNA-card">
+        <div class="tplNA-team">${snsEsc(d.club)}</div>
+        <div class="tplNA-vs">VS</div>
+        <div class="tplNA-team">${snsEsc(d.opponent)}</div>
+      </div>
+      <div class="tplNA-info">
+        <div class="tplNA-date sns-num">${snsEsc(f.ymd)}${f.dow ? `<em>${f.dow}</em>` : ''}</div>
+        ${d.time ? `<div class="tplNA-ko sns-num">KICK OFF ${snsEsc(d.time)}</div>` : ''}
+        ${d.venue ? `<div class="tplNA-venue">📍 ${snsEsc(d.venue)}</div>` : ''}
+      </div>`;
+  },
+  noticeB(d) {
+    const f = snsFmtDate(d.date);
+    const photo = snsPhotoState.img
+      ? `<div class="tplNB-photo"><div class="snsP"><canvas class="sns-photo-cv" width="1080" height="1080"></canvas></div><div class="tplNB-photo-ovl"></div></div>`
+      : '';
+    return `
+      <div class="tplNB-deco"></div>
+      <div class="tplNB-line"></div>
+      <div class="tplNB-body">
+        <div class="tplNB-next">NEXT<br><b>MATCH</b></div>
+        <div class="tplNB-comp">${snsEsc(d.competition)}</div>
+        ${photo}
+        <div class="tplNB-vs">${snsEsc(d.club)}<em>VS</em>${snsEsc(d.opponent)}</div>
+        <div class="tplNB-grid">
+          <div class="tplNB-cell"><div class="lab">DATE</div><div class="val sns-num">${snsEsc(f.ymd)}${f.dow ? `<em>${f.dow}</em>` : ''}</div></div>
+          ${d.time ? `<div class="tplNB-cell"><div class="lab">KICK OFF</div><div class="val sns-num">${snsEsc(d.time)}</div></div>` : ''}
+          ${d.venue ? `<div class="tplNB-cell"><div class="lab">VENUE</div><div class="val">${snsEsc(d.venue)}</div></div>` : ''}
+        </div>
+      </div>`;
+  },
+  noticeC(d) {
+    const f = snsFmtDate(d.date);
+    return `
+      ${snsPhotoBlock()}
+      <div class="ovl"></div>
+      <div class="tplNC-club">${snsClubBadge()}</div>
+      <div class="tplNC-comp">${snsEsc(d.competition)}</div>
+      <div class="tplNC-bottom">
+        <div class="tplNC-next">NEXT<br><b>MATCH</b></div>
+        <div class="tplNC-opp"><em>vs</em>${snsEsc(d.opponent)}</div>
+        <div class="tplNC-meta">
+          <span class="sns-num">${snsEsc(f.ymd)}${f.dow ? ` ${f.dow}` : ''}</span>
+          ${d.time ? `<span><b>KO</b> <span class="sns-num">${snsEsc(d.time)}</span></span>` : ''}
+          ${d.venue ? `<span>📍 ${snsEsc(d.venue)}</span>` : ''}
+        </div>
+      </div>`;
+  },
+};
+
+// ----- 写真処理（読み込み→自動リサイズ圧縮→正方形クロップ描画） -----
+function snsLoadPhotoFile(file) {
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    const max = 2200;
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    if (Math.max(iw, ih) > max) {
+      const r = max / Math.max(iw, ih);
+      const c = document.createElement('canvas');
+      c.width = Math.round(iw * r); c.height = Math.round(ih * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const im2 = new Image();
+      im2.onload = () => snsSetPhoto(im2);
+      im2.src = c.toDataURL('image/jpeg', 0.9);
+    } else {
+      snsSetPhoto(img);
+    }
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); showToast('写真を読み込めませんでした', 'error'); };
+  img.src = url;
+}
+function snsSetPhoto(img) {
+  snsPhotoState.img = img;
+  snsPhotoState.scale = 1; snsPhotoState.x = 0; snsPhotoState.y = 0;
+  document.getElementById('sns-photo-tools')?.classList.remove('hidden');
+  document.getElementById('btn-sns-photo-clear')?.classList.remove('hidden');
+  const z = document.getElementById('sns-zoom'); if (z) z.value = 100;
+  snsUpdateDragMode();
+  renderSnsCanvas();
+}
+function snsClearPhoto() {
+  snsPhotoState.img = null;
+  document.getElementById('sns-photo-tools')?.classList.add('hidden');
+  document.getElementById('btn-sns-photo-clear')?.classList.add('hidden');
+  const inp = document.getElementById('sns-photo-input'); if (inp) inp.value = '';
+  snsUpdateDragMode();
+  renderSnsCanvas();
+}
+function snsPaintPhoto(ctx) {
+  const img = snsPhotoState.img; if (!img) return;
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const base = Math.max(1080 / iw, 1080 / ih);
+  const s = base * snsPhotoState.scale;
+  const dw = iw * s, dh = ih * s;
+  const maxX = (dw - 1080) / 2, maxY = (dh - 1080) / 2;
+  snsPhotoState.x = Math.max(-maxX, Math.min(maxX, snsPhotoState.x));
+  snsPhotoState.y = Math.max(-maxY, Math.min(maxY, snsPhotoState.y));
+  const dx = (1080 - dw) / 2 + snsPhotoState.x;
+  const dy = (1080 - dh) / 2 + snsPhotoState.y;
+  ctx.clearRect(0, 0, 1080, 1080);
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+function snsDrawPhoto(root) {
+  const scope = root || document.getElementById('sns-canvas');
+  if (!scope || !snsPhotoState.img) return;
+  scope.querySelectorAll('.sns-photo-cv').forEach(cv => snsPaintPhoto(cv.getContext('2d')));
+}
+
+// ----- プレビュー描画 -----
+function snsBuildHtml() {
+  const fn = SNS_TPL[snsData.templateId] || SNS_TPL.resultA;
+  return fn(snsData);
+}
+function renderSnsCanvas() {
+  const cv = document.getElementById('sns-canvas'); if (!cv) return;
+  cv.className = 'sns-canvas tpl-' + snsData.templateId;
+  cv.innerHTML = snsBuildHtml();
+  snsDrawPhoto(cv);
+}
+function snsFitPreview() {
+  const frame = document.getElementById('sns-preview-frame'), stage = document.getElementById('sns-stage');
+  if (!frame || !stage) return;
+  const w = frame.clientWidth || 1;
+  stage.style.transform = `scale(${w / 1080})`;
+}
+function snsUpdateDragMode() {
+  const frame = document.getElementById('sns-preview-frame'); if (!frame) return;
+  frame.style.touchAction = snsPhotoState.img ? 'none' : 'auto';
+}
+
+// ----- ドラッグ＆ピンチで写真位置・ズーム調整 -----
+function snsBindDrag() {
+  const frame = document.getElementById('sns-preview-frame'); if (!frame) return;
+  const pointers = new Map();
+  let pinchStart = null;
+
+  frame.addEventListener('pointerdown', e => {
+    if (!snsPhotoState.img) return;
+    frame.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      pinchStart = { dist: Math.hypot(a.x - b.x, a.y - b.y), scale: snsPhotoState.scale };
+    }
+    e.preventDefault();
+  });
+  frame.addEventListener('pointermove', e => {
+    if (!snsPhotoState.img || !pointers.has(e.pointerId)) return;
+    const prev = pointers.get(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const pvScale = (frame.clientWidth || 1080) / 1080;
+
+    if (pointers.size === 1) {
+      snsPhotoState.x += (e.clientX - prev.x) / pvScale;
+      snsPhotoState.y += (e.clientY - prev.y) / pvScale;
+      snsDrawPhoto();
+    } else if (pointers.size === 2 && pinchStart) {
+      const [a, b] = [...pointers.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      snsPhotoState.scale = Math.max(1, Math.min(3, pinchStart.scale * dist / pinchStart.dist));
+      const z = document.getElementById('sns-zoom'); if (z) z.value = Math.round(snsPhotoState.scale * 100);
+      snsDrawPhoto();
+    }
+  });
+  const release = e => {
+    pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchStart = null;
+  };
+  frame.addEventListener('pointerup', release);
+  frame.addEventListener('pointercancel', release);
+}
+
+// ----- テンプレート選択UI -----
+function snsRenderTemplateRow() {
+  const row = document.getElementById('sns-template-row'); if (!row) return;
+  row.innerHTML = SNS_TEMPLATES.filter(t => t.kind === snsData.kind).map(t => `
+    <button type="button" class="sns-tpl-card${t.id === snsData.templateId ? ' active' : ''}" onclick="snsSelectTemplate('${t.id}')">
+      <div class="sns-tpl-thumb thumb-${t.id}"></div>
+      <div class="sns-tpl-name">${snsEsc(t.name)}</div>
+      <div class="sns-tpl-desc">${snsEsc(t.desc)}</div>
+    </button>
+  `).join('');
+}
+function snsSelectTemplate(id) {
+  snsData.templateId = id;
+  snsRenderTemplateRow();
+  renderSnsCanvas();
+}
+function snsApplyKind(kind) {
+  snsData.kind = kind;
+  const cur = SNS_TEMPLATES.find(t => t.id === snsData.templateId);
+  if (!cur || cur.kind !== kind) {
+    snsData.templateId = (SNS_TEMPLATES.find(t => t.kind === kind) || {}).id || 'resultA';
+  }
+  document.querySelectorAll('.sns-kind-btn').forEach(b => b.classList.toggle('active', b.dataset.kind === kind));
+  document.querySelectorAll('.sns-f-result').forEach(n => n.classList.toggle('hidden', kind !== 'result'));
+  document.querySelectorAll('.sns-f-notice').forEach(n => n.classList.toggle('hidden', kind !== 'notice'));
+  snsRenderTemplateRow();
+  renderSnsCanvas();
+}
+
+// ----- フォーム⇔データ同期 -----
+const SNS_FIELDS = [
+  ['sns-competition', 'competition'], ['sns-opponent', 'opponent'],
+  ['sns-myscore', 'myScore'], ['sns-oppscore', 'oppScore'],
+  ['sns-scorers', 'scorers'], ['sns-date', 'date'],
+  ['sns-time', 'time'], ['sns-venue', 'venue'], ['sns-club', 'club'],
+];
+function snsSyncFields() {
+  if (!snsData.club) snsData.club = getSettings().clubName || '';
+  SNS_FIELDS.forEach(([id, key]) => {
+    const n = document.getElementById(id);
+    if (n) n.value = snsData[key] ?? '';
+  });
+}
+function snsBindFieldsOnce() {
+  SNS_FIELDS.forEach(([id, key]) => {
+    const n = document.getElementById(id); if (!n) return;
+    n.addEventListener('input', () => {
+      snsData[key] = n.value;
+      if (key === 'club') localStorage.setItem('mp_sns_club', n.value);
+      renderSnsCanvas();
+    });
+  });
+}
+
+// ----- 画面表示 -----
+function renderSnsPage() {
+  snsApplyKind(snsData.kind);
+  snsSyncFields();
+  renderSnsCanvas();
+  requestAnimationFrame(snsFitPreview);
+}
+
+function openSnsFromMatch(m) {
+  if (!m) { snsOrigin = 'home'; pushPage('page-sns'); return; }
+  const r = m.result || {};
+  const hasResult = r.myScore !== undefined && r.myScore !== null;
+  snsData.kind = hasResult ? 'result' : 'notice';
+  snsData.templateId = hasResult ? 'resultA' : 'noticeA';
+  snsData.competition = m.competition || m.type || '';
+  snsData.opponent = m.opponent || '';
+  snsData.date = m.date || '';
+  snsData.venue = m.venue || '';
+  if (hasResult) {
+    snsData.myScore = r.myScore;
+    snsData.oppScore = r.oppScore ?? '';
+    const count = {};
+    (r.goals || []).forEach(g => { if (g.scorer) count[g.scorer] = (count[g.scorer] || 0) + 1; });
+    snsData.scorers = Object.entries(count)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, c]) => c > 1 ? `${name} ${c}点` : name)
+      .join('\n');
+  }
+  snsOrigin = 'match';
+  pushPage('page-sns');
+}
+function openSnsFromSchedule(sc) {
+  if (!sc) { snsOrigin = 'home'; pushPage('page-sns'); return; }
+  snsData.kind = 'notice';
+  snsData.templateId = 'noticeA';
+  snsData.competition = sc.competition || sc.type || '';
+  snsData.opponent = sc.opponent || '';
+  snsData.date = sc.date || '';
+  snsData.time = sc.time || '';
+  snsData.venue = sc.venue || '';
+  snsOrigin = 'schedule';
+  pushPage('page-sns');
+}
+
+// ----- PNG書き出し（html2canvas / 1080×1080） -----
+async function snsExport() {
+  if (typeof html2canvas === 'undefined') {
+    showToast('画像ライブラリの読み込みに失敗しました。通信環境をご確認ください', 'error');
+    return;
+  }
+  const btn = document.getElementById('btn-sns-save');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 画像を生成中...'; }
+  try {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:fixed;left:-2000px;top:0;width:1080px;height:1080px;z-index:-1;';
+    const node = document.createElement('div');
+    node.className = 'sns-canvas tpl-' + snsData.templateId;
+    node.innerHTML = snsBuildHtml();
+    wrap.appendChild(node);
+    document.body.appendChild(wrap);
+    snsDrawPhoto(node);
+
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
+
+    const canvas = await html2canvas(node, {
+      width: 1080, height: 1080, scale: 1,
+      backgroundColor: '#0c1430', useCORS: true, logging: false,
+    });
+    wrap.remove();
+
+    const dataUrl = canvas.toDataURL('image/png');
+    const thumb = snsMakeThumb(canvas);
+    lastSnsThumb = thumb;
+    try { localStorage.setItem('mp_sns_last_thumb', thumb); } catch (e) {}
+
+    const f = snsFmtDate(snsData.date);
+    const kindLabel = snsData.kind === 'result' ? '結果' : '告知';
+    const clubTag = (getSettings().clubName || 'club').replace(/\s/g, '');
+    const fname = `${clubTag}_${kindLabel}_vs${(snsData.opponent || '').replace(/\s/g, '')}_${(f.ymd || 'image').replace(/\./g, '-')}.png`;
+
+    const imgEl = document.getElementById('sns-export-img');
+    const dlEl = document.getElementById('sns-export-dl');
+    if (imgEl) imgEl.src = dataUrl;
+    if (dlEl) { dlEl.href = dataUrl; dlEl.download = fname; }
+    openModal('modal-sns-export');
+    showToast('画像を生成しました', 'success');
+  } catch (e) {
+    console.error('SNS export error:', e);
+    showToast('画像の生成に失敗しました', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '💾 画像を保存（1080×1080 PNG）'; }
+  }
+}
+function snsMakeThumb(srcCanvas) {
+  const SIZE = 900;
+  const c = document.createElement('canvas');
+  c.width = SIZE; c.height = SIZE;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#0c1430';
+  ctx.fillRect(0, 0, SIZE, SIZE);
+  ctx.drawImage(srcCanvas, 0, 0, SIZE, SIZE);
+  return c.toDataURL('image/jpeg', 0.82);
+}
+function snsSetThumb() {
+  if (!lastSnsThumb) { showToast('先に画像を生成してください', 'error'); return; }
+  if (snsOrigin === 'match') {
+    const imgInput = document.getElementById('result-image');
+    if (imgInput) imgInput.value = lastSnsThumb;
+    showToast('結果フォームの画像欄に設定しました。「結果を保存」を押すと記事に反映されます', 'success');
+  } else if (snsOrigin === 'schedule') {
+    announcementSnsImage = lastSnsThumb;
+    showToast('告知記事の画像に設定しました', 'success');
+  } else {
+    showToast('画像を保存しました', 'info');
+  }
+}
+
+// ----- 既存画面へのCTA追加（ラップして追記・既存処理は変更しない） -----
+function snsEnsureCtaButton(container, id, label, note, onClick) {
+  if (!container) return;
+  let btn = document.getElementById(id);
+  if (!btn) {
+    const div = document.createElement('div');
+    div.className = 'sns-cta-wrap';
+    div.innerHTML = `<button type="button" id="${id}" class="btn-sns-make">${label}</button>` +
+      (note ? `<div class="sns-result-cta-note">${note}</div>` : '');
+    container.appendChild(div);
+    btn = document.getElementById(id);
+  } else {
+    btn.textContent = label;
+  }
+  btn.onclick = onClick;
+}
+const _snsOrigRenderResult = renderResult;
+renderResult = function () {
+  _snsOrigRenderResult.apply(this, arguments);
+  try {
+    if (!currentMatch) return;
+    snsEnsureCtaButton(
+      document.querySelector('#tab-result .result-section'),
+      'btn-result-sns', '📸 この試合のSNS画像を作成',
+      '結果を保存してから押すと、スコア・得点者・日付が自動入力されます',
+      () => openSnsFromMatch(currentMatch)
+    );
+  } catch (e) { console.error('SNS CTA(result) error:', e); }
+};
+const _snsOrigRenderPublish = renderPublish;
+renderPublish = function () {
+  _snsOrigRenderPublish.apply(this, arguments);
+  try {
+    if (!currentMatch || !currentMatch.result || currentMatch.result.myScore == null) return;
+    snsEnsureCtaButton(
+      document.getElementById('tab-publish'),
+      'btn-hp-sns', '📸 SNS画像を作成', '',
+      () => openSnsFromMatch(currentMatch)
+    );
+  } catch (e) { console.error('SNS CTA(publish) error:', e); }
+};
+const _snsOrigSelectAnnSched = selectAnnSched;
+selectAnnSched = function (id) {
+  _snsOrigSelectAnnSched.apply(this, arguments);
+  try {
+    const sc = schedules.find(s => s.id === id);
+    if (!sc) return;
+    snsEnsureCtaButton(
+      document.getElementById('ann-content-area'),
+      'btn-ann-sns', '📸 この試合のSNS画像を作成', '',
+      () => openSnsFromSchedule(sc)
+    );
+  } catch (e) { console.error('SNS CTA(ann) error:', e); }
+};
 
 // ===== INIT =====
 function initApp() {

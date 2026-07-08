@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <div id="app">
@@ -70,6 +71,9 @@
       </div>
       <div class="nav-item" data-nav="page-survey">
         <span class="nav-item-icon">🗳️</span> アンケート
+      </div>
+      <div class="nav-item" data-nav="page-sns">
+        <span class="nav-item-icon">📸</span> SNS画像作成
       </div>
       <div class="nav-item" data-nav="page-settings">
         <span class="nav-item-icon">⚙️</span> 設定
@@ -530,6 +534,86 @@
       </div>
     </div><!-- /page-survey-results -->
 
+    <!-- ========== Page: SNS画像作成 ========== -->
+    <div class="page" id="page-sns">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <button class="btn-back" id="btn-back-sns">←</button>
+          <div class="page-title">📸 SNS画像作成</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div class="sns-step-label"><span class="sns-step-num">1</span>テンプレートを選ぶ</div>
+        <div class="sns-kind-row">
+          <button type="button" class="sns-kind-btn active" data-kind="result">⚽ 試合結果</button>
+          <button type="button" class="sns-kind-btn" data-kind="notice">📣 試合告知</button>
+        </div>
+        <div id="sns-template-row" class="sns-template-row"></div>
+
+        <div class="sns-step-label"><span class="sns-step-num">2</span>写真を選ぶ（任意）</div>
+        <div class="form-group">
+          <input type="file" id="sns-photo-input" accept="image/*" style="display:none">
+          <div style="display:flex;gap:8px">
+            <button type="button" id="btn-sns-photo" class="btn btn-secondary" style="flex:1">📷 写真を選択</button>
+            <button type="button" id="btn-sns-photo-clear" class="btn btn-ghost hidden" style="color:var(--c-red)">削除</button>
+          </div>
+          <div id="sns-photo-tools" class="hidden" style="margin-top:12px">
+            <label class="form-label">ズーム調整（プレビューをドラッグすると位置を移動できます）</label>
+            <input id="sns-zoom" type="range" min="100" max="300" value="100" class="sns-zoom-range">
+          </div>
+        </div>
+
+        <div class="sns-step-label"><span class="sns-step-num">3</span>プレビュー</div>
+        <div id="sns-preview-frame" class="sns-preview-frame">
+          <div id="sns-stage"><div id="sns-canvas" class="sns-canvas"></div></div>
+        </div>
+
+        <div class="sns-step-label"><span class="sns-step-num">4</span>情報を入力</div>
+        <div class="form-group">
+          <label class="form-label">大会名</label>
+          <input id="sns-competition" class="form-input" type="text" placeholder="例: U-12リーグ 第5節">
+        </div>
+        <div class="form-group">
+          <label class="form-label">対戦相手</label>
+          <input id="sns-opponent" class="form-input" type="text" placeholder="例: ○○FC">
+        </div>
+        <div class="form-row-2 sns-f-result">
+          <div class="form-group">
+            <label class="form-label">自チーム得点</label>
+            <input id="sns-myscore" class="form-input" type="number" min="0" max="99" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">相手得点</label>
+            <input id="sns-oppscore" class="form-input" type="number" min="0" max="99" placeholder="0">
+          </div>
+        </div>
+        <div class="form-group sns-f-result">
+          <label class="form-label">得点者（1行に1人）</label>
+          <textarea id="sns-scorers" class="form-textarea" rows="3" placeholder="山田 太郎 2点&#10;鈴木 一郎"></textarea>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">日付</label>
+            <input id="sns-date" class="form-input" type="date">
+          </div>
+          <div class="form-group sns-f-notice">
+            <label class="form-label">キックオフ</label>
+            <input id="sns-time" class="form-input" type="time">
+          </div>
+        </div>
+        <div class="form-group sns-f-notice">
+          <label class="form-label">会場</label>
+          <input id="sns-venue" class="form-input" type="text" placeholder="例: 市営グラウンド">
+        </div>
+        <div class="form-group">
+          <label class="form-label">チーム名表記</label>
+          <input id="sns-club" class="form-input" type="text" placeholder="例: ○○FC">
+        </div>
+
+        <button id="btn-sns-save" class="btn btn-primary btn-full" style="margin-top:4px">💾 画像を保存（1080×1080 PNG）</button>
+      </div>
+    </div><!-- /page-sns -->
+
     <!-- ========== Page: News ========== -->
     <div class="page" id="page-news">
       <div class="page-hdr">
@@ -744,6 +828,7 @@
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
           <button class="btn btn-secondary btn-full" data-nav="page-opponents" style="justify-content:flex-start;gap:12px"><span>🆚</span> 対戦相手マスター</button>
           <button class="btn btn-secondary btn-full" data-nav="page-survey" style="justify-content:flex-start;gap:12px"><span>🗳️</span> アンケート</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-sns" style="justify-content:flex-start;gap:12px"><span>📸</span> SNS画像作成</button>
         </div>
         <div class="form-label" style="margin-bottom:10px">設定</div>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -1163,6 +1248,23 @@
       <div class="sheet-footer">
         <button class="btn btn-secondary" style="flex:1" id="btn-survey-cancel">キャンセル</button>
         <button class="btn btn-primary" style="flex:2" id="btn-survey-save">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: SNS画像 書き出し結果 ===== -->
+  <div class="modal-overlay" id="modal-sns-export">
+    <div class="bottom-sheet" style="max-height:90vh">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">🎉 画像が完成しました</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-sns-export">✕</button>
+      </div>
+      <div class="sheet-body">
+        <img id="sns-export-img" alt="完成した画像" style="width:100%;border-radius:12px;display:block;border:1px solid var(--c-border)">
+        <button id="btn-sns-set-thumb" class="btn btn-secondary btn-full" style="margin-top:12px">📰 この画像を記事サムネイルに設定</button>
+        <div style="font-size:12px;color:var(--c-muted);margin-top:10px;padding:10px 12px;background:var(--c-bg);border-radius:8px;line-height:1.7">📱 スマホの場合: 上の画像を<strong>長押し</strong>して「"写真"に保存」でカメラロールに保存できます</div>
+        <a id="sns-export-dl" class="btn btn-primary btn-full" style="display:flex;text-decoration:none;margin-top:12px">⬇ PNGをダウンロード</a>
       </div>
     </div>
   </div>
