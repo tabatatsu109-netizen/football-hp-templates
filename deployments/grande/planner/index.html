@@ -68,6 +68,9 @@
       <div class="nav-item" data-nav="page-opponents">
         <span class="nav-item-icon">🆚</span> 対戦相手マスター
       </div>
+      <div class="nav-item" data-nav="page-survey">
+        <span class="nav-item-icon">🗳️</span> アンケート
+      </div>
       <div class="nav-item" data-nav="page-settings">
         <span class="nav-item-icon">⚙️</span> 設定
       </div>
@@ -493,6 +496,40 @@
       </div>
     </div><!-- /page-opponents -->
 
+    <!-- ========== Page: Survey ========== -->
+    <div class="page" id="page-survey">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">🗳️ アンケート</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-add-survey">+ 作成</button>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div id="survey-list-body">
+          <div class="empty-state">
+            <div class="empty-icon">🗳️</div>
+            <div class="empty-title">アンケートがありません</div>
+            <div class="empty-desc">「+作成」から出欠確認や日程調整のアンケートを作成しましょう</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-survey -->
+
+    <!-- ========== Page: Survey Results (sub) ========== -->
+    <div class="page" id="page-survey-results">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <button class="btn-back" id="btn-back-survey-results">←</button>
+          <div class="page-title" id="survey-results-title">アンケート結果</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+        <div id="survey-results-body">
+          <div class="empty-state"><div class="empty-title">読み込み中...</div></div>
+        </div>
+      </div>
+    </div><!-- /page-survey-results -->
+
     <!-- ========== Page: News ========== -->
     <div class="page" id="page-news">
       <div class="page-hdr">
@@ -706,6 +743,7 @@
         <div class="form-label" style="margin-bottom:10px;margin-top:4px">クラブ管理</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
           <button class="btn btn-secondary btn-full" data-nav="page-opponents" style="justify-content:flex-start;gap:12px"><span>🆚</span> 対戦相手マスター</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-survey" style="justify-content:flex-start;gap:12px"><span>🗳️</span> アンケート</button>
         </div>
         <div class="form-label" style="margin-bottom:10px">設定</div>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -1057,6 +1095,61 @@
       <div class="sheet-footer">
         <button class="btn btn-secondary" style="flex:1" id="btn-opponent-cancel">キャンセル</button>
         <button class="btn btn-primary" style="flex:2" id="btn-opponent-save">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Survey ===== -->
+  <div class="modal-overlay" id="modal-survey">
+    <div class="bottom-sheet" style="max-height:88vh">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title" id="modal-survey-title">アンケートを作成</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-survey-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-group">
+          <label class="form-label">タイトル <span style="color:var(--c-red)">*</span></label>
+          <input class="form-input" type="text" id="svf-title" placeholder="例）夏合宿 参加確認">
+        </div>
+        <div class="form-group">
+          <label class="form-label">説明（任意）</label>
+          <textarea class="form-textarea" id="svf-description" rows="2" placeholder="回答者への案内文"></textarea>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">回答期限（任意）</label>
+            <input class="form-input" type="date" id="svf-deadline">
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">回答者を選手名で識別する</div>
+            <div class="toggle-desc">ONにすると未回答者の一覧・リマインドが使えます</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="svf-identify" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">公開する</div>
+            <div class="toggle-desc">オフにすると下書きとして保存（回答者には表示されません）</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="svf-published" checked><span class="toggle-slider"></span></label>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="form-group">
+          <div class="form-label" style="display:flex;justify-content:space-between;align-items:center">
+            質問
+            <button class="btn btn-secondary btn-sm" id="btn-survey-add-question">+ 質問を追加</button>
+          </div>
+          <div id="sq-question-list"></div>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-survey-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-survey-save">保存する</button>
       </div>
     </div>
   </div>

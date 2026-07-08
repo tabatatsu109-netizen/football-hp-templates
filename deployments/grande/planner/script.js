@@ -161,6 +161,12 @@ let editingOpponentIdx = null;
 let oppImportPreviewRows = [];
 let oppPickerTarget = null;
 let oppSearchQuery = '';
+let surveys = [];
+let editingSurveyIdx = null;
+let surveyQuestions = [];
+let currentSurveyId = null;
+let surveyResponses = [];
+let surveyResultsLoading = false;
 
 // ===== SETTINGS =====
 // clubName/clubId/firebaseUrl は mp-config.js のみ。LocalStorageには firebaseSecret だけ保存。
@@ -201,6 +207,7 @@ function loadLocal() {
   schedules = JSON.parse(localStorage.getItem(`${p}schedules`) || '[]');
   posts     = JSON.parse(localStorage.getItem(`${p}posts`)     || '[]');
   opponents = JSON.parse(localStorage.getItem(`${p}opponents`) || '[]');
+  surveys   = JSON.parse(localStorage.getItem(`${p}surveys`)   || '[]');
 }
 function saveLocal() {
   const p = getLocalPrefix();
@@ -209,6 +216,7 @@ function saveLocal() {
   localStorage.setItem(`${p}schedules`, JSON.stringify(schedules));
   localStorage.setItem(`${p}posts`,     JSON.stringify(posts));
   localStorage.setItem(`${p}opponents`, JSON.stringify(opponents));
+  localStorage.setItem(`${p}surveys`,   JSON.stringify(surveys));
   scheduleCloudSave();
 }
 
@@ -223,7 +231,7 @@ function scheduleCloudSave() {
       const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players, matches, schedules, posts, opponents }),
+        body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSyncIcon('☁️');
@@ -255,6 +263,7 @@ async function loadFromCloud() {
     if (r.schedules) schedules = r.schedules;
     if (r.posts)     posts     = r.posts;
     if (r.opponents) opponents = r.opponents;
+    if (r.surveys)   surveys   = r.surveys;
     saveLocal();
     setSyncIcon('☁️');
     setSyncTime();
@@ -273,7 +282,7 @@ async function saveToCloud() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -302,6 +311,7 @@ async function autoSync() {
     if (r.schedules) schedules = r.schedules;
     if (r.posts)     posts     = r.posts;
     if (r.opponents) opponents = r.opponents;
+    if (r.surveys)   surveys   = r.surveys;
     saveLocal();
     setSyncIcon('☁️');
     setSyncTime();
@@ -334,6 +344,8 @@ function showPage(pageId, opts = {}) {
   if (pageId === 'page-matches')      renderMatches();
   if (pageId === 'page-players')      renderPlayers();
   if (pageId === 'page-opponents')    renderOpponents();
+  if (pageId === 'page-survey')       renderSurveyList();
+  if (pageId === 'page-survey-results') renderSurveyResults();
   if (pageId === 'page-news')         renderNews();
   if (pageId === 'page-announcement') renderAnnouncement();
   if (pageId === 'page-result-entry') renderResultEntry();
@@ -2250,6 +2262,403 @@ function renderResultEntry() {
   }).join('');
 }
 
+// ===== SURVEY =====
+function attrEsc(s) { return String(s == null ? '' : s).replace(/"/g, '&quot;'); }
+
+function surveyQuestionTypeLabel(type) {
+  return { single: '単一選択', multi: '複数選択', text: '自由記述', number: '数値', schedule: '日程調整（○△×）' }[type] || type;
+}
+
+function renderSurveyList() {
+  const el = document.getElementById('survey-list-body');
+  if (!el) return;
+  if (surveys.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🗳️</div><div class="empty-title">アンケートがありません</div><div class="empty-desc">「+作成」から出欠確認や日程調整のアンケートを作成しましょう</div></div>`;
+    return;
+  }
+  const sorted = [...surveys].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  const today = todayStr();
+  el.innerHTML = sorted.map(s => {
+    const idx = surveys.indexOf(s);
+    let statusLabel = '下書き', statusClass = 'badge-other';
+    if (s.published) {
+      if (s.deadline && s.deadline < today) { statusLabel = '締切'; statusClass = 'badge-match'; }
+      else { statusLabel = '公開中'; statusClass = 'badge-official'; }
+    }
+    return `
+      <div class="opp-card">
+        <div class="opp-card-info">
+          <div class="opp-card-name">${s.title} <span class="sched-badge ${statusClass}" style="margin-left:6px">${statusLabel}</span></div>
+          <div class="opp-card-meta">
+            <span>${s.questions.length}問</span>
+            ${s.deadline ? `<span>期限: ${fmtDate(s.deadline)}</span>` : ''}
+            ${s.identifyRespondent ? '<span>👤 選手名で識別</span>' : ''}
+          </div>
+        </div>
+        <div class="opp-card-actions">
+          <button class="btn btn-primary btn-sm" onclick="openSurveyResults('${s.id}')">結果を見る</button>
+          <button class="btn btn-secondary btn-sm" onclick="openSurveyModal(${idx})">編集</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--c-red);font-size:12px" onclick="deleteSurvey(${idx})">削除</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ----- 作成・編集モーダル -----
+function openSurveyModal(idx = null) {
+  editingSurveyIdx = idx;
+  const title = document.getElementById('modal-survey-title');
+  if (idx !== null && surveys[idx]) {
+    const s = surveys[idx];
+    title.textContent = 'アンケートを編集';
+    document.getElementById('svf-title').value = s.title || '';
+    document.getElementById('svf-description').value = s.description || '';
+    document.getElementById('svf-deadline').value = s.deadline || '';
+    document.getElementById('svf-identify').checked = s.identifyRespondent !== false;
+    document.getElementById('svf-published').checked = !!s.published;
+    surveyQuestions = (s.questions || []).map(q => ({
+      id: q.id, type: q.type, label: q.label, required: q.required,
+      options: q.options ? [...q.options] : ['', ''],
+      dates: q.dates ? [...q.dates] : [''],
+    }));
+  } else {
+    title.textContent = 'アンケートを作成';
+    document.getElementById('svf-title').value = '';
+    document.getElementById('svf-description').value = '';
+    document.getElementById('svf-deadline').value = '';
+    document.getElementById('svf-identify').checked = true;
+    document.getElementById('svf-published').checked = true;
+    surveyQuestions = [];
+  }
+  renderSurveyQuestionEditor();
+  openModal('modal-survey');
+}
+
+function renderSurveyQuestionEditor() {
+  const el = document.getElementById('sq-question-list');
+  if (!el) return;
+  if (surveyQuestions.length === 0) {
+    el.innerHTML = `<div style="font-size:12.5px;color:var(--c-muted);padding:10px 0">質問がありません。「+質問を追加」から始めましょう。</div>`;
+    return;
+  }
+  const typeList = ['single', 'multi', 'text', 'number', 'schedule'];
+  el.innerHTML = surveyQuestions.map((q, idx) => {
+    const typeOptions = typeList.map(t => `<option value="${t}" ${q.type === t ? 'selected' : ''}>${surveyQuestionTypeLabel(t)}</option>`).join('');
+
+    let extraHtml = '';
+    if (q.type === 'single' || q.type === 'multi') {
+      extraHtml = `
+        <div class="form-group">
+          <label class="form-label">選択肢</label>
+          ${q.options.map((opt, oi) => `
+            <div style="display:flex;gap:6px;margin-bottom:6px">
+              <input class="form-input" type="text" value="${attrEsc(opt)}" oninput="updateSurveyOption(${idx},${oi},this.value)" placeholder="選択肢 ${oi + 1}">
+              <button class="btn-icon btn-icon-sm" style="color:var(--c-red)" onclick="removeSurveyOption(${idx},${oi})">✕</button>
+            </div>
+          `).join('')}
+          <button class="btn btn-ghost btn-sm" onclick="addSurveyOption(${idx})">+ 選択肢を追加</button>
+        </div>`;
+    } else if (q.type === 'schedule') {
+      extraHtml = `
+        <div class="form-group">
+          <label class="form-label">候補日</label>
+          ${q.dates.map((d, di) => `
+            <div style="display:flex;gap:6px;margin-bottom:6px">
+              <input class="form-input" type="date" value="${d || ''}" oninput="updateSurveyDate(${idx},${di},this.value)">
+              <button class="btn-icon btn-icon-sm" style="color:var(--c-red)" onclick="removeSurveyDate(${idx},${di})">✕</button>
+            </div>
+          `).join('')}
+          <button class="btn btn-ghost btn-sm" onclick="addSurveyDate(${idx})">+ 候補日を追加</button>
+        </div>`;
+    }
+
+    return `
+      <div style="border:1px solid var(--c-border);border-radius:10px;padding:12px;margin-bottom:10px">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">質問文</label>
+            <input class="form-input" type="text" value="${attrEsc(q.label)}" oninput="updateSurveyQuestionField(${idx},'label',this.value)" placeholder="例）参加できますか？">
+          </div>
+          <div class="form-group">
+            <label class="form-label">タイプ</label>
+            <select class="form-select" onchange="updateSurveyQuestionType(${idx},this.value)">${typeOptions}</select>
+          </div>
+        </div>
+        ${extraHtml}
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--c-text2);margin-top:4px">
+          <input type="checkbox" ${q.required ? 'checked' : ''} onchange="updateSurveyQuestionField(${idx},'required',this.checked)"> 必須回答
+        </label>
+        <button class="btn btn-ghost btn-sm" style="color:var(--c-red);margin-top:8px" onclick="removeSurveyQuestion(${idx})">🗑 この質問を削除</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function addSurveyQuestion() {
+  surveyQuestions.push({ id: 'q' + Date.now() + Math.random().toString(36).slice(2, 6), type: 'single', label: '', required: true, options: ['', ''], dates: [''] });
+  renderSurveyQuestionEditor();
+}
+function removeSurveyQuestion(idx) { surveyQuestions.splice(idx, 1); renderSurveyQuestionEditor(); }
+function updateSurveyQuestionField(idx, field, value) { if (surveyQuestions[idx]) surveyQuestions[idx][field] = value; }
+function updateSurveyQuestionType(idx, value) {
+  const q = surveyQuestions[idx];
+  if (!q) return;
+  q.type = value;
+  if ((value === 'single' || value === 'multi') && (!q.options || q.options.length === 0)) q.options = ['', ''];
+  if (value === 'schedule' && (!q.dates || q.dates.length === 0)) q.dates = [''];
+  renderSurveyQuestionEditor();
+}
+function updateSurveyOption(qIdx, oIdx, value) { if (surveyQuestions[qIdx]) surveyQuestions[qIdx].options[oIdx] = value; }
+function addSurveyOption(qIdx) { surveyQuestions[qIdx].options.push(''); renderSurveyQuestionEditor(); }
+function removeSurveyOption(qIdx, oIdx) { surveyQuestions[qIdx].options.splice(oIdx, 1); renderSurveyQuestionEditor(); }
+function updateSurveyDate(qIdx, dIdx, value) { if (surveyQuestions[qIdx]) surveyQuestions[qIdx].dates[dIdx] = value; }
+function addSurveyDate(qIdx) { surveyQuestions[qIdx].dates.push(''); renderSurveyQuestionEditor(); }
+function removeSurveyDate(qIdx, dIdx) { surveyQuestions[qIdx].dates.splice(dIdx, 1); renderSurveyQuestionEditor(); }
+
+function saveSurveyForm() {
+  const title = document.getElementById('svf-title').value.trim();
+  if (!title) { showToast('タイトルを入力してください', 'error'); return; }
+
+  const validQuestions = surveyQuestions
+    .map(q => ({
+      id: q.id,
+      type: q.type,
+      label: (q.label || '').trim(),
+      required: !!q.required,
+      options: (q.type === 'single' || q.type === 'multi') ? q.options.map(o => (o || '').trim()).filter(Boolean) : undefined,
+      dates: (q.type === 'schedule') ? q.dates.map(d => (d || '').trim()).filter(Boolean) : undefined,
+    }))
+    .filter(q => q.label);
+
+  if (validQuestions.length === 0) { showToast('質問を1つ以上入力してください', 'error'); return; }
+  for (const q of validQuestions) {
+    if ((q.type === 'single' || q.type === 'multi') && q.options.length < 2) { showToast(`「${q.label}」の選択肢を2つ以上入力してください`, 'error'); return; }
+    if (q.type === 'schedule' && q.dates.length < 1) { showToast(`「${q.label}」の候補日を1つ以上入力してください`, 'error'); return; }
+  }
+
+  const existing = (editingSurveyIdx !== null && surveys[editingSurveyIdx]) ? surveys[editingSurveyIdx] : null;
+  const s = {
+    id: existing ? existing.id : String(Date.now()),
+    title,
+    description: document.getElementById('svf-description').value.trim(),
+    deadline: document.getElementById('svf-deadline').value || '',
+    identifyRespondent: document.getElementById('svf-identify').checked,
+    published: document.getElementById('svf-published').checked,
+    questions: validQuestions,
+    createdAt: existing ? existing.createdAt : new Date().toISOString(),
+  };
+  if (existing) {
+    surveys[editingSurveyIdx] = s;
+  } else {
+    surveys.push(s);
+  }
+  saveLocal();
+  closeModal('modal-survey');
+  showToast(existing ? '更新しました' : '作成しました', 'success');
+  renderSurveyList();
+  editingSurveyIdx = null;
+}
+
+function deleteSurvey(idx) {
+  showConfirm('アンケートを削除', `「${surveys[idx].title}」を削除しますか？回答データも失われます。`, '削除する', () => {
+    surveys.splice(idx, 1);
+    saveLocal();
+    renderSurveyList();
+    showToast('削除しました');
+  });
+}
+
+// ----- 共有リンク -----
+function buildSurveyShareUrl(id) {
+  const s = getSettings();
+  // Planner は clubs/{clubId}/ホームページ/planner/ に、回答ページは同階層の survey/ にデプロイされる想定
+  const base = location.href.replace(/planner\/(index\.html)?(\?.*)?(#.*)?$/, 'survey/');
+  return `${base}?id=${encodeURIComponent(id)}`;
+}
+function copySurveyLink(id) {
+  const url = buildSurveyShareUrl(id);
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('回答用リンクをコピーしました', 'success');
+  }).catch(() => {
+    showToast(url, 'info');
+  });
+}
+
+// ----- 結果ページ -----
+function openSurveyResults(id) {
+  currentSurveyId = id;
+  pushPage('page-survey-results');
+}
+
+async function renderSurveyResults() {
+  const survey = surveys.find(s => s.id === currentSurveyId);
+  const body = document.getElementById('survey-results-body');
+  const titleEl = document.getElementById('survey-results-title');
+  if (!survey || !body) return;
+  titleEl.textContent = survey.title;
+
+  const shareUrl = buildSurveyShareUrl(survey.id);
+  const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(shareUrl)}`;
+
+  const s = getSettings();
+  if (!isCloudConfigured(s)) {
+    body.innerHTML = `<div class="empty-state"><div class="empty-title">Firebase未設定です</div><div class="empty-desc">設定画面でクラウド連携を行うと回答を集計できます</div></div>`;
+    return;
+  }
+
+  body.innerHTML = `<div class="empty-state"><div class="empty-title">回答を読み込み中...</div></div>`;
+  surveyResultsLoading = true;
+  try {
+    const url = `${s.firebaseUrl}/surveys/${s.clubId}/${survey.id}/responses.json?auth=${s.firebaseSecret}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json() || {};
+    surveyResponses = Object.keys(data).map(k => Object.assign({ fbKey: k }, data[k]));
+  } catch (e) {
+    body.innerHTML = `<div class="empty-state"><div class="empty-title">回答の取得に失敗しました</div><div class="empty-desc">${e.message}</div></div>`;
+    surveyResultsLoading = false;
+    return;
+  }
+  surveyResultsLoading = false;
+
+  const total = surveyResponses.length;
+  const respondentPlayerIds = new Set(surveyResponses.filter(r => r.playerId).map(r => r.playerId));
+  const unanswered = survey.identifyRespondent ? players.filter(p => !respondentPlayerIds.has(p.id)) : [];
+  const rate = (survey.identifyRespondent && players.length) ? Math.round((respondentPlayerIds.size / players.length) * 100) : null;
+
+  const questionBlocks = survey.questions.map(q => {
+    if (q.type === 'text') {
+      const answers = surveyResponses.map(r => (r.answers || {})[q.id]).filter(Boolean);
+      return `
+        <div class="form-group">
+          <div class="form-label">${q.label}</div>
+          ${answers.length ? answers.map(a => `<div style="padding:8px 10px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;margin-bottom:6px;font-size:13px">${a}</div>`).join('') : '<div style="font-size:12.5px;color:var(--c-muted)">回答はまだありません</div>'}
+        </div>`;
+    }
+    if (q.type === 'number') {
+      const nums = surveyResponses.map(r => Number((r.answers || {})[q.id])).filter(n => !isNaN(n));
+      const avg = nums.length ? (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1) : '-';
+      return `
+        <div class="form-group">
+          <div class="form-label">${q.label}</div>
+          <div style="font-size:13px">回答数: ${nums.length}件　平均: ${avg}</div>
+        </div>`;
+    }
+    if (q.type === 'schedule') {
+      const rows = q.dates.map(d => {
+        let ok = 0, maybe = 0, ng = 0;
+        surveyResponses.forEach(r => {
+          const v = ((r.answers || {})[q.id] || {})[d];
+          if (v === '○') ok++; else if (v === '△') maybe++; else if (v === '×') ng++;
+        });
+        return { d, ok, maybe, ng };
+      });
+      const maxOk = Math.max(0, ...rows.map(r => r.ok));
+      return `
+        <div class="form-group">
+          <div class="form-label">${q.label}（日程調整）</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${rows.map(r => `
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:${r.ok === maxOk && maxOk > 0 ? 'var(--c-green-bg)' : 'var(--c-surface)'};border:1px solid var(--c-border)">
+                <span style="font-size:13px;font-weight:600;min-width:110px">${fmtDate(r.d)}${r.ok === maxOk && maxOk > 0 ? ' 🏆' : ''}</span>
+                <span style="font-size:12.5px">○ ${r.ok}　△ ${r.maybe}　× ${r.ng}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+    // single / multi
+    const counts = {};
+    (q.options || []).forEach(o => counts[o] = 0);
+    surveyResponses.forEach(r => {
+      const v = (r.answers || {})[q.id];
+      const arr = Array.isArray(v) ? v : (v ? [v] : []);
+      arr.forEach(a => { if (counts[a] !== undefined) counts[a]++; });
+    });
+    const max = Math.max(1, ...Object.values(counts));
+    return `
+      <div class="form-group">
+        <div class="form-label">${q.label}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${Object.keys(counts).map(o => `
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px"><span>${o}</span><span>${counts[o]}件</span></div>
+              <div style="height:8px;background:var(--c-border);border-radius:4px;overflow:hidden"><div style="height:100%;width:${(counts[o] / max) * 100}%;background:var(--c-green)"></div></div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="opp-card" style="flex-wrap:wrap">
+      <div class="opp-card-info">
+        <div class="opp-card-name">回答数 ${total}件${rate !== null ? `（回答率 ${rate}%）` : ''}</div>
+        <div class="opp-card-meta"><span>共有リンクから誰でも回答できます</span></div>
+      </div>
+      <div class="opp-card-actions" style="flex-direction:row">
+        <button class="btn btn-secondary btn-sm" onclick="copySurveyLink('${survey.id}')">🔗 リンクをコピー</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportSurveyResultsCsv()">📥 CSV出力</button>
+      </div>
+    </div>
+    <div style="text-align:center;padding:14px 0">
+      <img src="${qrImg}" alt="回答用QRコード" style="border-radius:8px">
+      <div style="font-size:11px;color:var(--c-muted);margin-top:6px">スマホで読み取ってすぐ回答できます</div>
+    </div>
+    ${survey.identifyRespondent ? `
+      <div class="form-group">
+        <div class="form-label">未回答（${unanswered.length}名）</div>
+        ${unanswered.length ? `
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">
+            ${unanswered.map(p => `<span class="sched-badge badge-other">${p.name}</span>`).join('')}
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="copyUnansweredReminder()">📋 リマインド文をコピー</button>
+        ` : '<div style="font-size:12.5px;color:var(--c-green)">全員回答済みです 🎉</div>'}
+      </div>
+    ` : ''}
+    <div class="spacer"></div>
+    ${questionBlocks}
+  `;
+}
+
+function exportSurveyResultsCsv() {
+  const survey = surveys.find(s => s.id === currentSurveyId);
+  if (!survey) return;
+  const headers = ['回答者', ...survey.questions.map(q => q.label), '送信日時'];
+  const rows = surveyResponses.map(r => {
+    const name = r.playerName || r.respondentName || '匿名';
+    const cells = survey.questions.map(q => {
+      const v = (r.answers || {})[q.id];
+      if (q.type === 'schedule') return Object.entries(v || {}).map(([d, val]) => `${d}:${val}`).join(' / ');
+      if (Array.isArray(v)) return v.join(' / ');
+      return v == null ? '' : String(v);
+    });
+    return [name, ...cells, r.submittedAt || ''];
+  });
+  const csv = [headers, ...rows].map(row => row.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${survey.title}_回答.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function copyUnansweredReminder() {
+  const survey = surveys.find(s => s.id === currentSurveyId);
+  if (!survey) return;
+  const respondentPlayerIds = new Set(surveyResponses.filter(r => r.playerId).map(r => r.playerId));
+  const unanswered = players.filter(p => !respondentPlayerIds.has(p.id));
+  const url = buildSurveyShareUrl(survey.id);
+  const text = `【アンケートのお願い】\n「${survey.title}」にまだご回答いただいていません。\n対象: ${unanswered.map(p => p.name).join('、')}\nこちらからご回答をお願いします → ${url}`;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('リマインド文をコピーしました', 'success');
+  }).catch(() => {
+    showToast('コピーに失敗しました', 'error');
+  });
+}
+
 // ===== SETTINGS =====
 function renderSettingsPage() {
   const s = getSettings();
@@ -2376,6 +2785,14 @@ function bindEvents() {
     oppSearchQuery = e.target.value;
     renderOpponents();
   });
+
+  // Survey
+  document.getElementById('btn-add-survey')?.addEventListener('click', () => openSurveyModal());
+  document.getElementById('btn-survey-save')?.addEventListener('click', saveSurveyForm);
+  document.getElementById('btn-survey-cancel')?.addEventListener('click', () => closeModal('modal-survey'));
+  document.getElementById('btn-close-survey-modal')?.addEventListener('click', () => closeModal('modal-survey'));
+  document.getElementById('btn-survey-add-question')?.addEventListener('click', addSurveyQuestion);
+  document.getElementById('btn-back-survey-results')?.addEventListener('click', popPage);
 
   // Player import
   document.getElementById('btn-download-template')?.addEventListener('click', downloadPlayerTemplate);

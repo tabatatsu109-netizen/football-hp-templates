@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アンケート</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+:root{
+  --c-primary:#1a5c2a; --c-accent:#c9a227; --c-bg:#f5f3ee; --c-card:#ffffff;
+  --c-text:#1a1a1a; --c-text2:#555555; --c-muted:#999999; --c-border:#e2ddd6;
+  --radius:10px; --shadow:0 2px 12px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--c-bg);color:var(--c-text);font-family:'Noto Sans JP',sans-serif;line-height:1.7}
+button{cursor:pointer;font-family:inherit;border:none;background:none;color:inherit;font-size:inherit;outline:none}
+input,select,textarea{font-family:inherit;font-size:15px}
+.wrap{max-width:640px;margin:0 auto;padding:28px 16px 60px}
+.hdr{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.hdr-badge{width:38px;height:38px;border-radius:50%;background:var(--c-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0}
+.hdr-name{font-size:12px;color:var(--c-text2);font-weight:700;letter-spacing:.05em}
+.card{background:var(--c-card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 18px;margin-bottom:16px}
+.title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:8px;line-height:1.4}
+.desc{font-size:13.5px;color:var(--c-text2);white-space:pre-wrap;margin-bottom:4px}
+.meta{font-size:12px;color:var(--c-muted);margin-top:10px}
+.q-label{font-size:14.5px;font-weight:700;margin-bottom:10px}
+.q-required{color:#dc2626;margin-left:2px}
+.q-group{display:flex;flex-direction:column;gap:8px}
+.choice{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid var(--c-border);border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s}
+.choice:hover{border-color:var(--c-primary)}
+.choice.active{border-color:var(--c-primary);background:rgba(26,92,42,.06)}
+.choice input{accent-color:var(--c-primary);width:17px;height:17px;flex-shrink:0}
+textarea.f-input,input.f-input,select.f-input{width:100%;padding:11px 13px;border:1.5px solid var(--c-border);border-radius:8px;outline:none;background:#fff}
+textarea.f-input:focus,input.f-input:focus,select.f-input:focus{border-color:var(--c-primary)}
+textarea.f-input{min-height:80px;resize:vertical}
+.sch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 4px;border-bottom:1px solid var(--c-border)}
+.sch-row:last-child{border-bottom:none}
+.sch-date{font-size:13.5px;font-weight:600}
+.sch-btns{display:flex;gap:6px}
+.sch-btn{width:38px;height:38px;border-radius:8px;border:1.5px solid var(--c-border);font-weight:900;font-size:15px;color:var(--c-muted)}
+.sch-btn.active.ok{background:#dcfce7;border-color:#16a34a;color:#15803d}
+.sch-btn.active.maybe{background:#ffedd5;border-color:#ea580c;color:#c2410c}
+.sch-btn.active.ng{background:#fee2e2;border-color:#dc2626;color:#dc2626}
+.btn{display:block;width:100%;padding:15px;border-radius:8px;font-weight:900;font-size:15px;text-align:center}
+.btn-primary{background:var(--c-primary);color:#fff}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.notice{background:#fff8e1;border:1px solid #e8d491;border-radius:8px;padding:12px 14px;font-size:12.5px;color:#6b5715;line-height:1.8;margin-bottom:16px}
+.center{text-align:center}
+.big-icon{font-size:44px;margin-bottom:12px}
+.footer-note{font-size:11px;color:var(--c-muted);text-align:center;margin-top:24px}
+</style>
+</head>
+<body>
+<div id="app" class="wrap"><div class="center" style="padding:80px 0;color:var(--c-muted)">読み込み中...</div></div>
+
+<script>
+/* GRANDEはHP_CONFIG(js/config.js)ではなくclub-config.json(ConfigLoader)方式のため、
+   このページ専用に config/club-config.json の integration/club/design を読み込む */
+(function(){
+'use strict';
+
+var params = new URLSearchParams(location.search);
+var SURVEY_ID = params.get('id') || '';
+
+var CFG = {
+  clubName: '',
+  firebaseUrl: 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app',
+  clubId: 'grande',
+  primaryColor: '#1a5c2a',
+  accentColor: '#c9a227',
+};
+var CLUB_BASE = '';
+var RESP_KEY = '';
+
+var S = {
+  loading: true,
+  error: '',
+  survey: null,
+  players: [],
+  submitting: false,
+  submitted: false,
+  selectedPlayerId: '',
+  respondentName: '',
+  answers: {}, // { [questionId]: value }
+};
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function fmtDate(s){
+  if(!s) return '';
+  var d = new Date(s+'T00:00:00');
+  return (d.getMonth()+1)+'/'+d.getDate()+'('+['日','月','火','水','木','金','土'][d.getDay()]+')';
+}
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+function applyBrand(){
+  var r = document.documentElement;
+  r.style.setProperty('--c-primary', CFG.primaryColor || '#1a5c2a');
+  r.style.setProperty('--c-accent',  CFG.accentColor  || '#c9a227');
+  document.title = (CFG.clubName ? CFG.clubName + ' ' : '') + 'アンケート';
+}
+
+function headerHtml(){
+  return (
+    '<div class="hdr">'+
+      '<div class="hdr-badge">'+esc((CFG.clubName||'?').charAt(0))+'</div>'+
+      '<div class="hdr-name">'+esc(CFG.clubName || '')+'</div>'+
+    '</div>'
+  );
+}
+
+function render(){
+  var app = document.getElementById('app');
+
+  if (S.loading) {
+    app.innerHTML = headerHtml() + '<div class="center" style="padding:60px 0;color:var(--c-muted)">読み込み中...</div>';
+    return;
+  }
+  if (S.error) {
+    app.innerHTML = headerHtml() + '<div class="card center"><div class="big-icon">⚠️</div><div class="title" style="font-size:17px">'+esc(S.error)+'</div></div>';
+    return;
+  }
+  if (S.submitted) {
+    app.innerHTML = headerHtml() + '<div class="card center"><div class="big-icon">✅</div><div class="title" style="font-size:19px">回答ありがとうございました！</div><p class="desc" style="text-align:center">送信が完了しました。</p></div>';
+    return;
+  }
+
+  var survey = S.survey;
+  var today = todayStr();
+  var isClosed = survey.deadline && survey.deadline < today;
+  var alreadyAnswered = !!localStorage.getItem(RESP_KEY);
+
+  var body = headerHtml() + '<div class="card">' +
+    '<div class="title">'+esc(survey.title)+'</div>' +
+    (survey.description ? '<p class="desc">'+esc(survey.description)+'</p>' : '') +
+    (survey.deadline ? '<div class="meta">回答期限: '+fmtDate(survey.deadline)+'</div>' : '') +
+    '</div>';
+
+  if (alreadyAnswered) {
+    body += '<div class="card center"><div class="big-icon">🙆</div><div class="title" style="font-size:17px">この端末では回答済みです</div><p class="desc" style="text-align:center">ご協力ありがとうございました。</p></div>';
+    app.innerHTML = body;
+    return;
+  }
+  if (isClosed) {
+    body += '<div class="card center"><div class="big-icon">🔒</div><div class="title" style="font-size:17px">受付は終了しました</div></div>';
+    app.innerHTML = body;
+    return;
+  }
+
+  // 回答者identify
+  body += '<div class="card">';
+  if (survey.identifyRespondent) {
+    body += '<div class="q-label">お名前（選手） <span class="q-required">*</span></div>' +
+      '<select class="f-input" id="f-player">' +
+      '<option value="">選択してください</option>' +
+      S.players.map(function(p){ return '<option value="'+esc(p.id)+'" '+(S.selectedPlayerId===p.id?'selected':'')+'>'+esc(p.name)+'</option>'; }).join('') +
+      '</select>';
+  } else {
+    body += '<div class="q-label">お名前 <span class="q-required">*</span></div>' +
+      '<input class="f-input" type="text" id="f-name" value="'+esc(S.respondentName)+'" placeholder="山田 花子">';
+  }
+  body += '</div>';
+
+  // 質問
+  survey.questions.forEach(function(q){
+    body += '<div class="card">';
+    body += '<div class="q-label">'+esc(q.label)+(q.required?'<span class="q-required">*</span>':'')+'</div>';
+
+    if (q.type === 'single') {
+      body += '<div class="q-group">' + q.options.map(function(opt){
+        var checked = S.answers[q.id] === opt;
+        return '<label class="choice '+(checked?'active':'')+'"><input type="radio" name="q_'+q.id+'" value="'+esc(opt)+'" '+(checked?'checked':'')+' onchange="App.setAnswer(\''+q.id+'\', this.value)"> '+esc(opt)+'</label>';
+      }).join('') + '</div>';
+    } else if (q.type === 'multi') {
+      var sel = Array.isArray(S.answers[q.id]) ? S.answers[q.id] : [];
+      body += '<div class="q-group">' + q.options.map(function(opt){
+        var checked = sel.indexOf(opt) >= 0;
+        return '<label class="choice '+(checked?'active':'')+'"><input type="checkbox" value="'+esc(opt)+'" '+(checked?'checked':'')+' onchange="App.toggleMulti(\''+q.id+'\', this.value, this.checked)"> '+esc(opt)+'</label>';
+      }).join('') + '</div>';
+    } else if (q.type === 'text') {
+      body += '<textarea class="f-input" oninput="App.setAnswer(\''+q.id+'\', this.value)">'+esc(S.answers[q.id]||'')+'</textarea>';
+    } else if (q.type === 'number') {
+      body += '<input class="f-input" type="number" value="'+esc(S.answers[q.id]||'')+'" oninput="App.setAnswer(\''+q.id+'\', this.value)">';
+    } else if (q.type === 'schedule') {
+      var ans = S.answers[q.id] || {};
+      body += q.dates.map(function(d){
+        var v = ans[d] || '';
+        function btn(mark, cls){
+          return '<button type="button" class="sch-btn '+(v===mark?'active '+cls:'')+'" onclick="App.setScheduleAnswer(\''+q.id+'\',\''+d+'\',\''+mark+'\')">'+mark+'</button>';
+        }
+        return '<div class="sch-row"><div class="sch-date">'+fmtDate(d)+'</div><div class="sch-btns">'+btn('○','ok')+btn('△','maybe')+btn('×','ng')+'</div></div>';
+      }).join('');
+    }
+    body += '</div>';
+  });
+
+  body += '<button class="btn btn-primary" id="btn-submit" '+(S.submitting?'disabled':'')+'>'+(S.submitting?'送信中...':'回答を送信する')+'</button>';
+  body += '<p class="footer-note">送信内容はこのクラブの運営者にのみ共有されます</p>';
+
+  app.innerHTML = body;
+
+  document.getElementById('f-player')?.addEventListener('change', function(e){ S.selectedPlayerId = e.target.value; });
+  document.getElementById('f-name')?.addEventListener('input', function(e){ S.respondentName = e.target.value; });
+  document.getElementById('btn-submit')?.addEventListener('click', submit);
+}
+
+var App = {
+  setAnswer: function(qid, value){ S.answers[qid] = value; },
+  toggleMulti: function(qid, value, checked){
+    var arr = Array.isArray(S.answers[qid]) ? S.answers[qid].slice() : [];
+    if (checked) { if (arr.indexOf(value) < 0) arr.push(value); }
+    else { arr = arr.filter(function(v){ return v !== value; }); }
+    S.answers[qid] = arr;
+  },
+  setScheduleAnswer: function(qid, date, mark){
+    var obj = Object.assign({}, S.answers[qid] || {});
+    obj[date] = (obj[date] === mark) ? '' : mark; // もう一度押すと解除
+    S.answers[qid] = obj;
+    render();
+  },
+};
+window.App = App;
+
+function validate(){
+  var survey = S.survey;
+  if (survey.identifyRespondent) {
+    if (!S.selectedPlayerId) { alert('お名前を選択してください'); return false; }
+  } else {
+    if (!S.respondentName.trim()) { alert('お名前を入力してください'); return false; }
+  }
+  for (var i=0; i<survey.questions.length; i++) {
+    var q = survey.questions[i];
+    if (!q.required) continue;
+    var v = S.answers[q.id];
+    if (q.type === 'multi') { if (!Array.isArray(v) || v.length===0) { alert('「'+q.label+'」に回答してください'); return false; } }
+    else if (q.type === 'schedule') {
+      var ok = q.dates.every(function(d){ return v && v[d]; });
+      if (!ok) { alert('「'+q.label+'」の全ての候補日に回答してください'); return false; }
+    }
+    else { if (v==null || String(v).trim()==='') { alert('「'+q.label+'」に回答してください'); return false; } }
+  }
+  return true;
+}
+
+function submit(){
+  if (S.submitting) return;
+  if (!validate()) return;
+  S.submitting = true;
+  render();
+
+  var player = S.players.filter(function(p){ return p.id === S.selectedPlayerId; })[0];
+  var payload = {
+    playerId: S.survey.identifyRespondent ? S.selectedPlayerId : '',
+    playerName: S.survey.identifyRespondent ? (player ? player.name : '') : '',
+    respondentName: S.survey.identifyRespondent ? '' : S.respondentName.trim(),
+    answers: S.answers,
+    submittedAt: new Date().toISOString(),
+  };
+
+  fetch(CFG.firebaseUrl + '/surveys/' + CFG.clubId + '/' + SURVEY_ID + '/responses.json', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).then(function(res){
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function(){
+    localStorage.setItem(RESP_KEY, '1');
+    S.submitting = false;
+    S.submitted = true;
+    render();
+  }).catch(function(e){
+    console.error('survey submit failed:', e);
+    S.submitting = false;
+    render();
+    alert('送信に失敗しました。通信環境をご確認のうえ、もう一度お試しください。\n（Firebaseルールが未設定の場合は運営者にご連絡ください）');
+  });
+}
+
+function loadSurvey(){
+  if (!SURVEY_ID) { S.loading = false; S.error = 'アンケートが指定されていません。URLをご確認ください。'; render(); return; }
+
+  fetch(CLUB_BASE + '/surveys.json')
+    .then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.json(); })
+    .then(function(list){
+      var arr = Array.isArray(list) ? list : Object.values(list || {});
+      var survey = arr.find(function(s){ return s && s.id === SURVEY_ID; });
+      if (!survey) throw new Error('NOT_FOUND');
+      if (!survey.published) throw new Error('NOT_PUBLISHED');
+      S.survey = survey;
+      if (survey.identifyRespondent) {
+        return fetch(CLUB_BASE + '/players.json')
+          .then(function(res){ return res.ok ? res.json() : []; })
+          .then(function(players){ S.players = Array.isArray(players) ? players : Object.values(players || {}); });
+      }
+    })
+    .then(function(){
+      S.loading = false;
+      render();
+    })
+    .catch(function(e){
+      S.loading = false;
+      if (e.message === 'NOT_PUBLISHED') S.error = 'このアンケートは現在公開されていません。';
+      else if (e.message === 'NOT_FOUND') S.error = 'アンケートが見つかりませんでした。URLをご確認ください。';
+      else S.error = '読み込みに失敗しました。通信環境をご確認ください。';
+      render();
+    });
+}
+
+function init(){
+  fetch('../config/club-config.json')
+    .then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.json(); })
+    .then(function(c){
+      CFG.clubName     = (c.club && (c.club.shortName || c.club.name)) || CFG.clubName;
+      CFG.firebaseUrl  = (c.integration && c.integration.firebaseUrl) || CFG.firebaseUrl;
+      CFG.clubId       = (c.integration && c.integration.firebaseClubId) || CFG.clubId;
+      CFG.primaryColor = (c.design && c.design.mainColor) || CFG.primaryColor;
+      CFG.accentColor  = (c.design && c.design.accentColor) || CFG.accentColor;
+    })
+    .catch(function(){ /* club-config.json が読めなくてもデフォルト値で続行 */ })
+    .then(function(){
+      CLUB_BASE = CFG.firebaseUrl + '/clubs/' + CFG.clubId;
+      RESP_KEY  = 'survey_answered_' + CFG.clubId + '_' + SURVEY_ID;
+      applyBrand();
+      loadSurvey();
+    });
+}
+
+init();
+
+})();
+</script>
+</body>
+</html>
