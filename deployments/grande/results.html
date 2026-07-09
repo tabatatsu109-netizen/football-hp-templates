@@ -189,6 +189,7 @@
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ document.getElementById('mobile-nav').classList.remove('open'); });
 
     function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function normCat(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
     function toDate(s){ if(!s)return null; var d=new Date(s); return isNaN(d.getTime())?null:d; }
     function resultClass(rs){ if(!rs)return'badge-draw'; if(/勝|win/i.test(rs))return'badge-win'; if(/負|敗|lose/i.test(rs))return'badge-lose'; return'badge-draw'; }
     function resultLetter(rs){ if(!rs)return'D'; if(/勝|win/i.test(rs))return'W'; if(/負|敗|lose/i.test(rs))return'L'; return'D'; }
@@ -219,7 +220,7 @@
       var cat = state.activeCategory;
       var matches = state.allMatches.filter(function(m){
         var mc = getMatchCategory(m);
-        return !mc || mc === cat;
+        return !mc || normCat(mc) === normCat(cat);
       });
       var clubName = state.config&&state.config.club?state.config.club.name||'FC':'FC';
 

@@ -66,6 +66,31 @@
     .news-arrow { color: #c4c3bd; font-size: 18px; }
     .no-data    { color: #aaa; font-size: 14px; padding: 40px 0; text-align: center; }
 
+    /* News detail modal */
+    .news-detail-overlay {
+      display: none; position: fixed; inset: 0; z-index: 900;
+      background: rgba(10,10,12,0.6);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .news-detail-overlay.open { display: flex; }
+    .news-detail-panel {
+      background: #fff; max-width: 640px; width: 100%; max-height: 88vh;
+      overflow-y: auto; position: relative; border-radius: 4px;
+    }
+    .news-detail-close {
+      position: absolute; top: 12px; right: 12px; z-index: 2;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(10,10,12,0.55); color: #fff; font-size: 20px;
+      display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;
+    }
+    .news-detail-image { width: 100%; max-height: 340px; object-fit: cover; display: none; }
+    .news-detail-image.show { display: block; }
+    .news-detail-meta { display: flex; align-items: center; gap: 12px; padding: 24px 28px 0; }
+    .news-detail-tag { font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid; padding: 4px 10px; }
+    .news-detail-date { font-family: ui-monospace,monospace; font-size: 13px; color: #86868f; }
+    .news-detail-title { color: #16161a; font-size: 22px; font-weight: 700; padding: 12px 28px 0; line-height: 1.5; }
+    .news-detail-body { color: #46464d; font-size: 14.5px; line-height: 1.9; padding: 16px 28px 32px; white-space: pre-wrap; }
+
     /* Footer */
     .site-footer { background: var(--dark); padding: 54px 24px 30px; border-top: 3px solid var(--main-color); }
     .footer-inner { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
@@ -147,6 +172,20 @@
     </div>
   </main>
 
+  <!-- ニュース詳細モーダル -->
+  <div class="news-detail-overlay" id="news-detail-overlay">
+    <div class="news-detail-panel">
+      <button type="button" class="news-detail-close" id="news-detail-close" aria-label="閉じる">×</button>
+      <img id="news-detail-image" class="news-detail-image" alt="">
+      <div class="news-detail-meta">
+        <span class="news-detail-tag" id="news-detail-tag"></span>
+        <span class="news-detail-date" id="news-detail-date"></span>
+      </div>
+      <h2 class="news-detail-title" id="news-detail-title"></h2>
+      <div class="news-detail-body" id="news-detail-body"></div>
+    </div>
+  </div>
+
   <footer class="site-footer">
     <div class="footer-inner">
       <div>
@@ -196,6 +235,28 @@
     }
     function formatDate(s) { return String(s || '').replace(/-/g,'/'); }
 
+    var visibleNews = [];
+    function openNewsDetail(idx) {
+      var n = visibleNews[idx];
+      if (!n) return;
+      var cat = n.cat || n.category || n.type || 'お知らせ';
+      document.getElementById('news-detail-tag').textContent = cat;
+      document.getElementById('news-detail-date').textContent = formatDate(n.date);
+      document.getElementById('news-detail-title').textContent = n.title || '';
+      document.getElementById('news-detail-body').textContent = n.body || '';
+      var imgEl = document.getElementById('news-detail-image');
+      if (n.image) { imgEl.src = n.image; imgEl.classList.add('show'); }
+      else { imgEl.removeAttribute('src'); imgEl.classList.remove('show'); }
+      document.getElementById('news-detail-overlay').classList.add('open');
+    }
+    function closeNewsDetail() {
+      document.getElementById('news-detail-overlay').classList.remove('open');
+    }
+    document.getElementById('news-detail-close').addEventListener('click', closeNewsDetail);
+    document.getElementById('news-detail-overlay').addEventListener('click', function (e) {
+      if (e.target === this) closeNewsDetail();
+    });
+
     ConfigLoader.apply({
       pageTitle: 'お知らせ',
       onLoaded: function (c) {
@@ -222,10 +283,11 @@
             var sorted = items.filter(function(n){return n&&n.title;}).sort(function(a,b){
               return (new Date(b.date||0)) - (new Date(a.date||0));
             });
-            var html = sorted.map(function(n){
+            visibleNews = sorted;
+            var html = sorted.map(function(n, i){
               var cat = n.cat || n.category || n.type || 'お知らせ';
               var cc = catColor(cat);
-              return '<div class="news-row">' +
+              return '<div class="news-row" style="cursor:pointer" onclick="openNewsDetail(' + i + ')">' +
                 '<span class="news-date">' + esc(formatDate(n.date)) + '</span>' +
                 '<span class="news-tag" style="color:'+cc+';border-color:'+cc+';">' + esc(cat) + '</span>' +
                 '<span class="news-title">' + esc(n.title) + '</span>' +

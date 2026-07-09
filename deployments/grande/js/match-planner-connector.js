@@ -38,9 +38,15 @@ const AuroraConnector = (function () {
     activeCategory: '',
     allMatches: [],
     allNews: [],
+    visibleNews: [],
   };
 
   // ── ユーティリティ ──────────────────────────────────────
+
+  // カテゴリー表記ゆれ吸収（Match Planner="U15" / club-config.json="U-15" のようなハイフン有無の違いを無視して比較する）
+  function normCat(s) {
+    return String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  }
 
   function get(obj, path) {
     return path.split('.').reduce(function (o, k) {
@@ -157,7 +163,7 @@ const AuroraConnector = (function () {
     var matches = state.allMatches.filter(function (m) {
       // category フィールドがない場合は全タブに表示する
       if (!m.category) return true;
-      return m.category === cat;
+      return normCat(m.category) === normCat(cat);
     });
 
     setText('active-cat', cat);
@@ -311,11 +317,13 @@ const AuroraConnector = (function () {
       return '#b8870b';
     }
 
-    var html = sorted.map(function (n) {
+    state.visibleNews = sorted;
+
+    var html = sorted.map(function (n, i) {
       // Match Planner は category / type で保存するため n.cat も参照
       var cat = n.cat || n.category || n.type || 'お知らせ';
       var cc = catColor(cat);
-      return '<a href="news.html" class="news-row">' +
+      return '<a href="news.html" class="news-row" onclick="AuroraConnector.openNewsDetail(' + i + '); return false;">' +
         '<span class="news-date">' + escapeHTML(formatDate(n.date)) + '</span>' +
         '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';">' + escapeHTML(cat) + '</span>' +
         '<span class="news-title">' + escapeHTML(n.title) + '</span>' +
@@ -324,6 +332,31 @@ const AuroraConnector = (function () {
     }).join('');
 
     setHTML('news-list', html);
+  }
+
+  // ── ニュース詳細モーダル ────────────────────────────────
+
+  function openNewsDetail(idx) {
+    var n = state.visibleNews && state.visibleNews[idx];
+    if (!n) return;
+    var overlay = document.getElementById('news-detail-overlay');
+    if (!overlay) return;
+    var cat = n.cat || n.category || n.type || 'お知らせ';
+    setText('news-detail-tag', cat);
+    setText('news-detail-date', formatDate(n.date));
+    setText('news-detail-title', n.title || '');
+    var bodyEl = document.getElementById('news-detail-body');
+    if (bodyEl) bodyEl.textContent = n.body || '';
+    var imgEl = document.getElementById('news-detail-image');
+    if (imgEl) {
+      if (n.image) { imgEl.src = n.image; imgEl.classList.add('show'); }
+      else { imgEl.removeAttribute('src'); imgEl.classList.remove('show'); }
+    }
+    overlay.classList.add('open');
+  }
+  function closeNewsDetail() {
+    var overlay = document.getElementById('news-detail-overlay');
+    if (overlay) overlay.classList.remove('open');
   }
 
   // ── ティッカー描画 ──────────────────────────────────────
@@ -346,6 +379,11 @@ const AuroraConnector = (function () {
   // ── エントリーポイント ──────────────────────────────────
 
   async function init() {
+    var closeBtn = document.getElementById('news-detail-close');
+    if (closeBtn) closeBtn.addEventListener('click', closeNewsDetail);
+    var overlay = document.getElementById('news-detail-overlay');
+    if (overlay) overlay.addEventListener('click', function (e) { if (e.target === overlay) closeNewsDetail(); });
+
     try {
       state.config = await loadConfig();
     } catch (err) {
@@ -387,7 +425,7 @@ const AuroraConnector = (function () {
     }
   }
 
-  return { init: init };
+  return { init: init, openNewsDetail: openNewsDetail, closeNewsDetail: closeNewsDetail };
 
 })();
 
