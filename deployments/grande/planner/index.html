@@ -75,6 +75,9 @@
       <div class="nav-item" data-nav="page-sns">
         <span class="nav-item-icon">📸</span> SNS画像作成
       </div>
+      <div class="nav-item" data-nav="page-emergency">
+        <span class="nav-item-icon">🚨</span> 緊急連絡
+      </div>
       <div class="nav-item" data-nav="page-settings">
         <span class="nav-item-icon">⚙️</span> 設定
       </div>
@@ -614,6 +617,43 @@
       </div>
     </div><!-- /page-sns -->
 
+    <!-- ========== Page: 緊急連絡 ========== -->
+    <div class="page" id="page-emergency">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">🚨 緊急連絡</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px">⚠️ 緊急連絡について</div>
+          <div style="font-size:12.5px;color:var(--c-text2);line-height:1.7">対象カテゴリーを選ぶと保護者のメールアドレス一覧をコピーできます。お使いのメールアプリの<b>BCC欄</b>に貼り付けて送信してください（Toに直接入れるとアドレスが他の保護者にも見えてしまいます）。</div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">① 対象カテゴリー</div>
+          <div class="cat-check-group" id="emergency-cat-picker"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">対象者</div>
+          <div id="emergency-recipients-summary"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">② メッセージ内容</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="emergency-templates"></div>
+          <textarea class="form-textarea" id="emergency-message" rows="5" placeholder="連絡内容を入力してください"></textarea>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">③ コピーして送信</div>
+          <button class="btn btn-secondary btn-full" id="btn-copy-emergency-emails" style="margin-bottom:8px">📋 メールアドレスをコピー（BCC推奨）</button>
+          <button class="btn btn-primary btn-full" id="btn-copy-emergency-message">📋 メッセージ本文をコピー</button>
+        </div>
+      </div>
+    </div><!-- /page-emergency -->
+
     <!-- ========== Page: News ========== -->
     <div class="page" id="page-news">
       <div class="page-hdr">
@@ -829,6 +869,7 @@
           <button class="btn btn-secondary btn-full" data-nav="page-opponents" style="justify-content:flex-start;gap:12px"><span>🆚</span> 対戦相手マスター</button>
           <button class="btn btn-secondary btn-full" data-nav="page-survey" style="justify-content:flex-start;gap:12px"><span>🗳️</span> アンケート</button>
           <button class="btn btn-secondary btn-full" data-nav="page-sns" style="justify-content:flex-start;gap:12px"><span>📸</span> SNS画像作成</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-emergency" style="justify-content:flex-start;gap:12px"><span>🚨</span> 緊急連絡</button>
         </div>
         <div class="form-label" style="margin-bottom:10px">設定</div>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -1091,18 +1132,38 @@
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">ポジション / 役職</label>
-            <input class="form-input" type="text" id="pf-main-group" placeholder="GK / DF / MF / FW / 代表 / コーチ">
+            <label class="form-label">カテゴリー</label>
+            <select class="form-select" id="pf-category">
+              <option value="">（なし）</option>
+              <option value="U15">U15</option>
+              <option value="U14">U14</option>
+              <option value="U13">U13</option>
+              <option value="U12">U12</option>
+              <option value="U11">U11</option>
+              <option value="U10">U10</option>
+              <option value="U9">U9</option>
+              <option value="U8">U8</option>
+            </select>
           </div>
         </div>
         <div class="form-row-2">
           <div class="form-group">
+            <label class="form-label">ポジション / 役職</label>
+            <input class="form-input" type="text" id="pf-main-group" placeholder="GK / DF / MF / FW / 代表 / コーチ">
+          </div>
+          <div class="form-group">
             <label class="form-label">詳細ポジション</label>
             <input class="form-input" type="text" id="pf-detail-pos" placeholder="CB, CMなど">
           </div>
+        </div>
+        <div class="form-row-2">
           <div class="form-group">
             <label class="form-label">サブポジション</label>
             <input class="form-input" type="text" id="pf-sub" placeholder="任意">
+          </div>
+          <div class="form-group">
+            <label class="form-label">保護者連絡先メール（任意）</label>
+            <input class="form-input" type="email" id="pf-guardian-email" placeholder="guardian@example.com">
           </div>
         </div>
         <div class="form-group">
@@ -1220,6 +1281,7 @@
             <span style="font-size:11px;color:var(--c-muted);font-weight:400" id="sf-participant-count">全選手が対象</span>
           </div>
           <input class="form-input" type="search" id="sf-participant-search" placeholder="選手名で検索..." style="margin-bottom:8px">
+          <div id="sf-participant-cats" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" hidden></div>
           <div style="display:flex;gap:8px;margin-bottom:8px">
             <button class="btn btn-secondary btn-sm" type="button" id="btn-survey-select-all-participants">全選手を選択</button>
             <button class="btn btn-ghost btn-sm" type="button" id="btn-survey-clear-participants">選択解除</button>

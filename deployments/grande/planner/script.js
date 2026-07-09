@@ -351,6 +351,7 @@ function showPage(pageId, opts = {}) {
   if (pageId === 'page-survey')       renderSurveyList();
   if (pageId === 'page-survey-results') renderSurveyResults();
   if (pageId === 'page-sns')          renderSnsPage();
+  if (pageId === 'page-emergency')    renderEmergencyPage();
   if (pageId === 'page-news')         renderNews();
   if (pageId === 'page-announcement') renderAnnouncement();
   if (pageId === 'page-result-entry') renderResultEntry();
@@ -1443,9 +1444,11 @@ function openPlayerModal(idx = null) {
     document.getElementById('pf-name-roman').value = p.nameRoman || '';
     document.getElementById('pf-number').value = p.number || '';
     document.getElementById('pf-grade').value = p.grade || '';
+    document.getElementById('pf-category').value = p.category || '';
     document.getElementById('pf-main-group').value = p.mainGroup || '';
     document.getElementById('pf-detail-pos').value = p.detailPos || '';
     document.getElementById('pf-sub').value = p.sub || '';
+    document.getElementById('pf-guardian-email').value = p.guardianEmail || '';
     document.getElementById('pf-photo').value = p.photo || '';
     document.getElementById('pf-profile').value = p.profile || '';
   } else {
@@ -1454,9 +1457,11 @@ function openPlayerModal(idx = null) {
     document.getElementById('pf-name-roman').value = '';
     document.getElementById('pf-number').value = '';
     document.getElementById('pf-grade').value = '';
+    document.getElementById('pf-category').value = '';
     document.getElementById('pf-main-group').value = '';
     document.getElementById('pf-detail-pos').value = '';
     document.getElementById('pf-sub').value = '';
+    document.getElementById('pf-guardian-email').value = '';
     document.getElementById('pf-photo').value = '';
     document.getElementById('pf-profile').value = '';
   }
@@ -1472,9 +1477,11 @@ function savePlayerForm() {
     nameRoman: document.getElementById('pf-name-roman').value.trim().toUpperCase(),
     number: document.getElementById('pf-number').value,
     grade: document.getElementById('pf-grade').value,
+    category: document.getElementById('pf-category').value,
     mainGroup,
     detailPos: document.getElementById('pf-detail-pos').value,
     sub: document.getElementById('pf-sub').value,
+    guardianEmail: document.getElementById('pf-guardian-email').value.trim(),
     photo: document.getElementById('pf-photo').value,
     profile: document.getElementById('pf-profile').value,
     main: mainGroup,
@@ -2359,15 +2366,40 @@ function renderSurveyParticipantPicker() {
   } else {
     el.innerHTML = filtered.map(p => {
       const checked = surveyParticipants.includes(p.id);
-      return `<label class="cat-check-label"><input type="checkbox" class="sf-participant-check" value="${p.id}" ${checked ? 'checked' : ''} onchange="toggleSurveyParticipant('${p.id}', this.checked)"> ${p.name}</label>`;
+      const catLabel = p.category ? ` <span style="opacity:.55">(${p.category})</span>` : '';
+      return `<label class="cat-check-label"><input type="checkbox" class="sf-participant-check" value="${p.id}" ${checked ? 'checked' : ''} onchange="toggleSurveyParticipant('${p.id}', this.checked)"> ${p.name}${catLabel}</label>`;
     }).join('');
   }
   countEl.textContent = surveyParticipants.length === 0 ? '全選手が対象' : `${surveyParticipants.length}人を選択中`;
+  renderSurveyParticipantCatChips();
+}
+function renderSurveyParticipantCatChips() {
+  const el = document.getElementById('sf-participant-cats');
+  if (!el) return;
+  const cats = [...new Set(players.map(p => p.category).filter(Boolean))];
+  if (cats.length === 0) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = cats.map(cat => {
+    const catPlayers = players.filter(p => p.category === cat).map(p => p.id);
+    const allSelected = catPlayers.length > 0 && catPlayers.every(id => surveyParticipants.includes(id));
+    return `<button type="button" class="chip chip-btn ${getCatBadgeClass(cat)} ${allSelected ? 'is-active' : ''}" onclick="toggleSurveyParticipantCategory('${cat}')">${cat}（${catPlayers.length}名）${allSelected ? ' ✓' : ''}</button>`;
+  }).join('');
+}
+function toggleSurveyParticipantCategory(cat) {
+  const catPlayers = players.filter(p => p.category === cat).map(p => p.id);
+  const allSelected = catPlayers.length > 0 && catPlayers.every(id => surveyParticipants.includes(id));
+  if (allSelected) {
+    surveyParticipants = surveyParticipants.filter(id => !catPlayers.includes(id));
+  } else {
+    catPlayers.forEach(id => { if (!surveyParticipants.includes(id)) surveyParticipants.push(id); });
+  }
+  renderSurveyParticipantPicker();
 }
 function toggleSurveyParticipant(playerId, checked) {
   if (checked) { if (!surveyParticipants.includes(playerId)) surveyParticipants.push(playerId); }
   else { surveyParticipants = surveyParticipants.filter(id => id !== playerId); }
   document.getElementById('sf-participant-count').textContent = surveyParticipants.length === 0 ? '全選手が対象' : `${surveyParticipants.length}人を選択中`;
+  renderSurveyParticipantCatChips();
 }
 function selectAllSurveyParticipants() {
   surveyParticipants = players.map(p => p.id);
@@ -2957,6 +2989,10 @@ function bindEvents() {
   snsBindFieldsOnce();
   snsBindDrag();
   window.addEventListener('resize', snsFitPreview);
+
+  // 緊急連絡
+  document.getElementById('btn-copy-emergency-emails')?.addEventListener('click', copyEmergencyEmails);
+  document.getElementById('btn-copy-emergency-message')?.addEventListener('click', copyEmergencyMessage);
 
   // Player import
   document.getElementById('btn-download-template')?.addEventListener('click', downloadPlayerTemplate);
@@ -3555,6 +3591,87 @@ selectAnnSched = function (id) {
     );
   } catch (e) { console.error('SNS CTA(ann) error:', e); }
 };
+
+// ===== 緊急連絡 =====
+let emergencyCats = new Set();
+const EMERGENCY_TEMPLATES = [
+  { label: '天候による中止', text: '本日の練習/試合は悪天候のため中止といたします。今後の予定は改めてご連絡いたします。' },
+  { label: '解散時間の変更', text: '天候急変のため、本日の解散時間を予定より早め、◯時◯分に変更いたします。お迎えの調整をお願いいたします。' },
+  { label: 'バス遅延・到着遅れ', text: '遠征バスが渋滞に巻き込まれており、到着が◯時◯分頃になる見込みです。ご心配をおかけしますが今しばらくお待ちください。' },
+  { label: '集合場所・時間の変更', text: '集合場所／時間を変更いたします。変更後の集合：◯◯　◯時◯分。ご確認をお願いいたします。' },
+];
+
+function renderEmergencyPage() {
+  emergencyCats = new Set();
+  const msgEl = document.getElementById('emergency-message');
+  if (msgEl) msgEl.value = '';
+  renderEmergencyCatPicker();
+  renderEmergencyRecipients();
+  renderEmergencyTemplateButtons();
+}
+function renderEmergencyCatPicker() {
+  const el = document.getElementById('emergency-cat-picker');
+  if (!el) return;
+  el.innerHTML = CATEGORY_OPTIONS.map(cat => `
+    <label class="cat-check-label"><input type="checkbox" class="emergency-cat-check" value="${cat}" ${emergencyCats.has(cat) ? 'checked' : ''} onchange="toggleEmergencyCat('${cat}', this.checked)"> ${cat}</label>
+  `).join('');
+}
+function toggleEmergencyCat(cat, checked) {
+  if (checked) emergencyCats.add(cat); else emergencyCats.delete(cat);
+  renderEmergencyRecipients();
+}
+function emergencyTargetPlayers() {
+  if (emergencyCats.size === 0) return [];
+  return players.filter(p => emergencyCats.has(p.category));
+}
+function renderEmergencyRecipients() {
+  const el = document.getElementById('emergency-recipients-summary');
+  if (!el) return;
+  if (emergencyCats.size === 0) {
+    el.innerHTML = `<div style="font-size:12.5px;color:var(--c-muted)">カテゴリーを選択してください</div>`;
+    return;
+  }
+  const targets = emergencyTargetPlayers();
+  const withEmail = targets.filter(p => (p.guardianEmail || '').trim());
+  const withoutEmail = targets.filter(p => !(p.guardianEmail || '').trim());
+  el.innerHTML = `
+    <div style="font-size:13px;margin-bottom:8px"><b>${targets.length}名</b>が対象（うちメール登録 <b style="color:var(--c-green)">${withEmail.length}名</b>）</div>
+    ${withoutEmail.length ? `
+      <div style="font-size:12px;color:var(--c-muted);margin-bottom:4px">メール未登録（${withoutEmail.length}名）：</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${withoutEmail.map(p => `<span class="sched-badge badge-other">${p.name}</span>`).join('')}
+      </div>
+    ` : ''}
+  `;
+}
+function renderEmergencyTemplateButtons() {
+  const el = document.getElementById('emergency-templates');
+  if (!el) return;
+  el.innerHTML = EMERGENCY_TEMPLATES.map((t, i) => `<button type="button" class="btn btn-secondary btn-sm" onclick="applyEmergencyTemplate(${i})">${t.label}</button>`).join('');
+}
+function applyEmergencyTemplate(i) {
+  const el = document.getElementById('emergency-message');
+  if (el) el.value = EMERGENCY_TEMPLATES[i].text;
+}
+function copyEmergencyEmails() {
+  if (emergencyCats.size === 0) { showToast('対象カテゴリーを選択してください', 'error'); return; }
+  const emails = emergencyTargetPlayers().map(p => (p.guardianEmail || '').trim()).filter(Boolean);
+  if (emails.length === 0) { showToast('対象者にメールアドレスが登録されていません', 'error'); return; }
+  navigator.clipboard.writeText(emails.join(', ')).then(() => {
+    showToast(`${emails.length}件のメールアドレスをコピーしました（BCCに貼り付けてください）`, 'success');
+  }).catch(() => {
+    showToast('コピーに失敗しました', 'error');
+  });
+}
+function copyEmergencyMessage() {
+  const text = (document.getElementById('emergency-message')?.value || '').trim();
+  if (!text) { showToast('メッセージを入力してください', 'error'); return; }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('メッセージをコピーしました', 'success');
+  }).catch(() => {
+    showToast('コピーに失敗しました', 'error');
+  });
+}
 
 // ===== INIT =====
 function initApp() {
