@@ -37,6 +37,7 @@ const AuroraConnector = (function () {
     categories: [],
     activeCategory: '',
     allMatches: [],
+    allSchedules: [],
     allNews: [],
     visibleNews: [],
   };
@@ -132,6 +133,13 @@ const AuroraConnector = (function () {
     return Array.isArray(matches) ? matches : [];
   }
 
+  // スケジュール（告知はここから作られるが、試合管理側の matches とは別管理のレコード）
+  async function fetchSchedules(config) {
+    var data = await fetchClubData(config);
+    var schedules = data && data.schedules;
+    return Array.isArray(schedules) ? schedules : [];
+  }
+
   async function fetchNews(config) {
     var data = await fetchClubData(config);
     var items = (data && data.news) || (data && data.posts);
@@ -165,6 +173,10 @@ const AuroraConnector = (function () {
       if (!m.category) return true;
       return normCat(m.category) === normCat(cat);
     });
+    var schedules = (state.allSchedules || []).filter(function (sc) {
+      if (!sc.category) return true;
+      return normCat(sc.category) === normCat(cat);
+    });
 
     setText('active-cat', cat);
 
@@ -178,20 +190,44 @@ const AuroraConnector = (function () {
     }
     setText('active-comp', compName);
 
-    renderNextMatch(matches);
+    renderNextMatch(matches, schedules);
     renderResults(matches);
   }
 
-  function renderNextMatch(matches) {
+  // schedules は「試合告知」の元データで、試合管理側の matches とは別レコード。
+  // まだ matches 化されていない告知済みの試合もネクストマッチに拾えるよう、両方をマージする。
+  function scheduleToMatchShape(sc) {
+    return {
+      date: sc.date,
+      time: sc.time || '',
+      venue: sc.venue || '',
+      competitionName: sc.competition || sc.type || '',
+      opponent: sc.opponent || '',
+    };
+  }
+
+  function renderNextMatch(matches, schedules) {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    var upcoming = matches
-      .filter(function (m) {
-        if (m.result && m.result.myScore != null && m.result.oppScore != null) return false;
-        var d = toDate(m.date);
-        return d && d >= today;
+    var fromMatches = matches.filter(function (m) {
+      if (m.result && m.result.myScore != null && m.result.oppScore != null) return false;
+      var d = toDate(m.date);
+      return d && d >= today;
+    });
+
+    var matchKeys = {};
+    fromMatches.forEach(function (m) { matchKeys[m.date + '|' + (m.opponent || '')] = true; });
+
+    var fromSchedules = (schedules || [])
+      .filter(function (sc) {
+        var d = toDate(sc.date);
+        if (!d || d < today) return false;
+        return !matchKeys[sc.date + '|' + (sc.opponent || '')];
       })
+      .map(scheduleToMatchShape);
+
+    var upcoming = fromMatches.concat(fromSchedules)
       .sort(function (a, b) {
         return (toDate(a.date) || 0) - (toDate(b.date) || 0);
       });
@@ -408,6 +444,13 @@ const AuroraConnector = (function () {
       } catch (err) {
         if (err.code !== 'UNCONFIGURED') {
           console.error('[AuroraConnector] matches:', err.message);
+        }
+      }
+      try {
+        state.allSchedules = await fetchSchedules(state.config);
+      } catch (err) {
+        if (err.code !== 'UNCONFIGURED') {
+          console.error('[AuroraConnector] schedules:', err.message);
         }
       }
     }
