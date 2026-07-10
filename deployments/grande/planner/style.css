@@ -1024,3 +1024,13 @@ img { max-width: 100%; display: block; }
 .tpl-noticeC .tplNC-opp em { font-style: normal; color: #e8c14b; font-size: 34px; margin-right: 20px; }
 .tpl-noticeC .tplNC-meta { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 14px 40px; font-size: 32px; font-weight: 800; color: rgba(255,255,255,0.92); }
 .tpl-noticeC .tplNC-meta b { color: #e8c14b; font-weight: 800; }
+
+/* ===== v3.2: データ一括削除（運用開始リセット） ===== */
+.btn-danger-full {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px 0; border-radius: var(--radius);
+  background: transparent; border: 1px solid #d9534f;
+  color: #d9534f; font-size: 14px; font-weight: 800; cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-danger-full:hover { background: #d9534f; color: #fff; }

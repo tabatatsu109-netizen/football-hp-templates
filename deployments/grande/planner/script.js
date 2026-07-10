@@ -2859,6 +2859,26 @@ function saveSettingsForm() {
   if (secret) loadFromCloud();
 }
 
+// 運用開始リセット：試合・投稿・スケジュールを全削除（選手・対戦相手・アンケートは残す）
+function resetOperationalData() {
+  const summary = `試合 ${matches.length}件・ホームページ投稿 ${posts.length}件・スケジュール ${schedules.length}件`;
+  if (matches.length + posts.length + schedules.length === 0) {
+    showToast('削除できるデータがありません', 'info');
+    return;
+  }
+  if (!confirm(`${summary} を削除します。\nホームページの表示（お知らせ・試合結果・ネクストマッチ）からも消えます。\nよろしいですか？`)) return;
+  if (!confirm('この操作は取り消せません。本当に削除しますか？')) return;
+
+  matches = [];
+  posts = [];
+  schedules = [];
+  currentMatch = null;
+  selectedAnnSchedId = null;
+  saveLocal();
+  renderCurrentPage();
+  showToast(`${summary} を削除しました。数秒後にホームページへ反映されます`, 'success');
+}
+
 // ===== EVENT BINDINGS =====
 function bindEvents() {
   // Bottom nav
@@ -3046,6 +3066,7 @@ function bindEvents() {
   document.getElementById('btn-save-settings')?.addEventListener('click', saveSettingsForm);
   document.getElementById('btn-load-cloud')?.addEventListener('click', loadFromCloud);
   document.getElementById('btn-save-cloud')?.addEventListener('click', saveToCloud);
+  document.getElementById('btn-reset-operational')?.addEventListener('click', resetOperationalData);
   document.getElementById('btn-sync')?.addEventListener('click', loadFromCloud);
 
   // Confirm dialog
