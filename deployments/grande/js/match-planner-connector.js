@@ -249,8 +249,10 @@ const AuroraConnector = (function () {
     var venue = next.venue || '';
     var comp = next.competitionName || next.type || '';
     var opp = next.opponent || '';
-    var clubName = state.config && state.config.club ? state.config.club.name || '' : '';
-    var abbr = state.config && state.config.club ? (state.config.club.abbreviation || (state.config.club.shortName || '?')[0]) : '?';
+    var clubName = state.config && state.config.club
+      ? (state.config.club.nickname || state.config.club.shortName || state.config.club.name || '')
+      : '';
+    var logoSrc = get(state.config, 'design.logo');
 
     container.innerHTML =
       '<div class="nm-left">' +
@@ -264,19 +266,16 @@ const AuroraConnector = (function () {
       '</div>' +
       '<div class="nm-center">' +
         '<div class="nm-team">' +
-          '<div class="nm-logo-home"><span class="nm-abbr">' + escapeHTML(abbr) + '</span></div>' +
+          '<div class="nm-logo-home">' + (logoSrc ? '<img src="' + escapeHTML(logoSrc) + '" alt="" class="nm-logo-img">' : '') + '</div>' +
           '<div class="nm-team-name">' + escapeHTML(clubName) + '</div>' +
-          '<div class="nm-team-label">HOME</div>' +
         '</div>' +
         '<div class="nm-vs">VS</div>' +
         '<div class="nm-team">' +
           '<div class="nm-logo-away">LOGO</div>' +
           '<div class="nm-team-name">' + escapeHTML(opp) + '</div>' +
-          '<div class="nm-team-label">AWAY</div>' +
         '</div>' +
       '</div>' +
       '<div class="nm-right">' +
-        '<a href="contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>' +
         '<a href="results.html" class="nm-btn nm-btn-dark">試合詳細</a>' +
       '</div>';
   }

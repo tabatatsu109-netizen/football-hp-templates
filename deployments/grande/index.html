@@ -281,11 +281,9 @@
     .nm-team { text-align: center; }
     .nm-logo-home {
       width: 74px; height: 74px; margin: 0 auto;
-      background: var(--main-color);
       display: flex; align-items: center; justify-content: center;
-      transform: rotate(45deg);
     }
-    .nm-abbr { transform: rotate(-45deg); font-family: 'Anton', sans-serif; font-size: 28px; color: #fff; display: block; }
+    .nm-logo-img { width: 100%; height: 100%; object-fit: contain; }
     .nm-logo-away {
       width: 74px; height: 74px; margin: 0 auto;
       background: #22222a; border: 1px solid #34343d;
@@ -293,7 +291,6 @@
       font-family: ui-monospace,monospace; font-size: 9px; color: #76767f;
     }
     .nm-team-name { margin-top: 14px; font-weight: 900; font-size: 15px; letter-spacing: 1px; }
-    .nm-team-label { color: #6f6f78; font-size: 11px; letter-spacing: 1px; }
     .nm-vs { font-family: 'Anton', sans-serif; font-size: 34px; color: #3a3a42; font-style: italic; }
     .nm-right {
       padding: 34px 28px; display: flex; flex-direction: column;
@@ -304,7 +301,6 @@
       text-align: center; font-size: 13px; font-weight: 700;
       letter-spacing: 1px; padding: 13px; border-radius: 2px;
     }
-    .nm-btn-light { background: #fff; color: var(--dark); }
     .nm-btn-dark  { border: 1px solid #34343d; color: #fff; }
 
     /* 結果リスト */
@@ -1021,7 +1017,6 @@
           </div>
           <div class="nm-center" style="color:#9a9aa2;font-size:14px;">データを取得中</div>
           <div class="nm-right">
-            <a href="contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>
             <a href="results.html" class="nm-btn nm-btn-dark">試合詳細</a>
           </div>
         </div>
