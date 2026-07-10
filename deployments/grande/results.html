@@ -58,7 +58,7 @@
     .block-head { display:flex;align-items:center;justify-content:space-between;padding:18px 26px;border-bottom:1px solid #efeee9; }
     .block-title { font-weight:900;font-size:15px;letter-spacing:1px; }
     .result-row {
-      display:grid; grid-template-columns:80px 1fr 140px 1fr 50px;
+      display:grid; grid-template-columns:80px 1fr 140px 1fr auto;
       align-items:center; gap:16px; padding:18px 26px; border-bottom:1px solid #f1f0eb;
     }
     .result-row:last-child { border-bottom:none; }
@@ -68,10 +68,10 @@
     .r-score-num { font-family:'Anton',sans-serif;font-size:28px;line-height:1;min-width:22px;text-align:center; }
     .r-sep { color:#c9c8c2;font-size:14px; }
     .r-opp { font-weight:700;font-size:14px;color:#46464d; }
-    .r-badge { justify-self:end;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:13px;color:#fff; }
-    .badge-win  { background:#1f8a4c; }
-    .badge-draw { background:#b8870b; }
-    .badge-lose { background:#8a8a90; }
+    .r-badge { justify-self:end;min-width:62px;text-align:center;font-family:'Anton',sans-serif;font-size:12px;letter-spacing:2px;padding:7px 10px 6px;border-radius:2px;line-height:1; }
+    .badge-win  { background:#1f8a4c;color:#fff; }
+    .badge-draw { border:1px solid #c9c8c2;color:#86868f; }
+    .badge-lose { border:1px solid #e0656c;color:#d24b52; }
     .no-data { color:#aaa;font-size:14px;padding:30px 26px; }
 
     .site-footer { background:var(--dark);padding:54px 24px 30px;border-top:3px solid var(--main-color); }
@@ -91,7 +91,11 @@
     @media (max-width:900px) {
       .header-nav,.btn-login { display:none; }
       .hamburger { display:flex; }
-      .result-row { grid-template-columns:60px 1fr 110px 1fr 40px;gap:8px; }
+      /* モバイルは自チーム名を省き「日付・スコア・相手・勝敗」に絞る */
+      .result-row { grid-template-columns:48px auto 1fr auto;gap:10px; }
+      .r-home { display:none; }
+      .r-score-num { font-size:22px; }
+      .r-badge { min-width:48px;font-size:10px;letter-spacing:1px;padding:6px 6px 5px; }
       .footer-inner { flex-direction:column;gap:32px; }
     }
   </style>
@@ -192,7 +196,7 @@
     function normCat(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
     function toDate(s){ if(!s)return null; var d=new Date(s); return isNaN(d.getTime())?null:d; }
     function resultClass(rs){ if(!rs)return'badge-draw'; if(/勝|win/i.test(rs))return'badge-win'; if(/負|敗|lose/i.test(rs))return'badge-lose'; return'badge-draw'; }
-    function resultLetter(rs){ if(!rs)return'D'; if(/勝|win/i.test(rs))return'W'; if(/負|敗|lose/i.test(rs))return'L'; return'D'; }
+    function resultLetter(rs){ if(!rs)return'DRAW'; if(/勝|win/i.test(rs))return'WIN'; if(/負|敗|lose/i.test(rs))return'LOSE'; return'DRAW'; }
 
     var state = { config:null, allMatches:[], activeCategory:'', categories:[] };
 

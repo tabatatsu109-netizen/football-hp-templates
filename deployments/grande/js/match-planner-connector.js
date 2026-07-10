@@ -88,10 +88,10 @@ const AuroraConnector = (function () {
   }
 
   function resultLetter(rs) {
-    if (!rs) return 'D';
-    if (/勝|win/i.test(rs)) return 'W';
-    if (/負|敗|lose|loss/i.test(rs)) return 'L';
-    return 'D';
+    if (!rs) return 'DRAW';
+    if (/勝|win/i.test(rs)) return 'WIN';
+    if (/負|敗|lose|loss/i.test(rs)) return 'LOSE';
+    return 'DRAW';
   }
 
   function setHTML(id, html) {

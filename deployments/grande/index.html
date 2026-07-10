@@ -306,7 +306,7 @@
     .results-more { color: var(--main-color); font-size: 13px; font-weight: 700; letter-spacing: 1px; }
     #results-list { padding: 0; }
     .result-row {
-      display: grid; grid-template-columns: 80px 1fr 140px 1fr 50px;
+      display: grid; grid-template-columns: 80px 1fr 140px 1fr auto;
       align-items: center; gap: 16px;
       padding: 18px 26px; border-bottom: 1px solid #f1f0eb;
     }
@@ -318,13 +318,13 @@
     .score-sep { color: #c9c8c2; font-size: 14px; }
     .result-opp { font-weight: 700; font-size: 15px; color: #46464d; }
     .result-badge {
-      justify-self: end; width: 34px; height: 34px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Anton', sans-serif; font-size: 14px; color: #fff;
+      justify-self: end; min-width: 62px; text-align: center;
+      font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px;
+      padding: 7px 10px 6px; border-radius: 2px; line-height: 1;
     }
-    .badge-win  { background: #1f8a4c; }
-    .badge-draw { background: #b8870b; }
-    .badge-lose { background: #8a8a90; }
+    .badge-win  { background: #1f8a4c; color: #fff; }
+    .badge-draw { border: 1px solid #c9c8c2; color: #86868f; }
+    .badge-lose { border: 1px solid #e0656c; color: #d24b52; }
     .results-panel-foot { padding: 12px 26px; color: #a6a6ac; font-size: 11px; font-family: ui-monospace,monospace; }
     .no-data { color: #aaa; font-size: 14px; padding: 20px 26px; }
 
@@ -640,7 +640,11 @@
       .match-head-row { flex-direction: column; align-items: flex-start; }
       .match-next-panel { grid-template-columns: 1fr; }
       .nm-left  { border-right: none; border-bottom: 1px solid #23232a; }
-      .result-row { grid-template-columns: 60px 1fr 110px 1fr 40px; gap: 10px; }
+      /* モバイルは自チーム名を省き「日付・スコア・相手・勝敗」に絞る */
+      .result-row { grid-template-columns: 48px auto 1fr auto; gap: 10px; }
+      .result-home { display: none; }
+      .score-num { font-size: 22px; }
+      .result-badge { min-width: 48px; font-size: 10px; letter-spacing: 1px; padding: 6px 6px 5px; }
 
       .news-row { grid-template-columns: 90px 1fr; gap: 8px; }
       .news-tag  { display: none; }
