@@ -349,7 +349,7 @@
   /* ================================================
      Three.js — 光の粒（ヒーローのみ・省電力設計）
      ================================================ */
-  function initParticles() {
+  function initParticles(introDelay) {
     if (reduceMotion || typeof THREE === 'undefined') return;
     var canvas = document.getElementById('hero-fx');
     var heroEl = document.getElementById('top');
@@ -384,6 +384,102 @@
     var green = makePoints(isMobile ? 200 : 500, 0x9fe870, 0.05, 0.65);
     var white = makePoints(isMobile ? 70 : 170, 0xe8f4ff, 0.032, 0.4);
 
+    /* ── エンブレム形成（ロード直後の一回演出）──
+       形成専用の高密度パーティクル群を別に用意し、
+       ロゴのピクセル位置・色に向かって飛来 → 数秒静止 → 拡散して消える。
+       加算合成では「色＝黒」が透明扱いになるため、消灯はカラーのフェードで行う */
+    var form = { f: 0, active: false, pts: null, homes: null, targets: null, jits: null };
+
+    function setupEmblemFormation() {
+      if (typeof gsap === 'undefined') return;
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var S = 128;
+          var cv = document.createElement('canvas');
+          cv.width = S; cv.height = S;
+          var ctx = cv.getContext('2d');
+          ctx.drawImage(img, 0, 0, S, S);
+          var data = ctx.getImageData(0, 0, S, S).data;
+          var px = [];
+          for (var y = 0; y < S; y++) {
+            for (var x = 0; x < S; x++) {
+              var o = (y * S + x) * 4;
+              // 透過部分と黒背景は除外してエンブレムの絵柄だけ拾う
+              if (data[o + 3] < 128) continue;
+              if (data[o] + data[o + 1] + data[o + 2] < 90) continue;
+              px.push([x, y, data[o] / 255, data[o + 1] / 255, data[o + 2] / 255]);
+            }
+          }
+          if (px.length < 50) return;
+
+          // ピクセルを均等に使うためシャッフル
+          for (var s = px.length - 1; s > 0; s--) {
+            var k = Math.floor(Math.random() * (s + 1));
+            var tmp = px[s]; px[s] = px[k]; px[k] = tmp;
+          }
+
+          var count = isMobile ? 1800 : 4200;
+          // カメラの視野からエンブレム直径を算出（スマホ幅でもはみ出さない）
+          var visH = 2 * camera.position.z * Math.tan(camera.fov * Math.PI / 360);
+          var visW = visH * camera.aspect;
+          var dia = Math.min(visW, visH) * 0.62;
+
+          form.homes = new Float32Array(count * 3);
+          form.targets = new Float32Array(count * 3);
+          form.jits = new Float32Array(count);
+          var pos = new Float32Array(count * 3);
+          var col = new Float32Array(count * 3);
+          for (var i = 0; i < count; i++) {
+            var p = px[i % px.length];
+            var i3 = i * 3;
+            // 飛来元：画面全体に散らばったランダム位置
+            form.homes[i3] = (Math.random() - 0.5) * 22;
+            form.homes[i3 + 1] = (Math.random() - 0.5) * 12;
+            form.homes[i3 + 2] = (Math.random() - 0.5) * 6;
+            form.targets[i3] = (p[0] / S - 0.5) * dia;
+            form.targets[i3 + 1] = (0.5 - p[1] / S) * dia;
+            form.targets[i3 + 2] = (Math.random() - 0.5) * 0.15;
+            // 加算合成で暗い色が沈まないよう少し明るく補正
+            col[i3] = Math.min(1, p[2] * 1.25);
+            col[i3 + 1] = Math.min(1, p[3] * 1.25);
+            col[i3 + 2] = Math.min(1, p[4] * 1.25);
+            form.jits[i] = Math.random() * 0.35;
+            pos[i3] = form.homes[i3]; pos[i3 + 1] = form.homes[i3 + 1]; pos[i3 + 2] = form.homes[i3 + 2];
+          }
+          var geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+          geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+          // 出し入れはマテリアル全体の透明度で行う（開始時は透明）
+          form.pts = new THREE.Points(geo, new THREE.PointsMaterial({
+            size: isMobile ? 0.055 : 0.075, transparent: true, opacity: 0,
+            vertexColors: true, blending: THREE.AdditiveBlending, depthWrite: false,
+          }));
+          scene.add(form.pts);
+          form.active = true;
+
+          // 写真を暗くした時に裏の明色ページ背景が透けないよう下地を暗色に
+          heroEl.style.backgroundColor = '#0a0a0c';
+
+          gsap.timeline({ delay: (introDelay || 0) + 0.2 })
+            // 背景写真を暗くしてエンブレムを浮かび上がらせる
+            .to('#hero-slides', { opacity: 0.3, duration: 1.2, ease: 'power2.inOut' }, 0)
+            .to(form, { f: 1, duration: 1.6, ease: 'power3.inOut' }, 0)
+            .to(form, { f: 0, duration: 1.6, ease: 'power3.inOut' }, '+=2.2')
+            .to('#hero-slides', { opacity: 1, duration: 1.2, ease: 'power2.inOut' }, '<')
+            .add(function () {
+              form.active = false;
+              scene.remove(form.pts);
+              form.pts.geometry.dispose();
+              form.pts.material.dispose();
+              form.pts = null;
+            });
+        } catch (e) { /* 失敗時は通常パーティクルのまま */ }
+      };
+      img.src = 'assets/logo.png';
+    }
+    setupEmblemFormation();
+
     var target = { x: 0, y: 0 };
     window.addEventListener('pointermove', function (e) {
       target.x = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -410,6 +506,24 @@
       green.rotation.y = t * 0.02;
       white.rotation.y = -t * 0.014;
       green.position.y = Math.sin(t * 0.35) * 0.3;
+
+      if (form.active && form.pts) {
+        form.pts.material.opacity = form.f;
+        var pa = form.pts.geometry.attributes.position.array;
+        var n = form.pts.geometry.attributes.position.count;
+        for (var i = 0; i < n; i++) {
+          // 粒ごとに到着タイミングをずらす（ばらばらに飛んでくる感じ）
+          var p = Math.min(1, Math.max(0, form.f * 1.35 - form.jits[i]));
+          p = p * p * (3 - 2 * p);
+          var i3 = i * 3;
+          var wob = Math.sin(t * 2 + i) * 0.008 * p;
+          pa[i3] = form.homes[i3] + (form.targets[i3] - form.homes[i3]) * p;
+          pa[i3 + 1] = form.homes[i3 + 1] + (form.targets[i3 + 1] - form.homes[i3 + 1]) * p + wob;
+          pa[i3 + 2] = form.homes[i3 + 2] + (form.targets[i3 + 2] - form.homes[i3 + 2]) * p;
+        }
+        form.pts.geometry.attributes.position.needsUpdate = true;
+      }
+
       camera.position.x += (target.x * 0.6 - camera.position.x) * 0.04;
       camera.position.y += (-target.y * 0.4 - camera.position.y) * 0.04;
       camera.lookAt(0, 0, 0);
@@ -428,6 +542,6 @@
     initResultsFx();
     initFaces();
     initMicro();
-    initParticles();
+    initParticles(introDelay);
   });
 })();

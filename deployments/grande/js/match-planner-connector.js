@@ -198,7 +198,14 @@ const AuroraConnector = (function () {
       venue: sc.venue || '',
       competitionName: sc.competition || sc.type || '',
       opponent: sc.opponent || '',
+      category: sc.category || '',
     };
+  }
+
+  // 表示用カテゴリー表記（"U12" → "U-12" に統一）
+  function dispCat(c) {
+    var m = String(c || '').match(/^U-?(\d+)$/i);
+    return m ? 'U-' + m[1] : String(c || '');
   }
 
   function renderNextMatch(matches, schedules) {
@@ -254,9 +261,14 @@ const AuroraConnector = (function () {
       : '';
     var logoSrc = get(state.config, 'design.logo');
 
+    var cat = dispCat(next.category);
+
     container.innerHTML =
       '<div class="nm-left">' +
-        '<div class="nm-badge">NEXT MATCH</div>' +
+        '<div class="nm-badge-row">' +
+          '<div class="nm-badge">NEXT MATCH</div>' +
+          (cat ? '<span class="nm-cat">' + escapeHTML(cat) + '</span>' : '') +
+        '</div>' +
         '<div class="nm-comp">' + escapeHTML(comp) + '</div>' +
         '<div class="nm-date-row">' +
           '<span class="nm-date-num">' + escapeHTML(dateDisp) + '</span>' +
@@ -274,9 +286,6 @@ const AuroraConnector = (function () {
           '<div class="nm-logo-away">LOGO</div>' +
           '<div class="nm-team-name">' + escapeHTML(opp) + '</div>' +
         '</div>' +
-      '</div>' +
-      '<div class="nm-right">' +
-        '<a href="results.html" class="nm-btn nm-btn-dark">試合詳細</a>' +
       '</div>';
   }
 

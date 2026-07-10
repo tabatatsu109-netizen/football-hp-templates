@@ -263,12 +263,14 @@
     /* 次の試合パネル */
     .match-next-panel {
       background: var(--dark); color: #fff;
-      display: grid; grid-template-columns: 280px 1fr 200px;
+      display: grid; grid-template-columns: 280px 1fr;
       gap: 0; margin-bottom: 26px;
     }
     #match-next-inner { display: contents; }
     .nm-left { padding: 34px 32px; border-right: 1px solid #23232a; }
+    .nm-badge-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .nm-badge { display: inline-block; background: var(--main-color); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 2px; padding: 5px 11px; }
+    .nm-cat { display: inline-block; border: 1px solid var(--main-color); color: #9fe870; font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; padding: 4px 10px; }
     .nm-comp { margin-top: 18px; color: #9a9aa2; font-size: 13px; font-weight: 500; }
     .nm-date-row { margin-top: 10px; display: flex; align-items: baseline; gap: 10px; }
     .nm-date-num { font-family: 'Anton', sans-serif; font-size: 36px; line-height: 1; letter-spacing: 1px; }
@@ -292,16 +294,6 @@
     }
     .nm-team-name { margin-top: 14px; font-weight: 900; font-size: 15px; letter-spacing: 1px; }
     .nm-vs { font-family: 'Anton', sans-serif; font-size: 34px; color: #3a3a42; font-style: italic; }
-    .nm-right {
-      padding: 34px 28px; display: flex; flex-direction: column;
-      justify-content: center; gap: 10px;
-      border-left: 1px solid #23232a;
-    }
-    .nm-btn {
-      text-align: center; font-size: 13px; font-weight: 700;
-      letter-spacing: 1px; padding: 13px; border-radius: 2px;
-    }
-    .nm-btn-dark  { border: 1px solid #34343d; color: #fff; }
 
     /* 結果リスト */
     .results-panel { background: #fff; border: 1px solid #e4e3de; }
@@ -648,7 +640,6 @@
       .match-head-row { flex-direction: column; align-items: flex-start; }
       .match-next-panel { grid-template-columns: 1fr; }
       .nm-left  { border-right: none; border-bottom: 1px solid #23232a; }
-      .nm-right { border-left: none; border-top: 1px solid #23232a; flex-direction: row; }
       .result-row { grid-template-columns: 60px 1fr 110px 1fr 40px; gap: 10px; }
 
       .news-row { grid-template-columns: 90px 1fr; gap: 8px; }
@@ -1016,9 +1007,6 @@
             <div class="nm-comp">読み込み中...</div>
           </div>
           <div class="nm-center" style="color:#9a9aa2;font-size:14px;">データを取得中</div>
-          <div class="nm-right">
-            <a href="results.html" class="nm-btn nm-btn-dark">試合詳細</a>
-          </div>
         </div>
       </div>
     </div>
