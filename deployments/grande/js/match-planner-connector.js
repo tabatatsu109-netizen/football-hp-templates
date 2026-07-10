@@ -40,6 +40,7 @@ const AuroraConnector = (function () {
     allSchedules: [],
     allNews: [],
     visibleNews: [],
+    visibleResults: [],
   };
 
   // ── ユーティリティ ──────────────────────────────────────
@@ -309,11 +310,12 @@ const AuroraConnector = (function () {
       return;
     }
 
-    var html = results.map(function (m) {
+    state.visibleResults = results;
+    var html = results.map(function (m, i) {
       var rs = m.result.resultStr || '';
       var rc = resultClass(rs);
       var rl = resultLetter(rs);
-      return '<div class="result-row">' +
+      return '<div class="result-row" style="cursor:pointer" onclick="AuroraConnector.openMatchDetail(' + i + ')">' +
         '<span class="result-date">' + escapeHTML(m.date ? m.date.slice(5).replace('-', '.') : '') + '</span>' +
         '<span class="result-home">' + escapeHTML(clubName) + '</span>' +
         '<span class="result-score">' +
@@ -327,6 +329,68 @@ const AuroraConnector = (function () {
     }).join('');
 
     setHTML('results-list', html);
+  }
+
+  // ── 試合詳細（既存のニュース詳細モーダルを流用して表示）────
+  function findLinkedPost(m) {
+    var r = m.result || {};
+    var posts = state.allNews || [];
+    var found = null;
+    if (r.grandeNewsId) {
+      found = posts.filter(function (p) { return p && p.id === r.grandeNewsId; })[0];
+    }
+    if (!found && m.opponent) {
+      found = posts.filter(function (p) {
+        return p && p.type === '試合結果' && p.date === m.date && String(p.title || '').indexOf(m.opponent) >= 0;
+      })[0];
+    }
+    return found || null;
+  }
+
+  function openMatchDetail(idx) {
+    var m = state.visibleResults && state.visibleResults[idx];
+    if (!m || !m.result) return;
+    var overlay = document.getElementById('news-detail-overlay');
+    if (!overlay) return;
+    var r = m.result;
+    var post = findLinkedPost(m);
+    var clubName = state.config && state.config.club
+      ? (state.config.club.nickname || state.config.club.shortName || state.config.club.name || '')
+      : '';
+
+    var rl = resultLetter(r.resultStr || '');
+    var tagColor = rl === 'WIN' ? '#1f8a4c' : rl === 'LOSE' ? '#d24b52' : '#86868f';
+    var tagEl = document.getElementById('news-detail-tag');
+    if (tagEl) { tagEl.textContent = rl; tagEl.style.color = tagColor; tagEl.style.borderColor = tagColor; }
+    setText('news-detail-date', formatDate(m.date));
+    setText('news-detail-title', clubName + ' ' + r.myScore + ' - ' + r.oppScore + ' ' + (m.opponent || ''));
+
+    var lines = [];
+    var comp = m.competition || m.competitionName || m.type || '';
+    if (comp) lines.push('🏆 ' + comp);
+    if (m.venue) lines.push('📍 ' + m.venue);
+    if (m.time) lines.push('⏰ ' + m.time + ' キックオフ');
+    var scorers = [];
+    if (post && Array.isArray(post.scorers) && post.scorers.length) {
+      scorers = post.scorers.map(function (s) { return s.name + (s.goals > 1 ? ' ×' + s.goals : ''); });
+    } else if (Array.isArray(r.goals)) {
+      var count = {};
+      r.goals.forEach(function (g) { if (g.scorer) count[g.scorer] = (count[g.scorer] || 0) + 1; });
+      scorers = Object.keys(count).map(function (k) { return k + (count[k] > 1 ? ' ×' + count[k] : ''); });
+    }
+    if (scorers.length) lines.push('⚽ 得点者：' + scorers.join('、'));
+    var body = lines.join('\n');
+    if (post && post.body) body += (body ? '\n\n' : '') + post.body;
+    var bodyEl = document.getElementById('news-detail-body');
+    if (bodyEl) bodyEl.textContent = body;
+
+    var imgEl = document.getElementById('news-detail-image');
+    var imgSrc = r.imageUrl || (post && post.image) || '';
+    if (imgEl) {
+      if (imgSrc) { imgEl.src = imgSrc; imgEl.classList.add('show'); }
+      else { imgEl.removeAttribute('src'); imgEl.classList.remove('show'); }
+    }
+    overlay.classList.add('open');
   }
 
   // ── ニュース描画 ────────────────────────────────────────
@@ -477,7 +541,7 @@ const AuroraConnector = (function () {
     }
   }
 
-  return { init: init, openNewsDetail: openNewsDetail, closeNewsDetail: closeNewsDetail };
+  return { init: init, openNewsDetail: openNewsDetail, closeNewsDetail: closeNewsDetail, openMatchDetail: openMatchDetail };
 
 })();
 
