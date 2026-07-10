@@ -213,6 +213,15 @@ function loadLocal() {
   opponents = JSON.parse(localStorage.getItem(`${p}opponents`) || '[]');
   surveys   = JSON.parse(localStorage.getItem(`${p}surveys`)   || '[]');
 }
+// 運用開始リセットの印。クラウドにも保存して全端末に「削除済み」を伝える。
+// これが無いと、古いデータを持った端末が保存した時に削除済みデータが復活してしまう
+function getResetStamp() {
+  return parseInt(localStorage.getItem(`${getLocalPrefix()}resetStamp`) || '0', 10) || 0;
+}
+function setResetStamp(v) {
+  localStorage.setItem(`${getLocalPrefix()}resetStamp`, String(v));
+}
+
 function saveLocal() {
   const p = getLocalPrefix();
   localStorage.setItem(`${p}players`,   JSON.stringify(players));
@@ -235,7 +244,7 @@ function scheduleCloudSave() {
       const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
+        body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSyncIcon('☁️');
@@ -254,6 +263,35 @@ function saveCurrentMatch() {
 }
 
 // ===== CLOUD =====
+// クラウドから取得したデータをローカルへ適用する。
+// resetStamp（運用開始リセットの印）を比較して削除が全端末へ確実に伝わるようにする：
+//  - クラウドの印が新しい → この端末はリセット未適用 → クラウドの状態をそのまま採用
+//  - ローカルの印が新しい → 古い端末がリセット前のデータを書き戻した状態 → 取り込まず正しい状態を再送
+function applyCloudData(r) {
+  const cloudStamp = r.resetStamp || 0;
+  const localStamp = getResetStamp();
+
+  if (r.players)   players   = r.players;
+  if (r.opponents) opponents = r.opponents;
+  if (r.surveys)   surveys   = r.surveys;
+
+  if (cloudStamp > localStamp) {
+    matches   = Array.isArray(r.matches)   ? r.matches   : [];
+    schedules = Array.isArray(r.schedules) ? r.schedules : [];
+    posts     = Array.isArray(r.posts)     ? r.posts     : [];
+    currentMatch = null;
+    selectedAnnSchedId = null;
+    setResetStamp(cloudStamp);
+  } else if (cloudStamp === localStamp) {
+    if (r.matches)   matches   = r.matches;
+    if (r.schedules) schedules = r.schedules;
+    if (r.posts)     posts     = r.posts;
+  }
+  // cloudStamp < localStamp の場合は試合・投稿・予定を取り込まない
+  // （下の saveLocal → クラウド保存で正しい状態と印を書き戻して修復する）
+  saveLocal();
+}
+
 async function loadFromCloud() {
   const s = getSettings();
   if (!isCloudConfigured(s)) { showToast('設定でFirebase URLとシークレットを設定してください', 'error'); return; }
@@ -262,13 +300,7 @@ async function loadFromCloud() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const r = await res.json() || {};
-    if (r.players)   players   = r.players;
-    if (r.matches)   matches   = r.matches;
-    if (r.schedules) schedules = r.schedules;
-    if (r.posts)     posts     = r.posts;
-    if (r.opponents) opponents = r.opponents;
-    if (r.surveys)   surveys   = r.surveys;
-    saveLocal();
+    applyCloudData(r);
     setSyncIcon('☁️');
     setSyncTime();
     showToast('クラウドから読み込みました', 'success');
@@ -286,7 +318,7 @@ async function saveToCloud() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -310,13 +342,7 @@ async function autoSync() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`);
     if (!res.ok) return;
     const r = await res.json() || {};
-    if (r.players)   players   = r.players;
-    if (r.matches)   matches   = r.matches;
-    if (r.schedules) schedules = r.schedules;
-    if (r.posts)     posts     = r.posts;
-    if (r.opponents) opponents = r.opponents;
-    if (r.surveys)   surveys   = r.surveys;
-    saveLocal();
+    applyCloudData(r);
     setSyncIcon('☁️');
     setSyncTime();
     renderCurrentPage();
@@ -1339,7 +1365,7 @@ async function publishToHP() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -1369,7 +1395,7 @@ async function unpublish() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -2006,7 +2032,7 @@ async function sendPost() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -2040,7 +2066,7 @@ async function deletePost(id) {
         await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
+          body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
         });
       } catch(e) { /* silent */ }
     }
@@ -2246,7 +2272,7 @@ async function postAnnouncement() {
     const res = await fetch(`${getFirebaseUrl(sconf)}.json?auth=${sconf.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -2874,6 +2900,8 @@ function resetOperationalData() {
   schedules = [];
   currentMatch = null;
   selectedAnnSchedId = null;
+  // リセット印を更新 → クラウド経由で全端末に削除が伝わる（古い端末からの復活を防ぐ）
+  setResetStamp(Date.now());
   saveLocal();
   renderCurrentPage();
   showToast(`${summary} を削除しました。数秒後にホームページへ反映されます`, 'success');
