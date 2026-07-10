@@ -2076,6 +2076,7 @@ function renderAnnouncement() {
   }
 }
 function selectAnnSched(id) {
+  if (selectedAnnSchedId !== id) announcementSnsImage = '';
   selectedAnnSchedId = id;
   document.querySelectorAll('.ann-sched-item').forEach(el => {
     el.classList.toggle('selected', el.onclick?.toString().includes(id));
@@ -2131,6 +2132,21 @@ function renderAnnInfoCard(sc) {
   if (sc.competition) rows.push(`<div class="ann-info-row">🏆 ${sc.competition}</div>`);
   if (sc.category) rows.push(`<div class="ann-info-row"><span class="chip ${getCatBadgeClass(sc.category)}">${sc.category}</span></div>`);
   el.innerHTML = rows.length > 0 ? `<div class="ann-info-card">${rows.join('')}</div>` : '';
+}
+function renderAnnSnsStatus(sc) {
+  const slot = document.getElementById('ann-sns-slot');
+  if (!slot) return;
+  let statusEl = document.getElementById('ann-sns-status');
+  if (!statusEl) {
+    statusEl = document.createElement('div');
+    statusEl.id = 'ann-sns-status';
+    statusEl.className = 'ann-sns-status';
+    slot.appendChild(statusEl);
+  }
+  statusEl.innerHTML = announcementSnsImage
+    ? `<img src="${announcementSnsImage}" class="ann-sns-status-thumb" alt="">
+       <span class="ann-sns-status-text ann-sns-status-set">画像：設定済み</span>`
+    : `<span class="ann-sns-status-text ann-sns-status-none">画像：未設定</span>`;
 }
 function generateAnnBase(sc, extraMsg) {
   const s = getSettings();
@@ -3532,6 +3548,11 @@ function snsSetThumb() {
   } else if (snsOrigin === 'schedule') {
     announcementSnsImage = lastSnsThumb;
     showToast('告知記事の画像に設定しました', 'success');
+    const sc = schedules.find(s => s.id === selectedAnnSchedId);
+    if (sc) {
+      renderAnnSnsStatus(sc);
+      snsEnsureCtaButton(document.getElementById('ann-sns-slot'), 'btn-ann-sns', '📸 画像を変更する', '', () => openSnsFromSchedule(sc));
+    }
   } else {
     showToast('画像を保存しました', 'info');
   }
@@ -3585,10 +3606,11 @@ selectAnnSched = function (id) {
     const sc = schedules.find(s => s.id === id);
     if (!sc) return;
     snsEnsureCtaButton(
-      document.getElementById('ann-content-area'),
-      'btn-ann-sns', '📸 この試合のSNS画像を作成', '',
+      document.getElementById('ann-sns-slot'),
+      'btn-ann-sns', announcementSnsImage ? '📸 画像を変更する' : '📸 この試合のSNS画像を作成', '',
       () => openSnsFromSchedule(sc)
     );
+    renderAnnSnsStatus(sc);
   } catch (e) { console.error('SNS CTA(ann) error:', e); }
 };
 

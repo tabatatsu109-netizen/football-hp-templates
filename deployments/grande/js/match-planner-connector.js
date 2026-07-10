@@ -201,13 +201,16 @@ const AuroraConnector = (function () {
     if (!container) return;
 
     var panel = container.parentElement;
+    var section = panel && panel.closest('.next-match-section');
 
     if (!next) {
       if (panel) panel.style.display = 'none';
+      if (section) section.style.display = 'none';
       return;
     }
 
     if (panel) panel.style.display = '';
+    if (section) section.style.display = '';
 
     var dateDisp = next.date ? next.date.replace(/-/g, '.') : '';
     var day = dayLabel(next.date);

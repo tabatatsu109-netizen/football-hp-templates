@@ -888,6 +888,12 @@ img { max-width: 100%; display: block; }
 .sns-cta-wrap { padding: 14px 0 4px; }
 .sns-result-cta-note { font-size: 11.5px; color: var(--c-muted); margin-top: 8px; text-align: center; }
 
+.ann-sns-status { display: flex; align-items: center; gap: 8px; padding: 6px 0 0; }
+.ann-sns-status-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--c-border); }
+.ann-sns-status-text { font-size: 12.5px; font-weight: 700; }
+.ann-sns-status-set { color: var(--c-accent, #4caf50); }
+.ann-sns-status-none { color: var(--c-muted); }
+
 /* ── キャンバス共通（1080×1080 実寸／プレビューはscale縮小） ── */
 .sns-canvas {
   width: 1080px; height: 1080px;

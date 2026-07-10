@@ -236,6 +236,10 @@
     .pillar-title { margin: 14px 0 10px 0; color: #fff; font-size: 21px; font-weight: 900; letter-spacing: 1px; }
     .pillar-body { margin: 0; color: #9a9aa2; font-size: 14px; line-height: 1.85; }
 
+    /* ── ネクストマッチ（ヒーロー直下） ───────────────────── */
+    .next-match-section { background: var(--light); padding: 46px 24px; }
+    .next-match-inner { max-width: 1240px; margin: 0 auto; }
+
     /* ── 試合・結果 ───────────────────────────────────── */
     .match-section { background: var(--light); padding: 80px 24px; }
     .match-inner { max-width: 1240px; margin: 0 auto; }
@@ -1006,6 +1010,25 @@
     </div>
   </section>
 
+  <!-- ネクストマッチ -->
+  <section id="next-match" class="next-match-section">
+    <div class="next-match-inner">
+      <div class="match-next-panel">
+        <div id="match-next-inner">
+          <div class="nm-left">
+            <div class="nm-badge">NEXT MATCH</div>
+            <div class="nm-comp">読み込み中...</div>
+          </div>
+          <div class="nm-center" style="color:#9a9aa2;font-size:14px;">データを取得中</div>
+          <div class="nm-right">
+            <a href="contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>
+            <a href="results.html" class="nm-btn nm-btn-dark">試合詳細</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 育成方針 -->
   <section id="philosophy" class="philosophy">
     <div class="section-head">
@@ -1027,20 +1050,6 @@
           <h2 class="section-ja-dark">試合結果</h2>
         </div>
         <div id="tab-buttons"></div>
-      </div>
-
-      <div class="match-next-panel">
-        <div id="match-next-inner">
-          <div class="nm-left">
-            <div class="nm-badge">NEXT MATCH</div>
-            <div class="nm-comp">読み込み中...</div>
-          </div>
-          <div class="nm-center" style="color:#9a9aa2;font-size:14px;">データを取得中</div>
-          <div class="nm-right">
-            <a href="contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>
-            <a href="results.html" class="nm-btn nm-btn-dark">試合詳細</a>
-          </div>
-        </div>
       </div>
 
       <div class="results-panel">
