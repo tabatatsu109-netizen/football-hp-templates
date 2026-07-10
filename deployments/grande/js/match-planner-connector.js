@@ -173,10 +173,6 @@ const AuroraConnector = (function () {
       if (!m.category) return true;
       return normCat(m.category) === normCat(cat);
     });
-    var schedules = (state.allSchedules || []).filter(function (sc) {
-      if (!sc.category) return true;
-      return normCat(sc.category) === normCat(cat);
-    });
 
     setText('active-cat', cat);
 
@@ -190,7 +186,6 @@ const AuroraConnector = (function () {
     }
     setText('active-comp', compName);
 
-    renderNextMatch(matches, schedules);
     renderResults(matches);
   }
 
@@ -454,6 +449,9 @@ const AuroraConnector = (function () {
         }
       }
     }
+    // ネクストマッチはヒーロー直下の独立セクションで、カテゴリータブとは連動しないため
+    // 全カテゴリー横断で一番近い試合を表示する
+    renderNextMatch(state.allMatches, state.allSchedules);
     renderMatchSection();
 
     // ニュースデータ
