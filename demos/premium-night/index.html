@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAMPLE FOOTBALL CLUB 公式サイト — PREMIUM DEMO "NIGHT GAME"</title>
+<meta name="description" content="SAMPLE FOOTBALL CLUBの公式サイト（プレミアムプラン デザインデモ）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,700;0,900;1,900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --lime: #c8ff00;
+  --bg: #08080a;
+  --bg2: #0e0e12;
+  --card: #131318;
+  --border: #26262e;
+  --text: #f4f4f6;
+  --sub: #9a9aa4;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.8; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; }
+
+/* header */
+.hd { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; gap: 18px; padding: 0 22px; height: 64px; background: linear-gradient(180deg, rgba(8,8,10,.92), rgba(8,8,10,.75)); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(200,255,0,.14); }
+.hd-logo { display: flex; align-items: center; gap: 10px; font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 17px; letter-spacing: .5px; }
+.hd-logo img { width: 34px; height: 34px; object-fit: contain; }
+.hd-nav { display: none; gap: 22px; margin-left: 10px; font-size: 13px; font-weight: 700; color: var(--sub); }
+.hd-nav a:hover { color: var(--lime); }
+.hd-cta { margin-left: auto; background: var(--lime); color: #0a0a0a; font-weight: 900; font-size: 12.5px; padding: 9px 18px; clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+@media (min-width: 900px) { .hd-nav { display: flex; } }
+
+/* hero */
+.hero { position: relative; min-height: 92vh; display: flex; align-items: flex-end; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; background: url('img/hero.jpg') center/cover; filter: saturate(.85) brightness(.85); }
+.hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,8,10,.55) 0%, rgba(8,8,10,.25) 40%, rgba(8,8,10,.95) 92%); }
+.hero-glow { position: absolute; left: -10%; bottom: -20%; width: 70%; height: 60%; background: radial-gradient(ellipse at center, rgba(200,255,0,.18), transparent 65%); pointer-events: none; }
+.hero-in { position: relative; z-index: 2; width: 100%; max-width: 1160px; margin: 0 auto; padding: 0 22px 96px; }
+.hero-eyebrow { display: inline-block; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .35em; color: var(--lime); border: 1px solid rgba(200,255,0,.4); padding: 6px 14px; margin-bottom: 22px; }
+.hero-title { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: clamp(44px, 9vw, 104px); line-height: .95; letter-spacing: -1px; text-transform: uppercase; }
+.hero-title em { font-style: italic; color: transparent; -webkit-text-stroke: 2px var(--lime); }
+.hero-jp { margin-top: 18px; font-size: clamp(15px, 2.4vw, 20px); font-weight: 700; color: #d9d9de; }
+.hero-btns { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-lime { background: var(--lime); color: #0a0a0a; font-weight: 900; font-size: 14px; padding: 15px 34px; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.btn-ghost { border: 1px solid var(--border); color: var(--text); font-weight: 700; font-size: 14px; padding: 15px 30px; background: rgba(19,19,24,.5); }
+
+/* ticker */
+.ticker { position: absolute; bottom: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; background: var(--lime); color: #0a0a0a; height: 44px; overflow: hidden; }
+.ticker-label { flex: none; font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 13px; letter-spacing: .15em; padding: 0 18px; background: #0a0a0a; color: var(--lime); height: 100%; display: flex; align-items: center; }
+.ticker-scroll { flex: 1; overflow: hidden; white-space: nowrap; }
+#pm-ticker { display: inline-block; padding-left: 100%; animation: tick 26s linear infinite; font-weight: 700; font-size: 13px; }
+.pm-ticker-item { margin-right: 48px; }
+@keyframes tick { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+
+/* sections */
+.sec { padding: 84px 22px; }
+.sec-in { max-width: 1160px; margin: 0 auto; }
+.sec-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 36px; flex-wrap: wrap; }
+.sec-en { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: clamp(30px, 5vw, 52px); text-transform: uppercase; letter-spacing: -.5px; }
+.sec-en.stroke { color: transparent; -webkit-text-stroke: 1.5px var(--lime); }
+.sec-ja { color: var(--sub); font-size: 13px; font-weight: 700; letter-spacing: .2em; }
+.pm-nodata { color: var(--sub); font-size: 14px; padding: 18px 0; }
+
+/* reveal */
+.pm-reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+.pm-reveal.shown { opacity: 1; transform: none; }
+
+/* next match */
+.nm { border: 1px solid var(--border); background: linear-gradient(120deg, var(--card) 60%, rgba(200,255,0,.06)); display: flex; align-items: center; gap: 26px; padding: 26px 30px; flex-wrap: wrap; position: relative; overflow: hidden; }
+.nm::before { content: 'NEXT'; position: absolute; right: -10px; bottom: -34px; font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 120px; color: rgba(200,255,0,.06); letter-spacing: -2px; pointer-events: none; }
+.nm-date { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 40px; line-height: 1; }
+.nm-day { color: var(--lime); font-size: 15px; font-family: 'Archivo', sans-serif; font-weight: 700; margin-left: 8px; }
+.nm-opp { font-size: 20px; font-weight: 900; }
+.nm-opp::before { content: 'vs '; color: var(--lime); font-family: 'Archivo', sans-serif; font-style: italic; }
+.nm-meta { color: var(--sub); font-size: 12.5px; width: 100%; }
+
+/* news */
+.pm-news-row { display: grid; grid-template-columns: 86px auto 1fr auto; gap: 14px; align-items: center; padding: 17px 6px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .15s, padding-left .15s; }
+.pm-news-row:hover { background: rgba(200,255,0,.05); padding-left: 14px; }
+.pm-news-date { font-family: 'Archivo', sans-serif; font-size: 13px; color: var(--sub); }
+.pm-news-tag { font-size: 10.5px; font-weight: 700; color: var(--lime); border: 1px solid rgba(200,255,0,.45); padding: 3px 9px; white-space: nowrap; }
+.pm-news-title { font-size: 14.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pm-news-arrow { color: var(--lime); }
+
+/* results */
+.pm-result-row { display: grid; grid-template-columns: 70px auto 1fr auto; gap: 16px; align-items: center; padding: 18px 20px; background: var(--card); border: 1px solid var(--border); margin-bottom: 10px; cursor: pointer; transition: border-color .15s, transform .15s; }
+.pm-result-row:hover { border-color: rgba(200,255,0,.5); transform: translateX(4px); }
+.pm-result-date { font-family: 'Archivo', sans-serif; font-size: 13px; color: var(--sub); }
+.pm-result-score b { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 26px; }
+.pm-result-score i { font-style: normal; color: var(--sub); margin: 0 8px; }
+.pm-result-opp { font-weight: 700; font-size: 14.5px; }
+.pm-result-badge { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 12px; letter-spacing: .1em; padding: 6px 12px 5px; }
+.pm-win { background: var(--lime); color: #0a0a0a; }
+.pm-draw { border: 1px solid var(--border); color: var(--sub); }
+.pm-lose { border: 1px solid #ff5468; color: #ff5468; }
+
+/* players */
+#pm-players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.pm-player-card { position: relative; background: var(--card); border: 1px solid var(--border); cursor: pointer; overflow: hidden; transition: border-color .15s, transform .15s; padding-bottom: 14px; }
+.pm-player-card:hover { border-color: rgba(200,255,0,.55); transform: translateY(-4px); }
+.pm-player-photo { aspect-ratio: 3/3.4; background: #1a1a20; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.pm-player-photo img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.25); transition: filter .2s, transform .3s; }
+.pm-player-card:hover .pm-player-photo img { filter: none; transform: scale(1.05); }
+.pm-player-ph { font-family: 'Archivo', sans-serif; font-size: 40px; color: #33333c; }
+.pm-player-num { position: absolute; top: 6px; left: 10px; font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 30px; color: var(--lime); text-shadow: 0 2px 8px rgba(0,0,0,.7); }
+.pm-player-name { font-weight: 900; font-size: 14px; padding: 10px 12px 0; }
+.pm-player-roman { font-family: 'Archivo', sans-serif; font-size: 10px; letter-spacing: .12em; color: var(--sub); padding: 2px 12px 0; text-transform: uppercase; }
+
+/* premium features: shop / members */
+.feature-grid { display: grid; gap: 18px; }
+@media (min-width: 820px) { .feature-grid { grid-template-columns: 1fr 1fr; } }
+.feature-card { position: relative; border: 1px solid var(--border); background: var(--card); padding: 40px 34px; overflow: hidden; }
+.feature-card::after { content: ''; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; background: radial-gradient(circle, rgba(200,255,0,.15), transparent 70%); }
+.feature-en { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 13px; letter-spacing: .25em; color: var(--lime); }
+.feature-title { font-size: 24px; font-weight: 900; margin: 10px 0 12px; }
+.feature-desc { color: var(--sub); font-size: 13.5px; margin-bottom: 24px; }
+.feature-btn { display: inline-block; border: 1px solid var(--lime); color: var(--lime); font-weight: 700; font-size: 13px; padding: 12px 26px; transition: background .15s, color .15s; }
+.feature-btn:hover { background: var(--lime); color: #0a0a0a; }
+
+/* join */
+.join { background: var(--lime); color: #0a0a0a; text-align: center; padding: 76px 22px; clip-path: polygon(0 0, 100% 26px, 100% 100%, 0 100%); }
+.join-title { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: clamp(28px, 5vw, 46px); text-transform: uppercase; }
+.join-sub { font-weight: 700; margin: 10px 0 26px; }
+.join-btn { display: inline-block; background: #0a0a0a; color: var(--lime); font-weight: 900; font-size: 15px; padding: 16px 42px; }
+
+/* footer */
+.ft { padding: 46px 22px 30px; border-top: 1px solid var(--border); }
+.ft-in { max-width: 1160px; margin: 0 auto; }
+.ft-name { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 18px; }
+.ft-copy { color: var(--sub); font-size: 11px; margin-top: 16px; letter-spacing: .08em; }
+
+/* modals */
+.pm-overlay { display: none; position: fixed; inset: 0; z-index: 900; background: rgba(4,4,6,.8); align-items: center; justify-content: center; padding: 20px; }
+.pm-overlay.open { display: flex; }
+.pm-panel { background: var(--card); border: 1px solid var(--border); max-width: 620px; width: 100%; max-height: 88vh; overflow-y: auto; position: relative; }
+.pm-close { position: absolute; top: 12px; right: 12px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; font-size: 19px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer; }
+.pm-detail-image { width: 100%; max-height: 320px; object-fit: cover; display: none; }
+.pm-detail-image.show { display: block; }
+.pm-detail-meta { display: flex; gap: 12px; align-items: center; padding: 22px 26px 0; }
+#pm-detail-tag { font-size: 11px; font-weight: 700; color: var(--lime); border: 1px solid rgba(200,255,0,.45); padding: 4px 10px; }
+#pm-detail-date { font-family: 'Archivo', sans-serif; font-size: 13px; color: var(--sub); }
+#pm-detail-title { font-size: 20px; font-weight: 900; padding: 12px 26px 0; line-height: 1.5; }
+#pm-detail-body { color: #c9c9d1; font-size: 14.5px; line-height: 1.9; padding: 14px 26px 30px; white-space: pre-wrap; }
+
+/* player modal */
+.pm-pd { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .pm-pd { grid-template-columns: 260px 1fr; } }
+#pm-pd-photo { width: 100%; height: 100%; min-height: 260px; object-fit: cover; object-position: top; background: #1a1a20; }
+.pm-pd-info { padding: 30px 28px; position: relative; }
+#pm-pd-num { font-family: 'Archivo', sans-serif; font-weight: 900; font-style: italic; font-size: 78px; line-height: 1; color: transparent; -webkit-text-stroke: 2px var(--lime); }
+#pm-pd-pos { display: inline-block; background: var(--lime); color: #0a0a0a; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 12px; letter-spacing: .15em; padding: 4px 12px; margin: 10px 0; }
+#pm-pd-name { font-size: 26px; font-weight: 900; }
+#pm-pd-roman { font-family: 'Archivo', sans-serif; font-size: 12px; letter-spacing: .2em; color: var(--sub); text-transform: uppercase; margin-bottom: 12px; }
+#pm-pd-grade { color: var(--sub); font-size: 13px; }
+#pm-pd-profile { margin-top: 12px; color: #c9c9d1; font-size: 13.5px; line-height: 1.9; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <a class="hd-logo" href="#top"><img src="img/logo.png" alt="">SAMPLE FC</a>
+  <nav class="hd-nav">
+    <a href="#news">NEWS</a>
+    <a href="#match">MATCH</a>
+    <a href="#players">PLAYERS</a>
+    <a href="#club">CLUB</a>
+    <a href="members.html">MEMBERS</a>
+  </nav>
+  <a class="hd-cta" href="https://forms.gle/sample-demo">無料体験</a>
+</header>
+
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-in">
+    <span class="hero-eyebrow">SAMPLE FOOTBALL CLUB — OFFICIAL</span>
+    <h1 class="hero-title">LIGHT UP<br><em>THE NIGHT</em></h1>
+    <p class="hero-jp">その一歩が、未来を変える。— サッカーで、人を育てる。</p>
+    <div class="hero-btns">
+      <a class="btn-lime" href="https://forms.gle/sample-demo">無料体験に申し込む</a>
+      <a class="btn-ghost" href="#news">最新情報を見る</a>
+    </div>
+  </div>
+  <div class="ticker">
+    <span class="ticker-label">NEWS</span>
+    <div class="ticker-scroll"><div id="pm-ticker">LOADING...</div></div>
+  </div>
+</section>
+
+<section class="sec" id="match">
+  <div class="sec-in">
+    <div class="sec-head pm-reveal"><span class="sec-en">NEXT MATCH</span><span class="sec-ja">次の試合</span></div>
+    <div class="nm pm-reveal" id="pm-next-match" style="display:none">
+      <div><span class="nm-date" id="pm-nm-date"></span><span class="nm-day" id="pm-nm-day"></span></div>
+      <div class="nm-opp" id="pm-nm-opp"></div>
+      <div class="nm-meta" id="pm-nm-meta"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="news" style="padding-top:0">
+  <div class="sec-in">
+    <div class="sec-head pm-reveal"><span class="sec-en stroke">NEWS</span><span class="sec-ja">お知らせ</span></div>
+    <div id="pm-news-list" class="pm-reveal"><p class="pm-nodata">読み込み中...</p></div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="sec-in">
+    <div class="sec-head pm-reveal"><span class="sec-en">RESULTS</span><span class="sec-ja">試合結果</span></div>
+    <div id="pm-results-list" class="pm-reveal"><p class="pm-nodata">読み込み中...</p></div>
+  </div>
+</section>
+
+<section class="sec" id="players" style="padding-top:0">
+  <div class="sec-in">
+    <div class="sec-head pm-reveal"><span class="sec-en stroke">SQUAD</span><span class="sec-ja">選手 — クリックでプロフィール</span></div>
+    <div id="pm-players-grid" class="pm-reveal"><p class="pm-nodata">読み込み中...</p></div>
+  </div>
+</section>
+
+<section class="sec" id="club" style="padding-top:0">
+  <div class="sec-in">
+    <div class="sec-head pm-reveal"><span class="sec-en">CLUB SERVICE</span><span class="sec-ja">クラブ専用機能（プレミアム）</span></div>
+    <div class="feature-grid">
+      <div class="feature-card pm-reveal">
+        <div class="feature-en">MEMBERS ONLY</div>
+        <div class="feature-title">クラブ員専用ページ</div>
+        <div class="feature-desc">練習カレンダー・チーム資料・限定動画など、クラブ員だけが見られる専用エリア。</div>
+        <a class="feature-btn" href="members.html">ログインして見る →</a>
+      </div>
+      <div class="feature-card pm-reveal">
+        <div class="feature-en">OFFICIAL GOODS</div>
+        <div class="feature-title">アイテムショップ</div>
+        <div class="feature-desc">ユニフォーム・タオル・応援グッズをオンラインで。クラブ運営の収益にも。</div>
+        <a class="feature-btn" href="#" onclick="alert('デモのためショップはダミーです'); return false;">ショップへ進む →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="join" id="join">
+  <div class="join-title">JOIN THE CLUB</div>
+  <p class="join-sub">体験練習 随時受付中！まずはお気軽にご連絡ください。</p>
+  <a class="join-btn" href="https://forms.gle/sample-demo">無料体験に申し込む</a>
+</section>
+
+<footer class="ft">
+  <div class="ft-in">
+    <div class="ft-name">SAMPLE FOOTBALL CLUB</div>
+    <p class="ft-copy">© 2026 SAMPLE FC. ALL RIGHTS RESERVED. — PREMIUM PLAN DESIGN DEMO "NIGHT GAME"</p>
+  </div>
+</footer>
+
+<!-- 詳細モーダル（ニュース・試合共通） -->
+<div class="pm-overlay" id="pm-detail-overlay">
+  <div class="pm-panel">
+    <button type="button" class="pm-close" aria-label="閉じる">×</button>
+    <img id="pm-detail-image" class="pm-detail-image" alt="">
+    <div class="pm-detail-meta"><span id="pm-detail-tag"></span><span id="pm-detail-date"></span></div>
+    <h2 id="pm-detail-title"></h2>
+    <div id="pm-detail-body"></div>
+  </div>
+</div>
+
+<!-- 選手プロフィールモーダル -->
+<div class="pm-overlay" id="pm-player-overlay">
+  <div class="pm-panel">
+    <button type="button" class="pm-close" aria-label="閉じる">×</button>
+    <div class="pm-pd">
+      <img id="pm-pd-photo" alt="">
+      <div class="pm-pd-info">
+        <div id="pm-pd-num"></div>
+        <span id="pm-pd-pos"></span>
+        <div id="pm-pd-name"></div>
+        <div id="pm-pd-roman"></div>
+        <div id="pm-pd-grade"></div>
+        <div id="pm-pd-profile"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PREMIUM_CONFIG = {
+  clubName: 'SAMPLE FC',
+  clubNameFull: 'SAMPLE FOOTBALL CLUB',
+  firebaseUrl: 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app',
+  clubId: 'sample-fc',
+};
+</script>
+<script src="js/premium.js"></script>
+</body>
+</html>

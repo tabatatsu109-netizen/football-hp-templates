@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ニュース — SAMPLE FOOTBALL CLUB</title>
+<meta name="description" content="SAMPLE FOOTBALL CLUB の最新ニュース・お知らせ一覧。">
+<meta property="og:title" content="ニュース — SAMPLE FOOTBALL CLUB">
+<meta property="og:description" content="SAMPLE FOOTBALL CLUB の最新ニュース・お知らせ一覧。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="news">
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="header-logo">
+      <div class="logo-initial" id="header-logo-icon"></div>
+      <span data-club-name></span>
+    </a>
+    <nav class="header-nav">
+      <a href="news.html" style="color:var(--c-primary)">ニュース</a>
+      <a href="index.html#match">試合結果</a>
+      <a href="players.html">選手紹介</a>
+      <a href="index.html#join">入部案内</a>
+    </nav>
+    <a href="index.html#join" class="header-join btn-join">体験申込</a>
+    <button class="header-menu-btn" id="menu-btn" aria-label="メニュー">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<nav class="mobile-nav" id="mobile-nav">
+  <a href="news.html" onclick="closeMobileNav()">ニュース</a>
+  <a href="index.html#match" onclick="closeMobileNav()">試合結果</a>
+  <a href="players.html" onclick="closeMobileNav()">選手紹介</a>
+  <a href="index.html#join" onclick="closeMobileNav()">入部案内</a>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="section-label">NEWS</div>
+    <h1 class="page-hero-title">お知らせ</h1>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container skeleton-wrap">
+    <div id="news-full-list" data-skeleton></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo" data-club-name></div>
+      <div class="footer-copy">© 2025 <span data-club-name></span>. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+document.getElementById('header-logo-icon').textContent = HP_CONFIG.clubName[0] || 'G';
+const menuBtn = document.getElementById('menu-btn');
+const mobileNav = document.getElementById('mobile-nav');
+menuBtn.addEventListener('click', () => mobileNav.classList.toggle('open'));
+function closeMobileNav() { mobileNav.classList.remove('open'); }
+</script>
+</body>
+</html>

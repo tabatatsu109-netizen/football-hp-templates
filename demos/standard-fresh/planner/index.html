@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Match Planner — クラブ運営管理</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== App Header (mobile) ===== -->
+  <header class="app-header" id="app-header">
+    <div class="header-brand">
+      <span class="header-logo">⚽</span>
+      <div>
+        <div class="header-title">Match Planner</div>
+        <div class="header-sub" id="header-club-name"></div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon-hdr" id="btn-sync" title="最新データに更新" style="display:flex;flex-direction:column;align-items:center;gap:1px">
+        <span id="sync-icon">☁️</span>
+        <span id="sync-time" style="font-size:9px;color:var(--c-text2);line-height:1"></span>
+      </button>
+      <div class="hdr-avatar" id="hdr-avatar">G</div>
+    </div>
+  </header>
+
+  <!-- ===== Sidebar (desktop) ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-icon">⚽</span>
+      <div>
+        <div class="sidebar-app-name">Match Planner</div>
+        <div class="sidebar-app-sub">クラブ運営管理システム</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">ホームページ更新</div>
+      <div class="nav-item" data-nav="page-announcement">
+        <span class="nav-item-icon">📢</span> 試合告知
+      </div>
+      <div class="nav-item" data-nav="page-result-entry">
+        <span class="nav-item-icon">🏆</span> 試合結果
+      </div>
+      <div class="nav-item" data-nav="page-news">
+        <span class="nav-item-icon">📝</span> ニュース投稿
+      </div>
+      <div class="nav-item" data-nav="page-players">
+        <span class="nav-item-icon">👤</span> 選手・プロフィール
+      </div>
+      <div class="nav-group-label">クラブ管理</div>
+      <div class="nav-item active" data-nav="page-dashboard">
+        <span class="nav-item-icon">🏠</span> ダッシュボード
+      </div>
+      <div class="nav-item" data-nav="page-matches">
+        <span class="nav-item-icon">⚽</span> 試合管理
+      </div>
+      <div class="nav-item" data-nav="page-schedule">
+        <span class="nav-item-icon">📅</span> スケジュール
+      </div>
+      <div class="nav-item" data-nav="page-players">
+        <span class="nav-item-icon">👥</span> 選手・スタッフ
+      </div>
+      <div class="nav-item" data-nav="page-opponents">
+        <span class="nav-item-icon">🆚</span> 対戦相手マスター
+      </div>
+      <div class="nav-item" data-nav="page-survey">
+        <span class="nav-item-icon">🗳️</span> アンケート
+      </div>
+      <div class="nav-item" data-nav="page-sns">
+        <span class="nav-item-icon">📸</span> SNS画像作成
+      </div>
+      <div class="nav-item" data-nav="page-emergency">
+        <span class="nav-item-icon">🚨</span> 緊急連絡
+      </div>
+      <div class="nav-item" data-nav="page-settings">
+        <span class="nav-item-icon">⚙️</span> 設定
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-club-row">
+        <div class="sidebar-club-avatar" id="sidebar-avatar">G</div>
+        <div>
+          <div class="sidebar-club-name" id="sidebar-club-name">---</div>
+          <div class="sidebar-club-sub" id="sidebar-club-sub"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Main Content ===== -->
+  <main id="main-content">
+
+    <!-- ========== Page: Dashboard ========== -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-inner">
+
+        <!-- HP Update Center -->
+        <div class="section-block">
+          <div class="hp-update-banner" id="btn-hp-banner">
+            <div class="hp-banner-left">
+              <span class="hp-banner-icon">🌐</span>
+              <div>
+                <div class="hp-banner-title">ホームページ更新</div>
+                <div class="hp-banner-sub">タップして今すぐ更新できます</div>
+              </div>
+            </div>
+            <span class="hp-banner-link">すべて見る &rsaquo;</span>
+          </div>
+          <div class="hp-grid">
+            <!-- 試合告知 -->
+            <div class="hp-card hp-card-green" id="dash-card-ann">
+              <div class="hp-card-head">
+                <span class="hp-card-icon">📢</span>
+                <span class="hp-card-title">試合告知</span>
+              </div>
+              <div class="hp-card-desc">次の試合や大会情報をホームページに掲載</div>
+              <button class="hp-card-btn">投稿する &rsaquo;</button>
+              <div class="hp-card-stat" id="dash-ann-stat">次の試合: ---</div>
+            </div>
+            <!-- 試合結果 -->
+            <div class="hp-card hp-card-blue" id="dash-card-result">
+              <div class="hp-card-head">
+                <span class="hp-card-icon">🏆</span>
+                <span class="hp-card-title">試合結果</span>
+              </div>
+              <div class="hp-card-desc">試合結果・得点者・写真をホームページに掲載</div>
+              <button class="hp-card-btn">結果を登録 &rsaquo;</button>
+              <div class="hp-card-stat" id="dash-result-stat">未登録: ---</div>
+            </div>
+            <!-- ニュース投稿 -->
+            <div class="hp-card hp-card-purple" id="dash-card-news">
+              <div class="hp-card-head">
+                <span class="hp-card-icon">📝</span>
+                <span class="hp-card-title">ニュース投稿</span>
+              </div>
+              <div class="hp-card-desc">お知らせやイベント情報をホームページに掲載</div>
+              <button class="hp-card-btn">投稿する &rsaquo;</button>
+              <div class="hp-card-stat" id="dash-news-stat">下書き: ---</div>
+            </div>
+            <!-- 選手プロフィール -->
+            <div class="hp-card hp-card-orange" id="dash-card-player">
+              <div class="hp-card-head">
+                <span class="hp-card-icon">👤</span>
+                <span class="hp-card-title">選手・プロフィール</span>
+              </div>
+              <div class="hp-card-desc">選手・スタッフ情報や写真をホームページに反映</div>
+              <button class="hp-card-btn">更新する &rsaquo;</button>
+              <div class="hp-card-stat" id="dash-player-stat">選手数: ---</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 今日の予定 -->
+        <div class="section-block">
+          <div class="section-hdr">
+            <div class="section-title">📅 今日の予定</div>
+            <span class="section-link" id="dash-today-link">すべて見る &rsaquo;</span>
+          </div>
+          <div id="dash-today-list">
+            <div class="empty-state" style="padding:20px">
+              <div style="font-size:13px;color:var(--c-muted)">今日の予定はありません</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 次の試合 -->
+        <div class="section-block">
+          <div class="section-hdr">
+            <div class="section-title">📣 次の試合</div>
+            <span class="section-link" id="dash-next-link">すべて見る &rsaquo;</span>
+          </div>
+          <div class="card" id="dash-next-match">
+            <div class="nm-empty">スケジュールが登録されていません</div>
+          </div>
+        </div>
+
+        <!-- 最近の試合結果 -->
+        <div class="section-block">
+          <div class="section-hdr">
+            <div class="section-title">🏅 最近の試合結果</div>
+            <span class="section-link" id="dash-results-link">すべて見る &rsaquo;</span>
+          </div>
+          <div class="card" id="dash-recent-results">
+            <div class="empty-state" style="padding:20px">
+              <div style="font-size:13px;color:var(--c-muted)">試合結果はまだありません</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /page-dashboard -->
+
+    <!-- ========== Page: Schedule ========== -->
+    <div class="page" id="page-schedule">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">📅 スケジュール</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-add-schedule">+ 追加</button>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div class="filter-tabs" id="schedule-filter-tabs">
+          <button class="filter-tab active" data-sfilter="all">すべて</button>
+          <button class="filter-tab" data-sfilter="試合">試合</button>
+          <button class="filter-tab" data-sfilter="練習">練習</button>
+          <button class="filter-tab" data-sfilter="大会">大会</button>
+        </div>
+        <div id="schedule-list">
+          <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <div class="empty-title">スケジュールがありません</div>
+            <div class="empty-desc">右上の「+追加」からスケジュールを登録しましょう</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-schedule -->
+
+    <!-- ========== Page: Matches ========== -->
+    <div class="page" id="page-matches">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">⚽ 試合管理</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-new-match">+ 新規試合</button>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div class="filter-tabs" id="match-filter-tabs">
+          <button class="filter-tab active" data-mfilter="all">すべて</button>
+          <button class="filter-tab" data-mfilter="公式戦">公式戦</button>
+          <button class="filter-tab" data-mfilter="練習試合">練習試合</button>
+        </div>
+        <div id="match-list">
+          <div class="empty-state">
+            <div class="empty-icon">⚽</div>
+            <div class="empty-title">試合が登録されていません</div>
+            <div class="empty-desc">右上の「+ 新規試合」から試合を登録しましょう</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-matches -->
+
+    <!-- ========== Page: Match Detail ========== -->
+    <div class="page" id="page-match-detail">
+      <div class="match-detail-top" id="match-detail-top">
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="btn-back" id="btn-back-match">←</button>
+          <div>
+            <div class="match-detail-opp" id="md-opponent">---</div>
+            <div class="match-detail-meta" id="md-meta"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar" id="match-tab-bar">
+        <button class="tab-btn active" data-tab="board">布陣</button>
+        <button class="tab-btn" data-tab="subs">交代</button>
+        <button class="tab-btn" data-tab="bench">ベンチ</button>
+        <button class="tab-btn" data-tab="time">出場時間</button>
+        <button class="tab-btn" data-tab="stat">統計</button>
+        <button class="tab-btn" data-tab="result">結果</button>
+        <button class="tab-btn" data-tab="publish">公開</button>
+      </div>
+
+      <!-- Tab: 布陣 (Board) -->
+      <div class="tab-pane active" id="tab-board">
+        <div class="pitch-wrap">
+          <div class="pitch-outer">
+            <div class="pitch" id="pitch">
+              <svg class="pitch-svg" viewBox="0 0 100 138" preserveAspectRatio="none">
+                <!-- outer border -->
+                <rect x="5" y="4" width="90" height="130" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+                <!-- center line -->
+                <line x1="5" y1="69" x2="95" y2="69" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+                <!-- center circle -->
+                <circle cx="50" cy="69" r="12" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="0.8"/>
+                <!-- center spot -->
+                <circle cx="50" cy="69" r="0.8" fill="rgba(255,255,255,0.5)"/>
+                <!-- penalty top -->
+                <rect x="26" y="4" width="48" height="20" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+                <!-- goal top -->
+                <rect x="38" y="4" width="24" height="8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+                <!-- penalty bottom -->
+                <rect x="26" y="114" width="48" height="20" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+                <!-- goal bottom -->
+                <rect x="38" y="126" width="24" height="8" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+              </svg>
+              <div class="formation-label" id="formation-label">4-3-3</div>
+              <div class="pitch-mode-badge" id="pitch-mode-badge">11人制</div>
+              <div class="pitch-positions" id="pitch-positions"></div>
+            </div>
+          </div>
+        </div>
+        <div class="player-strip-wrap">
+          <div class="strip-header">
+            <span class="strip-title">選手一覧</span>
+            <span class="strip-hint" id="strip-hint">位置をタップして選手を配置</span>
+          </div>
+          <div class="player-strip" id="player-strip"></div>
+        </div>
+        <div style="padding:10px 14px;display:flex;gap:8px">
+          <select class="form-select" id="formation-select" style="flex:1"></select>
+          <button class="btn btn-secondary btn-sm" id="btn-change-formation">フォーメーション変更</button>
+        </div>
+      </div>
+
+      <!-- Tab: 交代 (Subs) -->
+      <div class="tab-pane" id="tab-subs">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--c-border);display:flex;justify-content:flex-end">
+          <button class="btn btn-primary btn-sm" id="btn-add-sub">+ 交代を追加</button>
+        </div>
+        <div class="list-section" id="subs-body">
+          <div class="empty-state" style="padding:24px">
+            <div style="font-size:13px;color:var(--c-muted)">交代はまだ記録されていません</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: ベンチ (Bench) -->
+      <div class="tab-pane" id="tab-bench">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--c-border)">
+          <div style="font-size:12px;color:var(--c-muted)">ベンチ入りの選手をドラッグして追加できます</div>
+        </div>
+        <div id="bench-body">
+          <div class="empty-state" style="padding:24px">
+            <div style="font-size:13px;color:var(--c-muted)">ベンチ入り選手はいません</div>
+          </div>
+        </div>
+        <div style="padding:12px 14px">
+          <button class="btn btn-secondary btn-sm" id="btn-add-bench-player">+ ベンチに追加</button>
+        </div>
+      </div>
+
+      <!-- Tab: 出場時間 (Time) -->
+      <div class="tab-pane" id="tab-time">
+        <div class="time-rows" id="time-body">
+          <div class="empty-state" style="padding:24px">
+            <div style="font-size:13px;color:var(--c-muted)">出場時間を計算するには交代・スタメンを記録してください</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: 統計 (Stats) -->
+      <div class="tab-pane" id="tab-stat">
+        <div id="stat-body">
+          <div class="stat-section-title">スターター</div>
+          <div id="stat-starters" class="list-section"></div>
+          <div class="stat-section-title">サブ出場</div>
+          <div id="stat-subs" class="list-section"></div>
+          <div class="stat-section-title">未出場</div>
+          <div id="stat-unused" class="list-section"></div>
+        </div>
+      </div>
+
+      <!-- Tab: 結果 (Result) -->
+      <div class="tab-pane" id="tab-result">
+        <div class="result-section">
+          <!-- スコア -->
+          <div class="form-group">
+            <div class="form-label">スコア</div>
+            <div class="score-area">
+              <div>
+                <div class="score-team-label" id="result-my-team">自チーム</div>
+                <input class="score-num-input" type="number" id="result-my-score" min="0" max="99" value="0">
+              </div>
+              <div class="score-sep">-</div>
+              <div>
+                <div class="score-team-label">相手</div>
+                <input class="score-num-input" type="number" id="result-opp-score" min="0" max="99" value="0">
+              </div>
+            </div>
+          </div>
+
+          <!-- 試合形式 -->
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">試合形式</label>
+              <select class="form-select" id="result-format">
+                <option value="40分×2">40分×2</option>
+                <option value="35分×2">35分×2</option>
+                <option value="30分×2">30分×2</option>
+                <option value="25分×2">25分×2</option>
+                <option value="20分×2">20分×2</option>
+                <option value="15分×2">15分×2</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">画像URL（任意）</label>
+              <input class="form-input" type="url" id="result-image" placeholder="https://...">
+            </div>
+          </div>
+
+          <!-- 得点者 -->
+          <div class="form-group">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="form-label" style="margin:0">得点者</div>
+              <button class="btn btn-secondary btn-sm" id="btn-add-goal">+ 追加</button>
+            </div>
+            <div id="goals-body"></div>
+          </div>
+
+          <!-- 失点 -->
+          <div class="form-group">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div class="form-label" style="margin:0">失点</div>
+              <button class="btn btn-secondary btn-sm" id="btn-add-concede">+ 追加</button>
+            </div>
+            <div id="concedes-body"></div>
+          </div>
+
+          <button class="btn btn-primary btn-lg btn-full" id="btn-save-result">結果を保存</button>
+        </div>
+      </div>
+
+      <!-- Tab: 公開 (Publish) -->
+      <div class="tab-pane" id="tab-publish">
+        <div class="publish-header" id="publish-status-area">
+          <span class="publish-status-icon">📋</span>
+          <div>
+            <div class="publish-status-text" id="publish-status-text">結果未入力</div>
+            <div class="publish-status-sub" id="publish-status-sub">先に「結果」タブで試合結果を保存してください</div>
+          </div>
+        </div>
+        <div class="publish-toggles">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-name">ホームページに掲載する</div>
+              <div class="toggle-desc">試合結果ページおよびTOPページに表示</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="toggle-publish" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-name">ニュース記事を作成する</div>
+              <div class="toggle-desc">自動生成した記事をニュース一覧に追加</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="toggle-make-news" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="publish-actions">
+          <div id="hp-article-preview" class="preview-box hidden">
+            <div class="preview-label">自動生成記事プレビュー</div>
+            <div class="preview-content" id="hp-article-text"></div>
+          </div>
+          <button class="btn btn-primary btn-lg btn-full" id="btn-publish-to-hp">🌐 ホームページに公開する</button>
+          <button class="btn btn-secondary btn-sm btn-full" id="btn-unpublish" style="display:none">公開を取り消す</button>
+        </div>
+      </div>
+
+    </div><!-- /page-match-detail -->
+
+    <!-- ========== Page: Players ========== -->
+    <div class="page" id="page-players">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">👥 選手・スタッフ</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-add-player">+ 追加</button>
+      </div>
+      <!-- Import toolbar -->
+      <div class="import-toolbar">
+        <button class="btn btn-secondary btn-sm" id="btn-download-template">📥 テンプレート</button>
+        <button class="btn btn-secondary btn-sm" id="btn-import-excel">📊 Excelインポート</button>
+        <input type="file" id="player-import-input" accept=".xlsx,.csv" style="display:none">
+      </div>
+      <div class="player-filters" id="player-filter-bar"></div>
+      <div id="player-list-body">
+        <div class="empty-state">
+          <div class="empty-icon">👤</div>
+          <div class="empty-title">選手が登録されていません</div>
+          <div class="empty-desc">右上の「+追加」から選手を登録しましょう</div>
+        </div>
+      </div>
+    </div><!-- /page-players -->
+
+    <!-- ========== Page: Opponents ========== -->
+    <div class="page" id="page-opponents">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">🆚 対戦相手マスター</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-add-opponent">+ 追加</button>
+      </div>
+      <div class="import-toolbar">
+        <button class="btn btn-secondary btn-sm" id="btn-download-opp-template">📥 テンプレート</button>
+        <button class="btn btn-secondary btn-sm" id="btn-import-opp-excel">📊 Excelインポート</button>
+        <input type="file" id="opponent-import-input" accept=".xlsx,.csv" style="display:none">
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <input class="form-input" type="search" id="opp-search" placeholder="チーム名・略称で検索..." style="margin-bottom:12px">
+        <div id="opponent-list-body">
+          <div class="empty-state">
+            <div class="empty-icon">🆚</div>
+            <div class="empty-title">対戦相手が登録されていません</div>
+            <div class="empty-desc">「+追加」またはExcelインポートで登録しましょう</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-opponents -->
+
+    <!-- ========== Page: Survey ========== -->
+    <div class="page" id="page-survey">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">🗳️ アンケート</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-add-survey">+ 作成</button>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div id="survey-list-body">
+          <div class="empty-state">
+            <div class="empty-icon">🗳️</div>
+            <div class="empty-title">アンケートがありません</div>
+            <div class="empty-desc">「+作成」から出欠確認や日程調整のアンケートを作成しましょう</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-survey -->
+
+    <!-- ========== Page: Survey Results (sub) ========== -->
+    <div class="page" id="page-survey-results">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <button class="btn-back" id="btn-back-survey-results">←</button>
+          <div class="page-title" id="survey-results-title">アンケート結果</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+        <div id="survey-results-body">
+          <div class="empty-state"><div class="empty-title">読み込み中...</div></div>
+        </div>
+      </div>
+    </div><!-- /page-survey-results -->
+
+    <!-- ========== Page: SNS画像作成 ========== -->
+    <div class="page" id="page-sns">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <button class="btn-back" id="btn-back-sns">←</button>
+          <div class="page-title">📸 SNS画像作成</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div class="sns-step-label"><span class="sns-step-num">1</span>テンプレートを選ぶ</div>
+        <div class="sns-kind-row">
+          <button type="button" class="sns-kind-btn active" data-kind="result">⚽ 試合結果</button>
+          <button type="button" class="sns-kind-btn" data-kind="notice">📣 試合告知</button>
+        </div>
+        <div id="sns-template-row" class="sns-template-row"></div>
+
+        <div class="sns-step-label"><span class="sns-step-num">2</span>写真を選ぶ（任意）</div>
+        <div class="form-group">
+          <input type="file" id="sns-photo-input" accept="image/*" style="display:none">
+          <div style="display:flex;gap:8px">
+            <button type="button" id="btn-sns-photo" class="btn btn-secondary" style="flex:1">📷 写真を選択</button>
+            <button type="button" id="btn-sns-photo-clear" class="btn btn-ghost hidden" style="color:var(--c-red)">削除</button>
+          </div>
+          <div id="sns-photo-tools" class="hidden" style="margin-top:12px">
+            <label class="form-label">ズーム調整（プレビューをドラッグすると位置を移動できます）</label>
+            <input id="sns-zoom" type="range" min="100" max="300" value="100" class="sns-zoom-range">
+          </div>
+        </div>
+
+        <div class="sns-step-label"><span class="sns-step-num">3</span>プレビュー</div>
+        <div id="sns-preview-frame" class="sns-preview-frame">
+          <div id="sns-stage"><div id="sns-canvas" class="sns-canvas"></div></div>
+        </div>
+
+        <div class="sns-step-label"><span class="sns-step-num">4</span>情報を入力</div>
+        <div class="form-group">
+          <label class="form-label">大会名</label>
+          <input id="sns-competition" class="form-input" type="text" placeholder="例: U-12リーグ 第5節">
+        </div>
+        <div class="form-group">
+          <label class="form-label">対戦相手</label>
+          <input id="sns-opponent" class="form-input" type="text" placeholder="例: ○○FC">
+        </div>
+        <div class="form-row-2 sns-f-result">
+          <div class="form-group">
+            <label class="form-label">自チーム得点</label>
+            <input id="sns-myscore" class="form-input" type="number" min="0" max="99" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">相手得点</label>
+            <input id="sns-oppscore" class="form-input" type="number" min="0" max="99" placeholder="0">
+          </div>
+        </div>
+        <div class="form-group sns-f-result">
+          <label class="form-label">得点者（1行に1人）</label>
+          <textarea id="sns-scorers" class="form-textarea" rows="3" placeholder="山田 太郎 2点&#10;鈴木 一郎"></textarea>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">日付</label>
+            <input id="sns-date" class="form-input" type="date">
+          </div>
+          <div class="form-group sns-f-notice">
+            <label class="form-label">キックオフ</label>
+            <input id="sns-time" class="form-input" type="time">
+          </div>
+        </div>
+        <div class="form-group sns-f-notice">
+          <label class="form-label">会場</label>
+          <input id="sns-venue" class="form-input" type="text" placeholder="例: 市営グラウンド">
+        </div>
+        <div class="form-group">
+          <label class="form-label">チーム名表記</label>
+          <input id="sns-club" class="form-input" type="text" placeholder="例: ○○FC">
+        </div>
+
+        <button id="btn-sns-save" class="btn btn-primary btn-full" style="margin-top:4px">💾 画像を保存（1080×1080 PNG）</button>
+      </div>
+    </div><!-- /page-sns -->
+
+    <!-- ========== Page: 緊急連絡 ========== -->
+    <div class="page" id="page-emergency">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">🚨 緊急連絡</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+          <div style="font-weight:700;font-size:13px;margin-bottom:4px">⚠️ 緊急連絡について</div>
+          <div style="font-size:12.5px;color:var(--c-text2);line-height:1.7">対象カテゴリーを選ぶと保護者のメールアドレス一覧をコピーできます。お使いのメールアプリの<b>BCC欄</b>に貼り付けて送信してください（Toに直接入れるとアドレスが他の保護者にも見えてしまいます）。</div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">① 対象カテゴリー</div>
+          <div class="cat-check-group" id="emergency-cat-picker"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">対象者</div>
+          <div id="emergency-recipients-summary"></div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">② メッセージ内容</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="emergency-templates"></div>
+          <textarea class="form-textarea" id="emergency-message" rows="5" placeholder="連絡内容を入力してください"></textarea>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">③ コピーして送信</div>
+          <button class="btn btn-secondary btn-full" id="btn-copy-emergency-emails" style="margin-bottom:8px">📋 メールアドレスをコピー（BCC推奨）</button>
+          <button class="btn btn-primary btn-full" id="btn-copy-emergency-message">📋 メッセージ本文をコピー</button>
+        </div>
+      </div>
+    </div><!-- /page-emergency -->
+
+    <!-- ========== Page: News ========== -->
+    <div class="page" id="page-news">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">📝 ニュース投稿</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+        <!-- タブ -->
+        <div class="tab-bar" style="margin:-14px -14px 14px;border-radius:0">
+          <button class="tab-btn active" data-ptab="compose">投稿を作成</button>
+          <button class="tab-btn" data-ptab="history">投稿履歴</button>
+        </div>
+
+        <!-- 投稿作成 -->
+        <div class="post-pane active" id="post-pane-compose">
+          <div class="form-group">
+            <div class="form-label">投稿タイプ</div>
+            <div class="post-type-row" id="post-type-row">
+              <button class="post-type-btn active" data-ptype="お知らせ">お知らせ</button>
+              <button class="post-type-btn" data-ptype="試合結果">試合結果</button>
+              <button class="post-type-btn" data-ptype="イベント">イベント</button>
+              <button class="post-type-btn" data-ptype="選手募集">選手募集</button>
+              <button class="post-type-btn" data-ptype="活動報告">活動報告</button>
+              <button class="post-type-btn" data-ptype="その他">その他</button>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">カテゴリー</label>
+              <select class="form-select" id="post-category">
+                <option value="クラブニュース">クラブニュース</option>
+                <option value="ジュニアユース">ジュニアユース</option>
+                <option value="ジュニア">ジュニア</option>
+                <option value="スクール">スクール</option>
+                <option value="イベント">イベント</option>
+                <option value="お知らせ">お知らせ</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">投稿日</label>
+              <input class="form-input" type="date" id="post-date">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">タイトル</label>
+            <input class="form-input" type="text" id="post-title" placeholder="タイトルを入力してください">
+          </div>
+          <div class="form-group">
+            <label class="form-label">本文</label>
+            <textarea class="form-textarea" id="post-body" rows="6" placeholder="本文を入力してください" style="min-height:120px"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">画像URL（任意）</label>
+            <input class="form-input" type="url" id="post-image" placeholder="https://...">
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-name">ホームページに公開する</div>
+              <div class="toggle-desc">オフにすると下書きとして保存</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="post-publish" checked><span class="toggle-slider"></span></label>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px">
+            <button class="btn btn-secondary" id="btn-post-preview" style="flex:1">プレビュー</button>
+            <button class="btn btn-primary" id="btn-post-send" style="flex:1">🌐 投稿する</button>
+          </div>
+          <div id="post-preview-area" class="preview-box hidden" style="margin-top:14px">
+            <div class="preview-label">プレビュー</div>
+            <div id="post-preview-content"></div>
+          </div>
+        </div>
+
+        <!-- 投稿履歴 -->
+        <div class="post-pane" id="post-pane-history">
+          <div id="post-history-list">
+            <div class="empty-state" style="padding:32px">
+              <div class="empty-icon">📋</div>
+              <div class="empty-title">投稿履歴がありません</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-news -->
+
+    <!-- ========== Page: Announcement ========== -->
+    <div class="page" id="page-announcement">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <button class="btn-back" id="btn-back-announcement">←</button>
+          <div class="page-title">📢 試合告知</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+
+        <!-- ① 試合選択 -->
+        <div class="form-group">
+          <div class="form-label">告知する試合を選択</div>
+          <div id="ann-sched-list" class="ann-sched-select">
+            <div style="padding:12px;font-size:13px;color:var(--c-muted)">スケジュールに試合が登録されていません</div>
+          </div>
+        </div>
+
+        <!-- ② 選択後に展開するエリア -->
+        <div id="ann-content-area" class="hidden">
+          <!-- VSカード -->
+          <div id="ann-vs-card"></div>
+          <!-- 試合情報カード -->
+          <div id="ann-info-card"></div>
+
+          <!-- SNS告知画像 -->
+          <div id="ann-sns-slot"></div>
+
+          <div class="spacer"></div>
+
+          <!-- ③ 追加メッセージ（任意） -->
+          <div class="form-group">
+            <label class="form-label">追加メッセージ（任意）</label>
+            <textarea class="form-textarea" id="ann-extra-msg" rows="3"
+              placeholder="例: 保護者の皆様の応援をお待ちしております。" style="min-height:80px"></textarea>
+            <div style="font-size:12px;color:var(--c-muted);margin-top:4px">空欄でも投稿できます</div>
+          </div>
+
+          <!-- ④ カテゴリー -->
+          <div class="form-group">
+            <label class="form-label">カテゴリー</label>
+            <select class="form-select" id="ann-category">
+              <option value="クラブニュース">クラブニュース</option>
+              <option value="ジュニアユース">ジュニアユース</option>
+              <option value="ジュニア">ジュニア</option>
+            </select>
+          </div>
+
+          <!-- ⑤ ボタン -->
+          <button class="btn btn-secondary btn-full" id="btn-ann-preview" style="margin-bottom:10px">👁 プレビューを見る</button>
+          <button class="btn btn-primary btn-lg btn-full" id="btn-ann-post">🌐 ホームページに告知する</button>
+        </div>
+
+        <!-- 未選択ヒント -->
+        <div id="ann-hint" class="ann-hint-text">
+          ↑ 上の一覧から告知したい試合を選択してください
+        </div>
+
+      </div>
+    </div><!-- /page-announcement -->
+
+    <!-- ========== Page: Result Entry (from dashboard) ========== -->
+    <div class="page" id="page-result-entry">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <button class="btn-back" id="btn-back-result-entry">←</button>
+          <div class="page-title">🏆 試合結果を登録</div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+        <div class="form-group">
+          <div class="form-label">試合を選択</div>
+          <div id="result-entry-match-list">
+            <div class="empty-state" style="padding:16px">
+              <div style="font-size:13px;color:var(--c-muted)">結果未登録の試合がありません</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:10px;text-align:center">
+          <button class="btn btn-secondary btn-sm" id="btn-create-match-for-result">新しい試合を登録する</button>
+        </div>
+      </div>
+    </div><!-- /page-result-entry -->
+
+    <!-- ========== Page: Settings ========== -->
+    <div class="page" id="page-settings">
+      <div class="page-hdr">
+        <div class="page-title">⚙️ 設定</div>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+        <div class="form-group">
+          <label class="form-label">クラブ名</label>
+          <input class="form-input" type="text" id="settings-club-name" readonly style="opacity:0.6;cursor:default">
+        </div>
+        <div class="form-group">
+          <label class="form-label">クラブID（Firebase パス名）</label>
+          <input class="form-input" type="text" id="settings-club-id" readonly style="opacity:0.6;cursor:default">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Firebase データベース URL</label>
+          <input class="form-input" type="text" id="settings-firebase-url" readonly style="opacity:0.6;cursor:default">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Firebase シークレット</label>
+          <input class="form-input" type="password" id="settings-firebase-secret" placeholder="シークレットを入力してください">
+        </div>
+        <button class="btn btn-primary btn-full" id="btn-save-settings">設定を保存</button>
+        <div class="spacer"></div>
+        <div class="divider"></div>
+        <div class="spacer"></div>
+        <button class="btn btn-secondary btn-full" id="btn-load-cloud">☁️ クラウドから読み込む</button>
+        <div class="spacer"></div>
+        <button class="btn btn-secondary btn-full" id="btn-save-cloud">💾 クラウドに保存する</button>
+
+        <div class="spacer"></div>
+        <div class="divider"></div>
+        <div class="spacer"></div>
+
+        <!-- データ管理（運用開始リセット） -->
+        <div class="form-group">
+          <div class="form-label">データ管理</div>
+          <div style="font-size:12.5px;color:var(--c-muted);line-height:1.8;margin-bottom:10px">
+            テスト運用のデータを削除して本運用を開始する時に使います。<br>
+            試合・ホームページ投稿・スケジュールを全て削除します（選手・対戦相手・アンケートは残ります）。
+          </div>
+          <button class="btn btn-danger-full" id="btn-reset-operational">🗑 試合・投稿・スケジュールを全削除</button>
+        </div>
+      </div>
+    </div><!-- /page-settings -->
+
+    <!-- ========== Page: More (mobile) ========== -->
+    <div class="page" id="page-more">
+      <div class="page-hdr">
+        <div class="page-title">その他</div>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+        <div class="form-label" style="margin-bottom:10px">ホームページ更新</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+          <button class="btn btn-secondary btn-full" data-nav="page-announcement" style="justify-content:flex-start;gap:12px"><span>📢</span> 試合告知</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-result-entry" style="justify-content:flex-start;gap:12px"><span>🏆</span> 試合結果</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-news" style="justify-content:flex-start;gap:12px"><span>📝</span> ニュース投稿</button>
+        </div>
+        <div class="form-label" style="margin-bottom:10px;margin-top:4px">クラブ管理</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+          <button class="btn btn-secondary btn-full" data-nav="page-opponents" style="justify-content:flex-start;gap:12px"><span>🆚</span> 対戦相手マスター</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-survey" style="justify-content:flex-start;gap:12px"><span>🗳️</span> アンケート</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-sns" style="justify-content:flex-start;gap:12px"><span>📸</span> SNS画像作成</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-emergency" style="justify-content:flex-start;gap:12px"><span>🚨</span> 緊急連絡</button>
+        </div>
+        <div class="form-label" style="margin-bottom:10px">設定</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-secondary btn-full" data-nav="page-settings" style="justify-content:flex-start;gap:12px"><span>⚙️</span> 設定</button>
+        </div>
+      </div>
+    </div><!-- /page-more -->
+
+  </main><!-- /#main-content -->
+
+  <!-- ===== Bottom Navigation ===== -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="bnav-item active" data-bnav="page-dashboard">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">ダッシュボード</span>
+    </button>
+    <button class="bnav-item" data-bnav="page-schedule">
+      <span class="bnav-icon">📅</span>
+      <span class="bnav-label">スケジュール</span>
+    </button>
+    <button class="bnav-item" data-bnav="page-matches">
+      <span class="bnav-icon">⚽</span>
+      <span class="bnav-label">試合管理</span>
+    </button>
+    <button class="bnav-item" data-bnav="page-players">
+      <span class="bnav-icon">👥</span>
+      <span class="bnav-label">選手・スタッフ</span>
+    </button>
+    <button class="bnav-item" data-bnav="page-more">
+      <span class="bnav-icon">···</span>
+      <span class="bnav-label">その他</span>
+    </button>
+  </nav>
+
+  <!-- ===== Modal: Schedule Form ===== -->
+  <div class="modal-overlay" id="modal-schedule">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title" id="modal-schedule-title">スケジュールを追加</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-schedule-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">日付 <span style="color:var(--c-red)">*</span></label>
+            <input class="form-input" type="date" id="sf-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">種別</label>
+            <select class="form-select" id="sf-type">
+              <option value="試合">試合</option>
+              <option value="練習">練習</option>
+              <option value="大会">大会</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="form-label">開始時間</label>
+            <input class="form-input" type="time" id="sf-time">
+          </div>
+          <div class="form-group">
+            <label class="form-label">終了時間</label>
+            <input class="form-input" type="time" id="sf-end-time">
+          </div>
+          <div class="form-group">
+            <label class="form-label">カテゴリー</label>
+            <select class="form-select" id="sf-category">
+              <option value="">全体</option>
+              <option value="U15">U15</option>
+              <option value="U14">U14</option>
+              <option value="U13">U13</option>
+              <option value="U12">U12</option>
+              <option value="U11">U11</option>
+              <option value="U10">U10</option>
+              <option value="U9">U9</option>
+              <option value="U8">U8</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group sf-match-only">
+          <label class="form-label">相手チーム</label>
+          <div style="display:flex;gap:8px">
+            <input class="form-input" type="text" id="sf-opponent" placeholder="vs ○○FC" style="flex:1">
+            <button class="btn btn-secondary btn-sm" type="button" onclick="openOpponentPicker('schedule')" title="マスターから選ぶ">📋 選択</button>
+          </div>
+          <input type="hidden" id="sf-opponent-id">
+        </div>
+        <div class="form-group">
+          <label class="form-label">タイトル / 内容</label>
+          <input class="form-input" type="text" id="sf-title" placeholder="例: U15 トレーニング">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">会場</label>
+            <input class="form-input" type="text" id="sf-venue" placeholder="会場名">
+          </div>
+          <div class="form-group sf-match-only">
+            <label class="form-label">大会名</label>
+            <input class="form-input" type="text" id="sf-competition" placeholder="大会・リーグ名">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">備考（持ち物・集合時間など）</label>
+          <textarea class="form-textarea" id="sf-notes" rows="2" placeholder="任意"></textarea>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-schedule-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-schedule-save">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Match Create ===== -->
+  <div class="modal-overlay" id="modal-match-create">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">試合を作成</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-match-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-group">
+          <label class="form-label">相手チーム <span style="color:var(--c-red)">*</span></label>
+          <div style="display:flex;gap:8px">
+            <input class="form-input" type="text" id="nm-opponent" placeholder="vs ○○FC" style="flex:1">
+            <button class="btn btn-secondary btn-sm" type="button" onclick="openOpponentPicker('match-create')" title="マスターから選ぶ">📋 選択</button>
+          </div>
+          <input type="hidden" id="nm-opponent-id">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">日付 <span style="color:var(--c-red)">*</span></label>
+            <input class="form-input" type="date" id="nm-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">種別</label>
+            <select class="form-select" id="nm-type">
+              <option value="公式戦">公式戦</option>
+              <option value="練習試合">練習試合</option>
+              <option value="フェスティバル">フェスティバル</option>
+              <option value="合宿">合宿</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">カテゴリー</label>
+            <select class="form-select" id="nm-category">
+              <option value="">指定なし</option>
+              <option value="U15">U15</option>
+              <option value="U14">U14</option>
+              <option value="U13">U13</option>
+              <option value="U12">U12</option>
+              <option value="U11">U11</option>
+              <option value="U10">U10</option>
+              <option value="U9">U9</option>
+              <option value="U8">U8</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">大会名</label>
+            <input class="form-input" type="text" id="nm-competition" placeholder="大会・リーグ名">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">会場</label>
+          <input class="form-input" type="text" id="nm-venue" placeholder="会場名">
+        </div>
+        <div class="form-group">
+          <label class="form-label">フォーメーション</label>
+          <select class="form-select" id="nm-formation"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">前の試合から引き継ぐ</label>
+          <select class="form-select" id="nm-copy">
+            <option value="">引き継がない</option>
+          </select>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-match-create-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-match-create-ok">試合を作成して配置へ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Sub Form ===== -->
+  <div class="modal-overlay" id="modal-sub">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">交代を記録</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-sub-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-group">
+          <label class="form-label">交代時間（分）</label>
+          <input class="form-input" type="number" id="sub-minute" min="1" max="120" placeholder="例: 35">
+        </div>
+        <div class="form-group">
+          <label class="form-label">OUT（退く選手）</label>
+          <select class="form-select" id="sub-out"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">IN（入る選手）</label>
+          <select class="form-select" id="sub-in"></select>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-sub-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-sub-save">記録する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Player Form ===== -->
+  <div class="modal-overlay" id="modal-player">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title" id="modal-player-title">選手を追加</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-player-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">氏名 <span style="color:var(--c-red)">*</span></label>
+            <input class="form-input" type="text" id="pf-name" placeholder="田中太郎">
+          </div>
+          <div class="form-group">
+            <label class="form-label">背番号</label>
+            <input class="form-input" type="number" id="pf-number" min="1" max="99" placeholder="1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ローマ字</label>
+          <input class="form-input" type="text" id="pf-name-roman" placeholder="TARO TANAKA" style="text-transform:uppercase">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">学年</label>
+            <select class="form-select" id="pf-grade">
+              <option value="">（なし）</option>
+              <option value="小1">小1</option>
+              <option value="小2">小2</option>
+              <option value="小3">小3</option>
+              <option value="小4">小4</option>
+              <option value="小5">小5</option>
+              <option value="小6">小6</option>
+              <option value="中1">中1</option>
+              <option value="中2">中2</option>
+              <option value="中3">中3</option>
+              <option value="高1">高1</option>
+              <option value="高2">高2</option>
+              <option value="高3">高3</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">カテゴリー</label>
+            <select class="form-select" id="pf-category">
+              <option value="">（なし）</option>
+              <option value="U15">U15</option>
+              <option value="U14">U14</option>
+              <option value="U13">U13</option>
+              <option value="U12">U12</option>
+              <option value="U11">U11</option>
+              <option value="U10">U10</option>
+              <option value="U9">U9</option>
+              <option value="U8">U8</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">ポジション / 役職</label>
+            <input class="form-input" type="text" id="pf-main-group" placeholder="GK / DF / MF / FW / 代表 / コーチ">
+          </div>
+          <div class="form-group">
+            <label class="form-label">詳細ポジション</label>
+            <input class="form-input" type="text" id="pf-detail-pos" placeholder="CB, CMなど">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">サブポジション</label>
+            <input class="form-input" type="text" id="pf-sub" placeholder="任意">
+          </div>
+          <div class="form-group">
+            <label class="form-label">保護者連絡先メール（任意）</label>
+            <input class="form-input" type="email" id="pf-guardian-email" placeholder="guardian@example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">写真URL（任意）</label>
+          <input class="form-input" type="url" id="pf-photo" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">プロフィール（任意）</label>
+          <textarea class="form-textarea" id="pf-profile" rows="2" placeholder="選手紹介・コメント"></textarea>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-player-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-player-save">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Bench Player Picker ===== -->
+  <div class="modal-overlay" id="modal-bench-picker">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">ベンチに追加</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-bench-modal">✕</button>
+      </div>
+      <div class="sheet-body" style="padding:8px 0">
+        <div id="bench-picker-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Opponent Form ===== -->
+  <div class="modal-overlay" id="modal-opponent">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title" id="modal-opponent-title">対戦相手を追加</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-opponent-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">チーム名 <span style="color:var(--c-red)">*</span></label>
+            <input class="form-input" type="text" id="of-name" placeholder="○○FC">
+          </div>
+          <div class="form-group">
+            <label class="form-label">略称</label>
+            <input class="form-input" type="text" id="of-short" placeholder="○○">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">カテゴリー（複数選択可）</label>
+          <div class="cat-check-group" id="of-categories"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">エンブレム画像URL（任意）</label>
+          <input class="form-input" type="url" id="of-emblem" placeholder="https://...">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">ホームページURL（任意）</label>
+            <input class="form-input" type="url" id="of-url" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Instagram（任意）</label>
+            <input class="form-input" type="text" id="of-instagram" placeholder="@username">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">備考</label>
+          <textarea class="form-textarea" id="of-notes" rows="2" placeholder="任意"></textarea>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-opponent-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-opponent-save">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Survey ===== -->
+  <div class="modal-overlay" id="modal-survey">
+    <div class="bottom-sheet" style="max-height:88vh">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title" id="modal-survey-title">アンケートを作成</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-survey-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-group">
+          <label class="form-label">タイトル <span style="color:var(--c-red)">*</span></label>
+          <input class="form-input" type="text" id="svf-title" placeholder="例）夏合宿 参加確認">
+        </div>
+        <div class="form-group">
+          <label class="form-label">説明（任意）</label>
+          <textarea class="form-textarea" id="svf-description" rows="2" placeholder="回答者への案内文"></textarea>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">回答期限（任意）</label>
+            <input class="form-input" type="date" id="svf-deadline">
+          </div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">回答者を選手名で識別する</div>
+            <div class="toggle-desc">ONにすると未回答者の一覧・リマインドが使えます</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="svf-identify" checked><span class="toggle-slider"></span></label>
+        </div>
+        <div class="form-group" id="sf-participants-wrap">
+          <div class="form-label" style="display:flex;justify-content:space-between;align-items:center">
+            対象者
+            <span style="font-size:11px;color:var(--c-muted);font-weight:400" id="sf-participant-count">全選手が対象</span>
+          </div>
+          <input class="form-input" type="search" id="sf-participant-search" placeholder="選手名で検索..." style="margin-bottom:8px">
+          <div id="sf-participant-cats" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" hidden></div>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <button class="btn btn-secondary btn-sm" type="button" id="btn-survey-select-all-participants">全選手を選択</button>
+            <button class="btn btn-ghost btn-sm" type="button" id="btn-survey-clear-participants">選択解除</button>
+          </div>
+          <div class="cat-check-group" id="sf-participants" style="max-height:220px;overflow-y:auto"></div>
+          <div style="font-size:11.5px;color:var(--c-muted);margin-top:6px">空欄のままにすると全選手が対象になります</div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">公開する</div>
+            <div class="toggle-desc">オフにすると下書きとして保存（回答者には表示されません）</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="svf-published" checked><span class="toggle-slider"></span></label>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="form-group">
+          <div class="form-label" style="display:flex;justify-content:space-between;align-items:center">
+            質問
+            <button class="btn btn-secondary btn-sm" id="btn-survey-add-question">+ 質問を追加</button>
+          </div>
+          <div id="sq-question-list"></div>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-survey-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-survey-save">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: SNS画像 書き出し結果 ===== -->
+  <div class="modal-overlay" id="modal-sns-export">
+    <div class="bottom-sheet" style="max-height:90vh">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">🎉 画像が完成しました</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-sns-export">✕</button>
+      </div>
+      <div class="sheet-body">
+        <img id="sns-export-img" alt="完成した画像" style="width:100%;border-radius:12px;display:block;border:1px solid var(--c-border)">
+        <button id="btn-sns-set-thumb" class="btn btn-secondary btn-full" style="margin-top:12px">📰 この画像を記事サムネイルに設定</button>
+        <div style="font-size:12px;color:var(--c-muted);margin-top:10px;padding:10px 12px;background:var(--c-bg);border-radius:8px;line-height:1.7">📱 スマホの場合: 上の画像を<strong>長押し</strong>して「"写真"に保存」でカメラロールに保存できます</div>
+        <a id="sns-export-dl" class="btn btn-primary btn-full" style="display:flex;text-decoration:none;margin-top:12px">⬇ PNGをダウンロード</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Opponent Picker ===== -->
+  <div class="modal-overlay" id="modal-opponent-picker">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">対戦相手を選択</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-opp-picker">✕</button>
+      </div>
+      <div style="padding:8px 14px;border-bottom:1px solid var(--c-border)">
+        <input class="form-input" type="search" id="opp-picker-search" placeholder="チーム名で検索...">
+      </div>
+      <div id="opp-picker-list" style="max-height:55vh;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Opponent Import Preview ===== -->
+  <div class="modal-overlay" id="modal-opponent-import">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">対戦相手データのインポート</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-opp-import-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div id="opp-import-preview-info"></div>
+        <div id="opp-import-preview-table" style="overflow-x:auto;max-height:50vh;overflow-y:auto"></div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-opp-import-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-opp-import-confirm">インポートする</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Player Import Preview ===== -->
+  <div class="modal-overlay" id="modal-player-import">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">選手データのインポート</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-import-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div id="import-preview-info"></div>
+        <div id="import-preview-table" style="overflow-x:auto;max-height:50vh;overflow-y:auto"></div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-import-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-import-confirm">インポートする</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Announcement Preview ===== -->
+  <div class="modal-overlay" id="modal-ann-preview">
+    <div class="bottom-sheet" style="max-height:88vh">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">📢 投稿プレビュー</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-ann-preview">✕</button>
+      </div>
+      <div class="sheet-body" id="ann-preview-content" style="overflow-y:auto;max-height:calc(88vh - 120px)">
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-ann-modify">修正する</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-ann-preview-post">🌐 この内容で投稿する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Dialog: Confirm ===== -->
+  <div class="dialog-overlay" id="dialog-confirm">
+    <div class="dialog-box">
+      <div class="dialog-title" id="confirm-title">確認</div>
+      <div class="dialog-msg" id="confirm-msg"></div>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary btn-sm" id="confirm-cancel">キャンセル</button>
+        <button class="btn btn-danger btn-sm" id="confirm-ok">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Toast ===== -->
+  <div class="toast" id="toast"></div>
+
+</div><!-- /#app -->
+<script src="mp-config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

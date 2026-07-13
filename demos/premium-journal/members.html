@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>クラブ員専用ページ — SAMPLE FC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,600&family=Noto+Serif+JP:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root { --ink: #191714; --paper: #faf8f3; --paper2: #f2efe7; --rule: #d9d4c7; --wine: #8e1f2f; --sub: #7c766a; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Serif JP', serif; background: var(--paper); color: var(--ink); font-size: 15px; line-height: 2; }
+a { color: inherit; text-decoration: none; }
+.hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 3px double var(--rule); }
+.hd-logo { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 20px; letter-spacing: .1em; }
+.hd-back { color: var(--sub); font-size: 12.5px; letter-spacing: .1em; font-family: 'Noto Sans JP', sans-serif; }
+.hd-back:hover { color: var(--wine); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 60px 22px; }
+.page-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; letter-spacing: .2em; color: var(--wine); text-align: center; }
+.page-title { text-align: center; font-size: clamp(26px, 4.5vw, 38px); font-weight: 900; letter-spacing: .08em; margin: 10px 0 6px; }
+.page-sub { text-align: center; color: var(--sub); font-size: 12.5px; letter-spacing: .15em; margin-bottom: 44px; font-family: 'Noto Sans JP', sans-serif; }
+
+.login-box { max-width: 420px; margin: 30px auto; border: 1px solid var(--ink); padding: 42px 36px; background: var(--paper); }
+.login-label { font-size: 11.5px; letter-spacing: .2em; color: var(--sub); margin-bottom: 8px; font-family: 'Noto Sans JP', sans-serif; }
+.login-input { width: 100%; background: var(--paper2); border: 1px solid var(--rule); color: var(--ink); font-size: 15px; padding: 13px 14px; margin-bottom: 20px; font-family: inherit; }
+.login-input:focus { outline: none; border-color: var(--wine); }
+.login-btn { width: 100%; background: var(--ink); color: var(--paper); font-weight: 700; font-size: 14px; letter-spacing: .15em; padding: 15px 0; border: none; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+.login-btn:hover { background: var(--wine); }
+.login-note { margin-top: 14px; color: var(--sub); font-size: 11.5px; text-align: center; font-family: 'Noto Sans JP', sans-serif; }
+.login-err { color: var(--wine); font-size: 13px; margin-bottom: 10px; display: none; font-family: 'Noto Sans JP', sans-serif; }
+
+#dashboard { display: none; }
+.db-grid { display: grid; gap: 0; border: 1px solid var(--ink); }
+@media (min-width: 780px) { .db-grid { grid-template-columns: 1fr 1fr; } .db-card:nth-child(2n) { border-left: 1px solid var(--ink); } .db-card:nth-child(n+3) { border-top: 1px solid var(--ink); } }
+@media (max-width: 779px) { .db-card + .db-card { border-top: 1px solid var(--ink); } }
+.db-card { padding: 34px 30px; }
+.db-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; letter-spacing: .18em; color: var(--wine); }
+.db-title { font-size: 19px; font-weight: 900; margin: 8px 0 10px; }
+.db-desc { color: var(--sub); font-size: 13px; margin-bottom: 16px; font-family: 'Noto Sans JP', sans-serif; }
+.db-frame { width: 100%; aspect-ratio: 4/3; border: 1px solid var(--rule); background: var(--paper2); display: flex; align-items: center; justify-content: center; color: var(--sub); font-size: 12.5px; font-family: 'Noto Sans JP', sans-serif; }
+.db-video { width: 100%; aspect-ratio: 16/9; border: 1px solid var(--rule); }
+.db-link { display: inline-block; border-bottom: 1px solid var(--ink); font-weight: 700; font-size: 13px; letter-spacing: .08em; padding-bottom: 2px; font-family: 'Noto Sans JP', sans-serif; }
+.db-link:hover { color: var(--wine); border-color: var(--wine); }
+.logout { margin-top: 36px; text-align: center; }
+.logout button { background: none; border: 1px solid var(--rule); color: var(--sub); font-size: 12px; letter-spacing: .12em; padding: 11px 30px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <a class="hd-logo" href="index.html">SAMPLE FOOTBALL CLUB</a>
+  <a class="hd-back" href="index.html">← トップへ戻る</a>
+</header>
+
+<div class="wrap">
+  <p class="page-en">— Members Only —</p>
+  <h1 class="page-title">クラブ員専用ページ</h1>
+  <p class="page-sub">PREMIUM PLAN FEATURE DEMO</p>
+
+  <div id="login">
+    <div class="login-box">
+      <p class="login-err" id="login-err">パスワードが違います</p>
+      <div class="login-label">PASSWORD</div>
+      <input class="login-input" type="password" id="login-pw" placeholder="デモ用: demo">
+      <button class="login-btn" onclick="tryLogin()">ログイン</button>
+      <p class="login-note">※デモのためパスワードは「demo」です</p>
+    </div>
+  </div>
+
+  <div id="dashboard">
+    <div class="db-grid">
+      <div class="db-card">
+        <div class="db-en">Schedule</div>
+        <div class="db-title">練習カレンダー</div>
+        <div class="db-desc">カテゴリー別の練習・試合予定を確認できます。</div>
+        <div class="db-frame">Googleカレンダー埋め込み（デモ）</div>
+      </div>
+      <div class="db-card">
+        <div class="db-en">Movie</div>
+        <div class="db-title">限定動画</div>
+        <div class="db-desc">試合フル映像・練習解説などクラブ員限定コンテンツ。</div>
+        <iframe class="db-video" src="https://www.youtube.com/embed/GOheWb7Clu8" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="db-card">
+        <div class="db-en">Document</div>
+        <div class="db-title">クラブ資料</div>
+        <div class="db-desc">クラブ規約・保護者会資料・年間予定表のダウンロード。</div>
+        <a class="db-link" href="#" onclick="alert('デモのためダウンロードはダミーです'); return false;">資料一覧を見る →</a>
+      </div>
+      <div class="db-card">
+        <div class="db-en">Contact</div>
+        <div class="db-title">緊急連絡</div>
+        <div class="db-desc">悪天候時の中止連絡・解散時間の変更などはこちらに掲載されます。</div>
+        <a class="db-link" href="#" onclick="alert('デモのため連絡一覧はダミーです'); return false;">連絡を確認する →</a>
+      </div>
+    </div>
+    <div class="logout"><button onclick="logout()">ログアウト</button></div>
+  </div>
+</div>
+
+<script>
+function refresh() {
+  const ok = localStorage.getItem('pmDemoLoggedIn') === '1';
+  document.getElementById('login').style.display = ok ? 'none' : '';
+  document.getElementById('dashboard').style.display = ok ? '' : 'none';
+}
+function tryLogin() {
+  const pw = document.getElementById('login-pw').value.trim();
+  if (pw === 'demo') { localStorage.setItem('pmDemoLoggedIn', '1'); refresh(); }
+  else { document.getElementById('login-err').style.display = 'block'; }
+}
+function logout() { localStorage.removeItem('pmDemoLoggedIn'); refresh(); }
+document.getElementById('login-pw').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+refresh();
+</script>
+</body>
+</html>

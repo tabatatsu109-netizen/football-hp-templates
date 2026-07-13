@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAMPLE FOOTBALL CLUB 公式サイト</title>
+  <meta name="description" content="SAMPLE FOOTBALL CLUBの公式サイト。最新ニュース・試合結果・入会案内。">
+  <meta property="og:title" content="SAMPLE FOOTBALL CLUB 公式サイト">
+  <meta property="og:description" content="SAMPLE FOOTBALL CLUBの公式サイト。最新ニュース・試合結果・入会案内。">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- フォントは app.js が theme 設定から動的に読み込む -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== ヘッダー ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#top" class="header-logo">
+        <img id="header-logo-img" src="" alt="" style="display:none">
+        <span id="header-logo-initial" class="logo-initial">?</span>
+        <span class="header-club-name" data-club-name></span>
+      </a>
+      <a href="#" id="header-cta" class="header-cta" style="display:none"></a>
+    </div>
+  </header>
+
+  <!-- ===== ヒーロー（標準搭載） ===== -->
+  <section class="hero" id="top">
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title" id="hero-title"></h1>
+      <p class="hero-sub" id="hero-sub"></p>
+      <div class="hero-btns" id="hero-btns"></div>
+    </div>
+  </section>
+
+  <main id="sections-container">
+
+    <!-- ===== ニュース（標準搭載・Match Planner連携） ===== -->
+    <section class="section" data-fixed="news">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">NEWS</div>
+          <h2 class="section-title">お知らせ</h2>
+        </div>
+        <div class="news-list" id="news-list"><p class="no-data">読み込み中...</p></div>
+      </div>
+    </section>
+
+    <!-- ===== ネクストマッチ（標準搭載・Match Planner連携） ===== -->
+    <section class="section" data-fixed="next-match" id="next-match-section" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">NEXT MATCH</div>
+          <h2 class="section-title">次の試合</h2>
+        </div>
+        <div class="next-match-card" id="next-match-card"></div>
+      </div>
+    </section>
+
+    <!-- ===== 試合結果（標準搭載・Match Planner連携） ===== -->
+    <section class="section" data-fixed="results">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">MATCH RESULTS</div>
+          <h2 class="section-title">試合結果</h2>
+        </div>
+        <div class="results-panel" id="results-list"><p class="no-data" style="padding:24px 20px">読み込み中...</p></div>
+      </div>
+    </section>
+
+    <!-- ===== 選べるコンテンツ（config.sections で表示・並び順制御） ===== -->
+
+    <section class="section" data-section="about" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">ABOUT</div>
+          <h2 class="section-title" data-content-title="about"></h2>
+        </div>
+        <div id="about-body"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="philosophy" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">PHILOSOPHY</div>
+          <h2 class="section-title" data-content-title="philosophy"></h2>
+        </div>
+        <div class="card-grid" id="philosophy-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="policy" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">POLICY</div>
+          <h2 class="section-title" data-content-title="policy"></h2>
+        </div>
+        <div class="card-grid" id="policy-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="staff" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">STAFF</div>
+          <h2 class="section-title" data-content-title="staff"></h2>
+        </div>
+        <div class="card-grid" id="staff-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="categories" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">CATEGORY</div>
+          <h2 class="section-title" data-content-title="categories"></h2>
+        </div>
+        <div class="card-grid" id="categories-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="join" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">JOIN US</div>
+          <h2 class="section-title" data-content-title="join"></h2>
+        </div>
+        <div class="section-body" id="join-body"></div>
+        <div class="join-steps" id="join-steps"></div>
+        <div class="join-cta" id="join-cta"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="fee" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">FEE</div>
+          <h2 class="section-title" data-content-title="fee"></h2>
+        </div>
+        <table class="fee-table"><tbody id="fee-rows"></tbody></table>
+        <p class="fee-note" id="fee-note"></p>
+      </div>
+    </section>
+
+    <section class="section" data-section="sponsors" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">SPONSOR</div>
+          <h2 class="section-title" data-content-title="sponsors"></h2>
+        </div>
+        <div class="sponsor-grid" id="sponsors-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="careers" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">CAREERS</div>
+          <h2 class="section-title" data-content-title="careers"></h2>
+        </div>
+        <div class="careers-list" id="careers-list"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="gallery" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">GALLERY</div>
+          <h2 class="section-title" data-content-title="gallery"></h2>
+        </div>
+        <div class="gallery-grid" id="gallery-grid"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="access" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">ACCESS</div>
+          <h2 class="section-title" data-content-title="access"></h2>
+        </div>
+        <div id="access-list"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="contact" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">CONTACT</div>
+          <h2 class="section-title" data-content-title="contact"></h2>
+        </div>
+        <div class="section-body" id="contact-body"></div>
+        <div class="contact-actions" id="contact-actions"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="faq" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">FAQ</div>
+          <h2 class="section-title" data-content-title="faq"></h2>
+        </div>
+        <div class="faq-list" id="faq-list"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="sns" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">SNS</div>
+          <h2 class="section-title" data-content-title="sns"></h2>
+        </div>
+        <div class="section-body" id="sns-body"></div>
+        <div class="sns-links" id="sns-links"></div>
+      </div>
+    </section>
+
+    <section class="section" data-section="videos" style="display:none">
+      <div class="section-inner">
+        <div class="section-head">
+          <div class="section-title-en">MOVIE</div>
+          <h2 class="section-title" data-content-title="videos"></h2>
+        </div>
+        <div class="video-grid" id="videos-grid"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== 詳細モーダル（ニュース・試合結果 共通・標準搭載） ===== -->
+  <div class="detail-overlay" id="detail-overlay">
+    <div class="detail-panel">
+      <button type="button" class="detail-close" id="detail-close" aria-label="閉じる">×</button>
+      <img id="detail-image" class="detail-image" alt="">
+      <div class="detail-meta">
+        <span class="detail-tag" id="detail-tag"></span>
+        <span class="detail-date" id="detail-date"></span>
+      </div>
+      <h2 class="detail-title" id="detail-title"></h2>
+      <div class="detail-body" id="detail-body"></div>
+    </div>
+  </div>
+
+  <!-- ===== フッター（標準搭載） ===== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-club">
+        <img id="footer-logo-img" src="" alt="" style="display:none">
+        <span data-club-full></span>
+      </div>
+      <p class="footer-copy">© <span id="footer-year"></span> <span data-club-full></span>. ALL RIGHTS RESERVED.</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

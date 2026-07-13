@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAMPLE FOOTBALL CLUB 公式サイト — PREMIUM DEMO "JOURNAL"</title>
+<meta name="description" content="SAMPLE FOOTBALL CLUBの公式サイト（プレミアムプラン デザインデモ）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,600&family=Noto+Serif+JP:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #191714;
+  --paper: #faf8f3;
+  --paper2: #f2efe7;
+  --rule: #d9d4c7;
+  --wine: #8e1f2f;
+  --sub: #7c766a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Noto Serif JP', serif; background: var(--paper); color: var(--ink); font-size: 15px; line-height: 2; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; }
+
+/* masthead */
+.mast { border-bottom: 3px double var(--rule); background: var(--paper); }
+.mast-top { display: flex; justify-content: space-between; align-items: center; max-width: 1080px; margin: 0 auto; padding: 10px 22px; font-family: 'Cormorant Garamond', serif; font-size: 12px; letter-spacing: .2em; color: var(--sub); border-bottom: 1px solid var(--rule); }
+.mast-name { text-align: center; padding: 26px 22px 18px; }
+.mast-name a { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: clamp(28px, 5.5vw, 52px); letter-spacing: .08em; }
+.mast-name .club-ja { display: block; font-family: 'Noto Serif JP', serif; font-size: 11px; letter-spacing: .5em; color: var(--sub); margin-top: 4px; }
+.mast-nav { display: flex; justify-content: center; gap: 34px; padding: 12px 22px; border-top: 1px solid var(--rule); font-size: 12.5px; letter-spacing: .18em; font-weight: 500; flex-wrap: wrap; }
+.mast-nav a:hover { color: var(--wine); }
+
+/* ticker: 見出しライン */
+.ticker { display: flex; align-items: center; background: var(--ink); color: var(--paper); height: 38px; overflow: hidden; }
+.ticker-label { flex: none; font-family: 'Cormorant Garamond', serif; font-size: 12px; letter-spacing: .3em; padding: 0 18px; color: #d9b44a; }
+.ticker-scroll { flex: 1; overflow: hidden; white-space: nowrap; }
+#pm-ticker { display: inline-block; padding-left: 100%; animation: tick 30s linear infinite; font-size: 12.5px; font-family: 'Noto Sans JP', sans-serif; }
+.pm-ticker-item { margin-right: 56px; }
+@keyframes tick { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+
+/* hero: 表紙 */
+.hero { max-width: 1080px; margin: 0 auto; padding: 64px 22px 0; text-align: center; }
+.hero-eyebrow { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 15px; letter-spacing: .2em; color: var(--wine); }
+.hero-title { font-size: clamp(30px, 6.5vw, 60px); font-weight: 900; line-height: 1.5; margin: 18px 0 14px; letter-spacing: .04em; }
+.hero-sub { color: var(--sub); font-size: 14px; letter-spacing: .12em; }
+.hero-rule { width: 64px; height: 1px; background: var(--ink); margin: 30px auto; }
+.hero-photo-wrap { position: relative; margin-top: 12px; }
+.hero-photo { width: 100%; aspect-ratio: 16/8; object-fit: cover; filter: contrast(1.02) saturate(.9); }
+.hero-caption { text-align: right; font-size: 11px; color: var(--sub); letter-spacing: .12em; padding: 8px 2px; font-family: 'Noto Sans JP', sans-serif; }
+.hero-btns { display: flex; justify-content: center; gap: 14px; margin: 34px 0 0; flex-wrap: wrap; }
+.btn-ink { background: var(--ink); color: var(--paper); font-family: 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 13.5px; letter-spacing: .1em; padding: 15px 40px; }
+.btn-line { border: 1px solid var(--ink); font-family: 'Noto Sans JP', sans-serif; font-weight: 500; font-size: 13.5px; letter-spacing: .1em; padding: 15px 34px; }
+.btn-ink:hover, .btn-line:hover { background: var(--wine); color: var(--paper); border-color: var(--wine); }
+
+/* sections */
+.sec { max-width: 1080px; margin: 0 auto; padding: 76px 22px 0; }
+.sec-head { display: flex; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--ink); padding-bottom: 12px; margin-bottom: 8px; }
+.sec-no { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: var(--wine); }
+.sec-en { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: clamp(24px, 4vw, 38px); letter-spacing: .1em; }
+.sec-ja { margin-left: auto; font-size: 11.5px; letter-spacing: .3em; color: var(--sub); }
+.pm-nodata { color: var(--sub); font-size: 13.5px; padding: 26px 0; }
+
+.pm-reveal { opacity: 0; transform: translateY(22px); transition: opacity .8s ease, transform .8s ease; }
+.pm-reveal.shown { opacity: 1; transform: none; }
+
+/* next match */
+.nm { display: flex; align-items: baseline; gap: 26px; padding: 30px 6px; flex-wrap: wrap; border-bottom: 1px solid var(--rule); }
+.nm-date { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 46px; line-height: 1; }
+.nm-day { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--wine); font-size: 18px; margin-left: 8px; }
+.nm-opp { font-size: 20px; font-weight: 700; }
+.nm-opp::before { content: '対 '; color: var(--wine); font-size: 15px; }
+.nm-meta { width: 100%; color: var(--sub); font-size: 12.5px; letter-spacing: .08em; font-family: 'Noto Sans JP', sans-serif; }
+
+/* news */
+.pm-news-row { display: grid; grid-template-columns: 96px auto 1fr auto; gap: 16px; align-items: baseline; padding: 20px 6px; border-bottom: 1px solid var(--rule); cursor: pointer; transition: background .2s; }
+.pm-news-row:hover { background: var(--paper2); }
+.pm-news-date { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--sub); }
+.pm-news-tag { font-size: 10.5px; letter-spacing: .15em; color: var(--wine); border: 1px solid currentColor; padding: 2px 10px; white-space: nowrap; font-family: 'Noto Sans JP', sans-serif; }
+.pm-news-title { font-size: 15px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pm-news-arrow { color: var(--wine); font-family: 'Cormorant Garamond', serif; font-style: italic; }
+
+/* results */
+.pm-result-row { display: grid; grid-template-columns: 80px auto 1fr auto; gap: 18px; align-items: baseline; padding: 22px 6px; border-bottom: 1px solid var(--rule); cursor: pointer; transition: background .2s; }
+.pm-result-row:hover { background: var(--paper2); }
+.pm-result-date { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--sub); }
+.pm-result-score b { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 32px; }
+.pm-result-score i { font-style: italic; color: var(--sub); margin: 0 9px; font-family: 'Cormorant Garamond', serif; }
+.pm-result-opp { font-size: 15px; font-weight: 500; }
+.pm-result-badge { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 15px; letter-spacing: .12em; }
+.pm-win { color: var(--wine); border-bottom: 2px solid var(--wine); }
+.pm-draw { color: var(--sub); }
+.pm-lose { color: #9a9a9a; text-decoration: line-through; }
+
+/* players */
+#pm-players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 22px 18px; padding-top: 26px; }
+.pm-player-card { cursor: pointer; }
+.pm-player-photo { aspect-ratio: 3/3.6; background: var(--paper2); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.pm-player-photo img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); transition: filter .35s; }
+.pm-player-card:hover .pm-player-photo img { filter: none; }
+.pm-player-ph { font-family: 'Cormorant Garamond', serif; font-size: 44px; color: var(--rule); }
+.pm-player-num { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 20px; color: var(--wine); margin-top: 10px; }
+.pm-player-name { font-size: 15px; font-weight: 700; }
+.pm-player-roman { font-family: 'Cormorant Garamond', serif; font-size: 12px; letter-spacing: .18em; color: var(--sub); text-transform: uppercase; }
+
+/* features */
+.feature-grid { display: grid; gap: 0; border: 1px solid var(--ink); }
+@media (min-width: 820px) { .feature-grid { grid-template-columns: 1fr 1fr; } .feature-card + .feature-card { border-left: 1px solid var(--ink); border-top: none; } }
+.feature-card { padding: 44px 38px; background: var(--paper); }
+.feature-card + .feature-card { border-top: 1px solid var(--ink); }
+.feature-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 15px; letter-spacing: .2em; color: var(--wine); }
+.feature-title { font-size: 23px; font-weight: 900; margin: 10px 0 12px; }
+.feature-desc { color: var(--sub); font-size: 13.5px; margin-bottom: 24px; }
+.feature-btn { display: inline-block; border-bottom: 1px solid var(--ink); font-family: 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .1em; padding-bottom: 3px; }
+.feature-btn:hover { color: var(--wine); border-color: var(--wine); }
+
+/* join */
+.join { background: var(--ink); color: var(--paper); text-align: center; padding: 84px 22px; margin-top: 84px; }
+.join-en { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 17px; letter-spacing: .2em; color: #d9b44a; }
+.join-title { font-size: clamp(24px, 4.5vw, 40px); font-weight: 900; margin: 14px 0 10px; letter-spacing: .06em; }
+.join-sub { color: #b9b4a6; font-size: 13.5px; margin-bottom: 30px; }
+.join-btn { display: inline-block; background: var(--paper); color: var(--ink); font-family: 'Noto Sans JP', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .1em; padding: 16px 46px; }
+.join-btn:hover { background: var(--wine); color: var(--paper); }
+
+/* footer */
+.ft { text-align: center; padding: 40px 22px; border-top: 3px double var(--rule); margin-top: 0; }
+.ft-name { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 20px; letter-spacing: .12em; }
+.ft-copy { color: var(--sub); font-size: 10.5px; letter-spacing: .18em; margin-top: 10px; font-family: 'Noto Sans JP', sans-serif; }
+
+/* modals */
+.pm-overlay { display: none; position: fixed; inset: 0; z-index: 900; background: rgba(25,23,20,.72); align-items: center; justify-content: center; padding: 20px; }
+.pm-overlay.open { display: flex; }
+.pm-panel { background: var(--paper); max-width: 620px; width: 100%; max-height: 88vh; overflow-y: auto; position: relative; }
+.pm-close { position: absolute; top: 12px; right: 12px; z-index: 2; width: 36px; height: 36px; border-radius: 50%; background: rgba(25,23,20,.8); color: var(--paper); font-size: 19px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
+.pm-detail-image { width: 100%; max-height: 320px; object-fit: cover; display: none; }
+.pm-detail-image.show { display: block; }
+.pm-detail-meta { display: flex; gap: 14px; align-items: center; padding: 24px 30px 0; }
+#pm-detail-tag { font-size: 10.5px; letter-spacing: .15em; color: var(--wine); border: 1px solid currentColor; padding: 3px 10px; font-family: 'Noto Sans JP', sans-serif; }
+#pm-detail-date { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: var(--sub); }
+#pm-detail-title { font-size: 21px; font-weight: 900; padding: 14px 30px 0; line-height: 1.7; }
+#pm-detail-body { color: #4c473d; font-size: 14.5px; line-height: 2.1; padding: 16px 30px 34px; white-space: pre-wrap; }
+
+/* player modal */
+.pm-pd { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .pm-pd { grid-template-columns: 260px 1fr; } }
+#pm-pd-photo { width: 100%; height: 100%; min-height: 280px; object-fit: cover; object-position: top; background: var(--paper2); filter: grayscale(.4); }
+.pm-pd-info { padding: 34px 30px; }
+#pm-pd-num { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 700; font-size: 68px; line-height: 1; color: var(--wine); }
+#pm-pd-pos { display: inline-block; border: 1px solid var(--ink); font-family: 'Noto Sans JP', sans-serif; font-size: 11px; letter-spacing: .2em; padding: 3px 12px; margin: 12px 0; }
+#pm-pd-name { font-size: 26px; font-weight: 900; }
+#pm-pd-roman { font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: .22em; color: var(--sub); text-transform: uppercase; margin-bottom: 12px; }
+#pm-pd-grade { color: var(--sub); font-size: 13px; font-family: 'Noto Sans JP', sans-serif; }
+#pm-pd-profile { margin-top: 12px; color: #4c473d; font-size: 13.5px; line-height: 2; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-top"><span>OFFICIAL WEB JOURNAL</span><span>EST. 2012 — SAMPLE CITY</span></div>
+  <div class="mast-name">
+    <a href="#top">SAMPLE FOOTBALL CLUB<span class="club-ja">サンプルフットボールクラブ 公式サイト</span></a>
+  </div>
+  <nav class="mast-nav">
+    <a href="#news">NEWS</a>
+    <a href="#match">MATCH</a>
+    <a href="#players">PLAYERS</a>
+    <a href="#club">CLUB</a>
+    <a href="members.html">MEMBERS</a>
+    <a href="https://forms.gle/sample-demo" style="color:var(--wine);font-weight:700">体験申込</a>
+  </nav>
+</header>
+
+<div class="ticker">
+  <span class="ticker-label">HEADLINES</span>
+  <div class="ticker-scroll"><div id="pm-ticker">LOADING...</div></div>
+</div>
+
+<section class="hero" id="top">
+  <p class="hero-eyebrow">— Official Site of Sample Football Club —</p>
+  <h1 class="hero-title">その一歩が、<br>未来を変える。</h1>
+  <p class="hero-sub">サッカーで、人を育てる。　U15 / U12</p>
+  <div class="hero-rule"></div>
+  <div class="hero-photo-wrap">
+    <img class="hero-photo" src="img/hero.jpg" alt="">
+    <p class="hero-caption">PHOTO — MATCH DAY, SAMPLE CITY STADIUM</p>
+  </div>
+  <div class="hero-btns">
+    <a class="btn-ink" href="https://forms.gle/sample-demo">無料体験に申し込む</a>
+    <a class="btn-line" href="#news">最新の記事を読む</a>
+  </div>
+</section>
+
+<section class="sec" id="match">
+  <div class="sec-head pm-reveal"><span class="sec-no">01</span><span class="sec-en">Next Match</span><span class="sec-ja">次の試合</span></div>
+  <div class="nm pm-reveal" id="pm-next-match" style="display:none">
+    <div><span class="nm-date" id="pm-nm-date"></span><span class="nm-day" id="pm-nm-day"></span></div>
+    <div class="nm-opp" id="pm-nm-opp"></div>
+    <div class="nm-meta" id="pm-nm-meta"></div>
+  </div>
+</section>
+
+<section class="sec" id="news">
+  <div class="sec-head pm-reveal"><span class="sec-no">02</span><span class="sec-en">News</span><span class="sec-ja">お知らせ</span></div>
+  <div id="pm-news-list" class="pm-reveal"><p class="pm-nodata">読み込み中...</p></div>
+</section>
+
+<section class="sec">
+  <div class="sec-head pm-reveal"><span class="sec-no">03</span><span class="sec-en">Results</span><span class="sec-ja">試合結果</span></div>
+  <div id="pm-results-list" class="pm-reveal"><p class="pm-nodata">読み込み中...</p></div>
+</section>
+
+<section class="sec" id="players">
+  <div class="sec-head pm-reveal"><span class="sec-no">04</span><span class="sec-en">Players</span><span class="sec-ja">選手 — クリックでプロフィール</span></div>
+  <div id="pm-players-grid" class="pm-reveal"><p class="pm-nodata">読み込み中...</p></div>
+</section>
+
+<section class="sec" id="club">
+  <div class="sec-head pm-reveal"><span class="sec-no">05</span><span class="sec-en">Club Service</span><span class="sec-ja">クラブ専用機能（プレミアム）</span></div>
+  <div class="feature-grid pm-reveal" style="margin-top:26px">
+    <div class="feature-card">
+      <div class="feature-en">Members Only</div>
+      <div class="feature-title">クラブ員専用ページ</div>
+      <div class="feature-desc">練習カレンダー・チーム資料・限定動画など、クラブ員だけが見られる専用エリア。</div>
+      <a class="feature-btn" href="members.html">ログインして見る →</a>
+    </div>
+    <div class="feature-card">
+      <div class="feature-en">Official Goods</div>
+      <div class="feature-title">アイテムショップ</div>
+      <div class="feature-desc">ユニフォーム・タオル・応援グッズをオンラインで。クラブ運営の収益にも。</div>
+      <a class="feature-btn" href="#" onclick="alert('デモのためショップはダミーです'); return false;">ショップへ進む →</a>
+    </div>
+  </div>
+</section>
+
+<section class="join" id="join">
+  <p class="join-en">Join the Club</p>
+  <div class="join-title">一緒に、サッカーをしよう。</div>
+  <p class="join-sub">体験練習 随時受付中。まずはお気軽にご連絡ください。</p>
+  <a class="join-btn" href="https://forms.gle/sample-demo">無料体験に申し込む</a>
+</section>
+
+<footer class="ft">
+  <div class="ft-name">SAMPLE FOOTBALL CLUB</div>
+  <p class="ft-copy">© 2026 SAMPLE FC. ALL RIGHTS RESERVED. — PREMIUM PLAN DESIGN DEMO "JOURNAL"</p>
+</footer>
+
+<!-- 詳細モーダル（ニュース・試合共通） -->
+<div class="pm-overlay" id="pm-detail-overlay">
+  <div class="pm-panel">
+    <button type="button" class="pm-close" aria-label="閉じる">×</button>
+    <img id="pm-detail-image" class="pm-detail-image" alt="">
+    <div class="pm-detail-meta"><span id="pm-detail-tag"></span><span id="pm-detail-date"></span></div>
+    <h2 id="pm-detail-title"></h2>
+    <div id="pm-detail-body"></div>
+  </div>
+</div>
+
+<!-- 選手プロフィールモーダル -->
+<div class="pm-overlay" id="pm-player-overlay">
+  <div class="pm-panel">
+    <button type="button" class="pm-close" aria-label="閉じる">×</button>
+    <div class="pm-pd">
+      <img id="pm-pd-photo" alt="">
+      <div class="pm-pd-info">
+        <div id="pm-pd-num"></div>
+        <span id="pm-pd-pos"></span>
+        <div id="pm-pd-name"></div>
+        <div id="pm-pd-roman"></div>
+        <div id="pm-pd-grade"></div>
+        <div id="pm-pd-profile"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PREMIUM_CONFIG = {
+  clubName: 'SAMPLE FC',
+  clubNameFull: 'SAMPLE FOOTBALL CLUB',
+  firebaseUrl: 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app',
+  clubId: 'sample-fc',
+};
+</script>
+<script src="js/premium.js"></script>
+</body>
+</html>

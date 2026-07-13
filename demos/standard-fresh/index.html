@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAMPLE FOOTBALL CLUB 公式サイト</title>
+<meta name="description" content="SAMPLE FOOTBALL CLUB の公式サイト。試合結果・スケジュール・選手情報を掲載。">
+<meta property="og:title" content="SAMPLE FOOTBALL CLUB 公式サイト">
+<meta property="og:description" content="SAMPLE FOOTBALL CLUB — その一歩が、未来を変える。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="top">
+
+<!-- ===== Header ===== -->
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="header-logo">
+      <div class="logo-initial" id="header-logo-icon"></div>
+      <span data-club-name></span>
+    </a>
+    <nav class="header-nav">
+      <a href="#news">ニュース</a>
+      <a href="#match">試合結果</a>
+      <a href="players.html">選手紹介</a>
+      <a href="#join">入部案内</a>
+    </nav>
+    <a href="#join" class="header-join btn-join">体験申込</a>
+    <button class="header-menu-btn" id="menu-btn" aria-label="メニュー">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile nav -->
+<nav class="mobile-nav" id="mobile-nav">
+  <a href="#news" onclick="closeMobileNav()">ニュース</a>
+  <a href="#match" onclick="closeMobileNav()">試合結果</a>
+  <a href="players.html" onclick="closeMobileNav()">選手紹介</a>
+  <a href="#join" onclick="closeMobileNav()">入部案内</a>
+  <a href="#join" class="btn-join-mobile btn-join" onclick="closeMobileNav()">体験申込はこちら</a>
+</nav>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+
+  <!-- 左パネル: キャッチコピーカード -->
+  <div class="hero-panel hero-left">
+    <div class="hero-card">
+      <p class="hero-card-eyebrow">OFFICIAL WEBSITE</p>
+      <div class="hero-logo-wrap" id="hero-logo"></div>
+      <h1 class="hero-title" id="hero-title"></h1>
+      <p class="hero-sub" id="hero-sub"></p>
+      <a href="#join" class="btn-join hero-join-btn">体験申込はこちら</a>
+    </div>
+  </div>
+
+  <!-- 中央パネル: メインビジュアル -->
+  <div class="hero-panel hero-center">
+    <div class="hero-field-deco" aria-hidden="true">
+      <div class="hfd-circle"></div>
+      <div class="hfd-vline"></div>
+      <div class="hfd-arc"></div>
+    </div>
+    <div class="hero-center-footer">
+      <span class="hero-club-full" data-club-full></span>
+    </div>
+  </div>
+
+  <!-- 右パネル: サブビジュアル -->
+  <div class="hero-panel hero-right">
+    <div class="hero-right-inner">
+      <div id="hero-cats" class="hero-cats"></div>
+      <p class="hero-tagline">TAKE ACTION<br>ON THE PITCH</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===== Next Match ===== -->
+<section class="section">
+  <div class="container skeleton-wrap">
+    <div class="section-label">NEXT MATCH</div>
+    <div class="section-hdr">
+      <h2 class="section-title">次の試合</h2>
+    </div>
+    <div id="next-match" data-skeleton></div>
+  </div>
+</section>
+
+<!-- ===== News ===== -->
+<section class="section" id="news" style="padding-top:0">
+  <div class="container skeleton-wrap">
+    <div class="section-label">NEWS</div>
+    <div class="section-hdr">
+      <h2 class="section-title">お知らせ</h2>
+      <a href="news.html" class="link-more">一覧を見る →</a>
+    </div>
+    <div id="news-list" data-skeleton></div>
+  </div>
+</section>
+
+<!-- ===== Match Results ===== -->
+<section class="section" id="match" style="background:var(--c-card)">
+  <div class="container skeleton-wrap">
+    <div class="section-label">MATCH</div>
+    <div class="section-hdr">
+      <h2 class="section-title">試合結果</h2>
+      <a href="matches.html" class="link-more">試合日程をすべて見る →</a>
+    </div>
+    <div class="match-tabs" id="match-tabs"></div>
+    <div id="match-result-list" data-skeleton></div>
+  </div>
+</section>
+
+<!-- ===== Players ===== -->
+<section class="section section-dark" id="players">
+  <div class="container skeleton-wrap">
+    <div class="section-label">PLAYERS</div>
+    <div class="section-hdr">
+      <h2 class="section-title">選手のプロフィール</h2>
+      <a href="players.html" class="link-more" style="color:var(--c-accent);border-color:var(--c-accent)">全員を見る →</a>
+    </div>
+    <div class="players-preview-grid players-grid" id="players-preview" data-skeleton></div>
+  </div>
+</section>
+
+<!-- ===== Join ===== -->
+<section class="join-section" id="join">
+  <div class="container">
+    <p class="section-label" style="color:rgba(255,255,255,.6)">JOIN US</p>
+    <h2 class="join-title">一緒にサッカーをしよう</h2>
+    <p class="join-sub">体験練習随時受付中！まずはお気軽にご連絡ください。</p>
+    <a href="#" class="btn-join">体験申込はこちら</a>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo" data-club-name></div>
+      <div class="footer-sns" id="footer-sns"></div>
+      <div class="footer-copy">© 2025 <span data-club-name></span>. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- Fixed CTA -->
+<a href="#join" class="fixed-join btn-join"></a>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+<script>
+// ヘッダーロゴ初期化
+document.getElementById('header-logo-icon').textContent = HP_CONFIG.clubName[0] || 'G';
+
+// フッター SNS
+const snsBtns = [];
+if (HP_CONFIG.instagram) snsBtns.push(`<a href="https://instagram.com/${HP_CONFIG.instagram}" target="_blank" rel="noopener">Instagram</a>`);
+if (HP_CONFIG.twitter) snsBtns.push(`<a href="https://twitter.com/${HP_CONFIG.twitter}" target="_blank" rel="noopener">Twitter / X</a>`);
+document.getElementById('footer-sns').innerHTML = snsBtns.join('');
+
+// モバイルナビ
+const menuBtn = document.getElementById('menu-btn');
+const mobileNav = document.getElementById('mobile-nav');
+menuBtn.addEventListener('click', () => mobileNav.classList.toggle('open'));
+function closeMobileNav() { mobileNav.classList.remove('open'); }
+
+// スクロール時にモバイルナビを閉じる
+window.addEventListener('scroll', () => mobileNav.classList.remove('open'));
+</script>
+</body>
+</html>
