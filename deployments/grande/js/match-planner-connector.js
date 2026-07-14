@@ -50,6 +50,28 @@ const AuroraConnector = (function () {
     return String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   }
 
+  // カテゴリーから年代の数字を取り出す（"U-15" / "U15" → 15）
+  function catAge(s) {
+    var m = String(s || '').match(/(\d+)/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+
+  // 試合カテゴリーがどのタブに属するかを返す。
+  // 例) タブが [U-15, U-12] の場合: U15/U14/U13 → U-15、U12/U11/U10/U9/U8 → U-12
+  // （試合の年代以上で最も小さいタブに割り当てる）
+  function tabForCategory(matchCat, tabs) {
+    var age = catAge(matchCat);
+    if (age == null) return null;
+    var sorted = (tabs || [])
+      .map(function (t) { return { tab: t, age: catAge(t) }; })
+      .filter(function (t) { return t.age != null; })
+      .sort(function (a, b) { return a.age - b.age; });
+    for (var i = 0; i < sorted.length; i++) {
+      if (age <= sorted[i].age) return sorted[i].tab;
+    }
+    return sorted.length ? sorted[sorted.length - 1].tab : null;
+  }
+
   function get(obj, path) {
     return path.split('.').reduce(function (o, k) {
       return (o != null && o[k] !== undefined) ? o[k] : null;
@@ -172,7 +194,9 @@ const AuroraConnector = (function () {
     var matches = state.allMatches.filter(function (m) {
       // category フィールドがない場合は全タブに表示する
       if (!m.category) return true;
-      return normCat(m.category) === normCat(cat);
+      // U15/U14/U13 → U-15タブ、U12/U11/U10/U9/U8 → U-12タブ のように年代でグルーピング
+      var tab = tabForCategory(m.category, state.categories);
+      return tab ? normCat(tab) === normCat(cat) : true;
     });
 
     setText('active-cat', cat);

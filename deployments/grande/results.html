@@ -326,6 +326,21 @@
       if (e.target === this) closeMatchDetail();
     });
 
+    // カテゴリーから年代の数字を取り出す（"U-15" / "U15" → 15）
+    function catAge(s){ var m=String(s||'').match(/(\d+)/); return m?parseInt(m[1],10):null; }
+    // 試合カテゴリーがどのタブに属するかを返す。
+    // 例) タブが [U-15, U-12] の場合: U15/U14/U13 → U-15、U12/U11/U10/U9/U8 → U-12
+    function tabForCategory(matchCat, tabs){
+      var age = catAge(matchCat);
+      if (age == null) return null;
+      var sorted = (tabs||[])
+        .map(function(t){ return { tab:t, age:catAge(t) }; })
+        .filter(function(t){ return t.age != null; })
+        .sort(function(a,b){ return a.age - b.age; });
+      for (var i=0;i<sorted.length;i++){ if (age <= sorted[i].age) return sorted[i].tab; }
+      return sorted.length ? sorted[sorted.length-1].tab : null;
+    }
+
     function getMatchCategory(m) {
       if (m.category) return m.category;
       var name = (m.competitionName || '').toLowerCase();
@@ -350,7 +365,10 @@
       var cat = state.activeCategory;
       var matches = state.allMatches.filter(function(m){
         var mc = getMatchCategory(m);
-        return !mc || normCat(mc) === normCat(cat);
+        if (!mc) return true;
+        // 年代グルーピング（U15/U14/U13→U-15タブ、U12以下→U-12タブ）
+        var tab = tabForCategory(mc, state.categories);
+        return tab ? normCat(tab) === normCat(cat) : true;
       });
       var clubName = state.config&&state.config.club?state.config.club.name||'FC':'FC';
 
