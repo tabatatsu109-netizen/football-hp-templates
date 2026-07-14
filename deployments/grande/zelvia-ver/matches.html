@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>試合日程・結果 | 八ヶ岳北杜グランデフットボールクラブ</title>
+  <meta name="description" content="八ヶ岳北杜グランデフットボールクラブの試合日程・結果一覧。U-15、U-12 各カテゴリの公式戦情報をお届けします。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳北杜グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-name">GRANDE F.C.</span>
+          <span class="gh-logo-sub">YATSUGATAKE HOKUTO</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="../grande_recruit.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="../partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="../members.html" class="gh-login">ログイン</a>
+        <a href="../grande_recruit.html" class="gh-cta gh-cta--trial">体験申込<small>TRIAL</small></a>
+        <a href="../itemshop.html" class="gh-cta gh-cta--shop">アイテムショップ<small>STORE</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="../partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link" href="../members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
+    <div class="m-nav-ctas">
+      <a href="../grande_recruit.html" class="m-cta-trial">体験申込</a>
+      <a href="../itemshop.html" class="m-cta-shop">アイテムショップ</a>
+    </div>
+  </nav>
+
+  <!-- ページヒーロー -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">MATCH</div>
+      <div class="ph-ja">試合日程・結果</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>試合日程・結果</span></div></div>
+
+  <main class="page-body">
+    <div class="container">
+
+      <!-- カテゴリタブ -->
+      <div class="filter-bar" id="tab-buttons"></div>
+
+      <!-- 今後の試合 -->
+      <div class="sec-head">
+        <span class="sec-en" style="font-size:26px;">UPCOMING</span>
+        <span class="sec-ja">今後の試合</span>
+      </div>
+      <div class="upcoming-grid" id="upcoming-grid"><p class="no-data">読み込み中...</p></div>
+
+      <!-- 日程・結果一覧 -->
+      <div class="sec-head">
+        <span class="sec-en" style="font-size:26px;">SCHEDULE &amp; RESULTS</span>
+        <span class="sec-ja">日程・結果一覧</span>
+      </div>
+      <div id="sched-groups"><p class="no-data">読み込み中...</p></div>
+
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="gf">
+    <div class="gf-top">
+      <div class="gf-top-inner">
+        <div class="gf-brand">
+          <img src="../assets/logo.png" alt="八ヶ岳北杜グランデFC">
+          <div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳北杜グランデフットボールクラブ</div>
+            <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
+          </div>
+        </div>
+        <nav class="gf-nav">
+          <a href="news.html">お知らせ</a>
+          <a href="matches.html">試合情報</a>
+          <a href="team.html">選手・スタッフ</a>
+          <a href="club.html">クラブを知る</a>
+          <a href="../grande_recruit.html">入会・体験</a>
+          <a href="../partners.html">パートナー</a>
+          <a href="../itemshop.html">アイテムショップ</a>
+          <a href="../members.html">クラブ員専用</a>
+          <a href="../contact.html">お問い合わせ</a>
+        </nav>
+        <div class="gf-sns">
+          <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+          <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4L15.9 12z"/></svg></a>
+          <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" aria-label="LINE"><svg viewBox="0 0 24 24"><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.8 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c0 .3-.2 1.2 1 .6 1.3-.5 6.9-4.1 9.4-7 1.8-1.9 2.7-3.8 2.7-5.9z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="../contact.html">お問い合わせ</a>
+          <a href="../members.html">クラブ員専用</a>
+        </div>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳北杜グランデFC</span>. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- フローティングCTA -->
+  <div class="float-btns">
+    <a href="../grande_recruit.html" class="fb-trial">体験申込</a>
+    <a href="../itemshop.html" class="fb-shop">アイテムショップ</a>
+  </div>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function toDate(s){ if(!s) return null; var d = new Date(s); return isNaN(d.getTime()) ? null : d; }
+    function dayLabel(s){ var d = toDate(s); return d ? ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()] : ''; }
+    function resultClass(rs){ if(!rs) return 'badge-draw'; if(/勝|win/i.test(rs)) return 'badge-win'; if(/負|敗|lose/i.test(rs)) return 'badge-lose'; return 'badge-draw'; }
+    function resultLetter(rs){ if(!rs) return 'D'; if(/勝|win/i.test(rs)) return 'W'; if(/負|敗|lose/i.test(rs)) return 'L'; return 'D'; }
+
+    var state = { config: null, allMatches: [], categories: [], activeCategory: '' };
+
+    function getMatchCategory(m){
+      if(m.category) return m.category;
+      var name = (m.competitionName || '').toLowerCase();
+      if(name.includes('u-15') || name.includes('u15')) return 'U-15';
+      if(name.includes('u-13') || name.includes('u13')) return 'U-13';
+      if(name.includes('u-12') || name.includes('u12')) return 'U-12';
+      return null;
+    }
+
+    function catMatches(){
+      var cat = state.activeCategory;
+      return state.allMatches.filter(function(m){
+        var mc = getMatchCategory(m);
+        return !mc || mc === cat;
+      });
+    }
+
+    function renderTabs(){
+      var c = document.getElementById('tab-buttons');
+      c.innerHTML = state.categories.map(function(k){
+        return '<button class="filter-btn' + (k === state.activeCategory ? ' on' : '') + '" data-cat="' + esc(k) + '">' + esc(k) + '</button>';
+      }).join('');
+      c.querySelectorAll('.filter-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          state.activeCategory = this.dataset.cat;
+          renderTabs(); renderUpcoming(); renderGroups();
+        });
+      });
+    }
+
+    function renderUpcoming(){
+      var today = new Date(); today.setHours(0,0,0,0);
+      var upcoming = catMatches()
+        .filter(function(m){
+          if(m.result && m.result.myScore != null && m.result.oppScore != null) return false;
+          var d = toDate(m.date);
+          return d && d >= today;
+        })
+        .sort(function(a,b){ return (toDate(a.date)||0) - (toDate(b.date)||0); })
+        .slice(0, 3);
+      var el = document.getElementById('upcoming-grid');
+      if(upcoming.length === 0){ el.innerHTML = '<p class="no-data">現在予定されている試合はありません</p>'; return; }
+      el.innerHTML = upcoming.map(function(m, i){
+        var dateDisp = m.date ? m.date.replace(/-/g,'.') : '';
+        return '<div class="up-card">' +
+          '<div class="up-comp">' + esc(m.competitionName || m.type || '') + '</div>' +
+          '<div class="up-date">' + esc(dateDisp) + '<small>' + esc(dayLabel(m.date)) + '</small></div>' +
+          '<div class="up-vs">vs ' + esc(m.opponent || '未定') + '</div>' +
+          '<div class="up-meta">KICK OFF ' + esc(m.time || m.kickoff || '未定') + '<br>' + esc(m.venue || '会場未定') + '</div>' +
+          (i === 0 ? '<span class="up-badge">NEXT MATCH</span>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    function renderGroups(){
+      var matches = catMatches().slice()
+        .sort(function(a,b){ return (toDate(b.date)||0) - (toDate(a.date)||0); });
+      var el = document.getElementById('sched-groups');
+      if(matches.length === 0){ el.innerHTML = '<p class="no-data">表示できる試合がありません</p>'; return; }
+
+      // 大会名ごとにグループ化
+      var groups = {}, order = [];
+      matches.forEach(function(m){
+        var key = m.competitionName || m.type || 'その他の試合';
+        if(!groups[key]){ groups[key] = []; order.push(key); }
+        groups[key].push(m);
+      });
+
+      el.innerHTML = order.map(function(key){
+        var rows = groups[key].map(function(m){
+          var dateDisp = m.date ? m.date.slice(5).replace('-','.') : '';
+          var hasResult = m.result && m.result.publish !== false && m.result.myScore != null && m.result.oppScore != null;
+          var right;
+          if(hasResult){
+            right = '<span class="sched-score">' + m.result.myScore + ' - ' + m.result.oppScore + '</span>' +
+                    '<span class="sched-res ' + resultClass(m.result.resultStr) + '">' + resultLetter(m.result.resultStr) + '</span>';
+          } else {
+            right = '<span class="sched-time">' + esc(m.time || m.kickoff || 'KICK OFF 未定') + '</span>';
+          }
+          return '<div class="sched-row">' +
+            '<div class="sched-date">' + esc(dateDisp) + '<small>' + esc(dayLabel(m.date)) + '</small></div>' +
+            '<div class="sched-main">' +
+              '<div class="sched-opp">vs ' + esc(m.opponent || '未定') + '</div>' +
+              '<div class="sched-venue">' + esc(m.venue || '') + '</div>' +
+            '</div>' +
+            '<div class="sched-right">' + right + '</div>' +
+            '</div>';
+        }).join('');
+        return '<div class="sched-group">' +
+          '<div class="sched-comp-title">' + esc(key) + '</div>' +
+          '<div class="sched-list">' + rows + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    ConfigLoader.apply({
+      pageTitle: '試合日程・結果',
+      onLoaded: function(c){
+        function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
+        state.config = c;
+        state.categories = c.matchCategories || ['U-15'];
+        state.activeCategory = state.categories[0];
+        renderTabs();
+
+        var binId = get(c,'integration.jsonbinBinId') || get(c,'matchPlanner.jsonbinBinId');
+        var apiKey = get(c,'integration.jsonbinApiKey') || get(c,'matchPlanner.jsonbinApiKey');
+        if(!binId || /^DUMMY/i.test(binId)){ renderUpcoming(); renderGroups(); return; }
+        fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', { headers: {'X-Master-Key': apiKey} })
+          .then(function(r){ return r.json(); })
+          .then(function(json){
+            var m = json && json.record && json.record.matches;
+            state.allMatches = Array.isArray(m) ? m : [];
+            renderUpcoming(); renderGroups();
+          })
+          .catch(function(){ renderUpcoming(); renderGroups(); });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>選手・スタッフ紹介 | 八ヶ岳北杜グランデフットボールクラブ</title>
+  <meta name="description" content="八ヶ岳北杜グランデフットボールクラブの選手・スタッフ紹介。ジュニアユース(U-15)、ジュニア(U-12)の選手をポジション別にご紹介します。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳北杜グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-name">GRANDE F.C.</span>
+          <span class="gh-logo-sub">YATSUGATAKE HOKUTO</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="../grande_recruit.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="../partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="../members.html" class="gh-login">ログイン</a>
+        <a href="../grande_recruit.html" class="gh-cta gh-cta--trial">体験申込<small>TRIAL</small></a>
+        <a href="../itemshop.html" class="gh-cta gh-cta--shop">アイテムショップ<small>STORE</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="../partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link" href="../members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
+    <div class="m-nav-ctas">
+      <a href="../grande_recruit.html" class="m-cta-trial">体験申込</a>
+      <a href="../itemshop.html" class="m-cta-shop">アイテムショップ</a>
+    </div>
+  </nav>
+
+  <!-- ページヒーロー -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">PLAYERS &amp; STAFF</div>
+      <div class="ph-ja">選手・スタッフ紹介</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>選手・スタッフ紹介</span></div></div>
+
+  <main class="page-body">
+    <div class="container">
+
+      <!-- カテゴリフィルタ -->
+      <div class="filter-bar" id="cat-filter">
+        <button class="filter-btn on" data-category="jy">ジュニアユース (U-15)</button>
+        <button class="filter-btn" data-category="jr">ジュニア (U-12)</button>
+        <button class="filter-btn" data-category="staff">スタッフ</button>
+      </div>
+
+      <!-- ポジション別グループ -->
+      <div id="pos-groups"><p class="no-data">読み込み中...</p></div>
+
+    </div>
+  </main>
+
+  <!-- 選手詳細モーダル -->
+  <div class="player-modal" id="player-modal">
+    <div class="pm-box">
+      <div class="pm-photo" id="modal-photo"></div>
+      <div class="pm-body">
+        <div class="pm-name" id="modal-name"></div>
+        <div class="pm-name-en" id="modal-nameEn"></div>
+        <div class="pm-meta">
+          <div><div class="lb">NO.</div><div class="vl" id="modal-number">—</div></div>
+          <div><div class="lb">POSITION</div><div class="vl" id="modal-position">—</div></div>
+          <div><div class="lb">GRADE</div><div class="vl" id="modal-grade">—</div></div>
+        </div>
+        <button class="pm-close" id="modal-close">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <footer class="gf">
+    <div class="gf-top">
+      <div class="gf-top-inner">
+        <div class="gf-brand">
+          <img src="../assets/logo.png" alt="八ヶ岳北杜グランデFC">
+          <div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳北杜グランデフットボールクラブ</div>
+            <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
+          </div>
+        </div>
+        <nav class="gf-nav">
+          <a href="news.html">お知らせ</a>
+          <a href="matches.html">試合情報</a>
+          <a href="team.html">選手・スタッフ</a>
+          <a href="club.html">クラブを知る</a>
+          <a href="../grande_recruit.html">入会・体験</a>
+          <a href="../partners.html">パートナー</a>
+          <a href="../itemshop.html">アイテムショップ</a>
+          <a href="../members.html">クラブ員専用</a>
+          <a href="../contact.html">お問い合わせ</a>
+        </nav>
+        <div class="gf-sns">
+          <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+          <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4L15.9 12z"/></svg></a>
+          <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" aria-label="LINE"><svg viewBox="0 0 24 24"><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.8 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c0 .3-.2 1.2 1 .6 1.3-.5 6.9-4.1 9.4-7 1.8-1.9 2.7-3.8 2.7-5.9z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="../contact.html">お問い合わせ</a>
+          <a href="../members.html">クラブ員専用</a>
+        </div>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳北杜グランデFC</span>. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- フローティングCTA -->
+  <div class="float-btns">
+    <a href="../grande_recruit.html" class="fb-trial">体験申込</a>
+    <a href="../itemshop.html" class="fb-shop">アイテムショップ</a>
+  </div>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    var posColor = { GK: '#b8870b', DF: '#2a6fd6', MF: '#1f8a4c', FW: '#c0392b' };
+    var POS_ORDER = [
+      { key: 'GK', ja: 'ゴールキーパー' },
+      { key: 'DF', ja: 'ディフェンダー' },
+      { key: 'MF', ja: 'ミッドフィールダー' },
+      { key: 'FW', ja: 'フォワード' }
+    ];
+    var allPlayers = [];
+    var currentCategory = 'jy';
+
+    function playerCard(p){
+      var pc = posColor[p.position] || '#6b7078';
+      var photoStyle = p.photo ? ' style="background-image:url(' + esc(p.photo) + ')"' : '';
+      return '<div class="player-card" data-id="' + esc(p.id) + '">' +
+        '<div class="player-photo"' + photoStyle + '>' +
+          '<span class="player-number">' + esc(p.number || '—') + '</span>' +
+          (p.position ? '<span class="player-pos-badge" style="background:' + pc + ';">' + esc(p.position) + '</span>' : '') +
+        '</div>' +
+        '<div class="player-info">' +
+          '<div class="player-name">' + esc(p.name || '') + '</div>' +
+          '<div class="player-name-en">' + esc(p.nameEn || p.grade || '') + '</div>' +
+        '</div>' +
+        '</div>';
+    }
+
+    function render(){
+      var el = document.getElementById('pos-groups');
+      var players = allPlayers.filter(function(p){ return (p.category || 'jy') === currentCategory; });
+      if(players.length === 0){ el.innerHTML = '<p class="no-data">該当するメンバーがいません</p>'; return; }
+
+      if(currentCategory === 'staff'){
+        el.innerHTML = '<div class="pos-group">' +
+          '<div class="pos-title"><span class="p-en">STAFF</span><span class="p-ja">スタッフ</span></div>' +
+          '<div class="players-grid">' + players.map(playerCard).join('') + '</div>' +
+          '</div>';
+      } else {
+        var html = POS_ORDER.map(function(pos){
+          var group = players
+            .filter(function(p){ return p.position === pos.key; })
+            .sort(function(a,b){ return (parseInt(a.number)||999) - (parseInt(b.number)||999); });
+          if(group.length === 0) return '';
+          return '<div class="pos-group">' +
+            '<div class="pos-title"><span class="p-en">' + pos.key + '</span><span class="p-ja">' + pos.ja + '</span></div>' +
+            '<div class="players-grid">' + group.map(playerCard).join('') + '</div>' +
+            '</div>';
+        }).join('');
+        var others = players.filter(function(p){ return !POS_ORDER.some(function(x){ return x.key === p.position; }); })
+          .sort(function(a,b){ return (parseInt(a.number)||999) - (parseInt(b.number)||999); });
+        if(others.length > 0){
+          html += '<div class="pos-group">' +
+            '<div class="pos-title"><span class="p-en">MEMBER</span><span class="p-ja">メンバー</span></div>' +
+            '<div class="players-grid">' + others.map(playerCard).join('') + '</div>' +
+            '</div>';
+        }
+        el.innerHTML = html || '<p class="no-data">該当するメンバーがいません</p>';
+      }
+
+      el.querySelectorAll('.player-card').forEach(function(card){
+        card.addEventListener('click', function(){ showDetail(this.dataset.id); });
+      });
+    }
+
+    function showDetail(id){
+      var p = allPlayers.find(function(x){ return String(x.id) === String(id); });
+      if(!p) return;
+      document.getElementById('modal-name').textContent = p.name || '';
+      document.getElementById('modal-nameEn').textContent = p.nameEn || '';
+      document.getElementById('modal-number').textContent = p.number || '—';
+      document.getElementById('modal-position').textContent = p.position || '—';
+      document.getElementById('modal-grade').textContent = p.grade || '—';
+      var ph = document.getElementById('modal-photo');
+      ph.style.backgroundImage = p.photo ? 'url(' + p.photo + ')' : '';
+      document.getElementById('player-modal').classList.add('show');
+    }
+    document.getElementById('modal-close').addEventListener('click', function(){
+      document.getElementById('player-modal').classList.remove('show');
+    });
+    document.getElementById('player-modal').addEventListener('click', function(e){
+      if(e.target === this) this.classList.remove('show');
+    });
+
+    document.querySelectorAll('#cat-filter .filter-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('#cat-filter .filter-btn').forEach(function(b){ b.classList.remove('on'); });
+        this.classList.add('on');
+        currentCategory = this.dataset.category;
+        render();
+      });
+    });
+
+    ConfigLoader.apply({
+      pageTitle: '選手・スタッフ紹介',
+      onLoaded: function(c){
+        function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
+        var binId = get(c,'playerIntegration.jsonbinBinId');
+        var apiKey = get(c,'playerIntegration.jsonbinApiKey');
+        if(!binId){ document.getElementById('pos-groups').innerHTML = '<p class="no-data">選手情報は準備中です</p>'; return; }
+        fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', { headers: {'X-Master-Key': apiKey} })
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            allPlayers = (data.record && data.record.players) || [];
+            render();
+          })
+          .catch(function(){
+            document.getElementById('pos-groups').innerHTML = '<p class="no-data">選手情報の読み込みに失敗しました</p>';
+          });
+      }
+    });
+  </script>
+</body>
+</html>
