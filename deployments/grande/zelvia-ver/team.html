@@ -28,12 +28,12 @@
         <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
         <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
         <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
-        <a href="../grande_recruit.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
-        <a href="../partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
       </nav>
       <div class="gh-actions">
         <a href="../members.html" class="gh-login">ログイン</a>
-        <a href="../grande_recruit.html" class="gh-cta gh-cta--trial">体験申込<small>TRIAL</small></a>
+        <a href="join.html#apply" class="gh-cta gh-cta--trial">体験申込<small>TRIAL</small></a>
         <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
       </div>
     </div>
@@ -46,10 +46,10 @@
     <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
     <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
     <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
-    <a class="m-link" href="../partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
     <a class="m-link" href="../members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
     <div class="m-nav-ctas">
-      <a href="../grande_recruit.html" class="m-cta-trial">体験申込</a>
+      <a href="join.html#apply" class="m-cta-trial">体験申込</a>
     </div>
   </nav>
 
@@ -70,6 +70,15 @@
         <button class="filter-btn on" data-category="jy">ジュニアユース (U-15)</button>
         <button class="filter-btn" data-category="jr">ジュニア (U-12)</button>
         <button class="filter-btn" data-category="staff">スタッフ</button>
+      </div>
+
+      <!-- 並び順 -->
+      <div class="sort-bar">
+        <span class="sort-label">並び順</span>
+        <div class="filter-bar" id="sort-filter" style="margin-bottom:0;">
+          <button class="filter-btn on" data-sort="number">背番号順</button>
+          <button class="filter-btn" data-sort="grade">学年順</button>
+        </div>
       </div>
 
       <!-- ポジション別グループ -->
@@ -111,8 +120,8 @@
           <a href="matches.html">試合情報</a>
           <a href="team.html">選手・スタッフ</a>
           <a href="club.html">クラブを知る</a>
-          <a href="../grande_recruit.html">入会・体験</a>
-          <a href="../partners.html">パートナー</a>
+          <a href="join.html">入会・体験</a>
+          <a href="partners.html">パートナー</a>
           <a href="../members.html">クラブ員専用</a>
           <a href="../contact.html">お問い合わせ</a>
         </nav>
@@ -137,7 +146,7 @@
 
   <!-- フローティングCTA -->
   <div class="float-btns">
-    <a href="../grande_recruit.html" class="fb-trial">体験申込</a>
+    <a href="join.html#apply" class="fb-trial">体験申込</a>
   </div>
 
   <script src="js/config-loader.js"></script>
@@ -158,6 +167,20 @@
     ];
     var allPlayers = [];
     var currentCategory = 'jy';
+    var currentSort = 'number';
+
+    // 並び順: 背番号順 or 学年順(中3→中1→小6→小1、未入力は最後)。同順位は背番号で揃える
+    function sortPlayers(arr){
+      var gradeOrder = {'中3':1,'中2':2,'中1':3,'小6':10,'小5':11,'小4':12,'小3':13,'小2':14,'小1':15};
+      return arr.slice().sort(function(a,b){
+        if(currentSort === 'grade'){
+          var ag = gradeOrder[a.grade] || 999;
+          var bg = gradeOrder[b.grade] || 999;
+          if(ag !== bg) return ag - bg;
+        }
+        return (parseInt(a.number)||999) - (parseInt(b.number)||999);
+      });
+    }
 
     function playerCard(p){
       var pc = posColor[p.position] || '#6b7078';
@@ -195,21 +218,18 @@
       if(currentCategory === 'staff'){
         el.innerHTML = '<div class="pos-group">' +
           '<div class="pos-title"><span class="p-en">STAFF</span><span class="p-ja">スタッフ</span></div>' +
-          '<div class="players-grid">' + players.map(playerCard).join('') + '</div>' +
+          '<div class="players-grid">' + sortPlayers(players).map(playerCard).join('') + '</div>' +
           '</div>';
       } else {
         var html = POS_ORDER.map(function(pos){
-          var group = players
-            .filter(function(p){ return p.position === pos.key; })
-            .sort(function(a,b){ return (parseInt(a.number)||999) - (parseInt(b.number)||999); });
+          var group = sortPlayers(players.filter(function(p){ return p.position === pos.key; }));
           if(group.length === 0) return '';
           return '<div class="pos-group">' +
             '<div class="pos-title"><span class="p-en">' + pos.key + '</span><span class="p-ja">' + pos.ja + '</span></div>' +
             '<div class="players-grid">' + group.map(playerCard).join('') + '</div>' +
             '</div>';
         }).join('');
-        var others = players.filter(function(p){ return !POS_ORDER.some(function(x){ return x.key === p.position; }); })
-          .sort(function(a,b){ return (parseInt(a.number)||999) - (parseInt(b.number)||999); });
+        var others = sortPlayers(players.filter(function(p){ return !POS_ORDER.some(function(x){ return x.key === p.position; }); }));
         if(others.length > 0){
           html += '<div class="pos-group">' +
             '<div class="pos-title"><span class="p-en">MEMBER</span><span class="p-ja">メンバー</span></div>' +
@@ -248,6 +268,15 @@
         document.querySelectorAll('#cat-filter .filter-btn').forEach(function(b){ b.classList.remove('on'); });
         this.classList.add('on');
         currentCategory = this.dataset.category;
+        render();
+      });
+    });
+
+    document.querySelectorAll('#sort-filter .filter-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('#sort-filter .filter-btn').forEach(function(b){ b.classList.remove('on'); });
+        this.classList.add('on');
+        currentSort = this.dataset.sort;
         render();
       });
     });

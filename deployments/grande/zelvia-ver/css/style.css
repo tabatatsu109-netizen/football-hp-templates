@@ -411,6 +411,8 @@ img { max-width: 100%; display: block; }
   transition: all .15s;
 }
 .filter-btn.on { background: var(--main-color); border-color: var(--main-color); color: #fff; }
+.sort-bar { display: flex; align-items: center; gap: 12px; margin: -12px 0 28px; }
+.sort-bar .sort-label { font-size: 12px; font-weight: 700; color: var(--ink-sub); letter-spacing: 1px; flex: none; }
 .more-wrap { text-align: center; margin-top: 30px; }
 .more-btn {
   display: inline-block; border: 1px solid #c9ccd0; background: #fff; cursor: pointer;
@@ -540,6 +542,77 @@ img { max-width: 100%; display: block; }
   .gf-nav { grid-template-columns: repeat(3, auto); }
   .gf-bottom-inner { flex-direction: row; justify-content: space-between; align-items: center; }
 }
+
+/* ============================================================
+   入会・体験ページ (join.html)
+   ============================================================ */
+.step-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.step-card { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 20px 18px; position: relative; }
+.step-no { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; color: var(--main-color); line-height: 1; }
+.step-title { font-size: 15px; font-weight: 900; margin: 10px 0 6px; }
+.step-body { color: var(--ink-sub); font-size: 12px; line-height: 1.9; }
+@media (min-width: 900px) { .step-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.catinfo-grid { display: grid; gap: 14px; }
+.catinfo-card { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--main-color); border-radius: 6px; padding: 22px 20px; }
+.catinfo-en { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; font-size: 14px; color: var(--main-color); letter-spacing: 2px; }
+.catinfo-name { font-size: 20px; font-weight: 900; margin-top: 4px; }
+.catinfo-target { display: inline-block; background: var(--main-light); color: var(--main-color); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 2px; margin: 10px 0 14px; }
+.catinfo-dl { display: grid; grid-template-columns: 84px 1fr; gap: 8px 12px; font-size: 13px; }
+.catinfo-dl dt { color: var(--ink-sub); font-weight: 700; }
+.catinfo-dl dd { color: #2c3036; line-height: 1.7; }
+.catinfo-dl small { color: var(--ink-sub); }
+@media (min-width: 900px) { .catinfo-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.fee-table th { width: auto; }
+.fee-table small { color: var(--ink-sub); font-weight: 400; }
+
+.jform { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 24px 20px 28px; max-width: 720px; }
+.jform-row { display: grid; gap: 0 16px; }
+@media (min-width: 700px) { .jform-row { grid-template-columns: 1fr 1fr; } }
+.jform-group { margin-bottom: 18px; }
+.jform-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.jform-label .req { color: var(--red); font-size: 10px; margin-left: 4px; }
+.jform-input {
+  width: 100%; padding: 12px 14px; font-size: 14px; font-family: inherit;
+  border: 1px solid #d4d6d9; border-radius: 4px; background: var(--bg-gray);
+}
+.jform-input:focus { outline: none; border-color: var(--main-color); background: #fff; }
+.jform-textarea { min-height: 110px; resize: vertical; }
+.jform-radios { display: flex; gap: 10px 20px; flex-wrap: wrap; padding-top: 4px; }
+.jform-radios label { font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+.jform-submit {
+  display: block; width: 100%; margin-top: 6px; cursor: pointer;
+  background: var(--main-color); color: #fff; border: none; border-radius: 999px;
+  font-size: 15px; font-weight: 700; letter-spacing: 1px; padding: 16px; font-family: inherit;
+  transition: background .2s;
+}
+.jform-submit:hover { background: var(--main-dark); }
+
+/* ============================================================
+   パートナーページ (partners.html)
+   ============================================================ */
+.pt-grid { display: grid; gap: 14px; }
+.pt-card {
+  background: #fff; border: 1px solid var(--line); border-radius: 6px;
+  padding: 22px 20px; display: flex; flex-direction: column; transition: box-shadow .2s, transform .2s;
+}
+.pt-card:hover { box-shadow: 0 10px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.pt-logo { height: 64px; display: flex; align-items: center; margin-bottom: 14px; }
+.pt-logo img { max-height: 56px; width: auto; max-width: 200px; object-fit: contain; }
+.pt-logo-text { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; color: #3c4046; letter-spacing: 2px; }
+.pt-label { align-self: flex-start; font-size: 10px; font-weight: 700; letter-spacing: 2px; padding: 3px 10px; border-radius: 2px; border: 1px solid var(--main-color); color: var(--main-color); }
+.pt-label--official { background: var(--main-color); color: #fff; }
+.pt-label--supporter { border-color: var(--gold); color: var(--gold); }
+.pt-name { font-size: 16px; font-weight: 900; margin: 10px 0 6px; }
+.pt-desc { color: var(--ink-sub); font-size: 12.5px; line-height: 1.9; flex: 1; }
+.pt-link { margin-top: 14px; color: var(--main-color); font-size: 12px; font-weight: 700; }
+@media (min-width: 700px) { .pt-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1000px) { .pt-grid { grid-template-columns: repeat(3, 1fr); } }
+.pt-support { margin-top: 52px; text-align: center; background: var(--bg-gray); border-radius: 8px; padding: 44px 20px; }
+.pt-support-en { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; font-size: 14px; color: var(--main-color); letter-spacing: 3px; }
+.pt-support-title { font-size: 24px; font-weight: 900; margin: 8px 0 12px; }
+.pt-support-desc { color: #4c5157; font-size: 13px; line-height: 2; margin-bottom: 22px; }
 
 /* ── ニュース / 試合結果 詳細モーダル ── */
 .nd-overlay {
