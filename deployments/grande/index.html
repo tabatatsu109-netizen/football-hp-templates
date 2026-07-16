@@ -1556,14 +1556,13 @@
         var _pickupPool = [];
         function shuffleArr(arr){ for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
         function gradeToCategory(p){
-          if(p.category==='jy'){
-            var g={'中1':'U13','中2':'U14','中3':'U15'};
-            return g[p.grade]||'U15';
-          }
-          if(p.category==='jr'){
-            var g2={'小6':'U12','小5':'U11','小4':'U10','小3':'U9','小2':'U8','小1':'U7'};
-            return g2[p.grade]||'U12';
-          }
+          // 学年から年代バッジを決定（カテゴリーが jy/jr 以外の表記でも動くようにする）
+          var g = {'中1':'U13','中2':'U14','中3':'U15','小6':'U12','小5':'U11','小4':'U10','小3':'U9','小2':'U8','小1':'U7'};
+          if(g[p.grade]) return g[p.grade];
+          var m = String(p.category||'').toUpperCase().match(/U-?(\d+)/);
+          if(m) return 'U' + m[1];
+          if(p.category==='jy') return 'U15';
+          if(p.category==='jr') return 'U12';
           return '';
         }
         function renderPickup(){

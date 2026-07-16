@@ -253,10 +253,24 @@
 
     function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+    // カテゴリー表記の正規化:
+    //   "jy"/"jr"/"staff" はそのまま、"U15"〜"U13" → jy、"U12"以下 → jr、
+    //   未設定なら学年(中x → jy、小x/園 → jr)から判定する
+    function effectiveCategory(p){
+      var c = String(p.category || '').trim().toLowerCase();
+      if(c === 'jy' || c === 'jr' || c === 'staff') return c;
+      var m = String(p.category || '').toUpperCase().match(/U-?(\d+)/);
+      if(m) return parseInt(m[1], 10) >= 13 ? 'jy' : 'jr';
+      if(/中/.test(p.grade || '')) return 'jy';
+      if(/小|園|年少|年中|年長/.test(p.grade || '')) return 'jr';
+      return '';
+    }
+
     function getSortedPlayers(){
       var filtered = allPlayersData.filter(function(p){
-        if(currentCategory === 'all') return p.category !== 'staff';
-        return p.category === currentCategory;
+        var ec = effectiveCategory(p);
+        if(currentCategory === 'all') return ec !== 'staff';
+        return ec === currentCategory;
       });
 
       filtered.sort(function(a,b){
