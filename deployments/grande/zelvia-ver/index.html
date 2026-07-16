@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>八ヶ岳北杜グランデフットボールクラブ</title>
-  <meta name="description" content="八ヶ岳北杜グランデフットボールクラブ公式サイト。八ヶ岳の大自然のもと、子どもたちがサッカーを通じて心と身体を磨き、夢に向かって努力できるクラブ。">
-  <meta property="og:title" content="八ヶ岳北杜グランデフットボールクラブ">
+  <title>八ヶ岳グランデFC</title>
+  <meta name="description" content="八ヶ岳グランデFC公式サイト。八ヶ岳の大自然のもと、子どもたちがサッカーを通じて心と身体を磨き、夢に向かって努力できるクラブ。">
+  <meta property="og:title" content="八ヶ岳グランデFC">
   <meta property="og:description" content="感動するサッカーの追求 — CORAZON GRANDE">
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,11 @@
   <header class="gh">
     <div class="gh-inner">
       <a href="index.html" class="gh-logo">
-        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳北杜グランデFC ロゴ">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
         <span class="gh-logo-fallback" id="logo-abbr">G</span>
         <span class="gh-logo-text">
           <span class="gh-logo-name">GRANDE F.C.</span>
-          <span class="gh-logo-sub">YATSUGATAKE HOKUTO</span>
+          <span class="gh-logo-sub">YATSUGATAKE</span>
         </span>
       </a>
       <nav class="gh-nav">
@@ -70,7 +70,7 @@
     <div class="hero-bg" id="hero-bg"></div>
     <div class="hero-inner">
       <p class="hero-loc" id="hero-location">YAMANASHI · YATSUGATAKE</p>
-      <h1 class="hero-slogan" id="hero-slogan">CORAZON<br><span class="g">GRANDE</span></h1>
+      <h1 class="hero-slogan-img"><img src="../assets/logo2.png" alt="GRANDE"></h1>
       <p class="hero-slogan-ja" id="hero-subcopy">感動するサッカーの追求</p>
     </div>
     <span class="hero-scroll">SCROLL</span>
@@ -169,7 +169,7 @@
   <!-- マーキー(流れる帯文字) -->
   <div class="marquee" aria-hidden="true">
     <div class="marquee-inner" id="marquee-inner">
-      <span>CORAZON GRANDE&nbsp;&nbsp;—&nbsp;&nbsp;YATSUGATAKE HOKUTO&nbsp;&nbsp;—&nbsp;&nbsp;</span>
+      <span>CORAZON GRANDE&nbsp;&nbsp;—&nbsp;&nbsp;YATSUGATAKE&nbsp;&nbsp;—&nbsp;&nbsp;</span>
     </div>
   </div>
 
@@ -256,9 +256,9 @@
     <div class="gf-top">
       <div class="gf-top-inner">
         <div class="gf-brand">
-          <img src="../assets/logo.png" alt="八ヶ岳北杜グランデFC">
+          <img src="../assets/logo.png" alt="八ヶ岳グランデFC">
           <div>
-            <div class="gf-brand-name" id="footer-club-name">八ヶ岳北杜グランデフットボールクラブ</div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳グランデFC</div>
             <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
           </div>
         </div>
@@ -286,7 +286,7 @@
           <a href="../contact.html">お問い合わせ</a>
           <a href="../members.html">クラブ員専用</a>
         </div>
-        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳北杜グランデFC</span>. ALL RIGHTS RESERVED.</span>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
       </div>
     </div>
   </footer>
@@ -346,31 +346,7 @@
       }
     })();
 
-    // ── ヒーロースローガンの1文字ずつスライドイン ──
-    (function(){
-      var el = document.getElementById('hero-slogan');
-      var idx = 0;
-      function wrap(node){
-        var kids = Array.prototype.slice.call(node.childNodes);
-        kids.forEach(function(n){
-          if (n.nodeType === 3) { // テキストノード
-            var frag = document.createDocumentFragment();
-            n.textContent.split('').forEach(function(c){
-              var s = document.createElement('span');
-              s.className = 'ch';
-              s.style.transitionDelay = (idx * 45) + 'ms';
-              s.innerHTML = (c === ' ' ? '&nbsp;' : c);
-              frag.appendChild(s);
-              idx++;
-            });
-            node.replaceChild(frag, n);
-          } else if (n.nodeType === 1 && n.tagName !== 'BR') {
-            wrap(n);
-          }
-        });
-      }
-      wrap(el);
-    })();
+    // ヒーローのロゴ・テキストは body.page-in 付与でCSSアニメーションが発火する
 
     // モバイルメニュー
     var mobileNav = document.getElementById('mobile-nav');

@@ -1,10 +1,10 @@
 {
   "_meta": {
     "version": "2.0",
-    "description": "八ヶ岳グランデフットボールクラブ ホームページ設定ファイル"
+    "description": "八ヶ岳グランデFC ホームページ設定ファイル"
   },
   "club": {
-    "name": "八ヶ岳北杜グランデフットボールクラブ",
+    "name": "八ヶ岳グランデFC",
     "shortName": "八ヶ岳グランデFC",
     "nickname": "グランデ",
     "abbreviation": "G",

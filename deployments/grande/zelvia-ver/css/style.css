@@ -664,14 +664,15 @@ img { max-width: 100%; display: block; }
 @keyframes loaderCh { to { opacity: 1; transform: none; } }
 @keyframes loaderBar { 0% { transform: translateX(-120%); } 100% { transform: translateX(420%); } }
 
-/* ── ヒーロー: 文字スライドイン + 背景スロースズーム ── */
-.hero-slogan { overflow: hidden; }
-.hero-slogan .ch {
-  display: inline-block;
-  transform: translateY(110%); opacity: 0;
-  transition: transform .7s cubic-bezier(.2,.7,.2,1), opacity .5s ease;
+/* ── ヒーロー: ロゴのスライドイン + 背景スロースズーム ── */
+.hero-slogan-img { margin: 4px 0 0; }
+.hero-slogan-img img {
+  width: clamp(260px, 44vw, 560px); height: auto;
+  filter: drop-shadow(0 6px 22px rgba(0,0,0,0.45));
+  opacity: 0; transform: translateY(34px) scale(0.96);
+  transition: opacity .9s ease .15s, transform .9s cubic-bezier(.2,.7,.2,1) .15s;
 }
-body.page-in .hero-slogan .ch { transform: none; opacity: 1; }
+body.page-in .hero-slogan-img img { opacity: 1; transform: none; }
 .hero-loc, .hero-slogan-ja { opacity: 0; transform: translateY(14px); transition: opacity .8s ease .5s, transform .8s ease .5s; }
 body.page-in .hero-loc, body.page-in .hero-slogan-ja { opacity: 1; transform: none; }
 .hero-slogan-ja { transition-delay: .9s; }
