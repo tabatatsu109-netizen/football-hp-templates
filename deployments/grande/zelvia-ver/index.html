@@ -15,6 +15,15 @@
 </head>
 <body>
 
+  <!-- ローディング演出(初回のみ) -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader-inner">
+      <img src="../assets/logo.png" alt="" class="loader-logo">
+      <div class="loader-text" id="loader-text">CORAZON GRANDE</div>
+      <div class="loader-bar"><span></span></div>
+    </div>
+  </div>
+
   <!-- ヘッダー -->
   <header class="gh">
     <div class="gh-inner">
@@ -61,7 +70,7 @@
     <div class="hero-bg" id="hero-bg"></div>
     <div class="hero-inner">
       <p class="hero-loc" id="hero-location">YAMANASHI · YATSUGATAKE</p>
-      <h1 class="hero-slogan">CORAZON<br><span class="g">GRANDE</span></h1>
+      <h1 class="hero-slogan" id="hero-slogan">CORAZON<br><span class="g">GRANDE</span></h1>
       <p class="hero-slogan-ja" id="hero-subcopy">感動するサッカーの追求</p>
     </div>
     <span class="hero-scroll">SCROLL</span>
@@ -148,9 +157,21 @@
       <p class="statement-en">CORAZON GRANDE</p>
       <p class="statement-ja">感動するサッカーの追求</p>
       <p class="statement-desc" id="club-description">八ヶ岳の大自然のもと、子どもたちがサッカーを通じて心と身体を磨き、夢に向かって努力できるクラブ。2001年設立以来、地域に根ざしたスポーツ育成を続けています。</p>
+      <div class="stats-row" id="stats-row">
+        <div class="stat"><span class="stat-num" data-count="2001">0</span><span class="stat-label">設立年</span></div>
+        <div class="stat"><span class="stat-num" data-count="25">0</span><span class="stat-label">活動年数</span></div>
+        <div class="stat"><span class="stat-num" data-count="3">0</span><span class="stat-label">カテゴリー</span></div>
+      </div>
       <a href="club.html" class="statement-btn">クラブを知る →</a>
     </div>
   </section>
+
+  <!-- マーキー(流れる帯文字) -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-inner" id="marquee-inner">
+      <span>CORAZON GRANDE&nbsp;&nbsp;—&nbsp;&nbsp;YATSUGATAKE HOKUTO&nbsp;&nbsp;—&nbsp;&nbsp;</span>
+    </div>
+  </div>
 
   <!-- ムービー -->
   <section class="movie">
@@ -294,6 +315,62 @@
   <script>
     // 年号
     document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // ── ローディング演出(1セッション1回のみ) ──
+    (function(){
+      var loader = document.getElementById('loader');
+      var seen = false;
+      try { seen = sessionStorage.getItem('gv-loaded') === '1'; } catch(e){}
+      function finish(){
+        loader.classList.add('done');
+        document.body.classList.add('page-in');
+        try { sessionStorage.setItem('gv-loaded', '1'); } catch(e){}
+      }
+      if (seen) {
+        loader.classList.add('skip');
+        document.body.classList.add('page-in');
+      } else {
+        // ローダーの文字を1文字ずつ表示
+        var lt = document.getElementById('loader-text');
+        var chars = lt.textContent.split('');
+        lt.innerHTML = chars.map(function(c, i){
+          return '<span style="animation-delay:' + (i * 40) + 'ms">' + (c === ' ' ? '&nbsp;' : c) + '</span>';
+        }).join('');
+        var minTime = new Promise(function(r){ setTimeout(r, 1400); });
+        var loaded = new Promise(function(r){
+          if (document.readyState === 'complete') r();
+          else window.addEventListener('load', r);
+        });
+        Promise.all([minTime, loaded]).then(finish);
+        setTimeout(finish, 4000); // 保険
+      }
+    })();
+
+    // ── ヒーロースローガンの1文字ずつスライドイン ──
+    (function(){
+      var el = document.getElementById('hero-slogan');
+      var idx = 0;
+      function wrap(node){
+        var kids = Array.prototype.slice.call(node.childNodes);
+        kids.forEach(function(n){
+          if (n.nodeType === 3) { // テキストノード
+            var frag = document.createDocumentFragment();
+            n.textContent.split('').forEach(function(c){
+              var s = document.createElement('span');
+              s.className = 'ch';
+              s.style.transitionDelay = (idx * 45) + 'ms';
+              s.innerHTML = (c === ' ' ? '&nbsp;' : c);
+              frag.appendChild(s);
+              idx++;
+            });
+            node.replaceChild(frag, n);
+          } else if (n.nodeType === 1 && n.tagName !== 'BR') {
+            wrap(n);
+          }
+        });
+      }
+      wrap(el);
+    })();
 
     // モバイルメニュー
     var mobileNav = document.getElementById('mobile-nav');
@@ -452,6 +529,67 @@
       el.classList.add('reveal');
       observer.observe(el);
     });
+
+    // ── マーキー: 幅が足りるまで複製してシームレスループ ──
+    (function(){
+      var inner = document.getElementById('marquee-inner');
+      var unit = inner.innerHTML;
+      // 画面幅の2倍以上になるまで複製
+      var copies = Math.max(4, Math.ceil((window.innerWidth * 2) / Math.max(inner.scrollWidth, 300)));
+      inner.innerHTML = new Array(copies + 1).join(unit);
+    })();
+
+    // ── パララックス(ステートメント背景) + PC のみ・reduce-motion 尊重 ──
+    (function(){
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+      var bg = document.querySelector('.statement-bg');
+      if (!bg) return;
+      var ticking = false;
+      function update(){
+        ticking = false;
+        var rect = bg.parentElement.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+        var progress = (rect.top + rect.height / 2 - window.innerHeight / 2) / window.innerHeight;
+        bg.style.transform = 'translateY(' + (progress * -40).toFixed(1) + 'px) scale(1.15)';
+      }
+      window.addEventListener('scroll', function(){
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      }, { passive: true });
+      update();
+    })();
+
+    // ── 数字カウントアップ(ステートメント表示時) ──
+    (function(){
+      var row = document.getElementById('stats-row');
+      if (!row) return;
+      // 活動年数は現在年から自動計算
+      var yearsEl = row.querySelectorAll('.stat-num')[1];
+      if (yearsEl) yearsEl.dataset.count = String(new Date().getFullYear() - 2001);
+      var done = false;
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (!e.isIntersecting || done) return;
+          done = true;
+          io.disconnect();
+          row.querySelectorAll('.stat-num').forEach(function(el){
+            var target = parseInt(el.dataset.count, 10) || 0;
+            var start = null;
+            var dur = 1200;
+            function step(ts){
+              if (!start) start = ts;
+              var p = Math.min((ts - start) / dur, 1);
+              // easeOutCubic
+              var v = Math.round(target * (1 - Math.pow(1 - p, 3)));
+              el.textContent = v;
+              if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+          });
+        });
+      }, { threshold: 0.4 });
+      io.observe(row);
+    })();
   </script>
 </body>
 </html>

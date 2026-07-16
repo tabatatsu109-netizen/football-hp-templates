@@ -637,3 +637,99 @@ img { max-width: 100%; display: block; }
 /* ── スクロールリビール ── */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
 .reveal.active { opacity: 1; transform: none; }
+
+/* ============================================================
+   演出: ローディング / ヒーロー文字 / マーキー / 見出し / ホバー
+   ============================================================ */
+
+/* ── ローディング演出 ── */
+.loader {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--main-dark);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .6s ease, visibility .6s ease;
+}
+.loader.done, .loader.skip { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader.skip { transition: none; }
+.loader-inner { text-align: center; }
+.loader-logo { height: 64px; width: auto; margin: 0 auto 18px; animation: loaderPop .7s cubic-bezier(.2,.8,.3,1.2) both; }
+.loader-text {
+  color: #fff; font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700;
+  font-size: clamp(20px, 4vw, 30px); letter-spacing: 4px;
+}
+.loader-text span { display: inline-block; opacity: 0; transform: translateY(14px); animation: loaderCh .5s ease forwards; }
+.loader-bar { width: 160px; height: 2px; background: rgba(255,255,255,0.2); margin: 22px auto 0; overflow: hidden; border-radius: 2px; }
+.loader-bar span { display: block; height: 100%; width: 40%; background: #7fce97; border-radius: 2px; animation: loaderBar 1.2s ease-in-out infinite; }
+@keyframes loaderPop { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: scale(1); } }
+@keyframes loaderCh { to { opacity: 1; transform: none; } }
+@keyframes loaderBar { 0% { transform: translateX(-120%); } 100% { transform: translateX(420%); } }
+
+/* ── ヒーロー: 文字スライドイン + 背景スロースズーム ── */
+.hero-slogan { overflow: hidden; }
+.hero-slogan .ch {
+  display: inline-block;
+  transform: translateY(110%); opacity: 0;
+  transition: transform .7s cubic-bezier(.2,.7,.2,1), opacity .5s ease;
+}
+body.page-in .hero-slogan .ch { transform: none; opacity: 1; }
+.hero-loc, .hero-slogan-ja { opacity: 0; transform: translateY(14px); transition: opacity .8s ease .5s, transform .8s ease .5s; }
+body.page-in .hero-loc, body.page-in .hero-slogan-ja { opacity: 1; transform: none; }
+.hero-slogan-ja { transition-delay: .9s; }
+.hero-bg { animation: heroZoom 18s ease-in-out infinite alternate; }
+@keyframes heroZoom { from { transform: scale(1.02); } to { transform: scale(1.12); } }
+
+/* ── マーキー(流れる帯文字) ── */
+.marquee { background: var(--bg); padding: 34px 0 30px; overflow: hidden; border-bottom: 1px solid var(--line); }
+.marquee-inner {
+  display: inline-flex; white-space: nowrap; will-change: transform;
+  animation: marqueeMove 26s linear infinite;
+}
+.marquee-inner span {
+  font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700;
+  font-size: clamp(44px, 8vw, 92px); line-height: 1; letter-spacing: 2px;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(26,92,45,0.35);
+  flex: none;
+}
+@keyframes marqueeMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ── セクション見出し: clip-path リビール ── */
+.reveal .sec-en {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path .9s cubic-bezier(.6,0,.2,1) .1s;
+}
+.reveal.active .sec-en { clip-path: inset(0 0 0 0); }
+.reveal .sec-ja { opacity: 0; transition: opacity .7s ease .5s; }
+.reveal.active .sec-ja { opacity: 1; }
+
+/* ── 数字カウントアップ ── */
+.stats-row { display: flex; justify-content: center; gap: 40px; margin: 28px 0 4px; flex-wrap: wrap; }
+.stat { text-align: center; }
+.stat-num {
+  display: block; font-family: 'Oswald', sans-serif; font-weight: 700; font-style: italic;
+  font-size: clamp(34px, 5vw, 52px); line-height: 1; color: #7fce97;
+}
+.stat-label { display: block; margin-top: 8px; font-size: 11px; letter-spacing: 3px; color: rgba(255,255,255,0.65); font-weight: 700; }
+
+/* ── ホバー演出の底上げ ── */
+.quick-card, .movie-card, .promo-card { transition: transform .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s ease; }
+.quick-card:hover, .movie-card:hover, .promo-card:hover { transform: translateY(-4px) scale(1.015); box-shadow: 0 14px 30px rgba(10,26,14,0.22); }
+.news-row .news-arrow { transition: transform .25s ease, color .25s ease; }
+.news-row:hover .news-arrow { transform: translateX(5px); color: var(--main-color); }
+.gh-cta--trial, .fb-trial, .statement-btn, .nm-btn-light { position: relative; overflow: hidden; }
+.gh-cta--trial::after, .fb-trial::after, .nm-btn-light::after {
+  content: ''; position: absolute; top: 0; left: -80%; width: 60%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.28), transparent);
+  transform: skewX(-18deg); transition: left .55s ease;
+}
+.gh-cta--trial:hover::after, .fb-trial:hover::after, .nm-btn-light:hover::after { left: 130%; }
+.partner-item img { transition: transform .35s ease; }
+.partner-item:hover img { transform: scale(1.06); }
+.sns-item svg { transition: transform .3s ease; }
+.sns-item:hover svg { transform: scale(1.15) rotate(-4deg); }
+
+/* ── 動きを減らす設定への配慮 ── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg, .marquee-inner, .loader-bar span { animation: none !important; }
+  .hero-slogan .ch, .hero-loc, .hero-slogan-ja { transition: none; transform: none; opacity: 1; }
+  .reveal, .reveal .sec-en, .reveal .sec-ja { transition: none; opacity: 1; transform: none; clip-path: none; }
+}
