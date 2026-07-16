@@ -220,23 +220,30 @@
           '<div class="pos-title"><span class="p-en">STAFF</span><span class="p-ja">スタッフ</span></div>' +
           '<div class="players-grid">' + sortPlayers(players).map(playerCard).join('') + '</div>' +
           '</div>';
-      } else {
-        var html = POS_ORDER.map(function(pos){
-          var group = sortPlayers(players.filter(function(p){ return p.position === pos.key; }));
+      } else if(currentSort === 'grade'){
+        // 学年順: 学年ごとの見出しでグループ表示(中3→中1→小6→小1、未設定は最後)
+        var GRADE_ORDER = ['中3','中2','中1','小6','小5','小4','小3','小2','小1'];
+        var html = GRADE_ORDER.map(function(g){
+          var group = sortPlayers(players.filter(function(p){ return p.grade === g; }));
           if(group.length === 0) return '';
           return '<div class="pos-group">' +
-            '<div class="pos-title"><span class="p-en">' + pos.key + '</span><span class="p-ja">' + pos.ja + '</span></div>' +
+            '<div class="pos-title"><span class="p-en">' + esc(g) + '</span><span class="p-ja">' + esc(g) + 'の選手</span></div>' +
             '<div class="players-grid">' + group.map(playerCard).join('') + '</div>' +
             '</div>';
         }).join('');
-        var others = sortPlayers(players.filter(function(p){ return !POS_ORDER.some(function(x){ return x.key === p.position; }); }));
-        if(others.length > 0){
+        var noGrade = sortPlayers(players.filter(function(p){ return GRADE_ORDER.indexOf(p.grade) === -1; }));
+        if(noGrade.length > 0){
           html += '<div class="pos-group">' +
-            '<div class="pos-title"><span class="p-en">MEMBER</span><span class="p-ja">メンバー</span></div>' +
-            '<div class="players-grid">' + others.map(playerCard).join('') + '</div>' +
+            '<div class="pos-title"><span class="p-en">MEMBER</span><span class="p-ja">学年未設定</span></div>' +
+            '<div class="players-grid">' + noGrade.map(playerCard).join('') + '</div>' +
             '</div>';
         }
         el.innerHTML = html || '<p class="no-data">該当するメンバーがいません</p>';
+      } else {
+        // 背番号順: グループ分けせず1つのグリッドで表示
+        el.innerHTML = '<div class="pos-group">' +
+          '<div class="players-grid">' + sortPlayers(players).map(playerCard).join('') + '</div>' +
+          '</div>';
       }
 
       el.querySelectorAll('.player-card').forEach(function(card){
