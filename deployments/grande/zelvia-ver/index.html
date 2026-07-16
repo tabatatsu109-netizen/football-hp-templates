@@ -116,14 +116,14 @@
       <div class="match-next-panel">
         <div id="match-next-inner">
           <div class="nm-left">
-            <div class="nm-badge">NEXT MATCH</div>
+            <div class="nm-badge-row"><div class="nm-badge">NEXT MATCH</div></div>
             <div class="nm-comp">読み込み中...</div>
           </div>
           <div class="nm-center" style="color:#9aa0a8;font-size:13px;">データを取得中</div>
-          <div class="nm-right">
-            <a href="../contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>
-            <a href="matches.html" class="nm-btn nm-btn-dark">試合詳細</a>
-          </div>
+        </div>
+        <div class="nm-actions">
+          <a href="../contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>
+          <a href="matches.html" class="nm-btn nm-btn-dark">試合詳細</a>
         </div>
       </div>
     </div>
@@ -297,6 +297,20 @@
   <div class="float-btns">
     <a href="../grande_recruit.html" class="fb-trial">体験申込</a>
     <a href="../itemshop.html" class="fb-shop">アイテムショップ</a>
+  </div>
+
+  <!-- ニュース / 試合結果 詳細モーダル -->
+  <div class="nd-overlay" id="news-detail-overlay">
+    <div class="nd-box">
+      <button class="nd-close" id="news-detail-close" aria-label="閉じる">✕</button>
+      <div class="nd-meta">
+        <span class="nd-tag" id="news-detail-tag"></span>
+        <span class="nd-date" id="news-detail-date"></span>
+      </div>
+      <h3 class="nd-title" id="news-detail-title"></h3>
+      <img class="nd-image" id="news-detail-image" alt="">
+      <p class="nd-body" id="news-detail-body"></p>
+    </div>
   </div>
 
   <script src="js/config-loader.js"></script>

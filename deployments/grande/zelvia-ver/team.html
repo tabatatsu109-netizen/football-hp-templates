@@ -247,13 +247,20 @@
       pageTitle: '選手・スタッフ紹介',
       onLoaded: function(c){
         function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
-        var binId = get(c,'playerIntegration.jsonbinBinId');
-        var apiKey = get(c,'playerIntegration.jsonbinApiKey');
-        if(!binId){ document.getElementById('pos-groups').innerHTML = '<p class="no-data">選手情報は準備中です</p>'; return; }
-        fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', { headers: {'X-Master-Key': apiKey} })
+        // Firebase（最新版 Match Planner の保存先）から選手データを取得
+        var fbUrl = get(c,'integration.firebaseUrl') || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId = get(c,'integration.firebaseClubId') || 'grande';
+        fetch(fbUrl + '/clubs/' + clubId + '.json')
           .then(function(r){ return r.json(); })
           .then(function(data){
-            allPlayers = (data.record && data.record.players) || [];
+            var raw = (data && data.players) || [];
+            // 旧形式(position/nameEn)と新プランナー形式(mainGroup/nameRoman)の両対応
+            allPlayers = raw.map(function(p){
+              var q = {}; for(var k in p){ q[k] = p[k]; }
+              q.position = p.position || p.mainGroup || '';
+              q.nameEn = p.nameEn || p.nameRoman || '';
+              return q;
+            });
             render();
           })
           .catch(function(){

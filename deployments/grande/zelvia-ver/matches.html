@@ -147,7 +147,24 @@
     function resultClass(rs){ if(!rs) return 'badge-draw'; if(/勝|win/i.test(rs)) return 'badge-win'; if(/負|敗|lose/i.test(rs)) return 'badge-lose'; return 'badge-draw'; }
     function resultLetter(rs){ if(!rs) return 'D'; if(/勝|win/i.test(rs)) return 'W'; if(/負|敗|lose/i.test(rs)) return 'L'; return 'D'; }
 
-    var state = { config: null, allMatches: [], categories: [], activeCategory: '' };
+    var state = { config: null, allMatches: [], allSchedules: [], categories: [], activeCategory: '' };
+
+    // カテゴリー表記ゆれ吸収 ("U15" と "U-15" を同一視)
+    function normCat(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+
+    // タブ → Match Planner カテゴリーのグルーピング
+    //   U-15 タブ = U15 / U14 / U13、U-12 タブ = U12 / U11 / U10 / U9 / U8
+    var TAB_CATEGORY_GROUPS = {
+      U15: ['U15','U14','U13'],
+      U12: ['U12','U11','U10','U9','U8']
+    };
+    function matchesTab(matchCat, tabCat){
+      if(!matchCat) return true;
+      var mc = normCat(matchCat), tc = normCat(tabCat);
+      var group = TAB_CATEGORY_GROUPS[tc];
+      if(group) return group.indexOf(mc) !== -1;
+      return mc === tc;
+    }
 
     function getMatchCategory(m){
       if(m.category) return m.category;
@@ -161,9 +178,17 @@
     function catMatches(){
       var cat = state.activeCategory;
       return state.allMatches.filter(function(m){
-        var mc = getMatchCategory(m);
-        return !mc || mc === cat;
+        return matchesTab(getMatchCategory(m), cat);
       });
+    }
+
+    // スケジュール（試合告知）も「今後の試合」にマージする
+    function scheduleToMatchShape(sc){
+      return {
+        date: sc.date, time: sc.time || '', venue: sc.venue || '',
+        competitionName: sc.competition || sc.type || '',
+        opponent: sc.opponent || '', category: sc.category || ''
+      };
     }
 
     function renderTabs(){
@@ -181,12 +206,26 @@
 
     function renderUpcoming(){
       var today = new Date(); today.setHours(0,0,0,0);
-      var upcoming = catMatches()
-        .filter(function(m){
-          if(m.result && m.result.myScore != null && m.result.oppScore != null) return false;
-          var d = toDate(m.date);
-          return d && d >= today;
+      var cat = state.activeCategory;
+
+      var fromMatches = catMatches().filter(function(m){
+        if(m.result && m.result.myScore != null && m.result.oppScore != null) return false;
+        var d = toDate(m.date);
+        return d && d >= today;
+      });
+      var matchKeys = {};
+      fromMatches.forEach(function(m){ matchKeys[m.date + '|' + (m.opponent||'')] = true; });
+
+      var fromSchedules = state.allSchedules
+        .filter(function(sc){
+          var d = toDate(sc.date);
+          if(!d || d < today) return false;
+          if(!matchesTab(sc.category, cat)) return false;
+          return !matchKeys[sc.date + '|' + (sc.opponent||'')];
         })
+        .map(scheduleToMatchShape);
+
+      var upcoming = fromMatches.concat(fromSchedules)
         .sort(function(a,b){ return (toDate(a.date)||0) - (toDate(b.date)||0); })
         .slice(0, 3);
       var el = document.getElementById('upcoming-grid');
@@ -253,14 +292,14 @@
         state.activeCategory = state.categories[0];
         renderTabs();
 
-        var binId = get(c,'integration.jsonbinBinId') || get(c,'matchPlanner.jsonbinBinId');
-        var apiKey = get(c,'integration.jsonbinApiKey') || get(c,'matchPlanner.jsonbinApiKey');
-        if(!binId || /^DUMMY/i.test(binId)){ renderUpcoming(); renderGroups(); return; }
-        fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', { headers: {'X-Master-Key': apiKey} })
+        // Firebase（最新版 Match Planner の保存先）から取得
+        var fbUrl = get(c,'integration.firebaseUrl') || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId = get(c,'integration.firebaseClubId') || 'grande';
+        fetch(fbUrl + '/clubs/' + clubId + '.json')
           .then(function(r){ return r.json(); })
-          .then(function(json){
-            var m = json && json.record && json.record.matches;
-            state.allMatches = Array.isArray(m) ? m : [];
+          .then(function(data){
+            state.allMatches = Array.isArray(data && data.matches) ? data.matches : [];
+            state.allSchedules = Array.isArray(data && data.schedules) ? data.schedules : [];
             renderUpcoming(); renderGroups();
           })
           .catch(function(){ renderUpcoming(); renderGroups(); });

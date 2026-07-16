@@ -222,17 +222,13 @@
       pageTitle: 'お知らせ',
       onLoaded: function(c){
         function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
-        var binId = get(c,'newsIntegration.jsonbinBinId');
-        var apiKey = get(c,'newsIntegration.jsonbinApiKey');
-        if(!binId || /^DUMMY/i.test(binId)){
-          document.getElementById('news-list').innerHTML = '<p class="no-data">現在お知らせはありません</p>';
-          document.getElementById('pickup-news').innerHTML = '<p class="no-data">現在お知らせはありません</p>';
-          return;
-        }
-        fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', { headers: {'X-Master-Key': apiKey} })
+        // Firebase（最新版 Match Planner の保存先）から取得
+        var fbUrl = get(c,'integration.firebaseUrl') || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId = get(c,'integration.firebaseClubId') || 'grande';
+        fetch(fbUrl + '/clubs/' + clubId + '.json')
           .then(function(r){ return r.json(); })
-          .then(function(json){
-            var items = json && json.record && (json.record.news || json.record.posts);
+          .then(function(data){
+            var items = data && (data.news || data.posts);
             allNews = (Array.isArray(items) ? items : [])
               .filter(function(n){ return n && n.title; })
               .sort(function(a,b){ return (new Date(b.date||0)) - (new Date(a.date||0)); });
