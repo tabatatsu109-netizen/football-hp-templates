@@ -250,11 +250,19 @@
           .then(function(r){ return r.json(); })
           .then(function(data){
             var raw = (data && data.players) || [];
+            // Google Drive共有リンク(file/d/…/view 等)を画像直リンクに自動変換
+            function normalizePhotoUrl(u){
+              var s = String(u || '').trim();
+              if(!s) return '';
+              var m = s.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/);
+              return m ? 'https://lh3.googleusercontent.com/d/' + m[1] : s;
+            }
             // 旧形式(position/nameEn)と新プランナー形式(mainGroup/nameRoman)の両対応
             allPlayers = raw.map(function(p){
               var q = {}; for(var k in p){ q[k] = p[k]; }
               q.position = p.position || p.mainGroup || '';
               q.nameEn = p.nameEn || p.nameRoman || '';
+              q.photo = normalizePhotoUrl(p.photo);
               return q;
             });
             render();

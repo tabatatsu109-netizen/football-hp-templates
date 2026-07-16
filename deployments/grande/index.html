@@ -1601,6 +1601,12 @@
             var allPlayers = (data && data.players) || [];
             // 旧形式(nameEn)と新プランナー形式(nameRoman)の両対応
             allPlayers.forEach(function(p){ if(!p.nameEn && p.nameRoman) p.nameEn = p.nameRoman; });
+            // Google Drive共有リンク(file/d/…/view 等)を画像直リンクに自動変換
+            allPlayers.forEach(function(p){
+              var s = String(p.photo || '').trim();
+              var m = s.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]+)/);
+              if(m) p.photo = 'https://lh3.googleusercontent.com/d/' + m[1];
+            });
             _pickupPool = allPlayers.filter(function(p){ return p.category !== 'staff'; });
             renderPickup();
           })
