@@ -277,13 +277,17 @@
         if(currentSort === 'number'){
           return (parseInt(a.number)||999) - (parseInt(b.number)||999);
         } else if(currentSort === 'grade'){
-          var gradeOrder = {'中1':1,'中2':2,'中3':3,'小1':10,'小2':11,'小3':12,'小4':13,'小5':14,'小6':15};
+          var gradeOrder = {'中3':1,'中2':2,'中1':3,'小6':10,'小5':11,'小4':12,'小3':13,'小2':14,'小1':15};
           var aGrade = gradeOrder[a.grade] || 999;
           var bGrade = gradeOrder[b.grade] || 999;
-          return aGrade - bGrade;
+          if(aGrade !== bGrade) return aGrade - bGrade;
+          // 同学年・学年未入力は背番号順で揃える
+          return (parseInt(a.number)||999) - (parseInt(b.number)||999);
         } else if(currentSort === 'position'){
           var posOrder = {'GK':1,'DF':2,'MF':3,'FW':4};
-          return (posOrder[a.position]||5) - (posOrder[b.position]||5);
+          var aPos = posOrder[a.position]||5, bPos = posOrder[b.position]||5;
+          if(aPos !== bPos) return aPos - bPos;
+          return (parseInt(a.number)||999) - (parseInt(b.number)||999);
         }
       });
       return filtered;
