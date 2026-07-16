@@ -107,7 +107,7 @@ img { max-width: 100%; display: block; }
 .m-nav a.m-link { padding: 16px 4px; border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: baseline; gap: 12px; }
 .m-nav .n-en { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: 1px; }
 .m-nav .n-ja { font-size: 12px; color: #9aa0a8; }
-.m-nav-ctas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
+.m-nav-ctas { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 22px; }
 .m-nav-ctas a { text-align: center; padding: 15px 8px; font-size: 13px; font-weight: 700; letter-spacing: 1px; border-radius: 3px; }
 .m-cta-trial { background: var(--main-color); color: #fff; }
 .m-cta-shop { background: #fff; color: var(--ink); }
