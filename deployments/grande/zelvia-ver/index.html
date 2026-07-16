@@ -69,7 +69,7 @@
     <span class="hero-scroll">SCROLL</span>
   </section>
 
-  <!-- プロモバナー スライダー -->
+  <!-- プロモバナー スライダー: 体験練習(固定) + 新着ニュース(自動) -->
   <section class="promo">
     <div class="promo-track" id="promo-track">
       <a href="../grande_recruit.html" class="promo-card" style="background-image:url('../assets/toprandom/photo2.jpg')">
@@ -79,27 +79,7 @@
           <span class="promo-sub">U-15 / U-12 / スクール 各カテゴリ</span>
         </div>
       </a>
-      <a href="../itemshop.html" class="promo-card" style="background-image:url('../assets/toprandom/photo3.jpg')">
-        <div class="promo-body">
-          <span class="promo-tag">OFFICIAL STORE</span>
-          <span class="promo-title">アイテムショップ</span>
-          <span class="promo-sub">クラブオリジナルグッズはこちら</span>
-        </div>
-      </a>
-      <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" class="promo-card promo-card--solid">
-        <div class="promo-body">
-          <span class="promo-tag">OFFICIAL LINE</span>
-          <span class="promo-title">公式LINE 友だち募集中</span>
-          <span class="promo-sub">最新情報をいち早くお届けします</span>
-        </div>
-      </a>
-      <a href="../partners.html" class="promo-card" style="background-image:url('../assets/photo1.jpg')">
-        <div class="promo-body">
-          <span class="promo-tag">PARTNER</span>
-          <span class="promo-title">パートナー＆サポーター</span>
-          <span class="promo-sub">クラブを支えてくださる皆様</span>
-        </div>
-      </a>
+      <!-- 新着ニュースカードは JS でここに追加される -->
     </div>
     <div class="promo-nav" id="promo-nav"></div>
   </section>
@@ -351,11 +331,12 @@
       }, 8000);
     })();
 
-    // プロモスライダーのドット
-    (function(){
+    // プロモスライダーのドット（カード追加後に再構築できるよう関数化）
+    function buildPromoDots(){
       var track = document.getElementById('promo-track');
       var nav = document.getElementById('promo-nav');
       var cards = track.querySelectorAll('.promo-card');
+      nav.innerHTML = '';
       cards.forEach(function(c, idx){
         var d = document.createElement('button');
         d.className = 'promo-dot' + (idx === 0 ? ' on' : '');
@@ -365,17 +346,86 @@
         });
         nav.appendChild(d);
       });
-      track.addEventListener('scroll', function(){
-        var center = track.scrollLeft + track.clientWidth / 2;
-        var best = 0, bestDist = Infinity;
-        cards.forEach(function(c, idx){
-          var d = Math.abs(c.offsetLeft + c.clientWidth / 2 - center);
-          if (d < bestDist) { bestDist = d; best = idx; }
-        });
-        nav.querySelectorAll('.promo-dot').forEach(function(dot, idx){
-          dot.classList.toggle('on', idx === best);
-        });
-      }, { passive: true });
+    }
+    buildPromoDots();
+    document.getElementById('promo-track').addEventListener('scroll', function(){
+      var track = this;
+      var nav = document.getElementById('promo-nav');
+      var cards = track.querySelectorAll('.promo-card');
+      var center = track.scrollLeft + track.clientWidth / 2;
+      var best = 0, bestDist = Infinity;
+      cards.forEach(function(c, idx){
+        var d = Math.abs(c.offsetLeft + c.clientWidth / 2 - center);
+        if (d < bestDist) { bestDist = d; best = idx; }
+      });
+      nav.querySelectorAll('.promo-dot').forEach(function(dot, idx){
+        dot.classList.toggle('on', idx === best);
+      });
+    }, { passive: true });
+
+    // 新着ニュースをプロモスライダーに写真つきで追加（体験練習カードは固定で先頭）
+    (function(){
+      var FALLBACK_PHOTOS = [
+        '../assets/toprandom/LINE_ALBUM_U12リーグ最終節_260627_2.jpg',
+        '../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_21.jpg',
+        '../assets/toprandom/LINE_ALBUM_エルドラード、ラーゴ_260627_14.jpg',
+        '../assets/toprandom/LINE_ALBUM_高円宮杯アズール_260627_4.jpg'
+      ];
+      var promoNews = [];
+
+      function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+      function formatDate(s){ return String(s||'').replace(/-/g,'.'); }
+
+      window.openPromoNews = function(idx){
+        var n = promoNews[idx];
+        if(!n) return;
+        var overlay = document.getElementById('news-detail-overlay');
+        if(!overlay) return;
+        var cat = n.cat || n.category || n.type || 'お知らせ';
+        var tagEl = document.getElementById('news-detail-tag');
+        if(tagEl){ tagEl.textContent = cat; tagEl.style.color = ''; tagEl.style.borderColor = ''; }
+        var dateEl = document.getElementById('news-detail-date');
+        if(dateEl) dateEl.textContent = String(n.date||'').replace(/-/g,'/');
+        var titleEl = document.getElementById('news-detail-title');
+        if(titleEl) titleEl.textContent = n.title || '';
+        var bodyEl = document.getElementById('news-detail-body');
+        if(bodyEl) bodyEl.textContent = n.body || '';
+        var imgEl = document.getElementById('news-detail-image');
+        if(imgEl){
+          if(n.image){ imgEl.src = n.image; imgEl.classList.add('show'); }
+          else { imgEl.removeAttribute('src'); imgEl.classList.remove('show'); }
+        }
+        overlay.classList.add('open');
+      };
+
+      function toTime(s){ var d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime(); }
+
+      ConfigLoader.load().then(function(c){
+        var fbUrl = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
+        return fetch(fbUrl + '/clubs/' + clubId + '.json');
+      }).then(function(r){ return r.json(); }).then(function(data){
+        var items = (data && (data.news || data.posts)) || [];
+        promoNews = items
+          .filter(function(n){ return n && n.title; })
+          .sort(function(a,b){ return toTime(b.date) - toTime(a.date); })
+          .slice(0, 4);
+        if(promoNews.length === 0) return;
+
+        var track = document.getElementById('promo-track');
+        var html = promoNews.map(function(n, i){
+          var photo = n.image || FALLBACK_PHOTOS[i % FALLBACK_PHOTOS.length];
+          var cat = n.cat || n.category || n.type || 'お知らせ';
+          return '<a href="news.html" class="promo-card promo-card--news" style="background-image:url(\'' + esc(photo) + '\')" onclick="openPromoNews(' + i + '); return false;">' +
+            '<div class="promo-body">' +
+              '<span class="promo-tag">NEWS ／ ' + esc(cat) + '</span>' +
+              '<span class="promo-title promo-title--news">' + esc(n.title) + '</span>' +
+              '<span class="promo-sub">' + esc(formatDate(n.date)) + '</span>' +
+            '</div></a>';
+        }).join('');
+        track.insertAdjacentHTML('beforeend', html);
+        buildPromoDots();
+      }).catch(function(e){ console.error('[promo-news]', e); });
     })();
 
     // active-cat2 を active-cat と同期

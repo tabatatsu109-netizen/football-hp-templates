@@ -166,6 +166,12 @@ img { max-width: 100%; display: block; }
 }
 .promo-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, rgba(10,26,14,0.82) 34%, rgba(10,26,14,0.12) 70%); }
 .promo-card--solid::after { background: linear-gradient(105deg, rgba(16,40,22,0.94), rgba(26,92,45,0.85)); }
+.promo-card--news::after { background: linear-gradient(to top, rgba(8,14,10,0.88) 30%, rgba(8,14,10,0.18) 75%); }
+.promo-title--news {
+  font-size: 15px; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.promo-card--news .promo-body { justify-content: flex-end; padding-bottom: 16px; }
 .promo-body { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: center; padding: 0 22px; }
 .promo-tag { color: #9fd3ae; font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 3px; margin-bottom: 6px; }
 .promo-title { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 1px; line-height: 1.4; }
