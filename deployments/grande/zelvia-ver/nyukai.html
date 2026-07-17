@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WEB入会申込書 | 八ヶ岳グランデFC</title>
+  <meta name="description" content="八ヶ岳グランデフットボールクラブ ジュニアユースU-15のWEB入会申込書。質問に答えて入力すると、A4の入会申込書が完成。そのまま送信・印刷・PDF保存ができます。">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root { --tk: var(--main-color); --tk-dark: #10401e; --tk-bg: #f4f6f4; }
+
+    /* ── ウィザード ── */
+    .wiz-wrap { max-width: 860px; margin: 0 auto; }
+    .wiz-progress { display: flex; gap: 6px; margin-bottom: 28px; }
+    .wiz-progress span { flex: 1; height: 6px; border-radius: 3px; background: #dfe5e0; transition: background .3s; }
+    .wiz-progress span.on { background: var(--main-color); }
+    .wiz-step-label { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; color: var(--main-color); letter-spacing: 3px; font-size: 13px; }
+    .wiz-step-title { font-size: clamp(20px, 3vw, 26px); font-weight: 900; margin: 4px 0 22px; }
+    .wiz-panel { display: none; }
+    .wiz-panel.on { display: block; animation: wizIn .35s ease; }
+    @keyframes wizIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .wiz-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; }
+    .wiz-btn { border: 2px solid var(--main-color); background: var(--main-color); color: #fff; font-weight: 900; font-size: 15px; letter-spacing: 2px; padding: 14px 34px; border-radius: 999px; cursor: pointer; transition: opacity .2s; font-family: inherit; }
+    .wiz-btn:hover { opacity: .88; }
+    .wiz-btn--ghost { background: #fff; color: var(--main-color); }
+    .wiz-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .wiz-note { font-size: 12.5px; color: #667; line-height: 1.9; margin-top: 10px; }
+    .jform-hint { font-size: 12px; color: #889; margin-top: 4px; }
+    .fam-row { display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-bottom: 10px; }
+    .wiz-error { display: none; color: #c0392b; font-weight: 700; font-size: 13.5px; margin-top: 14px; }
+    .wiz-error.show { display: block; }
+
+    /* ── A4申込書プレビュー ── */
+    .sheet-scroll { overflow-x: auto; background: #e8ebe8; border-radius: 10px; padding: clamp(10px, 3vw, 30px); }
+    .sheet { width: 210mm; min-height: 290mm; margin: 0 auto; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.18); padding: 12mm 11mm; box-sizing: border-box; color: #111; font-family: 'Noto Sans JP', sans-serif; position: relative; }
+    .sh-head { display: grid; grid-template-columns: 34mm 1fr 34mm; align-items: start; gap: 4mm; margin-bottom: 5mm; }
+    .sh-emblem { width: 30mm; height: auto; }
+    .sh-titles { text-align: center; }
+    .sh-year { font-size: 15px; font-weight: 700; letter-spacing: 4px; }
+    .sh-club { font-size: 17px; font-weight: 900; color: #1a5c2d; margin-top: 2mm; letter-spacing: 1px; }
+    .sh-cat { font-size: 15px; font-weight: 900; color: #1a5c2d; margin-top: 1mm; }
+    .sh-photo { width: 28mm; height: 36mm; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #666; text-align: center; line-height: 1.8; overflow: hidden; justify-self: end; }
+    .sh-photo img { width: 100%; height: 100%; object-fit: cover; }
+    table.sh { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    table.sh th, table.sh td { border: 1.2px solid #333; padding: 1.6mm 2mm; font-size: 10.5px; vertical-align: top; word-break: break-all; }
+    table.sh th { background: #eef3ee; font-weight: 700; text-align: left; white-space: nowrap; }
+    .sh-val { font-size: 12px; font-weight: 700; min-height: 4.6mm; display: block; }
+    .sh-small th, .sh-small td { font-size: 9.5px; padding: 1.2mm 1.6mm; }
+    .sh-sec { margin-top: 3mm; }
+    .sh-free { min-height: 14mm; }
+    .sh-agree { margin-top: 5mm; font-size: 11px; line-height: 2; }
+    .sh-agree .line { display: inline-block; border-bottom: 1px solid #333; min-width: 60mm; font-weight: 700; font-size: 13px; padding: 0 2mm; }
+    .sh-foot-logo { position: absolute; right: 11mm; bottom: 12mm; width: 30mm; opacity: .9; }
+    .sh-in { font-size: 10px; border: 1.5px solid #999; border-radius: 50%; width: 8mm; height: 8mm; display: inline-flex; align-items: center; justify-content: center; color: #999; margin-left: 2mm; vertical-align: middle; }
+
+    /* 完了パネル */
+    .done-box { text-align: center; padding: 30px 0 6px; }
+    .done-box .big { font-size: clamp(20px, 3vw, 26px); font-weight: 900; margin-bottom: 12px; }
+
+    /* ── 印刷: シートのみ ── */
+    @media print {
+      @page { size: A4; margin: 0; }
+      .wiz-panel { display: block !important; }
+      html, body { height: 296mm !important; overflow: hidden !important; }
+      body * { visibility: hidden !important; }
+      .sheet, .sheet * { visibility: visible !important; }
+      .sheet { position: fixed; inset: 0; width: 210mm; min-height: 0; margin: 0; box-shadow: none; padding: 10mm 11mm; }
+      .float-btns, .gh, .m-nav, .gf { display: none !important; }
+    }
+    @media (max-width: 860px) {
+      .sheet-scroll { margin-left: -20px; margin-right: -20px; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-name">GRANDE F.C.</span>
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="members.html" class="gh-login">ログイン</a>
+        <a href="join.html#apply" class="gh-cta gh-cta--trial">体験申込<small>TRIAL</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link nav-thanks" href="message.html"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+    <a class="m-link" href="members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
+    <div class="m-nav-ctas">
+      <a href="join.html#apply" class="m-cta-trial">体験申込</a>
+    </div>
+  </nav>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">ENTRY FORM</div>
+      <div class="ph-ja">WEB入会申込書(ジュニアユースU-15)</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><a href="join.html">入会・体験</a><span>›</span><span>WEB入会申込書</span></div></div>
+
+  <main class="page-body">
+    <div class="container">
+      <div class="wiz-wrap">
+
+        <p class="tk-text" style="margin-bottom:26px;">
+          質問に答えて入力していくと、紙の入会申込書と同じ<strong>A4一枚の申込書</strong>が完成します。
+          最後にそのまま<strong>送信</strong>できるほか、<strong>印刷・PDF保存</strong>もできます。<br>
+          <span style="font-size:12.5px;color:#667;">※入力内容はこの画面の中だけで使われ、送信ボタンを押すまでクラブには届きません。</span>
+        </p>
+
+        <div class="wiz-progress" id="wizProgress"></div>
+
+        <form id="nyukaiForm" onsubmit="return false;">
+
+        <!-- STEP 1 選手情報 -->
+        <section class="wiz-panel" data-step="0">
+          <div class="wiz-step-label">STEP 1 / 5</div>
+          <h2 class="wiz-step-title">選手について教えてください</h2>
+          <div class="jform">
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">氏名 <span class="req">必須</span></label>
+                <input class="jform-input" type="text" id="f_name" placeholder="例)田畑 太郎" required>
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">ふりがな <span class="req">必須</span></label>
+                <input class="jform-input" type="text" id="f_kana" placeholder="例)たばた たろう">
+              </div>
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">生年月日 <span class="req">必須</span></label>
+                <input class="jform-input" type="date" id="f_birth">
+                <p class="jform-hint">年齢は自動で計算されます</p>
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">血液型</label>
+                <select class="jform-input" id="f_blood">
+                  <option value="">選択してください</option>
+                  <option>A</option><option>B</option><option>O</option><option>AB</option><option>不明</option>
+                </select>
+              </div>
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">身長(cm)</label>
+                <input class="jform-input" type="number" id="f_height" placeholder="例)158">
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">体重(kg)</label>
+                <input class="jform-input" type="number" id="f_weight" placeholder="例)45">
+              </div>
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">選手証番号</label>
+                <input class="jform-input" type="text" id="f_pid" placeholder="お持ちの場合のみ">
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">顔写真(任意)</label>
+                <input class="jform-input" type="file" id="f_photo" accept="image/*" style="padding:10px;">
+                <p class="jform-hint">申込書の写真欄に反映されます(印刷・PDF用)</p>
+              </div>
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">進学予定の学校名</label>
+                <input class="jform-input" type="text" id="f_school" placeholder="例)○○中学校">
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">学年(入会時)</label>
+                <select class="jform-input" id="f_grade">
+                  <option value="">選択してください</option>
+                  <option>1</option><option>2</option><option>3</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2 サッカーについて -->
+        <section class="wiz-panel" data-step="1">
+          <div class="wiz-step-label">STEP 2 / 5</div>
+          <h2 class="wiz-step-title">サッカーについて教えてください</h2>
+          <div class="jform">
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">サッカー競技歴(年)</label>
+                <input class="jform-input" type="number" id="f_career" placeholder="例)6">
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">卒団チーム名</label>
+                <input class="jform-input" type="text" id="f_prevteam" placeholder="例)八ヶ岳グランデFC U-12">
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">経験ポジション(複数選択可)</label>
+              <div class="jform-radios">
+                <label><input type="checkbox" class="f_pos" value="GK"> GK</label>
+                <label><input type="checkbox" class="f_pos" value="DF"> DF</label>
+                <label><input type="checkbox" class="f_pos" value="MF"> MF</label>
+                <label><input type="checkbox" class="f_pos" value="FW"> FW</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3 連絡先 -->
+        <section class="wiz-panel" data-step="2">
+          <div class="wiz-step-label">STEP 3 / 5</div>
+          <h2 class="wiz-step-title">住所・連絡先を教えてください</h2>
+          <div class="jform">
+            <div class="jform-group">
+              <label class="jform-label">住所 <span class="req">必須</span></label>
+              <input class="jform-input" type="text" id="f_zip" placeholder="郵便番号 例)408-0044" style="max-width:220px; margin-bottom:8px;">
+              <input class="jform-input" type="text" id="f_addr" placeholder="例)山梨県北杜市小淵沢町○○○-○">
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">自宅電話</label>
+                <input class="jform-input" type="tel" id="f_tel_home">
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">携帯(保護者) <span class="req">必須</span></label>
+                <input class="jform-input" type="tel" id="f_tel_parent">
+              </div>
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">メール(保護者) <span class="req">必須</span></label>
+                <input class="jform-input" type="email" id="f_mail_parent" placeholder="例)example@gmail.com">
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">携帯(本人)</label>
+                <input class="jform-input" type="tel" id="f_tel_player">
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">メール(本人)</label>
+              <input class="jform-input" type="email" id="f_mail_player">
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">緊急時連絡先 1</label>
+                <input class="jform-input" type="text" id="f_emg1" placeholder="例)090-xxxx-xxxx(母)">
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">緊急時連絡先 2</label>
+                <input class="jform-input" type="text" id="f_emg2">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 4 保護者・家族 -->
+        <section class="wiz-panel" data-step="3">
+          <div class="wiz-step-label">STEP 4 / 5</div>
+          <h2 class="wiz-step-title">ご家族について教えてください</h2>
+          <div class="jform">
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">保護者名 <span class="req">必須</span></label>
+                <input class="jform-input" type="text" id="f_parent">
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">保護者様のご職業</label>
+                <input class="jform-input" type="text" id="f_job">
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">家族構成(本人以外・最大6名)</label>
+              <div id="famRows"></div>
+              <button type="button" class="wiz-btn wiz-btn--ghost" style="padding:8px 20px; font-size:13px;" onclick="addFamRow()">＋ 家族を追加</button>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">性格・身体・アレルギー等の特記事項</label>
+              <textarea class="jform-input" id="f_notes" rows="3" placeholder="あればご記入ください"></textarea>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">入会の目的・クラブへ希望すること</label>
+              <textarea class="jform-input" id="f_hope" rows="3" placeholder="あればご記入ください"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 5 確認・同意 -->
+        <section class="wiz-panel" data-step="4">
+          <div class="wiz-step-label">STEP 5 / 5</div>
+          <h2 class="wiz-step-title">申込書の確認と送信</h2>
+          <div class="jform" style="margin-bottom:22px;">
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">入会年度</label>
+                <select class="jform-input" id="f_year"></select>
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">申込日</label>
+                <input class="jform-input" type="date" id="f_date">
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">保護者氏名(署名) <span class="req">必須</span></label>
+              <input class="jform-input" type="text" id="f_sign" placeholder="保護者名を入力してください">
+              <p class="jform-hint">紙の申込書の「保護者氏名 印」にあたります</p>
+            </div>
+            <div class="jform-group">
+              <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; font-weight:700; line-height:1.9;">
+                <input type="checkbox" id="f_agree" style="margin-top:5px; width:18px; height:18px;">
+                <span>八ヶ岳グランデフットボールクラブ 代表 田畑雅宏 殿<br>当クラブ<a href="doc-rules.html" target="_blank" style="color:var(--main-color);">会則</a>を承諾の上、入会申し込みいたします。 <span class="req">必須</span></span>
+              </label>
+            </div>
+          </div>
+
+          <p class="tk-sec-en">PREVIEW</p>
+          <h3 style="font-weight:900; font-size:19px; margin:4px 0 14px;">入会申込書プレビュー</h3>
+          <div class="sheet-scroll">
+            <div class="sheet" id="sheet">
+              <div class="sh-head">
+                <img class="sh-emblem" src="../assets/logo.png" alt="八ヶ岳グランデFC">
+                <div class="sh-titles">
+                  <div class="sh-year"><span id="s_year"></span> 入会申込書</div>
+                  <div class="sh-club">八ヶ岳グランデフットボールクラブ</div>
+                  <div class="sh-cat">ジュニアユースU-15</div>
+                </div>
+                <div class="sh-photo" id="s_photo">顔写真</div>
+              </div>
+              <table class="sh">
+                <tr>
+                  <th style="width:18mm;">ふりがな</th><td colspan="2"><span class="sh-val" id="s_kana" style="font-size:10px;"></span></td>
+                  <th style="width:24mm;">サッカー競技歴</th><td style="width:30mm;"><span class="sh-val" id="s_career"></span></td>
+                </tr>
+                <tr>
+                  <th>氏 名</th><td colspan="2"><span class="sh-val" id="s_name" style="font-size:15px;"></span></td>
+                  <th>経験ポジション</th><td><span class="sh-val" id="s_pos"></span></td>
+                </tr>
+                <tr>
+                  <th>生年月日</th><td colspan="2"><span class="sh-val" id="s_birth"></span></td>
+                  <th>卒団チーム名</th><td><span class="sh-val" id="s_prevteam"></span></td>
+                </tr>
+                <tr>
+                  <th>血液型</th><td style="width:26mm;"><span class="sh-val" id="s_blood"></span></td>
+                  <td><span class="sh-val"></span></td>
+                  <th>選手証番号</th><td><span class="sh-val" id="s_pid"></span></td>
+                </tr>
+                <tr>
+                  <th>身長・体重</th><td colspan="2"><span class="sh-val" id="s_hw"></span></td>
+                  <th>進学予定</th><td><span class="sh-val" id="s_school"></span></td>
+                </tr>
+              </table>
+              <table class="sh sh-sec">
+                <tr><th style="width:18mm;">住 所</th><td colspan="3"><span class="sh-val" id="s_addr"></span></td></tr>
+                <tr>
+                  <th>自宅電話</th><td style="width:40mm;"><span class="sh-val" id="s_tel_home"></span></td>
+                  <th style="width:24mm;">携帯(保護者)</th><td><span class="sh-val" id="s_tel_parent"></span></td>
+                </tr>
+                <tr>
+                  <th>携帯(本人)</th><td><span class="sh-val" id="s_tel_player"></span></td>
+                  <th>メール(保護者)</th><td><span class="sh-val" id="s_mail_parent"></span></td>
+                </tr>
+                <tr>
+                  <th>メール(本人)</th><td><span class="sh-val" id="s_mail_player"></span></td>
+                  <th>緊急時連絡先</th><td><span class="sh-val" id="s_emg"></span></td>
+                </tr>
+                <tr>
+                  <th>保護者名</th><td><span class="sh-val" id="s_parent"></span></td>
+                  <th>保護者様職業</th><td><span class="sh-val" id="s_job"></span></td>
+                </tr>
+              </table>
+              <table class="sh sh-sec sh-small">
+                <tr><th style="width:18mm;">家族構成</th><td id="s_family" colspan="3"></td></tr>
+                <tr><th style="font-size:8.5px;">特記事項</th><td colspan="3" class="sh-free"><span class="sh-val" id="s_notes" style="font-size:10px; font-weight:400;"></span></td></tr>
+                <tr><th style="font-size:8.5px;">入会の目的・希望</th><td colspan="3" class="sh-free"><span class="sh-val" id="s_hope" style="font-size:10px; font-weight:400;"></span></td></tr>
+              </table>
+              <div class="sh-agree">
+                八ヶ岳グランデフットボールクラブ 代表 田畑雅宏 殿<br>
+                当クラブ会則を承諾の上、入会申し込みいたします。<br>
+                申込日:<span class="line" id="s_date" style="min-width:36mm;"></span><br>
+                入会者氏名:<span class="line" id="s_name2"></span><br>
+                保護者氏名:<span class="line" id="s_sign"></span><span class="sh-in">印</span>
+              </div>
+              <img class="sh-foot-logo" src="../assets/logo2.png" alt="">
+            </div>
+          </div>
+
+          <p class="wiz-error" id="wizError"></p>
+
+          <div class="wiz-nav" style="flex-wrap:wrap;">
+            <button type="button" class="wiz-btn wiz-btn--ghost" onclick="printSheet()">🖨 印刷・PDF保存</button>
+            <button type="button" class="wiz-btn" id="sendBtn" onclick="sendForm()">この内容で送信する →</button>
+          </div>
+          <p class="wiz-note">
+            「印刷・PDF保存」は、印刷画面で送信先を「PDFに保存」にするとPDFがダウンロードできます。<br>
+            送信すると入力内容がクラブへメールで届きます(顔写真は送信データには含まれません。印刷・PDFには反映されます)。
+          </p>
+        </section>
+
+        <!-- 完了 -->
+        <section class="wiz-panel" data-step="5">
+          <div class="done-box">
+            <p class="tk-sec-en">THANK YOU</p>
+            <p class="big">入会申込書を送信しました！</p>
+            <p class="tk-text">
+              お申し込みありがとうございます。内容を確認のうえ、クラブからご連絡いたします。<br>
+              控えが必要な場合は、下のボタンから申込書を印刷・PDF保存できます。
+            </p>
+            <div class="doc-btns" style="justify-content:center; margin-top:24px;">
+              <button type="button" class="wiz-btn wiz-btn--ghost" onclick="printSheet()">🖨 申込書を印刷・PDF保存</button>
+              <a href="index.html" class="doc-btn">トップへ戻る</a>
+            </div>
+          </div>
+        </section>
+
+        <div class="wiz-nav" id="stepNav">
+          <button type="button" class="wiz-btn wiz-btn--ghost" id="backBtn" onclick="move(-1)">← 戻る</button>
+          <button type="button" class="wiz-btn" id="nextBtn" onclick="move(1)">次へ →</button>
+        </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="gf">
+    <div class="gf-top">
+      <div class="gf-top-inner">
+        <div class="gf-brand">
+          <img src="../assets/logo.png" alt="八ヶ岳グランデFC">
+          <div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳グランデFC</div>
+            <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
+          </div>
+        </div>
+        <nav class="gf-nav">
+          <a href="news.html">お知らせ</a>
+          <a href="matches.html">試合情報</a>
+          <a href="team.html">選手・スタッフ</a>
+          <a href="club.html">クラブを知る</a>
+          <a href="initiatives.html">クラブの取り組み</a>
+          <a href="join.html">入会・体験</a>
+          <a href="partners.html">パートナー</a>
+          <a href="members.html">クラブ員専用</a>
+          <a href="contact.html">お問い合わせ</a>
+        </nav>
+        <div class="gf-sns">
+          <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+          <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4L15.9 12z"/></svg></a>
+          <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" aria-label="LINE"><svg viewBox="0 0 24 24"><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.8 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c0 .3-.2 1.2 1 .6 1.3-.5 6.9-4.1 9.4-7 1.8-1.9 2.7-3.8 2.7-5.9z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="contact.html">お問い合わせ</a>
+          <a href="members.html">クラブ員専用</a>
+        </div>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- フローティングCTA -->
+  <div class="float-btns">
+    <a href="join.html#apply" class="fb-trial">体験申込</a>
+  </div>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+
+    // ── ウィザード制御 ──
+    var TOTAL = 5;
+    var cur = 0;
+    var panels = document.querySelectorAll('.wiz-panel');
+    var prog = document.getElementById('wizProgress');
+    for (var i = 0; i < TOTAL; i++) { var sp = document.createElement('span'); prog.appendChild(sp); }
+
+    function show(n) {
+      cur = n;
+      panels.forEach(function(p){ p.classList.toggle('on', parseInt(p.dataset.step) === n); });
+      prog.querySelectorAll('span').forEach(function(s, i){ s.classList.toggle('on', i <= Math.min(n, TOTAL-1)); });
+      document.getElementById('backBtn').style.visibility = (n === 0 || n >= TOTAL) ? 'hidden' : 'visible';
+      document.getElementById('nextBtn').style.display = (n >= TOTAL - 1) ? 'none' : '';
+      document.getElementById('stepNav').style.display = (n >= TOTAL) ? 'none' : 'flex';
+      prog.style.display = (n >= TOTAL) ? 'none' : 'flex';
+      if (n === TOTAL - 1) fillSheet();
+      window.scrollTo({ top: 0 });
+    }
+    function move(d) {
+      if (d > 0 && !validateStep(cur)) return;
+      show(Math.min(Math.max(cur + d, 0), TOTAL - 1));
+    }
+    function err(msg) {
+      var e = document.getElementById('wizError');
+      if (msg) { e.textContent = msg; e.classList.add('show'); } else { e.classList.remove('show'); }
+    }
+    function validateStep(n) {
+      function need(id, label) {
+        var el = document.getElementById(id);
+        if (!el.value.trim()) { alert(label + 'を入力してください'); el.focus(); return false; }
+        return true;
+      }
+      if (n === 0) { return need('f_name','氏名') && need('f_kana','ふりがな') && need('f_birth','生年月日'); }
+      if (n === 2) { return need('f_addr','住所') && need('f_tel_parent','携帯(保護者)') && need('f_mail_parent','メール(保護者)'); }
+      if (n === 3) { return need('f_parent','保護者名'); }
+      return true;
+    }
+
+    // ── 家族構成行 ──
+    var famCount = 0;
+    function addFamRow() {
+      if (famCount >= 6) return;
+      famCount++;
+      var d = document.createElement('div');
+      d.className = 'fam-row';
+      d.innerHTML = '<input class="jform-input fam-rel" type="text" placeholder="続柄 例)父">' +
+                    '<input class="jform-input fam-name" type="text" placeholder="氏名">';
+      document.getElementById('famRows').appendChild(d);
+    }
+    addFamRow(); addFamRow();
+
+    // ── 年度・日付初期値 ──
+    (function(){
+      var now = new Date();
+      var fy = now.getMonth() + 1 >= 4 ? now.getFullYear() : now.getFullYear() - 1;
+      var sel = document.getElementById('f_year');
+      [fy, fy + 1].forEach(function(y){
+        var o = document.createElement('option');
+        o.value = y + '年度'; o.textContent = y + '年度';
+        sel.appendChild(o);
+      });
+      var d = document.getElementById('f_date');
+      d.value = now.toISOString().slice(0, 10);
+    })();
+
+    // 保護者名 → 署名へ自動コピー
+    document.getElementById('f_parent').addEventListener('change', function(){
+      var s = document.getElementById('f_sign');
+      if (!s.value.trim()) s.value = this.value;
+    });
+
+    // 顔写真プレビュー
+    var photoData = null;
+    document.getElementById('f_photo').addEventListener('change', function(){
+      var f = this.files[0];
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function(e){
+        photoData = e.target.result;
+        document.getElementById('s_photo').innerHTML = '<img src="' + photoData + '" alt="顔写真">';
+      };
+      r.readAsDataURL(f);
+    });
+
+    // ── 値の収集 & シートへ反映 ──
+    function v(id){ return document.getElementById(id).value.trim(); }
+    function calcAge(birth, base) {
+      if (!birth) return '';
+      var b = new Date(birth), t = base ? new Date(base) : new Date();
+      var a = t.getFullYear() - b.getFullYear();
+      if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) a--;
+      return a;
+    }
+    function jpDate(iso) {
+      if (!iso) return '';
+      var p = iso.split('-');
+      return parseInt(p[0]) + '年' + parseInt(p[1]) + '月' + parseInt(p[2]) + '日';
+    }
+    function collect() {
+      var pos = [].map.call(document.querySelectorAll('.f_pos:checked'), function(c){ return c.value; }).join('・');
+      var fam = [];
+      document.querySelectorAll('.fam-row').forEach(function(r){
+        var rel = r.querySelector('.fam-rel').value.trim();
+        var nm = r.querySelector('.fam-name').value.trim();
+        if (rel || nm) fam.push(rel + ':' + nm);
+      });
+      return {
+        year: v('f_year'), name: v('f_name'), kana: v('f_kana'),
+        birth: v('f_birth'), age: calcAge(v('f_birth')), blood: v('f_blood'),
+        height: v('f_height'), weight: v('f_weight'), pid: v('f_pid'),
+        school: v('f_school'), grade: v('f_grade'),
+        career: v('f_career'), prevteam: v('f_prevteam'), pos: pos,
+        zip: v('f_zip'), addr: v('f_addr'),
+        telHome: v('f_tel_home'), telParent: v('f_tel_parent'), telPlayer: v('f_tel_player'),
+        mailParent: v('f_mail_parent'), mailPlayer: v('f_mail_player'),
+        emg1: v('f_emg1'), emg2: v('f_emg2'),
+        parent: v('f_parent'), job: v('f_job'), family: fam,
+        notes: v('f_notes'), hope: v('f_hope'),
+        date: v('f_date'), sign: v('f_sign')
+      };
+    }
+    function put(id, val){ document.getElementById(id).textContent = val || ''; }
+    function fillSheet() {
+      var d = collect();
+      put('s_year', d.year);
+      put('s_kana', d.kana);
+      put('s_name', d.name);
+      put('s_birth', d.birth ? jpDate(d.birth) + ' 生まれ(' + d.age + '歳)' : '');
+      put('s_blood', d.blood ? d.blood + '型' : '');
+      put('s_hw', (d.height ? d.height + 'cm' : '') + (d.weight ? ' / ' + d.weight + 'kg' : ''));
+      put('s_pid', d.pid);
+      put('s_school', (d.school ? d.school : '') + (d.grade ? ' ' + d.grade + '年' : ''));
+      put('s_career', d.career ? d.career + '年' : '');
+      put('s_pos', d.pos);
+      put('s_prevteam', d.prevteam);
+      put('s_addr', (d.zip ? '〒' + d.zip + ' ' : '') + d.addr);
+      put('s_tel_home', d.telHome);
+      put('s_tel_parent', d.telParent);
+      put('s_tel_player', d.telPlayer);
+      put('s_mail_parent', d.mailParent);
+      put('s_mail_player', d.mailPlayer);
+      put('s_emg', [d.emg1, d.emg2].filter(Boolean).join(' / '));
+      put('s_parent', d.parent);
+      put('s_job', d.job);
+      document.getElementById('s_family').textContent = d.family.join('  ');
+      put('s_notes', d.notes);
+      put('s_hope', d.hope);
+      put('s_date', jpDate(d.date));
+      put('s_name2', d.name);
+      put('s_sign', d.sign);
+    }
+    ['change','input'].forEach(function(ev){
+      document.getElementById('nyukaiForm').addEventListener(ev, function(){
+        if (cur === TOTAL - 1) fillSheet();
+      });
+    });
+
+    function printSheet(){ fillSheet(); window.print(); }
+
+    // ── 送信 (Formspree) ──
+    function sendForm() {
+      err('');
+      if (!v('f_sign')) { err('保護者氏名(署名)を入力してください。'); return; }
+      if (!document.getElementById('f_agree').checked) { err('会則承諾のチェックを入れてください。'); return; }
+      fillSheet();
+      var d = collect();
+      var btn = document.getElementById('sendBtn');
+      btn.disabled = true; btn.textContent = '送信中...';
+      var payload = {
+        _subject: '【入会申込書】' + d.name + '(ジュニアユースU-15)',
+        '種別': 'WEB入会申込書(ジュニアユースU-15)',
+        '入会年度': d.year,
+        '氏名': d.name, 'ふりがな': d.kana,
+        '生年月日': jpDate(d.birth) + '(' + d.age + '歳)', '血液型': d.blood,
+        '身長': d.height, '体重': d.weight, '選手証番号': d.pid,
+        '進学予定': d.school + ' ' + d.grade + '年',
+        'サッカー競技歴': d.career ? d.career + '年' : '', '経験ポジション': d.pos, '卒団チーム名': d.prevteam,
+        '住所': (d.zip ? '〒' + d.zip + ' ' : '') + d.addr,
+        '自宅電話': d.telHome, '携帯_保護者': d.telParent, '携帯_本人': d.telPlayer,
+        'メール_保護者': d.mailParent, 'メール_本人': d.mailPlayer,
+        '緊急時連絡先1': d.emg1, '緊急時連絡先2': d.emg2,
+        '保護者名': d.parent, '保護者職業': d.job,
+        '家族構成': d.family.join(' / '),
+        '特記事項': d.notes, '入会の目的・希望': d.hope,
+        '申込日': jpDate(d.date), '署名_保護者氏名': d.sign,
+        '会則承諾': '承諾済み',
+        email: d.mailParent
+      };
+      fetch('https://formspree.io/f/mqejrbge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function(res){
+        if (res.ok) { show(5); }
+        else { throw new Error('bad status'); }
+      }).catch(function(){
+        btn.disabled = false; btn.textContent = 'この内容で送信する →';
+        err('送信に失敗しました。時間をおいて再度お試しいただくか、公式LINEまたはお問い合わせフォームからご連絡ください。');
+      });
+    }
+
+    show(0);
+    ConfigLoader.apply({ pageTitle: 'WEB入会申込書' });
+  </script>
+</body>
+</html>
