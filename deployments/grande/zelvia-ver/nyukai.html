@@ -61,6 +61,26 @@
     .done-box { text-align: center; padding: 30px 0 6px; }
     .done-box .big { font-size: clamp(20px, 3vw, 26px); font-weight: 900; margin-bottom: 12px; }
 
+    /* 次のステップ */
+    .next-flow { text-align: left; max-width: 640px; margin: 36px auto 0; border-top: 1px solid var(--line); padding-top: 30px; }
+    .next-flow-title { font-weight: 900; font-size: 13px; letter-spacing: 2px; color: var(--main-color); text-align: center; margin-bottom: 18px; }
+    .next-steps { display: flex; flex-direction: column; gap: 14px; }
+    .next-step { display: flex; gap: 14px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+    .next-step--done { background: var(--bg-gray); }
+    .next-step-num { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--main-color); color: #fff; font-weight: 900; font-family: 'Oswald', sans-serif; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+    .next-step--done .next-step-num { background: #9aa39c; }
+    .next-step-head { font-weight: 900; font-size: 14.5px; margin-bottom: 5px; }
+    .next-step-text { font-size: 12.5px; line-height: 1.9; color: #4c5157; }
+    .next-contacts { margin-top: 22px; }
+    .next-contacts-title { font-size: 12px; font-weight: 700; color: var(--ink-sub); text-align: center; margin-bottom: 10px; }
+    .next-contacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .next-contact { display: block; background: var(--bg-gray); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; text-decoration: none; color: inherit; transition: border-color .2s; }
+    .next-contact:hover { border-color: var(--main-color); }
+    .next-contact-label { font-size: 10.5px; font-weight: 700; color: var(--main-color); }
+    .next-contact-name { font-size: 13.5px; font-weight: 900; margin: 2px 0; }
+    .next-contact-tel { font-size: 12px; color: #4c5157; }
+    @media (max-width: 480px) { .next-contacts-grid { grid-template-columns: 1fr; } }
+
     /* ── 印刷: シートのみ ── */
     @media print {
       @page { size: A4; margin: 0; }
@@ -439,6 +459,50 @@
             <div class="doc-btns" style="justify-content:center; margin-top:24px;">
               <button type="button" class="wiz-btn wiz-btn--ghost" onclick="printSheet()">🖨 申込書を印刷・PDF保存</button>
               <a href="index.html" class="doc-btn">トップへ戻る</a>
+            </div>
+
+            <div class="next-flow">
+              <p class="next-flow-title">NEXT STEPS ／ 次のステップ</p>
+              <div class="next-steps">
+                <div class="next-step next-step--done">
+                  <div class="next-step-num">✓</div>
+                  <div class="next-step-body">
+                    <div class="next-step-head">① 入会申込書の送信</div>
+                    <p class="next-step-text">完了しました。内容を確認のうえ、クラブからご連絡いたします。</p>
+                  </div>
+                </div>
+                <div class="next-step">
+                  <div class="next-step-num">2</div>
+                  <div class="next-step-body">
+                    <div class="next-step-head">② 用具のご注文</div>
+                    <p class="next-step-text">「会員ページ」にログイン後、ショップからユニフォーム等をご注文いただけます。ログインID・パスワードは、入会確定後に担当コーチからお伝えします。</p>
+                    <a href="members.html" class="doc-btn" style="margin-top:10px; padding:9px 22px; font-size:12.5px;">会員ページへ →</a>
+                  </div>
+                </div>
+                <div class="next-step">
+                  <div class="next-step-num">3</div>
+                  <div class="next-step-body">
+                    <div class="next-step-head">③ 月謝・入会金・年会費のお手続き</div>
+                    <p class="next-step-text">初月は入会金・年会費・月会費 合計36,000円を封筒に入れて監督へお渡しください(ジュニアから昇格の選手は入会金不要)。翌月以降のお支払い方法(振込 または 口座振替)は、会員ページの「会費・保険のご案内」でご案内しています。</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="next-contacts">
+                <p class="next-contacts-title">ログイン情報・ご不明点はこちらへ</p>
+                <div class="next-contacts-grid">
+                  <a href="tel:08095483411" class="next-contact">
+                    <div class="next-contact-label">ジュニア(U-12)担当</div>
+                    <div class="next-contact-name">林 那央斗</div>
+                    <div class="next-contact-tel">📞 080-9548-3411</div>
+                  </a>
+                  <a href="tel:08066636011" class="next-contact">
+                    <div class="next-contact-label">ジュニアユース(U-15)担当</div>
+                    <div class="next-contact-name">田畑</div>
+                    <div class="next-contact-tel">📞 080-6663-6011</div>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </section>
