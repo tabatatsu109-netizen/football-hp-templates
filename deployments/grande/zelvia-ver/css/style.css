@@ -893,6 +893,15 @@ body.page-in .hero-reveal-svg { animation: revealOpen 1.55s cubic-bezier(.66,0,.
 @keyframes revealOpen { 0% { transform: scale(1); } 100% { transform: scale(20); } }
 
 /* ── ヒーロー: 着地コピー + 背景スロースズーム ── */
+.hero-emblem {
+  display: block; width: clamp(210px, 33vw, 400px); height: auto;
+  margin: 0 0 22px 22px;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.55));
+  opacity: 0; transform: translateY(22px) scale(0.97);
+  transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1);
+  transition-delay: 1.8s;
+}
+body.page-in .hero-emblem { opacity: 1; transform: none; }
 .hero-catch {
   position: relative;
   color: #fff; font-weight: 900;
@@ -901,7 +910,7 @@ body.page-in .hero-reveal-svg { animation: revealOpen 1.55s cubic-bezier(.66,0,.
   text-shadow: 0 2px 6px rgba(0,0,0,0.85), 0 12px 36px rgba(0,0,0,0.55);
   opacity: 0; transform: translateY(20px);
   transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1);
-  transition-delay: 1.95s;
+  transition-delay: 2.05s;
 }
 .hero-catch::before {
   content: ''; position: absolute; left: 0; top: .16em; bottom: .16em; width: 6px;
@@ -914,7 +923,7 @@ body.page-in .hero-reveal-svg { animation: revealOpen 1.55s cubic-bezier(.66,0,.
   text-shadow: 0 2px 8px rgba(0,0,0,0.85);
   opacity: 0; transform: translateY(14px);
   transition: opacity .8s ease, transform .8s ease;
-  transition-delay: 2.35s;
+  transition-delay: 2.45s;
 }
 body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none; }
 .hero-bg { animation: heroZoom 18s ease-in-out infinite alternate; }
@@ -973,6 +982,6 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
 @media (prefers-reduced-motion: reduce) {
   .hero-bg, .marquee-inner, .loader-bar span { animation: none !important; }
   .hero-reveal { display: none !important; }
-  .hero-catch, .hero-club { transition: none; transform: none; opacity: 1; }
+  .hero-emblem, .hero-catch, .hero-club { transition: none; transform: none; opacity: 1; }
   .reveal, .reveal .sec-en, .reveal .sec-ja { transition: none; opacity: 1; transform: none; clip-path: none; }
 }
