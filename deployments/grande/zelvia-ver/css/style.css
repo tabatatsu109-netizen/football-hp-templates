@@ -643,6 +643,35 @@ img { max-width: 100%; display: block; }
 .video-card iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
 .video-title { padding: 10px 14px; font-size: 13px; font-weight: 700; }
 
+/* ── クラブ資料室 ── */
+.doc-row { display: grid; gap: 20px; }
+@media (min-width: 860px) { .doc-row { grid-template-columns: 320px 1fr; align-items: start; } }
+.doc-thumb {
+  display: block; border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+  background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.08); transition: transform .25s ease, box-shadow .25s ease;
+}
+.doc-thumb:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(0,0,0,0.14); }
+.doc-thumb img { display: block; width: 100%; height: auto; }
+.doc-desc { color: #2c3036; font-size: 14px; line-height: 2; margin-bottom: 12px; }
+.doc-points { margin: 0 0 18px; padding-left: 1.2em; color: var(--ink-sub); font-size: 12.5px; line-height: 2; }
+.doc-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.doc-btn {
+  display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  padding: 12px 26px; border-radius: 999px; border: 1px solid #c9ccd0; background: #fff; color: var(--ink);
+  transition: all .15s;
+}
+.doc-btn:hover { border-color: var(--main-color); color: var(--main-color); }
+.doc-btn--main { background: var(--main-color); border-color: var(--main-color); color: #fff; }
+.doc-btn--main:hover { background: var(--main-dark); color: #fff; }
+.doc-zoom {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(12,14,16,0.88); align-items: flex-start; justify-content: center;
+  padding: 30px 16px; overflow-y: auto; cursor: zoom-out;
+}
+.doc-zoom.open { display: flex; }
+.doc-zoom img { max-width: min(920px, 96vw); width: 100%; height: auto; border-radius: 4px; }
+.doc-zoom-close { position: fixed; top: 14px; right: 18px; background: none; border: none; color: #fff; font-size: 26px; cursor: pointer; }
+
 /* ── ニュース / 試合結果 詳細モーダル ── */
 .nd-overlay {
   display: none; position: fixed; inset: 0; z-index: 400;
