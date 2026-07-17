@@ -3,7 +3,6 @@
     "version": "2.0",
     "description": "八ヶ岳グランデフットボールクラブ ホームページ設定ファイル"
   },
-
   "club": {
     "name": "八ヶ岳北杜グランデフットボールクラブ",
     "shortName": "八ヶ岳グランデFC",
@@ -15,7 +14,6 @@
     "address": "408-0041 山梨県北杜市小淵沢町上笹尾3332-1555",
     "description": "八ヶ岳の大自然のもと、子どもたちがサッカーを通じて心と身体を磨き、夢に向かって努力できるクラブ。2001年設立以来、地域に根ざしたスポーツ育成と北杜市体育施設の運営管理を担う。"
   },
-
   "design": {
     "logo": "assets/logo.png",
     "favicon": "assets/favicon.ico",
@@ -23,14 +21,12 @@
     "subColor": "#ffffff",
     "accentColor": "#1a5c2d"
   },
-
   "hero": {
     "location": "YAMANASHI YATSUGATAKE",
     "catchphrase": "CORAZON GRANDE",
     "catchphraseJa": "感動するサッカーの追求",
     "description": "八ヶ岳の大自然のもと、子どもたちがサッカーを通じて\n心と身体を磨き、夢に向かって努力できるクラブ。"
   },
-
   "philosophy": {
     "pillars": [
       {
@@ -50,7 +46,6 @@
       }
     ]
   },
-
   "school": {
     "description": "ジュニアユース（U-15）・ジュニア（U-12）・スクール（未就学〜小学生）の各カテゴリで体験練習を随時受け付けています。\nまずはお気軽にお問い合わせください。",
     "scheduleLabel": "体験練習 随時受付中",
@@ -78,50 +73,43 @@
       }
     ]
   },
-
   "players": [],
-
-  "matchCategories": ["U-15", "U-12"],
-
+  "matchCategories": [
+    "U-15",
+    "U-12"
+  ],
   "contact": {
-    "ground": "白州総合運動場 / 長坂総合スポーツ公園",
+    "ground": "白州総合運動場",
     "address": "山梨県北杜市",
-    "access": "お問い合わせください",
+    "access": "中央道 小淵沢ICから車で10分",
     "phone": "",
     "email": ""
   },
-
   "sns": {
     "instagram": "https://www.instagram.com/yatsugatake.grande/",
     "youtube": "https://www.youtube.com/@corazon-grande9642",
     "facebook": "",
     "lineUrl": "https://line.me/R/ti/p/@200sfwtn"
   },
-
   "matchPlanner": {
     "jsonbinBinId": "6a3817c2f5f4af5e291906f9",
     "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
-
   "integration": {
     "firebaseUrl": "https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app",
     "firebaseClubId": "grande"
   },
-
   "newsIntegration": {
     "jsonbinBinId": "6a381e07f5f4af5e29191bec",
     "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
-
   "playerIntegration": {
     "jsonbinBinId": "6a3a1805da38895dfeef91b0",
     "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
   },
-
   "playerManager": {
     "password": "tatti109"
   },
-
   "features": {
     "showNews": true,
     "showResults": true,
@@ -130,6 +118,5 @@
     "showPlayers": false,
     "showSchool": true
   },
-
   "sponsors": []
 }
