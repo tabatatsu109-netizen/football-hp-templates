@@ -84,10 +84,10 @@ img { max-width: 100%; display: block; }
 .gh-burger span { width: 22px; height: 2px; background: var(--ink); border-radius: 1px; }
 @media (min-width: 1024px) {
   .gh-inner { height: 72px; }
-  .gh-nav { display: flex; align-items: stretch; margin-left: 28px; }
+  .gh-nav { display: flex; align-items: stretch; margin-left: 20px; }
   .gh-nav > a {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 0 16px; gap: 3px; border-bottom: 3px solid transparent; transition: border-color .2s;
+    padding: 0 13px; gap: 3px; border-bottom: 3px solid transparent; transition: border-color .2s;
   }
   .gh-nav > a:hover { border-bottom-color: var(--main-color); }
   .gh-nav .n-en { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 1px; }
@@ -95,6 +95,22 @@ img { max-width: 100%; display: block; }
   .gh-cta, .gh-login { display: flex; }
   .gh-burger { display: none; }
 }
+
+/* ── 「お父さん・お母さんいつもありがとう」ナビ(手書き風) ── */
+.gh-nav > a.nav-thanks .n-en {
+  font-family: 'Yomogi', 'Noto Sans JP', sans-serif; font-weight: 700;
+  font-size: 13px; letter-spacing: 0; color: var(--main-color); white-space: nowrap;
+}
+.gh-nav > a.nav-thanks .n-ja {
+  font-family: 'Yomogi', 'Noto Sans JP', sans-serif; font-weight: 700;
+  font-size: 11px; letter-spacing: 0; color: var(--main-color); white-space: nowrap;
+}
+.gh-nav > a.nav-thanks:hover { border-bottom-color: var(--gold); }
+.m-nav a.nav-thanks .n-en,
+.m-nav a.nav-thanks .n-ja {
+  font-family: 'Yomogi', 'Noto Sans JP', sans-serif; letter-spacing: 0; color: #9fd3ae;
+}
+.m-nav a.nav-thanks .n-en { font-size: 17px; }
 
 /* モバイルメニュー */
 .m-nav {
