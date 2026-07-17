@@ -670,6 +670,24 @@ img { max-width: 100%; display: block; }
 .kajo-main { color: var(--ink); font-size: 14.5px; font-weight: 700; line-height: 1.95; }
 .kajo-sub { color: var(--ink-sub); font-size: 12.5px; line-height: 1.9; margin-top: 6px; }
 
+/* FAQ アコーディオン */
+.faq-list { display: grid; gap: 10px; }
+.faq-item { background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.faq-item summary {
+  cursor: pointer; list-style: none; position: relative;
+  padding: 16px 44px 16px 18px; font-size: 14px; font-weight: 700; color: var(--ink);
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::before { content: 'Q.'; color: var(--main-color); font-family: 'Oswald', sans-serif; font-style: italic; margin-right: 8px; }
+.faq-item summary::after {
+  content: '+'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  font-family: 'Oswald', sans-serif; font-size: 20px; color: var(--main-color); transition: transform .2s;
+}
+.faq-item[open] summary::after { content: '−'; }
+.faq-item[open] summary { border-bottom: 1px solid var(--line); background: var(--bg-gray); }
+.faq-item p { padding: 14px 18px 18px; color: #2c3036; font-size: 13.5px; line-height: 2; }
+.faq-item p a { color: var(--main-color); font-weight: 700; }
+
 /* 勝者と敗者 締めの言葉 */
 .win-close {
   margin-top: 36px; text-align: center; background: var(--main-dark); color: #fff;
