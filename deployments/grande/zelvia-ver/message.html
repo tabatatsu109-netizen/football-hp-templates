@@ -7,7 +7,7 @@
   <meta name="description" content="いつもグランデの活動を支えてくださる保護者の皆様へ、感謝の気持ちとクラブの考え方をお伝えするページです。グランデはサッカーを通じて人として成長することを一番の目的としています。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -58,10 +58,9 @@
 
   <!-- メッセージヒーロー -->
   <section class="msg-hero">
-    <div class="msg-hero-bg" style="background-image:url('../assets/toprandom/LINE_ALBUM_エルドラード、ラーゴ_260627_36.jpg')"></div>
+    <div class="msg-hero-bg js-rand-photo" style="background-image:url('../assets/parents/parents-01.jpg')"></div>
     <div class="msg-hero-inner">
-      <p class="msg-hero-en">DEAR MOM &amp; DAD, THANK YOU AS ALWAYS</p>
-      <h1 class="msg-hero-title msg-hero-title--soft">お父さん・お母さん<br>いつもありがとう <span class="heart">♡</span></h1>
+      <h1 class="msg-hero-title msg-hero-title--soft">お父さん・お母さん<br>いつもありがとう</h1>
     </div>
   </section>
 
@@ -106,7 +105,7 @@
     </section>
 
     <!-- 写真バンド -->
-    <div class="msg-photo-band" style="background-image:url('../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_8.jpg')" role="img" aria-label="活動の様子"></div>
+    <div class="msg-photo-band js-rand-photo" style="background-image:url('../assets/parents/parents-02.jpg')" role="img" aria-label="活動の様子"></div>
 
     <!-- 2. さまざまな経験 -->
     <section class="msg-block">
@@ -120,7 +119,7 @@
             しかし、それらすべてが選手の未来につながる大切な学びだと考えています。
           </p>
         </div>
-        <div class="msg-split-photo" style="background-image:url('../assets/toprandom/LINE_ALBUM_DEN合宿_260627_1.jpg')" role="img" aria-label="合宿・イベントの様子"></div>
+        <div class="msg-split-photo js-rand-photo" style="background-image:url('../assets/parents/parents-03.jpg')" role="img" aria-label="合宿・イベントの様子"></div>
       </div>
     </section>
 
@@ -151,7 +150,7 @@
             ご家庭では<strong>一番の理解者</strong>として、温かく見守り、応援していただければ幸いです。
           </p>
         </div>
-        <div class="msg-split-photo" style="background-image:url('../assets/toprandom/LINE_ALBUM_高円宮杯アズール_260627_1.jpg')" role="img" aria-label="試合を戦う選手たち"></div>
+        <div class="msg-split-photo js-rand-photo" style="background-image:url('../assets/parents/parents-04.jpg')" role="img" aria-label="試合を戦う選手たち"></div>
       </div>
     </section>
 
@@ -229,6 +228,24 @@
     var mobileNav = document.getElementById('mobile-nav');
     document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+
+    // 保護者ページフォルダの写真をランダムに割り当て
+    (function(){
+      var TOTAL = 15;
+      var pool = [];
+      for (var i = 1; i <= TOTAL; i++) {
+        pool.push('../assets/parents/parents-' + (i < 10 ? '0' + i : i) + '.jpg');
+      }
+      // Fisher-Yates シャッフル
+      for (var k = pool.length - 1; k > 0; k--) {
+        var j = Math.floor(Math.random() * (k + 1));
+        var t = pool[k]; pool[k] = pool[j]; pool[j] = t;
+      }
+      var slots = document.querySelectorAll('.js-rand-photo');
+      slots.forEach(function(el, idx){
+        el.style.backgroundImage = "url('" + pool[idx % pool.length] + "')";
+      });
+    })();
 
     // スクロールリビール
     var observer = new IntersectionObserver(function(entries){
