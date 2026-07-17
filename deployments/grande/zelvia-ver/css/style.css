@@ -789,19 +789,17 @@ img { max-width: 100%; display: block; }
   margin-bottom: 20px; letter-spacing: 1px;
 }
 .msg-thanks-close {
-  font-family: 'Yomogi', 'Noto Sans JP', sans-serif;
-  font-size: clamp(21px, 3.4vw, 36px); line-height: 1.9; letter-spacing: 1px;
-  color: var(--ink); margin-top: 40px;
+  font-size: clamp(14px, 1.7vw, 16.5px); line-height: 2.4;
+  color: #2c3036; margin-top: 36px;
 }
-.msg-thanks-close em { font-style: normal; color: var(--main-color); border-bottom: 3px solid rgba(26,92,45,0.35); padding-bottom: 2px; }
+.msg-thanks-close em { font-style: normal; font-weight: 700; color: var(--main-color); }
 .msg-bridge {
-  font-family: 'Yomogi', 'Noto Sans JP', sans-serif;
-  font-size: clamp(15px, 2.1vw, 21px); line-height: 2.2; letter-spacing: 1px;
-  color: #5a6b5e; margin-top: 60px; padding-top: 52px; position: relative;
+  font-size: clamp(14px, 1.7vw, 16.5px); line-height: 2.4;
+  color: #2c3036; margin-top: 52px; padding-top: 46px; position: relative;
 }
 .msg-bridge::before {
   content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 1px; height: 36px; background: linear-gradient(to bottom, rgba(26,92,45,0), var(--main-color));
+  width: 1px; height: 34px; background: linear-gradient(to bottom, rgba(26,92,45,0), var(--main-color));
 }
 
 .msg-block { padding: clamp(64px, 10vw, 120px) 20px; background: #fff; }
