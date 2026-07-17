@@ -894,8 +894,8 @@ body.page-in .hero-reveal-svg { animation: revealOpen 1.55s cubic-bezier(.66,0,.
 
 /* ── ヒーロー: 着地コピー + 背景スロースズーム ── */
 .hero-emblem {
-  display: block; width: clamp(210px, 33vw, 400px); height: auto;
-  margin: 0 0 22px 22px;
+  display: block; align-self: flex-start; width: auto; height: clamp(46px, 6vw, 80px); max-width: 90vw;
+  margin: 0 0 18px 22px;
   filter: drop-shadow(0 8px 24px rgba(0,0,0,0.55));
   opacity: 0; transform: translateY(22px) scale(0.97);
   transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1);
