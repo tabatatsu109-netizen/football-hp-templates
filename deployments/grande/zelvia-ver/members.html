@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>お知らせ | 八ヶ岳グランデFC</title>
-  <meta name="description" content="八ヶ岳グランデFCからのお知らせ一覧。試合結果やスクール・体験会情報などクラブの最新情報をお届けします。">
+  <title>クラブ員専用ページ | 八ヶ岳グランデFC</title>
+  <meta name="description" content="八ヶ岳グランデFCのクラブ員専用ページ。練習スケジュールや連絡事項、試合の映像・写真はこちらからご利用ください。">
+  <meta name="robots" content="noindex">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -46,6 +47,7 @@
     <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
     <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
     <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
     <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
     <a class="m-link" href="members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
     <div class="m-nav-ctas">
@@ -56,34 +58,34 @@
   <!-- ページヒーロー -->
   <section class="page-hero">
     <div class="page-hero-inner">
-      <div class="ph-en">NEWS</div>
-      <div class="ph-ja">お知らせ</div>
+      <div class="ph-en">MEMBERS ONLY</div>
+      <div class="ph-ja">クラブ員専用ページ</div>
     </div>
   </section>
-  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>お知らせ</span></div></div>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>クラブ員専用</span></div></div>
 
   <main class="page-body">
     <div class="container">
 
-      <!-- PICK UP NEWS -->
-      <div class="sec-head">
-        <span class="sec-en" style="font-size:26px;">PICK UP</span>
-        <span class="sec-ja">注目のお知らせ</span>
+      <div class="login-wrap">
+        <p class="login-lead">
+          練習スケジュールやカテゴリ別の連絡事項、試合の映像・写真、各種書類のダウンロードはこちらからご利用ください。<br>
+          ログイン情報は入会時にお渡ししています。
+        </p>
+        <form class="jform login-card" onsubmit="return handleLogin(event);">
+          <div class="jform-group">
+            <label class="jform-label">ID</label>
+            <input class="jform-input" type="text" id="username" autocomplete="username" required>
+          </div>
+          <div class="jform-group">
+            <label class="jform-label">パスワード</label>
+            <input class="jform-input" type="password" id="password" autocomplete="current-password" required>
+          </div>
+          <p class="login-error" id="error-msg">IDまたはパスワードが正しくありません</p>
+          <button type="submit" class="jform-submit">ログイン</button>
+          <p class="login-note">ログインでお困りの方は、各カテゴリのコーチまたは公式LINEまでご連絡ください。</p>
+        </form>
       </div>
-      <div class="pickup-news" id="pickup-news"><p class="no-data">読み込み中...</p></div>
-
-      <!-- カテゴリフィルタ -->
-      <div class="filter-bar" id="news-filter">
-        <button class="filter-btn on" data-cat="all">すべて</button>
-        <button class="filter-btn" data-cat="試合">試合・結果</button>
-        <button class="filter-btn" data-cat="スクール">スクール・体験</button>
-        <button class="filter-btn" data-cat="クラブ">クラブ</button>
-        <button class="filter-btn" data-cat="その他">その他</button>
-      </div>
-
-      <!-- ニュース一覧 -->
-      <div class="news-list" id="news-list"><p class="no-data">読み込み中...</p></div>
-      <div class="more-wrap"><button class="more-btn" id="more-btn" style="display:none;">もっとみる</button></div>
 
     </div>
   </main>
@@ -140,103 +142,23 @@
     document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
 
-    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function formatDate(s){ return String(s||'').replace(/-/g,'.'); }
-    function catColor(cat){
-      if(!cat) return '#6b7078';
-      if(/試合|結果/i.test(cat)) return '#c0392b';
-      if(/スクール|体験/i.test(cat)) return '#1a5c2d';
-      if(/クラブ/i.test(cat)) return '#2a6fd6';
-      return '#b8870b';
-    }
-
-    var allNews = [];
-    var activeCat = 'all';
-    var shown = 10;
-    var PICKUP_PHOTOS = [
-      '../assets/toprandom/LINE_ALBUM_U12リーグ最終節_260627_2.jpg',
-      '../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_21.jpg',
-      '../assets/toprandom/LINE_ALBUM_エルドラード、ラーゴ_260627_14.jpg'
-    ];
-
-    function filteredNews(){
-      if(activeCat === 'all') return allNews;
-      return allNews.filter(function(n){
-        var cat = n.cat || n.category || n.type || '';
-        if(activeCat === 'その他') return !/試合|結果|スクール|体験|クラブ/i.test(cat);
-        return cat.indexOf(activeCat) !== -1 || (activeCat==='試合' && /結果/.test(cat)) || (activeCat==='スクール' && /体験/.test(cat));
-      });
-    }
-
-    function renderPickup(){
-      var box = document.getElementById('pickup-news');
-      var picks = allNews.slice(0, 3);
-      if(picks.length === 0){ box.innerHTML = '<p class="no-data">現在お知らせはありません</p>'; return; }
-      box.innerHTML = picks.map(function(n, i){
-        var cat = n.cat || n.category || n.type || 'お知らせ';
-        var cc = catColor(cat);
-        return '<a class="pn-card" href="#news-list">' +
-          '<div class="pn-thumb" style="background-image:url(\'' + PICKUP_PHOTOS[i % PICKUP_PHOTOS.length] + '\')"><span class="pn-flag">PICK UP</span></div>' +
-          '<div class="pn-body">' +
-            '<div class="pn-meta"><span class="pn-date">' + esc(formatDate(n.date)) + '</span>' +
-            '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';">' + esc(cat) + '</span></div>' +
-            '<div class="pn-title">' + esc(n.title) + '</div>' +
-          '</div></a>';
-      }).join('');
-    }
-
-    function renderList(){
-      var list = filteredNews();
-      var el = document.getElementById('news-list');
-      var moreBtn = document.getElementById('more-btn');
-      if(list.length === 0){ el.innerHTML = '<p class="no-data">該当するお知らせはありません</p>'; moreBtn.style.display = 'none'; return; }
-      el.innerHTML = list.slice(0, shown).map(function(n){
-        var cat = n.cat || n.category || n.type || 'お知らせ';
-        var cc = catColor(cat);
-        return '<div class="news-row">' +
-          '<span class="news-date">' + esc(formatDate(n.date)) + '</span>' +
-          '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';justify-self:start;">' + esc(cat) + '</span>' +
-          '<span class="news-title">' + esc(n.title) + '</span>' +
-          '<span class="news-arrow">›</span>' +
-          '</div>';
-      }).join('');
-      moreBtn.style.display = list.length > shown ? '' : 'none';
-    }
-
-    document.getElementById('more-btn').addEventListener('click', function(){ shown += 10; renderList(); });
-    document.querySelectorAll('#news-filter .filter-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        document.querySelectorAll('#news-filter .filter-btn').forEach(function(b){ b.classList.remove('on'); });
-        this.classList.add('on');
-        activeCat = this.dataset.cat;
-        shown = 10;
-        renderList();
-      });
-    });
-
-    ConfigLoader.apply({
-      pageTitle: 'お知らせ',
-      onLoaded: function(c){
-        function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
-        // Firebase（最新版 Match Planner の保存先）から取得
-        var fbUrl = get(c,'integration.firebaseUrl') || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
-        var clubId = get(c,'integration.firebaseClubId') || 'grande';
-        fetch(fbUrl + '/clubs/' + clubId + '.json')
-          .then(function(r){ return r.json(); })
-          .then(function(data){
-            var items = data && (data.news || data.posts);
-            allNews = (Array.isArray(items) ? items : [])
-              .filter(function(n){ return n && n.title; })
-              .sort(function(a,b){ return (new Date(b.date||0)) - (new Date(a.date||0)); });
-            renderPickup();
-            renderList();
-          })
-          .catch(function(){
-            document.getElementById('news-list').innerHTML = '<p class="no-data">お知らせを取得できませんでした</p>';
-            document.getElementById('pickup-news').innerHTML = '<p class="no-data">お知らせを取得できませんでした</p>';
-          });
+    // 既存の会員ページと同じログイン処理(ダッシュボードは共通のものへ遷移)
+    function handleLogin(e) {
+      e.preventDefault();
+      var username = document.getElementById('username').value;
+      var password = document.getElementById('password').value;
+      var errorMsg = document.getElementById('error-msg');
+      if (username === 'corazon' && password === 'grande') {
+        localStorage.setItem('memberLoggedIn', 'true');
+        localStorage.setItem('memberLoginTime', new Date().getTime());
+        window.location.href = '../members-dashboard.html';
+      } else {
+        errorMsg.style.display = 'block';
       }
-    });
+      return false;
+    }
+
+    ConfigLoader.apply({ pageTitle: 'クラブ員専用ページ' });
   </script>
 </body>
 </html>

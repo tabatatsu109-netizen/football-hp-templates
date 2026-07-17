@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>お知らせ | 八ヶ岳グランデFC</title>
-  <meta name="description" content="八ヶ岳グランデFCからのお知らせ一覧。試合結果やスクール・体験会情報などクラブの最新情報をお届けします。">
+  <title>お問い合わせ・アクセス | 八ヶ岳グランデFC</title>
+  <meta name="description" content="八ヶ岳グランデFCへのお問い合わせ・体験申込とホームグラウンド(白州総合運動場)へのアクセスのご案内です。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -46,6 +46,7 @@
     <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
     <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
     <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
     <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
     <a class="m-link" href="members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
     <div class="m-nav-ctas">
@@ -56,34 +57,112 @@
   <!-- ページヒーロー -->
   <section class="page-hero">
     <div class="page-hero-inner">
-      <div class="ph-en">NEWS</div>
-      <div class="ph-ja">お知らせ</div>
+      <div class="ph-en">CONTACT / ACCESS</div>
+      <div class="ph-ja">お問い合わせ・アクセス</div>
     </div>
   </section>
-  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>お知らせ</span></div></div>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>お問い合わせ・アクセス</span></div></div>
 
   <main class="page-body">
     <div class="container">
 
-      <!-- PICK UP NEWS -->
-      <div class="sec-head">
-        <span class="sec-en" style="font-size:26px;">PICK UP</span>
-        <span class="sec-ja">注目のお知らせ</span>
-      </div>
-      <div class="pickup-news" id="pickup-news"><p class="no-data">読み込み中...</p></div>
+      <div class="ct-grid">
 
-      <!-- カテゴリフィルタ -->
-      <div class="filter-bar" id="news-filter">
-        <button class="filter-btn on" data-cat="all">すべて</button>
-        <button class="filter-btn" data-cat="試合">試合・結果</button>
-        <button class="filter-btn" data-cat="スクール">スクール・体験</button>
-        <button class="filter-btn" data-cat="クラブ">クラブ</button>
-        <button class="filter-btn" data-cat="その他">その他</button>
-      </div>
+        <!-- アクセス -->
+        <section class="club-sec" style="margin-bottom:0;">
+          <div class="club-sec-title"><span class="c-en">ACCESS</span><span class="c-ja">アクセス</span></div>
+          <table class="club-table" style="margin-bottom:16px;">
+            <tr><th>ホームグラウンド</th><td>白州総合運動場</td></tr>
+            <tr><th>住所</th><td>〒408-0315 山梨県北杜市白州町白須7458-2</td></tr>
+            <tr><th>アクセス</th><td>中央道 小淵沢ICから車で10分</td></tr>
+          </table>
+          <div style="border-radius:6px;overflow:hidden;border:1px solid var(--line);">
+            <iframe
+              src="https://www.google.com/maps?q=%E7%99%BD%E5%B7%9E%E7%B7%8F%E5%90%88%E9%81%8B%E5%8B%95%E5%A0%B4%20%E5%B1%B1%E6%A2%A8%E7%9C%8C%E5%8C%97%E6%9D%9C%E5%B8%82&output=embed&hl=ja"
+              width="100%" height="320" style="border:0;display:block;"
+              allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+              title="白州総合運動場の地図"></iframe>
+          </div>
+        </section>
 
-      <!-- ニュース一覧 -->
-      <div class="news-list" id="news-list"><p class="no-data">読み込み中...</p></div>
-      <div class="more-wrap"><button class="more-btn" id="more-btn" style="display:none;">もっとみる</button></div>
+        <!-- お問い合わせ・体験申込フォーム -->
+        <section class="club-sec" style="margin-bottom:0;" id="form">
+          <div class="club-sec-title"><span class="c-en">CONTACT</span><span class="c-ja">お問い合わせ・体験申込</span></div>
+          <p style="color:#4c5157;font-size:13.5px;line-height:2;margin-bottom:20px;">
+            体験会へのお申し込み、クラブへのご質問はこちらからお気軽にお送りください。
+          </p>
+          <form class="jform" action="https://formspree.io/f/mqejrbge" method="POST">
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">お子様のお名前 <span class="req">必須</span></label>
+                <input class="jform-input" type="text" name="お子様のお名前" required>
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">ふりがな <span class="req">必須</span></label>
+                <input class="jform-input" type="text" name="ふりがな" required>
+              </div>
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">学年 <span class="req">必須</span></label>
+                <select class="jform-input" name="学年" required>
+                  <option value="" disabled selected>選択してください</option>
+                  <option>年少・年中・年長</option>
+                  <option>小学1年生</option>
+                  <option>小学2年生</option>
+                  <option>小学3年生</option>
+                  <option>小学4年生</option>
+                  <option>小学5年生</option>
+                  <option>小学6年生</option>
+                  <option>中学1年生</option>
+                  <option>中学2年生</option>
+                  <option>中学3年生</option>
+                </select>
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">サッカー経験</label>
+                <select class="jform-input" name="サッカー経験">
+                  <option value="" disabled selected>選択してください</option>
+                  <option>未経験</option>
+                  <option>1年未満</option>
+                  <option>1〜3年</option>
+                  <option>3年以上</option>
+                </select>
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">希望カテゴリー <span class="req">必須</span></label>
+              <div class="jform-radios">
+                <label><input type="radio" name="希望カテゴリー" value="ジュニアユース" required> ジュニアユース</label>
+                <label><input type="radio" name="希望カテゴリー" value="ジュニア"> ジュニア</label>
+                <label><input type="radio" name="希望カテゴリー" value="スクール"> スクール</label>
+                <label><input type="radio" name="希望カテゴリー" value="まだ決まっていない"> まだ決まっていない</label>
+              </div>
+            </div>
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">保護者のお名前 <span class="req">必須</span></label>
+                <input class="jform-input" type="text" name="保護者のお名前" required>
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">電話番号 <span class="req">必須</span></label>
+                <input class="jform-input" type="tel" name="電話番号" required>
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">メールアドレス <span class="req">必須</span></label>
+              <input class="jform-input" type="email" name="メールアドレス" required>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">ご希望の体験日・ご質問など</label>
+              <textarea class="jform-input jform-textarea" name="ご希望の体験日・ご質問など"></textarea>
+            </div>
+            <button type="submit" class="jform-submit">送信する →</button>
+            <p style="color:var(--ink-sub);font-size:11px;line-height:1.9;margin-top:12px;">送信いただいた個人情報はお問い合わせへの対応のみに使用し、第三者への開示は行いません。</p>
+          </form>
+        </section>
+
+      </div>
 
     </div>
   </main>
@@ -139,104 +218,7 @@
     var mobileNav = document.getElementById('mobile-nav');
     document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
-
-    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function formatDate(s){ return String(s||'').replace(/-/g,'.'); }
-    function catColor(cat){
-      if(!cat) return '#6b7078';
-      if(/試合|結果/i.test(cat)) return '#c0392b';
-      if(/スクール|体験/i.test(cat)) return '#1a5c2d';
-      if(/クラブ/i.test(cat)) return '#2a6fd6';
-      return '#b8870b';
-    }
-
-    var allNews = [];
-    var activeCat = 'all';
-    var shown = 10;
-    var PICKUP_PHOTOS = [
-      '../assets/toprandom/LINE_ALBUM_U12リーグ最終節_260627_2.jpg',
-      '../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_21.jpg',
-      '../assets/toprandom/LINE_ALBUM_エルドラード、ラーゴ_260627_14.jpg'
-    ];
-
-    function filteredNews(){
-      if(activeCat === 'all') return allNews;
-      return allNews.filter(function(n){
-        var cat = n.cat || n.category || n.type || '';
-        if(activeCat === 'その他') return !/試合|結果|スクール|体験|クラブ/i.test(cat);
-        return cat.indexOf(activeCat) !== -1 || (activeCat==='試合' && /結果/.test(cat)) || (activeCat==='スクール' && /体験/.test(cat));
-      });
-    }
-
-    function renderPickup(){
-      var box = document.getElementById('pickup-news');
-      var picks = allNews.slice(0, 3);
-      if(picks.length === 0){ box.innerHTML = '<p class="no-data">現在お知らせはありません</p>'; return; }
-      box.innerHTML = picks.map(function(n, i){
-        var cat = n.cat || n.category || n.type || 'お知らせ';
-        var cc = catColor(cat);
-        return '<a class="pn-card" href="#news-list">' +
-          '<div class="pn-thumb" style="background-image:url(\'' + PICKUP_PHOTOS[i % PICKUP_PHOTOS.length] + '\')"><span class="pn-flag">PICK UP</span></div>' +
-          '<div class="pn-body">' +
-            '<div class="pn-meta"><span class="pn-date">' + esc(formatDate(n.date)) + '</span>' +
-            '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';">' + esc(cat) + '</span></div>' +
-            '<div class="pn-title">' + esc(n.title) + '</div>' +
-          '</div></a>';
-      }).join('');
-    }
-
-    function renderList(){
-      var list = filteredNews();
-      var el = document.getElementById('news-list');
-      var moreBtn = document.getElementById('more-btn');
-      if(list.length === 0){ el.innerHTML = '<p class="no-data">該当するお知らせはありません</p>'; moreBtn.style.display = 'none'; return; }
-      el.innerHTML = list.slice(0, shown).map(function(n){
-        var cat = n.cat || n.category || n.type || 'お知らせ';
-        var cc = catColor(cat);
-        return '<div class="news-row">' +
-          '<span class="news-date">' + esc(formatDate(n.date)) + '</span>' +
-          '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';justify-self:start;">' + esc(cat) + '</span>' +
-          '<span class="news-title">' + esc(n.title) + '</span>' +
-          '<span class="news-arrow">›</span>' +
-          '</div>';
-      }).join('');
-      moreBtn.style.display = list.length > shown ? '' : 'none';
-    }
-
-    document.getElementById('more-btn').addEventListener('click', function(){ shown += 10; renderList(); });
-    document.querySelectorAll('#news-filter .filter-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        document.querySelectorAll('#news-filter .filter-btn').forEach(function(b){ b.classList.remove('on'); });
-        this.classList.add('on');
-        activeCat = this.dataset.cat;
-        shown = 10;
-        renderList();
-      });
-    });
-
-    ConfigLoader.apply({
-      pageTitle: 'お知らせ',
-      onLoaded: function(c){
-        function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
-        // Firebase（最新版 Match Planner の保存先）から取得
-        var fbUrl = get(c,'integration.firebaseUrl') || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
-        var clubId = get(c,'integration.firebaseClubId') || 'grande';
-        fetch(fbUrl + '/clubs/' + clubId + '.json')
-          .then(function(r){ return r.json(); })
-          .then(function(data){
-            var items = data && (data.news || data.posts);
-            allNews = (Array.isArray(items) ? items : [])
-              .filter(function(n){ return n && n.title; })
-              .sort(function(a,b){ return (new Date(b.date||0)) - (new Date(a.date||0)); });
-            renderPickup();
-            renderList();
-          })
-          .catch(function(){
-            document.getElementById('news-list').innerHTML = '<p class="no-data">お知らせを取得できませんでした</p>';
-            document.getElementById('pickup-news').innerHTML = '<p class="no-data">お知らせを取得できませんでした</p>';
-          });
-      }
-    });
+    ConfigLoader.apply({ pageTitle: 'お問い合わせ・アクセス' });
   </script>
 </body>
 </html>

@@ -614,6 +614,17 @@ img { max-width: 100%; display: block; }
 .pt-support-title { font-size: 24px; font-weight: 900; margin: 8px 0 12px; }
 .pt-support-desc { color: #4c5157; font-size: 13px; line-height: 2; margin-bottom: 22px; }
 
+/* ============================================================
+   クラブ員ログイン / お問い合わせページ
+   ============================================================ */
+.login-wrap { max-width: 460px; margin: 0 auto; }
+.login-lead { color: #4c5157; font-size: 13.5px; line-height: 2.1; margin-bottom: 24px; text-align: center; }
+.login-card { max-width: none; }
+.login-error { display: none; color: var(--red); font-size: 12px; font-weight: 700; margin: -6px 0 14px; }
+.login-note { color: var(--ink-sub); font-size: 11px; line-height: 1.9; margin-top: 14px; text-align: center; }
+.ct-grid { display: grid; gap: 40px; }
+@media (min-width: 1000px) { .ct-grid { grid-template-columns: 5fr 6fr; gap: 40px; align-items: start; } }
+
 /* ── ニュース / 試合結果 詳細モーダル ── */
 .nd-overlay {
   display: none; position: fixed; inset: 0; z-index: 400;
