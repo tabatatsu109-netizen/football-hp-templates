@@ -744,6 +744,71 @@ img { max-width: 100%; display: block; }
 .nd-image.show { display: block; }
 .nd-body { font-size: 14px; line-height: 2; color: #2c3036; white-space: pre-wrap; }
 
+/* ============================================================
+   メッセージページ (message.html)
+   ============================================================ */
+.msg-hero { position: relative; height: 64vh; min-height: 400px; overflow: hidden; background: #1a1c1e; }
+.msg-hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; animation: heroZoom 20s ease-in-out infinite alternate; }
+.msg-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(8,14,10,0.35), rgba(8,14,10,0.78)); }
+.msg-hero-inner {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 20px;
+}
+.msg-hero-en { color: #9fd3ae; font-family: 'Oswald', sans-serif; font-style: italic; font-size: clamp(11px, 1.6vw, 14px); letter-spacing: 5px; margin-bottom: 18px; }
+.msg-hero-title { color: #fff; font-size: clamp(30px, 5.6vw, 58px); font-weight: 900; line-height: 1.5; letter-spacing: 3px; text-shadow: 0 4px 24px rgba(0,0,0,0.5); }
+
+.msg-block { padding: clamp(64px, 10vw, 120px) 20px; background: #fff; }
+.msg-block--gray { background: var(--bg-gray); }
+.msg-inner { max-width: 980px; margin: 0 auto; }
+.msg-big {
+  font-size: clamp(26px, 4.6vw, 46px); font-weight: 900; line-height: 1.75; letter-spacing: 2px; color: var(--ink);
+  margin-bottom: 28px;
+}
+.msg-big em, .msg-lead em, .msg-close-big em { font-style: normal; color: var(--main-color); }
+.msg-lead { font-size: clamp(21px, 3.2vw, 32px); font-weight: 900; line-height: 1.8; letter-spacing: 1px; margin-bottom: 22px; }
+.msg-text { font-size: clamp(14px, 1.7vw, 16.5px); line-height: 2.4; color: #2c3036; }
+.msg-text strong { color: var(--main-color); }
+
+.msg-photo-band { height: clamp(240px, 42vw, 480px); background-size: cover; background-position: center 30%; background-attachment: fixed; }
+@media (max-width: 767px) { .msg-photo-band { background-attachment: scroll; } }
+
+.msg-split { display: grid; gap: 34px; align-items: center; }
+.msg-split-photo { border-radius: 8px; min-height: 280px; background-size: cover; background-position: center; box-shadow: 0 14px 34px rgba(10,26,14,0.18); }
+@media (min-width: 900px) {
+  .msg-split { grid-template-columns: 1.1fr 1fr; gap: 60px; }
+  .msg-split--rev .msg-split-text { order: 2; }
+  .msg-split--rev .msg-split-photo { order: 1; }
+  .msg-split-photo { min-height: 380px; }
+}
+
+.msg-quotes { display: flex; align-items: center; justify-content: center; gap: clamp(14px, 3vw, 34px); margin: 40px 0; flex-wrap: wrap; }
+.msg-quote {
+  background: #fff; border: 1px solid var(--line); border-radius: 8px;
+  padding: clamp(20px, 3vw, 34px) clamp(22px, 3.6vw, 44px);
+  font-size: clamp(17px, 2.6vw, 26px); font-weight: 900; line-height: 1.7; letter-spacing: 1px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.08); transform: rotate(-1.2deg);
+}
+.msg-quote + .msg-quote-vs + .msg-quote { transform: rotate(1.2deg); }
+.msg-quote-vs { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: clamp(22px, 3.4vw, 34px); color: var(--red); }
+
+.msg-close { background: var(--main-dark); padding: clamp(70px, 11vw, 130px) 20px; position: relative; overflow: hidden; }
+.msg-close::before {
+  content: 'CORAZON GRANDE'; position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
+  font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; font-size: clamp(50px, 11vw, 130px);
+  color: rgba(255,255,255,0.04); white-space: nowrap; letter-spacing: 4px; pointer-events: none;
+}
+.msg-close-inner { position: relative; z-index: 2; max-width: 900px; margin: 0 auto; text-align: center; }
+.msg-close-big {
+  color: #fff; font-size: clamp(22px, 3.8vw, 40px); font-weight: 900; line-height: 2; letter-spacing: 2px;
+  margin: 44px 0 10px;
+}
+.msg-close-big .strike { color: rgba(255,255,255,0.45); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.6); text-decoration-thickness: 3px; }
+.msg-close-big em { color: #7fce97; border-bottom: 4px solid #7fce97; padding-bottom: 4px; }
+.msg-close-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 44px; }
+.sp-br { display: inline; } .pc-br { display: none; }
+@media (min-width: 768px) { .sp-br { display: none; } .pc-br { display: inline; } }
+
 /* ── スクロールリビール ── */
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
 .reveal.active { opacity: 1; transform: none; }
