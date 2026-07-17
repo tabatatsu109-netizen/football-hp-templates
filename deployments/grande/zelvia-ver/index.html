@@ -70,6 +70,17 @@
   <!-- ヒーロー -->
   <section class="hero">
     <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-reveal" id="hero-reveal" aria-hidden="true">
+      <svg class="hero-reveal-svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <mask id="grandeHole">
+            <rect x="0" y="0" width="1200" height="700" fill="#fff"></rect>
+            <text x="600" y="368" text-anchor="middle" font-family="'Oswald',sans-serif" font-weight="700" font-style="italic" font-size="228" letter-spacing="2" fill="#000">GRANDE</text>
+          </mask>
+        </defs>
+        <rect x="0" y="0" width="1200" height="700" fill="#0e3a1c" mask="url(#grandeHole)"></rect>
+      </svg>
+    </div>
     <div class="hero-inner">
       <p class="hero-loc" id="hero-location">YAMANASHI · YATSUGATAKE</p>
       <div class="hero-kinetic">
