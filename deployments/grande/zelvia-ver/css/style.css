@@ -985,3 +985,94 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
   .hero-emblem, .hero-catch, .hero-club { transition: none; transform: none; opacity: 1; }
   .reveal, .reveal .sec-en, .reveal .sec-ja { transition: none; opacity: 1; transform: none; clip-path: none; }
 }
+
+/* ============================================================
+   クラブの取り組み (initiatives / 各取り組みページ共通)
+   ページごとに <style> で --tk(アクセント) / --tk-dark を上書き
+   ============================================================ */
+:root { --tk: var(--main-color); --tk-dark: #10401e; --tk-bg: #f4f6f4; }
+
+.tk-hero { position: relative; min-height: 46vh; display: flex; align-items: flex-end; overflow: hidden; background: var(--tk-dark); }
+.tk-hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.tk-hero::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.74), rgba(0,0,0,0.16) 62%),
+              linear-gradient(100deg, rgba(0,0,0,0.42), transparent 60%);
+}
+.tk-hero-inner { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; width: 100%; padding: 120px 20px 42px; }
+.tk-hero-en { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; color: #fff; opacity: .85; letter-spacing: 5px; font-size: clamp(11px, 1.5vw, 14px); }
+.tk-hero-title { color: #fff; font-size: clamp(28px, 4.8vw, 54px); font-weight: 900; letter-spacing: 2px; line-height: 1.35; margin-top: 6px; text-shadow: 0 3px 16px rgba(0,0,0,0.5); }
+.tk-hero-sub { color: rgba(255,255,255,0.88); font-size: clamp(13px, 1.8vw, 16px); font-weight: 700; letter-spacing: 2px; margin-top: 10px; text-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+
+.tk-sec { padding: clamp(56px, 8vw, 92px) 20px; background: #fff; }
+.tk-sec--band { background: var(--tk-bg); }
+.tk-sec--dark { background: var(--tk-dark); }
+.tk-sec-inner { max-width: 1100px; margin: 0 auto; }
+.tk-sec-en { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; color: var(--tk); letter-spacing: 4px; font-size: 13px; }
+.tk-sec-ja { font-size: clamp(22px, 3.2vw, 34px); font-weight: 900; letter-spacing: 1px; margin: 6px 0 26px; }
+.tk-sec--dark .tk-sec-ja { color: #fff; }
+
+.tk-lead { font-size: clamp(19px, 2.9vw, 30px); font-weight: 900; line-height: 1.95; letter-spacing: 1px; margin-bottom: 18px; }
+.tk-lead em { font-style: normal; color: var(--tk); }
+.tk-text { font-size: clamp(14px, 1.7vw, 16px); line-height: 2.3; color: #2c3036; }
+.tk-text strong { color: var(--tk); }
+
+.tk-points { display: grid; gap: 14px; grid-template-columns: 1fr; margin-top: 10px; }
+@media (min-width: 768px) { .tk-points { grid-template-columns: repeat(2, 1fr); gap: 18px; } }
+@media (min-width: 1000px) { .tk-points--4 { grid-template-columns: repeat(4, 1fr); } .tk-points--3 { grid-template-columns: repeat(3, 1fr); } }
+.tk-point { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 24px 20px; box-shadow: 0 8px 22px rgba(10,26,14,0.06); }
+.tk-point-num { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; font-size: 30px; color: var(--tk); line-height: 1; }
+.tk-point-title { font-weight: 900; font-size: 16.5px; margin: 10px 0 8px; letter-spacing: 1px; }
+.tk-point-text { font-size: 13.5px; line-height: 2; color: #444; }
+
+.tk-photos { display: grid; gap: 10px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 768px) { .tk-photos { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
+.tk-photo { aspect-ratio: 4 / 3; background-size: cover; background-position: center; border-radius: 10px; box-shadow: 0 8px 20px rgba(10,26,14,0.10); }
+.tk-photo--wide { grid-column: span 2; aspect-ratio: 16 / 8; }
+
+.tk-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.tk-chip { background: #fff; border: 2px solid var(--tk); color: var(--tk); font-weight: 900; font-size: 14px; letter-spacing: 1px; border-radius: 999px; padding: 10px 22px; }
+
+.tk-stat { text-align: center; padding: 8px 0 4px; }
+.tk-stat-num { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; font-size: clamp(64px, 11vw, 120px); color: var(--tk); line-height: 1; }
+.tk-stat-num small { font-size: 0.36em; font-style: normal; margin-left: 6px; }
+.tk-stat-label { font-weight: 900; letter-spacing: 2px; margin-top: 10px; font-size: clamp(14px, 2vw, 18px); }
+
+.tk-split { display: grid; gap: 20px; }
+@media (min-width: 900px) { .tk-split { grid-template-columns: 1fr 1fr; gap: 26px; } }
+.tk-season { border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid var(--line); box-shadow: 0 10px 26px rgba(10,26,14,0.08); }
+.tk-season-head { padding: 16px 22px; color: #fff; font-weight: 900; letter-spacing: 2px; font-size: 17px; display: flex; align-items: center; gap: 10px; }
+.tk-season-head .en { font-family: 'Oswald', sans-serif; font-style: italic; opacity: .8; font-size: 13px; letter-spacing: 3px; }
+.tk-season-body { padding: 20px 22px 24px; font-size: 14px; line-height: 2.2; color: #2c3036; }
+.tk-season-body ul { list-style: none; margin-top: 10px; }
+.tk-season-body li { padding-left: 20px; position: relative; font-weight: 700; }
+.tk-season-body li::before { content: ''; position: absolute; left: 2px; top: .95em; width: 8px; height: 8px; border-radius: 50%; background: var(--tk); }
+
+/* 一覧(ハブ)カード */
+.tkc-grid { display: grid; gap: 16px; }
+@media (min-width: 900px) { .tkc-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } .tkc-card--wide { grid-column: span 2; } }
+.tkc-card { position: relative; display: flex; align-items: flex-end; min-height: 230px; border-radius: 14px; overflow: hidden; text-decoration: none; background-size: cover; background-position: center; background-color: var(--c, #123); box-shadow: 0 12px 28px rgba(10,26,14,0.14); transition: transform .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s ease; }
+.tkc-card:hover { transform: translateY(-5px); box-shadow: 0 18px 38px rgba(10,26,14,0.22); }
+.tkc-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--c-grad, rgba(0,0,0,0.82)), rgba(0,0,0,0.08) 65%); }
+.tkc-body { position: relative; z-index: 2; padding: 22px 24px; width: 100%; }
+.tkc-en { display: block; font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; font-size: 12px; letter-spacing: 3px; color: var(--c-accent, #ffd76a); }
+.tkc-ja { display: block; color: #fff; font-weight: 900; font-size: clamp(19px, 2.6vw, 26px); letter-spacing: 1px; margin-top: 4px; }
+.tkc-sub { display: block; color: rgba(255,255,255,0.85); font-size: 12.5px; letter-spacing: 1px; margin-top: 6px; line-height: 1.8; }
+.tkc-arrow { position: absolute; right: 20px; bottom: 20px; z-index: 2; color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-style: italic; opacity: .85; }
+
+/* 他の取り組みへ */
+.tk-others { display: grid; gap: 10px; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .tk-others { grid-template-columns: repeat(2, 1fr); } }
+.tk-other { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid var(--line); border-left: 6px solid var(--c, var(--main-color)); border-radius: 8px; padding: 16px 18px; text-decoration: none; color: var(--ink); font-weight: 900; letter-spacing: 1px; transition: transform .3s ease, box-shadow .3s ease; }
+.tk-other:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(10,26,14,0.12); }
+.tk-other small { display: block; font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; color: var(--c, var(--main-color)); font-size: 11px; letter-spacing: 2px; }
+.tk-other .ar { color: var(--c, var(--main-color)); font-family: 'Oswald', sans-serif; font-weight: 700; }
+
+/* トップページ用バナー */
+.tk-banner { position: relative; display: block; border-radius: 14px; overflow: hidden; min-height: 190px; background-size: cover; background-position: center 35%; text-decoration: none; box-shadow: 0 12px 28px rgba(10,26,14,0.16); transition: transform .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s ease; }
+.tk-banner:hover { transform: translateY(-4px); box-shadow: 0 18px 38px rgba(10,26,14,0.24); }
+.tk-banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(10,30,16,0.88) 20%, rgba(10,30,16,0.3) 70%, rgba(10,30,16,0.1)); }
+.tk-banner-body { position: relative; z-index: 2; padding: 34px 28px; }
+.tk-banner-en { display: block; font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; color: #7fce97; letter-spacing: 4px; font-size: 13px; }
+.tk-banner-ja { display: block; color: #fff; font-weight: 900; font-size: clamp(22px, 3.4vw, 34px); letter-spacing: 2px; margin-top: 4px; }
+.tk-banner-sub { display: block; color: rgba(255,255,255,0.82); font-size: 12.5px; letter-spacing: 1px; margin-top: 10px; line-height: 1.9; }

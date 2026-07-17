@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>お問い合わせ・アクセス | 八ヶ岳グランデFC</title>
-  <meta name="description" content="八ヶ岳グランデFCへのお問い合わせ・体験申込とホームグラウンド(白州総合運動場)へのアクセスのご案内です。">
+  <title>KICK OFF PARTY | 八ヶ岳グランデFC</title>
+  <meta name="description" content="八ヶ岳グランデFCのKICK OFF PARTY。選手・指導者・保護者・地域が一堂に会し、目標発表やパートナー企業紹介、抽選会を通じてカテゴリーを超えた交流を行い、シーズンの良いスタートを切ります。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root { --tk: #2e3f7f; --tk-dark: #141c46; --tk-bg: #eef0f8; }
+  </style>
 </head>
 <body>
 
@@ -57,117 +60,84 @@
     </div>
   </nav>
 
-  <!-- ページヒーロー -->
-  <section class="page-hero">
-    <div class="page-hero-inner">
-      <div class="ph-en">CONTACT / ACCESS</div>
-      <div class="ph-ja">お問い合わせ・アクセス</div>
+  <section class="tk-hero" style="--tk-dark:#141c46;">
+    <div class="tk-hero-bg" style="background-image:url('../assets/torikumi/kickoff-5.jpg');"></div>
+    <div class="tk-hero-inner">
+      <p class="tk-hero-en">YATSUGATAKE GRANDE</p>
+      <h1 class="tk-hero-title">KICK OFF PARTY</h1>
+      <p class="tk-hero-sub">選手 × 指導者 × 保護者 × 地域。全員で切る、シーズンのスタート。</p>
     </div>
   </section>
-  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>お問い合わせ・アクセス</span></div></div>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><a href="initiatives.html">クラブの取り組み</a><span>›</span><span>KICK OFF PARTY</span></div></div>
 
-  <main class="page-body">
-    <div class="container">
-
-      <div class="ct-grid">
-
-        <!-- アクセス -->
-        <section class="club-sec" style="margin-bottom:0;">
-          <div class="club-sec-title"><span class="c-en">ACCESS</span><span class="c-ja">アクセス</span></div>
-          <table class="club-table" style="margin-bottom:16px;">
-            <tr><th>ホームグラウンド</th><td>白州総合運動場</td></tr>
-            <tr><th>住所</th><td>〒408-0315 山梨県北杜市白州町白須7458-2</td></tr>
-            <tr><th>アクセス</th><td>中央道 小淵沢ICから車で10分</td></tr>
-          </table>
-          <div style="border-radius:6px;overflow:hidden;border:1px solid var(--line);">
-            <iframe
-              src="https://www.google.com/maps?q=%E7%99%BD%E5%B7%9E%E7%B7%8F%E5%90%88%E9%81%8B%E5%8B%95%E5%A0%B4%20%E5%B1%B1%E6%A2%A8%E7%9C%8C%E5%8C%97%E6%9D%9C%E5%B8%82&output=embed&hl=ja"
-              width="100%" height="320" style="border:0;display:block;"
-              allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-              title="白州総合運動場の地図"></iframe>
-          </div>
-        </section>
-
-        <!-- お問い合わせ・体験申込フォーム -->
-        <section class="club-sec" style="margin-bottom:0;" id="form">
-          <div class="club-sec-title"><span class="c-en">CONTACT</span><span class="c-ja">お問い合わせ・体験申込</span></div>
-          <p style="color:#4c5157;font-size:13.5px;line-height:2;margin-bottom:20px;">
-            体験会へのお申し込み、クラブへのご質問はこちらからお気軽にお送りください。
-          </p>
-          <form class="jform" action="https://formspree.io/f/mqejrbge" method="POST">
-            <div class="jform-row">
-              <div class="jform-group">
-                <label class="jform-label">お子様のお名前 <span class="req">必須</span></label>
-                <input class="jform-input" type="text" name="お子様のお名前" required>
-              </div>
-              <div class="jform-group">
-                <label class="jform-label">ふりがな <span class="req">必須</span></label>
-                <input class="jform-input" type="text" name="ふりがな" required>
-              </div>
-            </div>
-            <div class="jform-row">
-              <div class="jform-group">
-                <label class="jform-label">学年 <span class="req">必須</span></label>
-                <select class="jform-input" name="学年" required>
-                  <option value="" disabled selected>選択してください</option>
-                  <option>年少・年中・年長</option>
-                  <option>小学1年生</option>
-                  <option>小学2年生</option>
-                  <option>小学3年生</option>
-                  <option>小学4年生</option>
-                  <option>小学5年生</option>
-                  <option>小学6年生</option>
-                  <option>中学1年生</option>
-                  <option>中学2年生</option>
-                  <option>中学3年生</option>
-                </select>
-              </div>
-              <div class="jform-group">
-                <label class="jform-label">サッカー経験</label>
-                <select class="jform-input" name="サッカー経験">
-                  <option value="" disabled selected>選択してください</option>
-                  <option>未経験</option>
-                  <option>1年未満</option>
-                  <option>1〜3年</option>
-                  <option>3年以上</option>
-                </select>
-              </div>
-            </div>
-            <div class="jform-group">
-              <label class="jform-label">希望カテゴリー <span class="req">必須</span></label>
-              <div class="jform-radios">
-                <label><input type="radio" name="希望カテゴリー" value="ジュニアユース" required> ジュニアユース</label>
-                <label><input type="radio" name="希望カテゴリー" value="ジュニア"> ジュニア</label>
-                <label><input type="radio" name="希望カテゴリー" value="スクール"> スクール</label>
-                <label><input type="radio" name="希望カテゴリー" value="まだ決まっていない"> まだ決まっていない</label>
-              </div>
-            </div>
-            <div class="jform-row">
-              <div class="jform-group">
-                <label class="jform-label">保護者のお名前 <span class="req">必須</span></label>
-                <input class="jform-input" type="text" name="保護者のお名前" required>
-              </div>
-              <div class="jform-group">
-                <label class="jform-label">電話番号 <span class="req">必須</span></label>
-                <input class="jform-input" type="tel" name="電話番号" required>
-              </div>
-            </div>
-            <div class="jform-group">
-              <label class="jform-label">メールアドレス <span class="req">必須</span></label>
-              <input class="jform-input" type="email" name="メールアドレス" required>
-            </div>
-            <div class="jform-group">
-              <label class="jform-label">ご希望の体験日・ご質問など</label>
-              <textarea class="jform-input jform-textarea" name="ご希望の体験日・ご質問など"></textarea>
-            </div>
-            <button type="submit" class="jform-submit">送信する →</button>
-            <p style="color:var(--ink-sub);font-size:11px;line-height:1.9;margin-top:12px;">送信いただいた個人情報はお問い合わせへの対応のみに使用し、第三者への開示は行いません。</p>
-          </form>
-        </section>
-
+  <main>
+    <section class="tk-sec">
+      <div class="tk-sec-inner">
+        <p class="tk-lead">良いクラブになるためには、<br>関わる全ての人が<em>同じ方向</em>を見ること。</p>
+        <p class="tk-text">
+          シーズンの始まりに、選手・指導者・保護者・地域のみなさまが一堂に会するのが<strong>KICK OFF PARTY</strong>です。
+          カテゴリーを超えた交流を通してクラブの一体感を高め、全員で良いスタートを切ります。
+        </p>
       </div>
+    </section>
 
-    </div>
+    <section class="tk-sec tk-sec--band">
+      <div class="tk-sec-inner">
+        <p class="tk-sec-en">CONTENTS</p>
+        <h2 class="tk-sec-ja">パーティーの内容</h2>
+        <div class="tk-points tk-points--4">
+          <div class="tk-point">
+            <div class="tk-point-num">01</div>
+            <div class="tk-point-title">クラブについて</div>
+            <p class="tk-point-text">クラブの理念・方針、今シーズンの体制をみなさまへ共有します。</p>
+          </div>
+          <div class="tk-point">
+            <div class="tk-point-num">02</div>
+            <div class="tk-point-title">目標発表</div>
+            <p class="tk-point-text">各カテゴリーの選手たちが、今シーズンの目標をステージで発表します。</p>
+          </div>
+          <div class="tk-point">
+            <div class="tk-point-num">03</div>
+            <div class="tk-point-title">パートナー企業紹介</div>
+            <p class="tk-point-text">クラブを支えてくださるパートナー企業のみなさまをご紹介します。</p>
+          </div>
+          <div class="tk-point">
+            <div class="tk-point-num">04</div>
+            <div class="tk-point-title">抽選会</div>
+            <p class="tk-point-text">豪華賞品が当たる抽選会で大盛り上がり。世代を超えて楽しめる時間です。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tk-sec">
+      <div class="tk-sec-inner">
+        <p class="tk-sec-en">GALLERY</p>
+        <h2 class="tk-sec-ja">KICK OFF PARTY 2025</h2>
+        <div class="tk-photos">
+          <div class="tk-photo tk-photo--wide" style="background-image:url('../assets/torikumi/kickoff-5.jpg');"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/kickoff-3.jpg');"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/kickoff-1.jpg');"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/kickoff-2.jpg');"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/kickoff-4.jpg');"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 他の取り組み -->
+    <section class="tk-sec tk-sec--band">
+      <div class="tk-sec-inner">
+        <p class="tk-sec-en">OTHER PROJECTS</p>
+        <h2 class="tk-sec-ja">その他の取り組み</h2>
+        <div class="tk-others">
+        <a class="tk-other" href="junkai.html" style="--c:#e8880c;"><span><small>SOCCER CARAVAN</small>北杜市巡回サッカー教室</span><span class="ar">→</span></a>
+        <a class="tk-other" href="shokudo.html" style="--c:#c99a1e;"><span><small>SHOKU!KU PROJECT</small>グランデ食堂</span><span class="ar">→</span></a>
+        <a class="tk-other" href="frontale.html" style="--c:#0090d8;"><span><small>EXCHANGE PROJECT</small>川崎フロンターレ交流プロジェクト</span><span class="ar">→</span></a>
+        <a class="tk-other" href="yurande.html" style="--c:#0e8577;"><span><small>YU-RANDE</small>湯RANDE</span><span class="ar">→</span></a>
+        <a class="tk-other" href="initiatives.html" style="--c:#1a5c2d;"><span><small>ALL PROJECTS</small>取り組み一覧へ戻る</span><span class="ar">→</span></a>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- フッター -->
@@ -222,7 +192,20 @@
     var mobileNav = document.getElementById('mobile-nav');
     document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
-    ConfigLoader.apply({ pageTitle: 'お問い合わせ・アクセス' });
+
+    // スクロールリビール
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) { e.target.classList.add('active'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.tk-sec').forEach(function(el){
+      el.classList.add('reveal');
+      observer.observe(el);
+    });
+
+    ConfigLoader.apply({ pageTitle: 'KICK OFF PARTY' });
   </script>
+
 </body>
 </html>

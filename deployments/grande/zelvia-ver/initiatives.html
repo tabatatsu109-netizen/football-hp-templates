@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>お問い合わせ・アクセス | 八ヶ岳グランデFC</title>
-  <meta name="description" content="八ヶ岳グランデFCへのお問い合わせ・体験申込とホームグラウンド(白州総合運動場)へのアクセスのご案内です。">
+  <title>クラブの取り組み | 八ヶ岳グランデFC</title>
+  <meta name="description" content="八ヶ岳グランデFCの取り組み紹介。北杜市巡回サッカー教室、グランデ食堂、KICK OFF PARTY、川崎フロンターレ交流プロジェクト、湯RANDE。サッカーを通じて人を育て、地域とつながるクラブです。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root { --tk: #1a5c2d; --tk-dark: #10401e; --tk-bg: #f4f6f4; }
+  </style>
 </head>
 <body>
 
@@ -58,116 +61,76 @@
   </nav>
 
   <!-- ページヒーロー -->
-  <section class="page-hero">
-    <div class="page-hero-inner">
-      <div class="ph-en">CONTACT / ACCESS</div>
-      <div class="ph-ja">お問い合わせ・アクセス</div>
+  <section class="tk-hero" style="--tk-dark:#10401e;">
+    <div class="tk-hero-bg" style="background-image:url('../assets/torikumi/frontale-7.jpg');"></div>
+    <div class="tk-hero-inner">
+      <p class="tk-hero-en">OUR PROJECTS</p>
+      <h1 class="tk-hero-title">クラブの取り組み</h1>
+      <p class="tk-hero-sub">サッカーのクラブでありながら、人を育て、地域とつながる場へ。</p>
     </div>
   </section>
-  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>お問い合わせ・アクセス</span></div></div>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>クラブの取り組み</span></div></div>
 
-  <main class="page-body">
-    <div class="container">
-
-      <div class="ct-grid">
-
-        <!-- アクセス -->
-        <section class="club-sec" style="margin-bottom:0;">
-          <div class="club-sec-title"><span class="c-en">ACCESS</span><span class="c-ja">アクセス</span></div>
-          <table class="club-table" style="margin-bottom:16px;">
-            <tr><th>ホームグラウンド</th><td>白州総合運動場</td></tr>
-            <tr><th>住所</th><td>〒408-0315 山梨県北杜市白州町白須7458-2</td></tr>
-            <tr><th>アクセス</th><td>中央道 小淵沢ICから車で10分</td></tr>
-          </table>
-          <div style="border-radius:6px;overflow:hidden;border:1px solid var(--line);">
-            <iframe
-              src="https://www.google.com/maps?q=%E7%99%BD%E5%B7%9E%E7%B7%8F%E5%90%88%E9%81%8B%E5%8B%95%E5%A0%B4%20%E5%B1%B1%E6%A2%A8%E7%9C%8C%E5%8C%97%E6%9D%9C%E5%B8%82&output=embed&hl=ja"
-              width="100%" height="320" style="border:0;display:block;"
-              allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-              title="白州総合運動場の地図"></iframe>
-          </div>
-        </section>
-
-        <!-- お問い合わせ・体験申込フォーム -->
-        <section class="club-sec" style="margin-bottom:0;" id="form">
-          <div class="club-sec-title"><span class="c-en">CONTACT</span><span class="c-ja">お問い合わせ・体験申込</span></div>
-          <p style="color:#4c5157;font-size:13.5px;line-height:2;margin-bottom:20px;">
-            体験会へのお申し込み、クラブへのご質問はこちらからお気軽にお送りください。
-          </p>
-          <form class="jform" action="https://formspree.io/f/mqejrbge" method="POST">
-            <div class="jform-row">
-              <div class="jform-group">
-                <label class="jform-label">お子様のお名前 <span class="req">必須</span></label>
-                <input class="jform-input" type="text" name="お子様のお名前" required>
-              </div>
-              <div class="jform-group">
-                <label class="jform-label">ふりがな <span class="req">必須</span></label>
-                <input class="jform-input" type="text" name="ふりがな" required>
-              </div>
-            </div>
-            <div class="jform-row">
-              <div class="jform-group">
-                <label class="jform-label">学年 <span class="req">必須</span></label>
-                <select class="jform-input" name="学年" required>
-                  <option value="" disabled selected>選択してください</option>
-                  <option>年少・年中・年長</option>
-                  <option>小学1年生</option>
-                  <option>小学2年生</option>
-                  <option>小学3年生</option>
-                  <option>小学4年生</option>
-                  <option>小学5年生</option>
-                  <option>小学6年生</option>
-                  <option>中学1年生</option>
-                  <option>中学2年生</option>
-                  <option>中学3年生</option>
-                </select>
-              </div>
-              <div class="jform-group">
-                <label class="jform-label">サッカー経験</label>
-                <select class="jform-input" name="サッカー経験">
-                  <option value="" disabled selected>選択してください</option>
-                  <option>未経験</option>
-                  <option>1年未満</option>
-                  <option>1〜3年</option>
-                  <option>3年以上</option>
-                </select>
-              </div>
-            </div>
-            <div class="jform-group">
-              <label class="jform-label">希望カテゴリー <span class="req">必須</span></label>
-              <div class="jform-radios">
-                <label><input type="radio" name="希望カテゴリー" value="ジュニアユース" required> ジュニアユース</label>
-                <label><input type="radio" name="希望カテゴリー" value="ジュニア"> ジュニア</label>
-                <label><input type="radio" name="希望カテゴリー" value="スクール"> スクール</label>
-                <label><input type="radio" name="希望カテゴリー" value="まだ決まっていない"> まだ決まっていない</label>
-              </div>
-            </div>
-            <div class="jform-row">
-              <div class="jform-group">
-                <label class="jform-label">保護者のお名前 <span class="req">必須</span></label>
-                <input class="jform-input" type="text" name="保護者のお名前" required>
-              </div>
-              <div class="jform-group">
-                <label class="jform-label">電話番号 <span class="req">必須</span></label>
-                <input class="jform-input" type="tel" name="電話番号" required>
-              </div>
-            </div>
-            <div class="jform-group">
-              <label class="jform-label">メールアドレス <span class="req">必須</span></label>
-              <input class="jform-input" type="email" name="メールアドレス" required>
-            </div>
-            <div class="jform-group">
-              <label class="jform-label">ご希望の体験日・ご質問など</label>
-              <textarea class="jform-input jform-textarea" name="ご希望の体験日・ご質問など"></textarea>
-            </div>
-            <button type="submit" class="jform-submit">送信する →</button>
-            <p style="color:var(--ink-sub);font-size:11px;line-height:1.9;margin-top:12px;">送信いただいた個人情報はお問い合わせへの対応のみに使用し、第三者への開示は行いません。</p>
-          </form>
-        </section>
-
+  <main>
+    <section class="tk-sec">
+      <div class="tk-sec-inner">
+        <p class="tk-lead">グランデは、<em>サッカーだけ</em>のクラブではありません。</p>
+        <p class="tk-text">
+          サッカーチーム・スクール活動に加えて、食事・温泉・地域交流・プロクラブとの連携など、
+          <strong>グランデに関わる全ての人が楽しめる</strong>取り組みを続けています。
+          選手、スタッフ、保護者、OB、そして地域。関わる全員が同じ方向を向ける環境づくりが、私たちの誇りです。
+        </p>
       </div>
+    </section>
 
-    </div>
+    <section class="tk-sec tk-sec--band">
+      <div class="tk-sec-inner">
+        <p class="tk-sec-en">PROJECTS</p>
+        <h2 class="tk-sec-ja">5つの取り組み</h2>
+        <div class="tkc-grid">
+          <a class="tkc-card tkc-card--wide" href="frontale.html" style="background-image:url('../assets/torikumi/frontale-3.jpg'); --c-grad:rgba(0,60,95,0.88); --c-accent:#8fd8ff;">
+            <span class="tkc-body">
+              <span class="tkc-en">EXCHANGE PROJECT</span>
+              <span class="tkc-ja">川崎フロンターレ交流プロジェクト</span>
+              <span class="tkc-sub">Jクラブと本気で交流する、夏と冬の相互ホームステイ・合同練習プロジェクト。</span>
+            </span>
+            <span class="tkc-arrow">→</span>
+          </a>
+          <a class="tkc-card" href="shokudo.html" style="background-image:url('../assets/torikumi/shokudo-3.jpg'); --c-grad:rgba(90,60,0,0.88); --c-accent:#ffd76a;">
+            <span class="tkc-body">
+              <span class="tkc-en">SHOKU!KU PROJECT</span>
+              <span class="tkc-ja">グランデ食堂</span>
+              <span class="tkc-sub">栄養士監修の食事で、成長期のカラダをつくる。</span>
+            </span>
+            <span class="tkc-arrow">→</span>
+          </a>
+          <a class="tkc-card" href="kickoff.html" style="background-image:url('../assets/torikumi/kickoff-5.jpg'); --c-grad:rgba(20,28,70,0.9); --c-accent:#ffd76a;">
+            <span class="tkc-body">
+              <span class="tkc-en">KICK OFF PARTY</span>
+              <span class="tkc-ja">KICK OFF PARTY</span>
+              <span class="tkc-sub">選手・指導者・保護者・地域が、同じ方向を向いてシーズンをスタート。</span>
+            </span>
+            <span class="tkc-arrow">→</span>
+          </a>
+          <a class="tkc-card" href="junkai.html" style="background-color:#e8880c; background-image:linear-gradient(120deg, rgba(232,136,12,0.92), rgba(200,100,0,0.92)), radial-gradient(circle at 20% 30%, rgba(255,255,255,0.25) 2px, transparent 2px), radial-gradient(circle at 70% 60%, rgba(255,255,255,0.2) 2px, transparent 2px); background-size:cover, 46px 46px, 34px 34px; --c-grad:rgba(150,70,0,0.55); --c-accent:#fff3cf;">
+            <span class="tkc-body">
+              <span class="tkc-en">SOCCER CARAVAN</span>
+              <span class="tkc-ja">北杜市巡回サッカー教室</span>
+              <span class="tkc-sub">北杜市内すべての保育園へ。ボールで遊ぶ楽しさを届けます。</span>
+            </span>
+            <span class="tkc-arrow">→</span>
+          </a>
+          <a class="tkc-card" href="yurande.html" style="background-color:#0e8577; background-image:linear-gradient(120deg, rgba(9,95,85,0.94), rgba(14,133,119,0.85)); --c-grad:rgba(4,60,54,0.6); --c-accent:#a7ecdd;">
+            <span class="tkc-body">
+              <span class="tkc-en">YU-RANDE</span>
+              <span class="tkc-ja">湯RANDE</span>
+              <span class="tkc-sub">尾白の湯にいつでも200円で。カラダを癒す温泉プロジェクト。</span>
+            </span>
+            <span class="tkc-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- フッター -->
@@ -222,7 +185,20 @@
     var mobileNav = document.getElementById('mobile-nav');
     document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
-    ConfigLoader.apply({ pageTitle: 'お問い合わせ・アクセス' });
+
+    // スクロールリビール
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) { e.target.classList.add('active'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.tk-sec').forEach(function(el){
+      el.classList.add('reveal');
+      observer.observe(el);
+    });
+
+    ConfigLoader.apply({ pageTitle: 'クラブの取り組み' });
   </script>
+
 </body>
 </html>
