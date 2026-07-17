@@ -882,18 +882,40 @@ img { max-width: 100%; display: block; }
 @keyframes loaderCh { to { opacity: 1; transform: none; } }
 @keyframes loaderBar { 0% { transform: translateX(-120%); } 100% { transform: translateX(420%); } }
 
-/* ── ヒーロー: ロゴのスライドイン + 背景スロースズーム ── */
-.hero-slogan-img { margin: 4px 0 0; }
-.hero-slogan-img img {
-  width: clamp(260px, 44vw, 560px); height: auto;
-  filter: drop-shadow(0 6px 22px rgba(0,0,0,0.45));
-  opacity: 0; transform: translateY(34px) scale(0.96);
-  transition: opacity .9s ease .15s, transform .9s cubic-bezier(.2,.7,.2,1) .15s;
+/* ── ヒーロー: キネティック・タイポグラフィ + 背景スロースズーム ── */
+.hero-kinetic { margin-bottom: 8px; }
+.hk-line {
+  display: block; color: #fff; font-weight: 900;
+  font-size: clamp(21px, 4vw, 44px); line-height: 1.32; letter-spacing: 2px;
+  text-shadow: 0 3px 16px rgba(0,0,0,0.55);
+  clip-path: inset(0 100% 0 0);
+  opacity: 0; transform: translateY(0.32em);
+  will-change: clip-path, transform, opacity;
 }
-body.page-in .hero-slogan-img img { opacity: 1; transform: none; }
-.hero-loc, .hero-slogan-ja { opacity: 0; transform: translateY(14px); transition: opacity .8s ease .5s, transform .8s ease .5s; }
+.hk-line em { font-style: normal; color: #7fce97; }
+body.page-in .hk-line1 { animation: hkIn .68s cubic-bezier(.5,0,.12,1) .35s forwards; }
+body.page-in .hk-line2 { animation: hkIn .68s cubic-bezier(.5,0,.12,1) .80s forwards; }
+@keyframes hkIn { to { clip-path: inset(0 0 0 0); opacity: 1; transform: none; } }
+
+.hero-word {
+  color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-style: italic;
+  font-size: clamp(58px, 15vw, 190px); line-height: 0.9; letter-spacing: .04em;
+  margin: 2px 0 0; text-shadow: 0 8px 34px rgba(0,0,0,0.5);
+  transform-origin: left center;
+  opacity: 0; transform: scale(1.22); filter: blur(7px);
+  will-change: transform, filter, opacity;
+}
+body.page-in .hero-word { animation: wordSlam .72s cubic-bezier(.18,.85,.22,1) 1.32s forwards; }
+@keyframes wordSlam {
+  0%   { opacity: 0; transform: scale(1.22); filter: blur(7px); letter-spacing: .2em; }
+  55%  { filter: blur(0); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); letter-spacing: .04em; }
+}
+
+.hero-loc, .hero-slogan-ja { opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .8s ease; }
 body.page-in .hero-loc, body.page-in .hero-slogan-ja { opacity: 1; transform: none; }
-.hero-slogan-ja { transition-delay: .9s; }
+.hero-loc { transition-delay: .15s; }
+.hero-slogan-ja { transition-delay: 1.95s; }
 .hero-bg { animation: heroZoom 18s ease-in-out infinite alternate; }
 @keyframes heroZoom { from { transform: scale(1.02); } to { transform: scale(1.12); } }
 
@@ -949,6 +971,7 @@ body.page-in .hero-loc, body.page-in .hero-slogan-ja { opacity: 1; transform: no
 /* ── 動きを減らす設定への配慮 ── */
 @media (prefers-reduced-motion: reduce) {
   .hero-bg, .marquee-inner, .loader-bar span { animation: none !important; }
-  .hero-slogan .ch, .hero-loc, .hero-slogan-ja { transition: none; transform: none; opacity: 1; }
+  .hk-line, .hero-word { animation: none !important; clip-path: none !important; filter: none !important; opacity: 1 !important; transform: none !important; }
+  .hero-loc, .hero-slogan-ja { transition: none; transform: none; opacity: 1; }
   .reveal, .reveal .sec-en, .reveal .sec-ja { transition: none; opacity: 1; transform: none; clip-path: none; }
 }
