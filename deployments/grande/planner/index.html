@@ -627,7 +627,7 @@
       <div class="page-inner" style="padding-top:10px">
         <div style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px">
           <div style="font-weight:700;font-size:13px;margin-bottom:4px">⚠️ 緊急連絡について</div>
-          <div style="font-size:12.5px;color:var(--c-text2);line-height:1.7">対象カテゴリーを選ぶと保護者のメールアドレス一覧をコピーできます。お使いのメールアプリの<b>BCC欄</b>に貼り付けて送信してください（Toに直接入れるとアドレスが他の保護者にも見えてしまいます）。</div>
+          <div style="font-size:12.5px;color:var(--c-text2);line-height:1.7">対象カテゴリーを選んで本文を入力し、<b>「メールを作成」ボタン</b>を押すと、お使いのメールアプリが宛先（<b>BCC</b>）・件名・本文の入った状態で開きます。内容を確認して送信するだけです（BCCなのでアドレスは他の保護者に見えません）。</div>
         </div>
 
         <div class="form-group">
@@ -642,14 +642,19 @@
 
         <div class="form-group">
           <div class="form-label">② メッセージ内容</div>
+          <input class="form-input" type="text" id="emergency-subject" placeholder="件名" style="margin-bottom:8px">
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="emergency-templates"></div>
           <textarea class="form-textarea" id="emergency-message" rows="5" placeholder="連絡内容を入力してください"></textarea>
         </div>
 
         <div class="form-group">
-          <div class="form-label">③ コピーして送信</div>
-          <button class="btn btn-secondary btn-full" id="btn-copy-emergency-emails" style="margin-bottom:8px">📋 メールアドレスをコピー（BCC推奨）</button>
-          <button class="btn btn-primary btn-full" id="btn-copy-emergency-message">📋 メッセージ本文をコピー</button>
+          <div class="form-label">③ メールを作成して送信</div>
+          <button class="btn btn-primary btn-full" id="btn-emergency-mailto" style="font-size:15px;padding:14px">📧 メールを作成（宛先・件名・本文入り）</button>
+          <div style="font-size:12px;color:var(--c-muted);margin-top:10px;margin-bottom:6px">メールアプリがうまく開かない場合は、従来どおりコピーして貼り付けてください：</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" id="btn-copy-emergency-emails" style="flex:1">📋 アドレスをコピー</button>
+            <button class="btn btn-secondary btn-sm" id="btn-copy-emergency-message" style="flex:1">📋 本文をコピー</button>
+          </div>
         </div>
       </div>
     </div><!-- /page-emergency -->

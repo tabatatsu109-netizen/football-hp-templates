@@ -3055,6 +3055,7 @@ function bindEvents() {
   window.addEventListener('resize', snsFitPreview);
 
   // 緊急連絡
+  document.getElementById('btn-emergency-mailto')?.addEventListener('click', openEmergencyMail);
   document.getElementById('btn-copy-emergency-emails')?.addEventListener('click', copyEmergencyEmails);
   document.getElementById('btn-copy-emergency-message')?.addEventListener('click', copyEmergencyMessage);
 
@@ -3676,6 +3677,11 @@ function renderEmergencyPage() {
   emergencyCats = new Set();
   const msgEl = document.getElementById('emergency-message');
   if (msgEl) msgEl.value = '';
+  const subjEl = document.getElementById('emergency-subject');
+  if (subjEl) {
+    const s = getSettings();
+    subjEl.value = `【${s.clubName || 'クラブ'}】緊急連絡`;
+  }
   renderEmergencyCatPicker();
   renderEmergencyRecipients();
   renderEmergencyTemplateButtons();
@@ -3723,6 +3729,32 @@ function renderEmergencyTemplateButtons() {
 function applyEmergencyTemplate(i) {
   const el = document.getElementById('emergency-message');
   if (el) el.value = EMERGENCY_TEMPLATES[i].text;
+}
+function openEmergencyMail() {
+  if (emergencyCats.size === 0) { showToast('対象カテゴリーを選択してください', 'error'); return; }
+  const emails = emergencyTargetPlayers().map(p => (p.guardianEmail || '').trim()).filter(Boolean);
+  if (emails.length === 0) { showToast('対象者にメールアドレスが登録されていません', 'error'); return; }
+  const subject = (document.getElementById('emergency-subject')?.value || '').trim() || '緊急連絡';
+  const body = (document.getElementById('emergency-message')?.value || '').trim();
+  if (!body) { showToast('メッセージを入力してください', 'error'); return; }
+
+  // 重複アドレスを除去（兄弟で同じ保護者メールのケース）
+  const uniqueEmails = [...new Set(emails.map(e => e.toLowerCase()))];
+  const url = `mailto:?bcc=${encodeURIComponent(uniqueEmails.join(','))}`
+    + `&subject=${encodeURIComponent(subject)}`
+    + `&body=${encodeURIComponent(body)}`;
+
+  // 宛先が多すぎるとメールアプリ側でURLが切れる場合がある
+  if (url.length > 1800) {
+    showToast('宛先が多いため開けない場合があります。その際は下のコピーをご利用ください', 'info');
+  }
+  const a = document.createElement('a');
+  a.href = url;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast(`メールアプリを起動しました（BCC ${uniqueEmails.length}件）`, 'success');
 }
 function copyEmergencyEmails() {
   if (emergencyCats.size === 0) { showToast('対象カテゴリーを選択してください', 'error'); return; }
