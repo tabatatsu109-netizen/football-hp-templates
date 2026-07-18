@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WEB入会申込書 | 八ヶ岳グランデFC</title>
-  <meta name="description" content="八ヶ岳グランデフットボールクラブ ジュニアユースU-15のWEB入会申込書。質問に答えて入力すると、A4の入会申込書が完成。そのまま送信・印刷・PDF保存ができます。">
+  <meta name="description" content="八ヶ岳グランデフットボールクラブのWEB入会申込書。ジュニアユース(U-15)・ジュニア(U-12)・グランデスクール・グランデメセタ・グランデメセタサッカースクールに対応。質問に答えて入力すると、A4の入会申込書が完成。そのまま送信・印刷・PDF保存ができます。">
   <meta name="robots" content="noindex">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -146,7 +146,7 @@
   <section class="page-hero">
     <div class="page-hero-inner">
       <div class="ph-en">ENTRY FORM</div>
-      <div class="ph-ja">WEB入会申込書(ジュニアユースU-15)</div>
+      <div class="ph-ja">WEB入会申込書</div>
     </div>
   </section>
   <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><a href="join.html">入会・体験</a><span>›</span><span>WEB入会申込書</span></div></div>
@@ -170,6 +170,16 @@
           <div class="wiz-step-label">STEP 1 / 5</div>
           <h2 class="wiz-step-title">選手について教えてください</h2>
           <div class="jform">
+            <div class="jform-group">
+              <label class="jform-label">申込カテゴリー <span class="req">必須</span></label>
+              <div class="jform-radios">
+                <label><input type="radio" name="f_category" class="f_category" value="ジュニアユース(U-15)" required> ジュニアユース(U-15)</label>
+                <label><input type="radio" name="f_category" class="f_category" value="ジュニア(U-12)"> ジュニア(U-12)</label>
+                <label><input type="radio" name="f_category" class="f_category" value="グランデスクール"> グランデスクール</label>
+                <label><input type="radio" name="f_category" class="f_category" value="グランデメセタ"> グランデメセタ</label>
+                <label><input type="radio" name="f_category" class="f_category" value="グランデメセタサッカースクール"> グランデメセタサッカースクール</label>
+              </div>
+            </div>
             <div class="jform-row">
               <div class="jform-group">
                 <label class="jform-label">氏名 <span class="req">必須</span></label>
@@ -217,14 +227,17 @@
             </div>
             <div class="jform-row">
               <div class="jform-group">
-                <label class="jform-label">進学予定の学校名</label>
+                <label class="jform-label">進学予定または、現在通っている学校名</label>
                 <input class="jform-input" type="text" id="f_school" placeholder="例)○○中学校">
               </div>
               <div class="jform-group">
                 <label class="jform-label">学年(入会時)</label>
                 <select class="jform-input" id="f_grade">
                   <option value="">選択してください</option>
-                  <option>1</option><option>2</option><option>3</option>
+                  <option>年少</option><option>年中</option><option>年長</option>
+                  <option>小学1年生</option><option>小学2年生</option><option>小学3年生</option>
+                  <option>小学4年生</option><option>小学5年生</option><option>小学6年生</option>
+                  <option>中学1年生</option><option>中学2年生</option><option>中学3年生</option>
                 </select>
               </div>
             </div>
@@ -373,7 +386,7 @@
                 <div class="sh-titles">
                   <div class="sh-year"><span id="s_year"></span> 入会申込書</div>
                   <div class="sh-club">八ヶ岳グランデフットボールクラブ</div>
-                  <div class="sh-cat">ジュニアユースU-15</div>
+                  <div class="sh-cat" id="s_cat"></div>
                 </div>
                 <div class="sh-photo" id="s_photo">顔写真</div>
               </div>
@@ -602,7 +615,10 @@
         if (!el.value.trim()) { alert(label + 'を入力してください'); el.focus(); return false; }
         return true;
       }
-      if (n === 0) { return need('f_name','氏名') && need('f_kana','ふりがな') && need('f_birth','生年月日'); }
+      if (n === 0) {
+        if (!document.querySelector('.f_category:checked')) { alert('申込カテゴリーを選択してください'); return false; }
+        return need('f_name','氏名') && need('f_kana','ふりがな') && need('f_birth','生年月日');
+      }
       if (n === 2) { return need('f_addr','住所') && need('f_tel_parent','携帯(保護者)') && need('f_mail_parent','メール(保護者)'); }
       if (n === 3) { return need('f_parent','保護者名'); }
       return true;
@@ -669,6 +685,7 @@
       return parseInt(p[0]) + '年' + parseInt(p[1]) + '月' + parseInt(p[2]) + '日';
     }
     function collect() {
+      var catEl = document.querySelector('.f_category:checked');
       var pos = [].map.call(document.querySelectorAll('.f_pos:checked'), function(c){ return c.value; }).join('・');
       var fam = [];
       document.querySelectorAll('.fam-row').forEach(function(r){
@@ -677,6 +694,7 @@
         if (rel || nm) fam.push(rel + ':' + nm);
       });
       return {
+        category: catEl ? catEl.value : '',
         year: v('f_year'), name: v('f_name'), kana: v('f_kana'),
         birth: v('f_birth'), age: calcAge(v('f_birth')), blood: v('f_blood'),
         height: v('f_height'), weight: v('f_weight'), pid: v('f_pid'),
@@ -694,6 +712,7 @@
     function put(id, val){ document.getElementById(id).textContent = val || ''; }
     function fillSheet() {
       var d = collect();
+      put('s_cat', d.category);
       put('s_year', d.year);
       put('s_kana', d.kana);
       put('s_name', d.name);
@@ -701,7 +720,7 @@
       put('s_blood', d.blood ? d.blood + '型' : '');
       put('s_hw', (d.height ? d.height + 'cm' : '') + (d.weight ? ' / ' + d.weight + 'kg' : ''));
       put('s_pid', d.pid);
-      put('s_school', (d.school ? d.school : '') + (d.grade ? ' ' + d.grade + '年' : ''));
+      put('s_school', (d.school ? d.school : '') + (d.grade ? ' ' + d.grade : ''));
       put('s_career', d.career ? d.career + '年' : '');
       put('s_pos', d.pos);
       put('s_prevteam', d.prevteam);
@@ -732,6 +751,7 @@
     // ── 送信 (Formspree) ──
     function sendForm() {
       err('');
+      if (!document.querySelector('.f_category:checked')) { err('申込カテゴリーを選択してください。'); return; }
       if (!v('f_sign')) { err('保護者氏名(署名)を入力してください。'); return; }
       if (!document.getElementById('f_agree').checked) { err('会則承諾のチェックを入れてください。'); return; }
       fillSheet();
@@ -739,13 +759,14 @@
       var btn = document.getElementById('sendBtn');
       btn.disabled = true; btn.textContent = '送信中...';
       var payload = {
-        _subject: '【入会申込書】' + d.name + '(ジュニアユースU-15)',
-        '種別': 'WEB入会申込書(ジュニアユースU-15)',
+        _subject: '【入会申込書】' + d.name + '(' + d.category + ')',
+        '種別': 'WEB入会申込書',
+        '申込カテゴリー': d.category,
         '入会年度': d.year,
         '氏名': d.name, 'ふりがな': d.kana,
         '生年月日': jpDate(d.birth) + '(' + d.age + '歳)', '血液型': d.blood,
         '身長': d.height, '体重': d.weight, '選手証番号': d.pid,
-        '進学予定': d.school + ' ' + d.grade + '年',
+        '進学予定': d.school + ' ' + d.grade,
         'サッカー競技歴': d.career ? d.career + '年' : '', '経験ポジション': d.pos, '卒団チーム名': d.prevteam,
         '住所': (d.zip ? '〒' + d.zip + ' ' : '') + d.addr,
         '自宅電話': d.telHome, '携帯_保護者': d.telParent, '携帯_本人': d.telPlayer,
