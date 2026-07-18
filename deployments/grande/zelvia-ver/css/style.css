@@ -691,7 +691,7 @@ img { max-width: 100%; display: block; }
 
 /* ── クラブ員ダッシュボード ── */
 .dash-grid { display: grid; gap: 12px; }
-@media (min-width: 768px) { .dash-grid { grid-template-columns: repeat(3, 1fr); } .dash-grid--4 { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 768px) { .dash-grid { grid-template-columns: repeat(3, 1fr); } .dash-grid--4 { grid-template-columns: repeat(4, 1fr); } .dash-grid--2 { grid-template-columns: repeat(2, 1fr); } }
 .dcard { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--main-color); border-radius: 6px; padding: 20px 18px; display: flex; flex-direction: column; }
 .dcard-label { font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--main-color); font-weight: 700; }
 .dcard-title { font-size: 16px; font-weight: 900; margin: 8px 0 6px; }
