@@ -3775,7 +3775,7 @@ function renderEmergencyPage() {
   if (msgEl) msgEl.value = '';
   const s = getSettings();
   const subjEl = document.getElementById('emergency-subject');
-  if (subjEl) subjEl.value = `【${s.clubName || 'クラブ'}】緊急連絡`;
+  if (subjEl) subjEl.value = '本日の活動につきまして';
 
   // Gmailグループ（GAS連携）ブロックの表示切り替え
   const gasOn = isGasConfigured(s);
@@ -3831,9 +3831,12 @@ function renderEmergencyTemplateButtons() {
   if (!el) return;
   el.innerHTML = EMERGENCY_TEMPLATES.map((t, i) => `<button type="button" class="btn btn-secondary btn-sm" onclick="applyEmergencyTemplate(${i})">${t.label}</button>`).join('');
 }
+// どのテンプレートにも共通で入れる書き出しと結び
+const EMERGENCY_HEADER = '保護者の皆様\nいつもサポートをありがとうございます。\n\n';
+const EMERGENCY_FOOTER = '\n\n以上、よろしくお願いいたします。';
 function applyEmergencyTemplate(i) {
   const el = document.getElementById('emergency-message');
-  if (el) el.value = EMERGENCY_TEMPLATES[i].text;
+  if (el) el.value = EMERGENCY_HEADER + EMERGENCY_TEMPLATES[i].text + EMERGENCY_FOOTER;
 }
 function openEmergencyMail() {
   if (emergencyCats.size === 0) { showToast('対象カテゴリーを選択してください', 'error'); return; }
