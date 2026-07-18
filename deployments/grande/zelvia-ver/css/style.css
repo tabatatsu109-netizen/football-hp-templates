@@ -87,7 +87,8 @@ img { max-width: 100%; display: block; }
   .gh-nav { display: flex; align-items: stretch; margin-left: 20px; }
   .gh-nav > a {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 0 13px; gap: 3px; border-bottom: 3px solid transparent; transition: border-color .2s;
+    padding: 0 10px; gap: 3px; border-bottom: 3px solid transparent; transition: border-color .2s;
+    white-space: nowrap;
   }
   .gh-nav > a:hover { border-bottom-color: var(--main-color); }
   .gh-nav .n-en { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 1px; }
