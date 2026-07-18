@@ -627,17 +627,24 @@
       <div class="page-inner" style="padding-top:10px">
         <div style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.3);border-radius:10px;padding:14px 16px;margin-bottom:16px">
           <div style="font-weight:700;font-size:13px;margin-bottom:4px">⚠️ 緊急連絡について</div>
-          <div style="font-size:12.5px;color:var(--c-text2);line-height:1.7">対象カテゴリーを選んで本文を入力し、<b>「メールを作成」ボタン</b>を押すと、お使いのメールアプリが宛先（<b>BCC</b>）・件名・本文の入った状態で開きます。内容を確認して送信するだけです（BCCなのでアドレスは他の保護者に見えません）。</div>
+          <div style="font-size:12.5px;color:var(--c-text2);line-height:1.7">送信先を選んで本文を入力し、送信ボタンを押すだけ。宛先はすべて<b>BCC</b>に入るため、アドレスが他の保護者に見えることはありません。</div>
         </div>
 
         <div class="form-group">
-          <div class="form-label">① 対象カテゴリー</div>
+          <div class="form-label">① 送信先</div>
+
+          <!-- Gmailグループ（GAS連携時のみ表示） -->
+          <div id="emergency-group-block" style="display:none;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:700;color:var(--c-text2);margin-bottom:6px">🚀 Gmail連絡先のグループ（自動送信）</div>
+            <div class="cat-check-group" id="emergency-group-picker"></div>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-emergency-groups-reload" style="margin-top:8px">🔄 グループを再読込</button>
+          </div>
+          <div id="emergency-gas-hint" style="display:none;font-size:12px;color:var(--c-muted);margin-bottom:12px">💡 設定画面で「Gmail自動送信（GAS連携）」を設定すると、Gmail連絡先のグループへワンタップで一斉送信できるようになります。</div>
+
+          <!-- カテゴリー（メールアプリ起動用） -->
+          <div style="font-size:12px;font-weight:700;color:var(--c-text2);margin-bottom:6px">📧 カテゴリー（メールアプリで送信）</div>
           <div class="cat-check-group" id="emergency-cat-picker"></div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-label">対象者</div>
-          <div id="emergency-recipients-summary"></div>
+          <div id="emergency-recipients-summary" style="margin-top:8px"></div>
         </div>
 
         <div class="form-group">
@@ -648,7 +655,8 @@
         </div>
 
         <div class="form-group">
-          <div class="form-label">③ メールを作成して送信</div>
+          <div class="form-label">③ 送信</div>
+          <button class="btn btn-primary btn-full" id="btn-emergency-send" style="display:none;font-size:15px;padding:14px;margin-bottom:8px">🚀 Gmailから自動送信（BCC）</button>
           <button class="btn btn-primary btn-full" id="btn-emergency-mailto" style="font-size:15px;padding:14px">📧 メールを作成（宛先・件名・本文入り）</button>
           <div style="font-size:12px;color:var(--c-muted);margin-top:10px;margin-bottom:6px">メールアプリがうまく開かない場合は、従来どおりコピーして貼り付けてください：</div>
           <div style="display:flex;gap:8px">
@@ -849,6 +857,15 @@
         <div class="form-group">
           <label class="form-label">Firebase シークレット</label>
           <input class="form-input" type="password" id="settings-firebase-secret" placeholder="シークレットを入力してください">
+        </div>
+        <div class="form-group">
+          <div class="form-label">緊急連絡のGmail自動送信（GAS連携・任意）</div>
+          <div style="font-size:12.5px;color:var(--c-muted);line-height:1.8;margin-bottom:10px">
+            設定すると、緊急連絡をGmail連絡先のグループへボタン一発で一斉送信できます。<br>
+            セットアップ手順書に従ってGASを設置し、発行されたURLと送信キーを入力してください。
+          </div>
+          <input class="form-input" type="text" id="settings-gas-url" placeholder="GASウェブアプリURL（https://script.google.com/macros/s/…/exec）" style="margin-bottom:8px">
+          <input class="form-input" type="password" id="settings-gas-key" placeholder="送信キー（GASコードのACCESS_KEYと同じ文字列）">
         </div>
         <button class="btn btn-primary btn-full" id="btn-save-settings">設定を保存</button>
         <div class="spacer"></div>

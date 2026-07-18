@@ -178,6 +178,10 @@ function getSecretKey() {
   const cfg = (typeof MP_CONFIG !== 'undefined') ? MP_CONFIG : {};
   return cfg.clubId ? `mp_secret_${cfg.clubId}` : 'mp_secret';
 }
+function getGasStoreKey(suffix) {
+  const cfg = (typeof MP_CONFIG !== 'undefined') ? MP_CONFIG : {};
+  return cfg.clubId ? `mp_gas_${suffix}_${cfg.clubId}` : `mp_gas_${suffix}`;
+}
 function getSettings() {
   const cfg = (typeof MP_CONFIG !== 'undefined') ? MP_CONFIG : {};
   return {
@@ -185,10 +189,17 @@ function getSettings() {
     clubId:         cfg.clubId      || '',
     firebaseUrl:    cfg.firebaseUrl || '',
     firebaseSecret: localStorage.getItem(getSecretKey()) || '',
+    gasUrl:         localStorage.getItem(getGasStoreKey('url')) || '',
+    gasKey:         localStorage.getItem(getGasStoreKey('key')) || '',
   };
 }
 function saveSettings(s) {
   localStorage.setItem(getSecretKey(), s.firebaseSecret || '');
+  if ('gasUrl' in s) localStorage.setItem(getGasStoreKey('url'), s.gasUrl || '');
+  if ('gasKey' in s) localStorage.setItem(getGasStoreKey('key'), s.gasKey || '');
+}
+function isGasConfigured(s) {
+  return !!(s.gasUrl && s.gasKey);
 }
 function getFirebaseUrl(s) {
   return `${s.firebaseUrl}/clubs/${s.clubId}`;
@@ -2876,10 +2887,17 @@ function renderSettingsPage() {
   document.getElementById('settings-club-id').value         = s.clubId      || '';
   document.getElementById('settings-firebase-url').value    = s.firebaseUrl || '';
   document.getElementById('settings-firebase-secret').value = s.firebaseSecret || '';
+  const gasUrlEl = document.getElementById('settings-gas-url');
+  const gasKeyEl = document.getElementById('settings-gas-key');
+  if (gasUrlEl) gasUrlEl.value = s.gasUrl || '';
+  if (gasKeyEl) gasKeyEl.value = s.gasKey || '';
 }
 function saveSettingsForm() {
   const secret = document.getElementById('settings-firebase-secret').value.trim();
-  saveSettings({ firebaseSecret: secret });
+  const gasUrl = (document.getElementById('settings-gas-url')?.value || '').trim();
+  const gasKey = (document.getElementById('settings-gas-key')?.value || '').trim();
+  saveSettings({ firebaseSecret: secret, gasUrl, gasKey });
+  emergencyGroupsLoaded = false; // GAS設定が変わったらグループを取り直す
   showToast('設定を保存しました', 'success');
   // 保存後すぐにクラウドから読み込む
   if (secret) loadFromCloud();
@@ -3055,6 +3073,8 @@ function bindEvents() {
   window.addEventListener('resize', snsFitPreview);
 
   // 緊急連絡
+  document.getElementById('btn-emergency-send')?.addEventListener('click', sendEmergencyViaGas);
+  document.getElementById('btn-emergency-groups-reload')?.addEventListener('click', () => loadEmergencyGroups(true));
   document.getElementById('btn-emergency-mailto')?.addEventListener('click', openEmergencyMail);
   document.getElementById('btn-copy-emergency-emails')?.addEventListener('click', copyEmergencyEmails);
   document.getElementById('btn-copy-emergency-message')?.addEventListener('click', copyEmergencyMessage);
@@ -3666,6 +3686,81 @@ selectAnnSched = function (id) {
 
 // ===== 緊急連絡 =====
 let emergencyCats = new Set();
+let emergencyGroups = [];            // Gmail連絡先グループ {id, name, count}
+let emergencySelGroups = new Set();  // 選択中グループid
+let emergencyGroupsLoaded = false;
+
+function escEmg(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// GAS（Google Apps Script）呼び出し共通処理
+async function gasCall(action, payload = {}) {
+  const s = getSettings();
+  const res = await fetch(s.gasUrl, {
+    method: 'POST',
+    body: JSON.stringify({ key: s.gasKey, action, ...payload }),
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || '不明なエラー');
+  return data;
+}
+
+async function loadEmergencyGroups(force = false) {
+  const el = document.getElementById('emergency-group-picker');
+  if (!el) return;
+  if (emergencyGroupsLoaded && !force) { renderEmergencyGroupPicker(); return; }
+  el.innerHTML = '<div style="font-size:12px;color:var(--c-muted)">⏳ Gmailからグループを読み込み中…</div>';
+  try {
+    const data = await gasCall('groups');
+    emergencyGroups = data.groups || [];
+    emergencyGroupsLoaded = true;
+    emergencySelGroups = new Set([...emergencySelGroups].filter(id => emergencyGroups.some(g => g.id === id)));
+    renderEmergencyGroupPicker();
+  } catch (e) {
+    el.innerHTML = `<div style="font-size:12px;color:#dc2626">グループの読み込みに失敗しました：${escEmg(e.message)}<br>設定画面のGAS URL・送信キーをご確認ください。</div>`;
+  }
+}
+function renderEmergencyGroupPicker() {
+  const el = document.getElementById('emergency-group-picker');
+  if (!el) return;
+  if (emergencyGroups.length === 0) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--c-muted)">Google連絡先にグループ（ラベル）がありません</div>';
+    return;
+  }
+  el.innerHTML = emergencyGroups.map(g => `
+    <label class="cat-check-label"><input type="checkbox" class="emergency-group-check" value="${escEmg(g.id)}" ${emergencySelGroups.has(g.id) ? 'checked' : ''} onchange="toggleEmergencyGroup(this.value, this.checked)"> ${escEmg(g.name)}（${g.count}名）</label>
+  `).join('');
+}
+function toggleEmergencyGroup(id, checked) {
+  if (checked) emergencySelGroups.add(id); else emergencySelGroups.delete(id);
+}
+async function sendEmergencyViaGas() {
+  const s = getSettings();
+  if (!isGasConfigured(s)) { showToast('設定画面でGmail連携（GAS）を設定してください', 'error'); return; }
+  if (emergencySelGroups.size === 0) { showToast('送信先グループを選択してください', 'error'); return; }
+  const subject = (document.getElementById('emergency-subject')?.value || '').trim() || '緊急連絡';
+  const body = (document.getElementById('emergency-message')?.value || '').trim();
+  if (!body) { showToast('メッセージを入力してください', 'error'); return; }
+
+  const sel = emergencyGroups.filter(g => emergencySelGroups.has(g.id));
+  const names = sel.map(g => `「${g.name}」`).join('・');
+  const total = sel.reduce((n, g) => n + (g.count || 0), 0);
+  if (!confirm(`${names}（計${total}名）へ緊急連絡メールを一斉送信します。よろしいですか？\n\n件名：${subject}`)) return;
+
+  const btn = document.getElementById('btn-emergency-send');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 送信中…しばらくお待ちください'; }
+  try {
+    const r = await gasCall('send', { groupIds: [...emergencySelGroups], subject, body, senderName: `${s.clubName} 緊急連絡` });
+    showToast(`✅ ${r.sent}件のアドレスへ送信しました（控えが自分宛にも届きます）`, 'success');
+  } catch (e) {
+    showToast(`送信に失敗しました：${e.message}`, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Gmailから自動送信（BCC）'; }
+  }
+}
 const EMERGENCY_TEMPLATES = [
   { label: '天候による中止', text: '本日の練習/試合は悪天候のため中止といたします。今後の予定は改めてご連絡いたします。' },
   { label: '解散時間の変更', text: '天候急変のため、本日の解散時間を予定より早め、◯時◯分に変更いたします。お迎えの調整をお願いいたします。' },
@@ -3675,13 +3770,23 @@ const EMERGENCY_TEMPLATES = [
 
 function renderEmergencyPage() {
   emergencyCats = new Set();
+  emergencySelGroups = new Set();
   const msgEl = document.getElementById('emergency-message');
   if (msgEl) msgEl.value = '';
+  const s = getSettings();
   const subjEl = document.getElementById('emergency-subject');
-  if (subjEl) {
-    const s = getSettings();
-    subjEl.value = `【${s.clubName || 'クラブ'}】緊急連絡`;
-  }
+  if (subjEl) subjEl.value = `【${s.clubName || 'クラブ'}】緊急連絡`;
+
+  // Gmailグループ（GAS連携）ブロックの表示切り替え
+  const gasOn = isGasConfigured(s);
+  const groupBlock = document.getElementById('emergency-group-block');
+  const gasHint = document.getElementById('emergency-gas-hint');
+  const sendBtn = document.getElementById('btn-emergency-send');
+  if (groupBlock) groupBlock.style.display = gasOn ? '' : 'none';
+  if (gasHint) gasHint.style.display = gasOn ? 'none' : '';
+  if (sendBtn) sendBtn.style.display = gasOn ? '' : 'none';
+  if (gasOn) loadEmergencyGroups();
+
   renderEmergencyCatPicker();
   renderEmergencyRecipients();
   renderEmergencyTemplateButtons();
