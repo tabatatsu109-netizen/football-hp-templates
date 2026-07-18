@@ -3,27 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>八ヶ岳北杜グランデフットボールクラブ</title>
-  <meta name="description" content="八ヶ岳北杜グランデフットボールクラブ公式サイト。八ヶ岳の大自然のもと、子どもたちがサッカーを通じて心と身体を磨き、夢に向かって努力できるクラブ。">
-  <meta property="og:title" content="八ヶ岳北杜グランデフットボールクラブ">
+  <title>八ヶ岳グランデFC</title>
+  <meta name="description" content="八ヶ岳グランデFC公式サイト。八ヶ岳の大自然のもと、子どもたちがサッカーを通じて心と身体を磨き、夢に向かって努力できるクラブ。">
+  <meta property="og:title" content="八ヶ岳グランデFC">
   <meta property="og:description" content="感動するサッカーの追求 — CORAZON GRANDE">
   <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+  <!-- ローディング演出(初回のみ) -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader-inner">
+      <img src="../assets/logo.png" alt="" class="loader-logo">
+      <div class="loader-text" id="loader-text">CORAZON GRANDE</div>
+      <div class="loader-bar"><span></span></div>
+    </div>
+  </div>
 
   <!-- ヘッダー -->
   <header class="gh">
     <div class="gh-inner">
       <a href="index.html" class="gh-logo">
-        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳北杜グランデFC ロゴ">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
         <span class="gh-logo-fallback" id="logo-abbr">G</span>
         <span class="gh-logo-text">
-          <span class="gh-logo-name">GRANDE F.C.</span>
-          <span class="gh-logo-sub">YATSUGATAKE HOKUTO</span>
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+          <span class="gh-logo-name">GRANDE FC</span>
         </span>
       </a>
       <nav class="gh-nav">
@@ -31,13 +40,14 @@
         <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
         <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
         <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
-        <a href="../grande_recruit.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
-        <a href="../partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">取り組み</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
       </nav>
       <div class="gh-actions">
-        <a href="../members.html" class="gh-login">ログイン</a>
-        <a href="../grande_recruit.html" class="gh-cta gh-cta--trial">体験申込<small>TRIAL</small></a>
-        <a href="../itemshop.html" class="gh-cta gh-cta--shop">アイテムショップ<small>STORE</small></a>
+        <a href="members.html" class="gh-login">ログイン</a>
+        <a href="join.html#apply" class="gh-cta gh-cta--trial">体験申込<small>TRIAL</small></a>
         <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
       </div>
     </div>
@@ -50,56 +60,48 @@
     <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
     <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
     <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
-    <a class="m-link" href="../partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
-    <a class="m-link" href="../members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link nav-thanks" href="message.html"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+    <a class="m-link" href="members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
     <div class="m-nav-ctas">
-      <a href="../grande_recruit.html" class="m-cta-trial">体験申込</a>
-      <a href="../itemshop.html" class="m-cta-shop">アイテムショップ</a>
+      <a href="join.html#apply" class="m-cta-trial">体験申込</a>
     </div>
   </nav>
 
   <!-- ヒーロー -->
   <section class="hero">
     <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-reveal" id="hero-reveal" aria-hidden="true">
+      <svg class="hero-reveal-svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <mask id="grandeHole">
+            <rect x="0" y="0" width="1200" height="700" fill="#fff"></rect>
+            <text x="600" y="368" text-anchor="middle" font-family="'Oswald',sans-serif" font-weight="700" font-style="italic" font-size="228" letter-spacing="2" fill="#000">GRANDE</text>
+          </mask>
+        </defs>
+        <rect x="0" y="0" width="1200" height="700" fill="#0e3a1c" mask="url(#grandeHole)"></rect>
+      </svg>
+    </div>
     <div class="hero-inner">
-      <p class="hero-loc" id="hero-location">YAMANASHI · YATSUGATAKE</p>
-      <h1 class="hero-slogan">CORAZON<br><span class="g">GRANDE</span></h1>
-      <p class="hero-slogan-ja" id="hero-subcopy">感動するサッカーの追求</p>
+      <img class="hero-emblem" src="../assets/grande-wordmark.png" alt="GRANDE">
+      <h1 class="hero-catch" id="hero-subcopy">感動するサッカーの追求</h1>
+      <p class="hero-club">八ヶ岳グランデフットボールクラブ</p>
     </div>
     <span class="hero-scroll">SCROLL</span>
   </section>
 
-  <!-- プロモバナー スライダー -->
+  <!-- プロモバナー スライダー: 体験練習(固定) + 新着ニュース(自動) -->
   <section class="promo">
     <div class="promo-track" id="promo-track">
-      <a href="../grande_recruit.html" class="promo-card" style="background-image:url('../assets/toprandom/photo2.jpg')">
+      <a href="join.html" class="promo-card" style="background-image:url('../assets/toprandom/photo2.jpg')">
         <div class="promo-body">
           <span class="promo-tag">JOIN US</span>
           <span class="promo-title">体験練習 随時受付中</span>
           <span class="promo-sub">U-15 / U-12 / スクール 各カテゴリ</span>
         </div>
       </a>
-      <a href="../itemshop.html" class="promo-card" style="background-image:url('../assets/toprandom/photo3.jpg')">
-        <div class="promo-body">
-          <span class="promo-tag">OFFICIAL STORE</span>
-          <span class="promo-title">アイテムショップ</span>
-          <span class="promo-sub">クラブオリジナルグッズはこちら</span>
-        </div>
-      </a>
-      <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" class="promo-card promo-card--solid">
-        <div class="promo-body">
-          <span class="promo-tag">OFFICIAL LINE</span>
-          <span class="promo-title">公式LINE 友だち募集中</span>
-          <span class="promo-sub">最新情報をいち早くお届けします</span>
-        </div>
-      </a>
-      <a href="../partners.html" class="promo-card" style="background-image:url('../assets/photo1.jpg')">
-        <div class="promo-body">
-          <span class="promo-tag">PARTNER</span>
-          <span class="promo-title">パートナー＆サポーター</span>
-          <span class="promo-sub">クラブを支えてくださる皆様</span>
-        </div>
-      </a>
+      <!-- 新着ニュースカードは JS でここに追加される -->
     </div>
     <div class="promo-nav" id="promo-nav"></div>
   </section>
@@ -116,14 +118,14 @@
       <div class="match-next-panel">
         <div id="match-next-inner">
           <div class="nm-left">
-            <div class="nm-badge">NEXT MATCH</div>
+            <div class="nm-badge-row"><div class="nm-badge">NEXT MATCH</div></div>
             <div class="nm-comp">読み込み中...</div>
           </div>
           <div class="nm-center" style="color:#9aa0a8;font-size:13px;">データを取得中</div>
-          <div class="nm-right">
-            <a href="../contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>
-            <a href="matches.html" class="nm-btn nm-btn-dark">試合詳細</a>
-          </div>
+        </div>
+        <div class="nm-actions">
+          <a href="contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>
+          <a href="matches.html" class="nm-btn nm-btn-dark">試合詳細</a>
         </div>
       </div>
     </div>
@@ -150,13 +152,13 @@
         <a href="matches.html" class="quick-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_U12リーグ最終節_260627_1.jpg')">
           <div class="quick-body"><span class="quick-en">SCHEDULE</span><span class="quick-ja">試合日程・結果</span></div>
         </a>
-        <a href="../contact.html" class="quick-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_DEN合宿_260627_1.jpg')">
+        <a href="contact.html" class="quick-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_DEN合宿_260627_1.jpg')">
           <div class="quick-body"><span class="quick-en">ACCESS</span><span class="quick-ja">グラウンド・アクセス</span></div>
         </a>
-        <a href="../grande_recruit.html" class="quick-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_19.jpg')">
+        <a href="join.html" class="quick-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_19.jpg')">
           <div class="quick-body"><span class="quick-en">JOIN US</span><span class="quick-ja">体験・入会案内</span></div>
         </a>
-        <a href="../members.html" class="quick-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_高円宮杯アズール_260627_1.jpg')">
+        <a href="members.html" class="quick-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_高円宮杯アズール_260627_1.jpg')">
           <div class="quick-body"><span class="quick-en">MEMBERS</span><span class="quick-ja">クラブ員専用ページ</span></div>
         </a>
       </div>
@@ -170,9 +172,21 @@
       <p class="statement-en">CORAZON GRANDE</p>
       <p class="statement-ja">感動するサッカーの追求</p>
       <p class="statement-desc" id="club-description">八ヶ岳の大自然のもと、子どもたちがサッカーを通じて心と身体を磨き、夢に向かって努力できるクラブ。2001年設立以来、地域に根ざしたスポーツ育成を続けています。</p>
+      <div class="stats-row" id="stats-row">
+        <div class="stat"><span class="stat-num" data-count="2001">0</span><span class="stat-label">設立年</span></div>
+        <div class="stat"><span class="stat-num" data-count="25">0</span><span class="stat-label">活動年数</span></div>
+        <div class="stat"><span class="stat-num" data-count="3">0</span><span class="stat-label">カテゴリー</span></div>
+      </div>
       <a href="club.html" class="statement-btn">クラブを知る →</a>
     </div>
   </section>
+
+  <!-- マーキー(流れる帯文字) -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-inner" id="marquee-inner">
+      <span>CORAZON GRANDE&nbsp;&nbsp;—&nbsp;&nbsp;YATSUGATAKE&nbsp;&nbsp;—&nbsp;&nbsp;</span>
+    </div>
+  </div>
 
   <!-- ムービー -->
   <section class="movie">
@@ -183,17 +197,17 @@
         <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" class="sec-more">YouTubeチャンネル →</a>
       </div>
       <div class="movie-grid">
-        <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" class="movie-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_エルドラード、ラーゴ_260627_10.jpg')">
+        <a href="https://youtu.be/lFdxfbxEJQM" target="_blank" rel="noopener" class="movie-card" style="background-image:url('https://img.youtube.com/vi/lFdxfbxEJQM/hqdefault.jpg')">
           <span class="movie-play"></span>
-          <span class="movie-label">試合ハイライト</span>
+          <span class="movie-label">プロモーションビデオ</span>
         </a>
-        <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" class="movie-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_8.jpg')">
+        <a href="https://youtu.be/k75tQ6m6i0Y" target="_blank" rel="noopener" class="movie-card" style="background-image:url('https://img.youtube.com/vi/k75tQ6m6i0Y/hqdefault.jpg')">
           <span class="movie-play"></span>
-          <span class="movie-label">練習・活動の様子</span>
+          <span class="movie-label">ジュニアユース-PV2025</span>
         </a>
-        <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" class="movie-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_2026バーモントカップ2次リーグ_260627_1.jpg')">
+        <a href="https://youtu.be/t5-dptTqyxA" target="_blank" rel="noopener" class="movie-card" style="background-image:url('https://img.youtube.com/vi/t5-dptTqyxA/hqdefault.jpg')">
           <span class="movie-play"></span>
-          <span class="movie-label">大会・イベント</span>
+          <span class="movie-label">パートナー：ひまわり市場PV</span>
         </a>
       </div>
     </div>
@@ -224,7 +238,7 @@
         <a href="https://cmic-well.com/" target="_blank" rel="noopener" class="partner-item"><img src="../assets/sponsor-cmic.webp" alt="シミックウェル"></a>
         <a href="http://kkcinc.co.jp/" target="_blank" rel="noopener" class="partner-item"><span class="p-text">環境管理コンサルタント</span></a>
       </div>
-      <div class="partner-cta"><a href="../partners.html">パートナー＆サポーター一覧を見る</a></div>
+      <div class="partner-cta"><a href="partners.html">パートナー＆サポーター一覧を見る</a></div>
     </div>
   </section>
 
@@ -257,9 +271,9 @@
     <div class="gf-top">
       <div class="gf-top-inner">
         <div class="gf-brand">
-          <img src="../assets/logo.png" alt="八ヶ岳北杜グランデFC">
+          <img src="../assets/logo.png" alt="八ヶ岳グランデFC">
           <div>
-            <div class="gf-brand-name" id="footer-club-name">八ヶ岳北杜グランデフットボールクラブ</div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳グランデFC</div>
             <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
           </div>
         </div>
@@ -268,11 +282,11 @@
           <a href="matches.html">試合情報</a>
           <a href="team.html">選手・スタッフ</a>
           <a href="club.html">クラブを知る</a>
-          <a href="../grande_recruit.html">入会・体験</a>
-          <a href="../partners.html">パートナー</a>
-          <a href="../itemshop.html">アイテムショップ</a>
-          <a href="../members.html">クラブ員専用</a>
-          <a href="../contact.html">お問い合わせ</a>
+          <a href="initiatives.html">クラブの取り組み</a>
+          <a href="join.html">入会・体験</a>
+          <a href="partners.html">パートナー</a>
+          <a href="members.html">クラブ員専用</a>
+          <a href="contact.html">お問い合わせ</a>
         </nav>
         <div class="gf-sns">
           <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
@@ -285,18 +299,31 @@
       <div class="gf-bottom-inner">
         <div class="gf-legal">
           <a href="club.html">クラブ概要</a>
-          <a href="../contact.html">お問い合わせ</a>
-          <a href="../members.html">クラブ員専用</a>
+          <a href="contact.html">お問い合わせ</a>
+          <a href="members.html">クラブ員専用</a>
         </div>
-        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳北杜グランデFC</span>. ALL RIGHTS RESERVED.</span>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
       </div>
     </div>
   </footer>
 
   <!-- フローティングCTA -->
   <div class="float-btns">
-    <a href="../grande_recruit.html" class="fb-trial">体験申込</a>
-    <a href="../itemshop.html" class="fb-shop">アイテムショップ</a>
+    <a href="join.html#apply" class="fb-trial">体験申込</a>
+  </div>
+
+  <!-- ニュース / 試合結果 詳細モーダル -->
+  <div class="nd-overlay" id="news-detail-overlay">
+    <div class="nd-box">
+      <button class="nd-close" id="news-detail-close" aria-label="閉じる">✕</button>
+      <div class="nd-meta">
+        <span class="nd-tag" id="news-detail-tag"></span>
+        <span class="nd-date" id="news-detail-date"></span>
+      </div>
+      <h3 class="nd-title" id="news-detail-title"></h3>
+      <img class="nd-image" id="news-detail-image" alt="">
+      <p class="nd-body" id="news-detail-body"></p>
+    </div>
   </div>
 
   <script src="js/config-loader.js"></script>
@@ -304,6 +331,38 @@
   <script>
     // 年号
     document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // ── ローディング演出(1セッション1回のみ) ──
+    (function(){
+      var loader = document.getElementById('loader');
+      var seen = false;
+      try { seen = sessionStorage.getItem('gv-loaded') === '1'; } catch(e){}
+      function finish(){
+        loader.classList.add('done');
+        document.body.classList.add('page-in');
+        try { sessionStorage.setItem('gv-loaded', '1'); } catch(e){}
+      }
+      if (seen) {
+        loader.classList.add('skip');
+        document.body.classList.add('page-in');
+      } else {
+        // ローダーの文字を1文字ずつ表示
+        var lt = document.getElementById('loader-text');
+        var chars = lt.textContent.split('');
+        lt.innerHTML = chars.map(function(c, i){
+          return '<span style="animation-delay:' + (i * 40) + 'ms">' + (c === ' ' ? '&nbsp;' : c) + '</span>';
+        }).join('');
+        var minTime = new Promise(function(r){ setTimeout(r, 1400); });
+        var loaded = new Promise(function(r){
+          if (document.readyState === 'complete') r();
+          else window.addEventListener('load', r);
+        });
+        Promise.all([minTime, loaded]).then(finish);
+        setTimeout(finish, 4000); // 保険
+      }
+    })();
+
+    // ヒーローのロゴ・テキストは body.page-in 付与でCSSアニメーションが発火する
 
     // モバイルメニュー
     var mobileNav = document.getElementById('mobile-nav');
@@ -337,11 +396,12 @@
       }, 8000);
     })();
 
-    // プロモスライダーのドット
-    (function(){
+    // プロモスライダーのドット（カード追加後に再構築できるよう関数化）
+    function buildPromoDots(){
       var track = document.getElementById('promo-track');
       var nav = document.getElementById('promo-nav');
       var cards = track.querySelectorAll('.promo-card');
+      nav.innerHTML = '';
       cards.forEach(function(c, idx){
         var d = document.createElement('button');
         d.className = 'promo-dot' + (idx === 0 ? ' on' : '');
@@ -351,17 +411,86 @@
         });
         nav.appendChild(d);
       });
-      track.addEventListener('scroll', function(){
-        var center = track.scrollLeft + track.clientWidth / 2;
-        var best = 0, bestDist = Infinity;
-        cards.forEach(function(c, idx){
-          var d = Math.abs(c.offsetLeft + c.clientWidth / 2 - center);
-          if (d < bestDist) { bestDist = d; best = idx; }
-        });
-        nav.querySelectorAll('.promo-dot').forEach(function(dot, idx){
-          dot.classList.toggle('on', idx === best);
-        });
-      }, { passive: true });
+    }
+    buildPromoDots();
+    document.getElementById('promo-track').addEventListener('scroll', function(){
+      var track = this;
+      var nav = document.getElementById('promo-nav');
+      var cards = track.querySelectorAll('.promo-card');
+      var center = track.scrollLeft + track.clientWidth / 2;
+      var best = 0, bestDist = Infinity;
+      cards.forEach(function(c, idx){
+        var d = Math.abs(c.offsetLeft + c.clientWidth / 2 - center);
+        if (d < bestDist) { bestDist = d; best = idx; }
+      });
+      nav.querySelectorAll('.promo-dot').forEach(function(dot, idx){
+        dot.classList.toggle('on', idx === best);
+      });
+    }, { passive: true });
+
+    // 新着ニュースをプロモスライダーに写真つきで追加（体験練習カードは固定で先頭）
+    (function(){
+      var FALLBACK_PHOTOS = [
+        '../assets/toprandom/LINE_ALBUM_U12リーグ最終節_260627_2.jpg',
+        '../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_21.jpg',
+        '../assets/toprandom/LINE_ALBUM_エルドラード、ラーゴ_260627_14.jpg',
+        '../assets/toprandom/LINE_ALBUM_高円宮杯アズール_260627_4.jpg'
+      ];
+      var promoNews = [];
+
+      function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+      function formatDate(s){ return String(s||'').replace(/-/g,'.'); }
+
+      window.openPromoNews = function(idx){
+        var n = promoNews[idx];
+        if(!n) return;
+        var overlay = document.getElementById('news-detail-overlay');
+        if(!overlay) return;
+        var cat = n.cat || n.category || n.type || 'お知らせ';
+        var tagEl = document.getElementById('news-detail-tag');
+        if(tagEl){ tagEl.textContent = cat; tagEl.style.color = ''; tagEl.style.borderColor = ''; }
+        var dateEl = document.getElementById('news-detail-date');
+        if(dateEl) dateEl.textContent = String(n.date||'').replace(/-/g,'/');
+        var titleEl = document.getElementById('news-detail-title');
+        if(titleEl) titleEl.textContent = n.title || '';
+        var bodyEl = document.getElementById('news-detail-body');
+        if(bodyEl) bodyEl.textContent = n.body || '';
+        var imgEl = document.getElementById('news-detail-image');
+        if(imgEl){
+          if(n.image){ imgEl.src = n.image; imgEl.classList.add('show'); }
+          else { imgEl.removeAttribute('src'); imgEl.classList.remove('show'); }
+        }
+        overlay.classList.add('open');
+      };
+
+      function toTime(s){ var d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime(); }
+
+      ConfigLoader.load().then(function(c){
+        var fbUrl = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
+        return fetch(fbUrl + '/clubs/' + clubId + '.json');
+      }).then(function(r){ return r.json(); }).then(function(data){
+        var items = (data && (data.news || data.posts)) || [];
+        promoNews = items
+          .filter(function(n){ return n && n.title; })
+          .sort(function(a,b){ return toTime(b.date) - toTime(a.date); })
+          .slice(0, 4);
+        if(promoNews.length === 0) return;
+
+        var track = document.getElementById('promo-track');
+        var html = promoNews.map(function(n, i){
+          var photo = n.image || FALLBACK_PHOTOS[i % FALLBACK_PHOTOS.length];
+          var cat = n.cat || n.category || n.type || 'お知らせ';
+          return '<a href="news.html" class="promo-card promo-card--news" style="background-image:url(\'' + esc(photo) + '\')" onclick="openPromoNews(' + i + '); return false;">' +
+            '<div class="promo-body">' +
+              '<span class="promo-tag">NEWS ／ ' + esc(cat) + '</span>' +
+              '<span class="promo-title promo-title--news">' + esc(n.title) + '</span>' +
+              '<span class="promo-sub">' + esc(formatDate(n.date)) + '</span>' +
+            '</div></a>';
+        }).join('');
+        track.insertAdjacentHTML('beforeend', html);
+        buildPromoDots();
+      }).catch(function(e){ console.error('[promo-news]', e); });
     })();
 
     // active-cat2 を active-cat と同期
@@ -392,6 +521,67 @@
       el.classList.add('reveal');
       observer.observe(el);
     });
+
+    // ── マーキー: 幅が足りるまで複製してシームレスループ ──
+    (function(){
+      var inner = document.getElementById('marquee-inner');
+      var unit = inner.innerHTML;
+      // 画面幅の2倍以上になるまで複製
+      var copies = Math.max(4, Math.ceil((window.innerWidth * 2) / Math.max(inner.scrollWidth, 300)));
+      inner.innerHTML = new Array(copies + 1).join(unit);
+    })();
+
+    // ── パララックス(ステートメント背景) + PC のみ・reduce-motion 尊重 ──
+    (function(){
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+      var bg = document.querySelector('.statement-bg');
+      if (!bg) return;
+      var ticking = false;
+      function update(){
+        ticking = false;
+        var rect = bg.parentElement.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+        var progress = (rect.top + rect.height / 2 - window.innerHeight / 2) / window.innerHeight;
+        bg.style.transform = 'translateY(' + (progress * -40).toFixed(1) + 'px) scale(1.15)';
+      }
+      window.addEventListener('scroll', function(){
+        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+      }, { passive: true });
+      update();
+    })();
+
+    // ── 数字カウントアップ(ステートメント表示時) ──
+    (function(){
+      var row = document.getElementById('stats-row');
+      if (!row) return;
+      // 活動年数は現在年から自動計算
+      var yearsEl = row.querySelectorAll('.stat-num')[1];
+      if (yearsEl) yearsEl.dataset.count = String(new Date().getFullYear() - 2001);
+      var done = false;
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (!e.isIntersecting || done) return;
+          done = true;
+          io.disconnect();
+          row.querySelectorAll('.stat-num').forEach(function(el){
+            var target = parseInt(el.dataset.count, 10) || 0;
+            var start = null;
+            var dur = 1200;
+            function step(ts){
+              if (!start) start = ts;
+              var p = Math.min((ts - start) / dur, 1);
+              // easeOutCubic
+              var v = Math.round(target * (1 - Math.pow(1 - p, 3)));
+              el.textContent = v;
+              if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+          });
+        });
+      }, { threshold: 0.4 });
+      io.observe(row);
+    })();
   </script>
 </body>
 </html>

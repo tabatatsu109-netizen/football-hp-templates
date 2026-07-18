@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会費・保険のご案内 | 八ヶ岳グランデFC</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .fill-guide { background: var(--bg-gray); border: 1px solid var(--line); border-radius: 10px; padding: 22px 22px 18px; margin: 22px 0 26px; }
+    .fill-guide-title { font-weight: 900; font-size: 15px; margin-bottom: 12px; }
+    .fill-guide-title span { font-weight: 500; font-size: 12px; color: var(--ink-sub); margin-left: 6px; }
+    .fill-guide .club-table th { width: 38%; }
+    .upload-card { background: linear-gradient(115deg, var(--main-color), var(--main-dark)); border-radius: 12px; padding: clamp(22px,4vw,34px); color: #fff; margin-top: 22px; }
+    .upload-card-title { font-weight: 900; font-size: clamp(16px,2.2vw,19px); letter-spacing: .5px; margin-bottom: 6px; }
+    .upload-card .jform { background: transparent; border: none; padding: 0; max-width: none; }
+    .upload-card .doc-para { color: rgba(255,255,255,0.92); }
+    .upload-card .doc-note { color: rgba(255,255,255,0.78); }
+    .upload-card .jform-label { color: #fff; }
+    .upload-card .jform-input { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.4); color: #232526; }
+    .upload-card .jform-radios label { color: #fff; }
+    .upload-card .jform-submit { background: #fff; color: var(--main-dark); }
+    .upload-card .jform-submit:hover { background: #eef0ee; }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+          <span class="gh-logo-name">GRANDE FC</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">取り組み</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="members-dashboard.html" class="gh-login">会員ページへ戻る</a>
+        <a href="../shop/" class="gh-cta gh-cta--trial">ショップ<small>STORE</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link nav-thanks" href="message.html"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+    <a class="m-link" href="members-dashboard.html"><span class="n-en">MEMBERS</span><span class="n-ja">会員ページへ戻る</span></a>
+    <div class="m-nav-ctas">
+      <a href="../shop/" class="m-cta-trial">アイテムショップ</a>
+    </div>
+  </nav>
+
+  <!-- ページヒーロー -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">FEES & INSURANCE</div>
+      <div class="ph-ja">会費・保険のご案内</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><a href="members-dashboard.html">クラブ員専用</a><span>›</span><a href="documents.html">クラブ資料室</a><span>›</span><span>会費・保険のご案内</span></div></div>
+
+  <main class="page-body">
+    <div class="container doc-article">
+
+      <!-- 会費 -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">FEES</span><span class="c-ja">会費</span></div>
+        <table class="club-table">
+          <tr><th>入会金(入会時のみ)</th><td>12,000円</td></tr>
+          <tr><th>年会費</th><td>12,000円</td></tr>
+          <tr><th>月会費</th><td>12,000円</td></tr>
+          <tr><th>その他</th><td>バス等車両利用の場合、燃料代等を徴収する場合があります。<br>交流試合・合宿・遠征・親子サッカー・親睦会は別途費用の徴収があります。</td></tr>
+        </table>
+        <p class="doc-note">※ 4月分は「月会費12,000円+年会費12,000円+入会金12,000円」の合計36,000円です。<br>※ ジュニアから昇格する選手は、入会金(12,000円)は不要です。</p>
+      </section>
+
+      <!-- 指定口座・入金方法 -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">PAYMENT</span><span class="c-ja">指定口座・入金方法</span></div>
+        <table class="club-table">
+          <tr><th>銀行名</th><td>山梨中央銀行</td></tr>
+          <tr><th>支店</th><td>小淵沢支店</td></tr>
+          <tr><th>口座番号</th><td>普通預金 497175</td></tr>
+          <tr><th>口座名</th><td>ノーフットボール(合同会社 nofootball)</td></tr>
+        </table>
+        <ul class="doc-list">
+          <li>上記口座への振り込みでお願いします(振込手数料はご負担ください)。</li>
+          <li>クラブ側からの引き落とし制度もあります(手数料が掛からず便利ですが、山梨中央銀行の口座が必要です)。お申し込み方法は下記をご覧ください。</li>
+          <li>複数月分をまとめての振り込みでもかまいません。</li>
+          <li>依頼人名は会員本人名でお願いします。</li>
+          <li>現金の場合は封をして選手名を記入し、監督へ直接お渡しください。</li>
+        </ul>
+      </section>
+
+      <!-- 口座振替(引き落とし)のお申し込み方法 -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">ACCOUNT TRANSFER</span><span class="c-ja">口座振替(引き落とし)のお申し込み方法</span></div>
+        <p class="doc-para">
+          翌月以降の会費は、山梨中央銀行の口座をお持ちの方に限り「口座振替(自動引き落とし)」もご利用いただけます。振込の手間や手数料がかからず便利です。
+        </p>
+        <ol class="doc-list">
+          <li>山梨中央銀行の窓口で「預金口座振替払いに関する届出書」を受け取ります。</li>
+          <li>下記の記入のポイントを参考に、必要事項をご記入・ご捺印のうえ、窓口に提出してください。</li>
+          <li>提出後にお渡しされる「お客様控え」を大切に保管してください。</li>
+          <li>「お客様控え」のコピーを監督に直接お渡しいただくか、下記フォームから写真をアップロードしてください。</li>
+        </ol>
+
+        <div class="fill-guide">
+          <p class="fill-guide-title">記入のポイント<span>(記入例)</span></p>
+          <table class="club-table">
+            <tr><th>委託企業名</th><td>合同会社no football</td></tr>
+            <tr><th>料金等の種類</th><td>グランデ会費</td></tr>
+            <tr><th>預金者(フリガナ・おなまえ・ご住所)</th><td>口座名義人(通帳をお持ちの保護者様等)のフリガナ・お名前・ご住所をご記入ください。</td></tr>
+            <tr><th>契約者 おなまえ</th><td><strong style="color:var(--main-color);">選手のお名前</strong>をご記入ください(預金者と別の場合も、契約者欄は選手名になります)。</td></tr>
+            <tr><th>指定口座</th><td>お持ちの山梨中央銀行の支店名・預金種目(普通)・口座番号をご記入ください。</td></tr>
+            <tr><th>預金口座お届け印</th><td>通帳ご開設時に届け出た銀行印を押印してください(認印不可)。</td></tr>
+            <tr><th>2枚目(お客様控え)</th><td>複写式のため、契約者欄の印影が2枚目にもしっかり写るよう、強めに押印してください。</td></tr>
+          </table>
+          <p class="doc-note">※ 届出書の書式は銀行窓口でお受け取りください。記入例はご自身の内容に置き換えてご記入ください。ご不明な点は下記の担当コーチまでお気軽にどうぞ。</p>
+        </div>
+
+        <div class="upload-card">
+          <p class="upload-card-title">「お客様控え」のご提出(写真アップロード)</p>
+          <p class="doc-para" style="margin-bottom:18px;">写真またはPDFでご提出いただけます。もちろん、直接監督にお渡しいただいても構いません。</p>
+          <form class="jform" action="https://formspree.io/f/mqejrbge" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_subject" value="【グランデFC】口座振替お客様控えの提出">
+            <div class="jform-row">
+              <div class="jform-group">
+                <label class="jform-label">選手のお名前 <span class="req">必須</span></label>
+                <input class="jform-input" type="text" name="選手のお名前" required>
+              </div>
+              <div class="jform-group">
+                <label class="jform-label">保護者のお名前 <span class="req">必須</span></label>
+                <input class="jform-input" type="text" name="保護者のお名前" required>
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">カテゴリー <span class="req">必須</span></label>
+              <div class="jform-radios">
+                <label><input type="radio" name="カテゴリー" value="ジュニア(U-12)" required> ジュニア(U-12)</label>
+                <label><input type="radio" name="カテゴリー" value="ジュニアユース(U-15)"> ジュニアユース(U-15)</label>
+                <label><input type="radio" name="カテゴリー" value="メセタ(川上村・野辺山)"> メセタ(川上村・野辺山)</label>
+                <label><input type="radio" name="カテゴリー" value="スクール"> スクール</label>
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">お客様控えの写真・PDF <span class="req">必須</span></label>
+              <input class="jform-input" type="file" name="お客様控えの写真" accept="image/*,.pdf" required>
+              <p class="doc-note" style="margin-top:8px;">※ 5MB程度までのファイルをご利用ください。</p>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">備考</label>
+              <textarea class="jform-input jform-textarea" name="備考"></textarea>
+            </div>
+            <button type="submit" class="jform-submit">お客様控えを提出する →</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- 保険 -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">INSURANCE</span><span class="c-ja">保険</span></div>
+        <p class="doc-para">スポーツ傷害保険に、当クラブより手続きを行い加入します。練習・試合等のクラブ活動中の怪我等で、医療機関に1日以上通院する場合に支払われます。発生日から30日以内に保険会社への事務連絡完了が必要です。</p>
+        <table class="club-table">
+          <tr><th>通院</th><td>1日 1,500円</td></tr>
+          <tr><th>入院</th><td>1日 4,000円</td></tr>
+          <tr><th>後遺傷害(最高)</th><td>3,000万円</td></tr>
+          <tr><th>死亡</th><td>2,000万円</td></tr>
+        </table>
+        <p class="doc-note">※ 4月1日より効力を発揮します(3月中は保険適用とはなりません)。詳しくは会則(保険)をご参照ください。<br>※ 保険金額は昨年の額面です。新年度は変更になっている場合もあります。</p>
+      </section>
+
+      <!-- その他・入会手続き -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">OTHERS</span><span class="c-ja">その他・入会手続き</span></div>
+        <ul class="doc-list">
+          <li>クラブ指定の練習用シャツ・パンツ・ソックス等の購入が必要となります。</li>
+          <li>当クラブジュニアの用具はそのまま使用できますが、個人持ちユニフォームは購入となります。</li>
+          <li>入会手続きは、<a href="doc-rules.html" style="color:var(--main-color);font-weight:700;">会則</a>をよくお読みの上、入会申込書に必要事項をご記入いただき、お申し込みください。</li>
+        </ul>
+      </section>
+
+      <div class="doc-nav">
+        <a href="documents.html" class="doc-btn">← 資料室に戻る</a>
+        <a href="doc-rules.html" class="doc-btn doc-btn--main">会則 →</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="gf">
+    <div class="gf-top">
+      <div class="gf-top-inner">
+        <div class="gf-brand">
+          <img src="../assets/logo.png" alt="八ヶ岳グランデFC">
+          <div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳グランデFC</div>
+            <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
+          </div>
+        </div>
+        <nav class="gf-nav">
+          <a href="news.html">お知らせ</a>
+          <a href="matches.html">試合情報</a>
+          <a href="team.html">選手・スタッフ</a>
+          <a href="club.html">クラブを知る</a>
+          <a href="initiatives.html">クラブの取り組み</a>
+          <a href="join.html">入会・体験</a>
+          <a href="partners.html">パートナー</a>
+          <a href="members.html">クラブ員専用</a>
+          <a href="contact.html">お問い合わせ</a>
+        </nav>
+        <div class="gf-sns">
+          <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+          <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4L15.9 12z"/></svg></a>
+          <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" aria-label="LINE"><svg viewBox="0 0 24 24"><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.8 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c0 .3-.2 1.2 1 .6 1.3-.5 6.9-4.1 9.4-7 1.8-1.9 2.7-3.8 2.7-5.9z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="contact.html">お問い合わせ</a>
+          <a href="members.html">クラブ員専用</a>
+        </div>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+    if (!localStorage.getItem('memberLoggedIn')) {
+      window.location.href = 'members.html';
+    }
+    ConfigLoader.apply({ pageTitle: '会費・保険のご案内' });
+  </script>
+</body>
+</html>

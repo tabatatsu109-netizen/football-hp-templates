@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クラブ員専用ページ | 八ヶ岳グランデFC</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+          <span class="gh-logo-name">GRANDE FC</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">取り組み</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="#" class="gh-login" onclick="handleLogout(); return false;">ログアウト</a>
+        <a href="../shop/" class="gh-cta gh-cta--trial">ショップ<small>STORE</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link nav-thanks" href="message.html"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+    <a class="m-link" href="#" onclick="handleLogout(); return false;"><span class="n-en">LOGOUT</span><span class="n-ja">ログアウト</span></a>
+    <div class="m-nav-ctas">
+      <a href="../shop/" class="m-cta-trial">アイテムショップ</a>
+    </div>
+  </nav>
+
+  <!-- ページヒーロー -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">MEMBERS ONLY</div>
+      <div class="ph-ja">クラブ員専用ページ</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><span>クラブ員専用</span></div></div>
+
+  <main class="page-body">
+    <div class="container">
+
+      <!-- 保護者の皆様へ(注目) -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">FOR PARENTS</span><span class="c-ja">保護者の皆様へ</span></div>
+        <a href="parents-guide.html" class="dcard dcard--link" style="display:block;">
+          <div class="dcard-label">IMPORTANT</div>
+          <div class="dcard-title">クラブへの関わり方ガイド</div>
+          <p class="dcard-desc">育成理念・保護者の役割・応援マナー・よくある質問など、保護者の皆様に必ず読んでいただきたい内容をまとめました。</p>
+          <span class="dcard-link">ページを見る →</span>
+        </a>
+      </section>
+
+      <!-- 資料・書類ダウンロード -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">DOWNLOAD</span><span class="c-ja">資料・書類ダウンロード</span></div>
+        <div class="dash-grid">
+          <div class="dcard">
+            <div class="dcard-label">DOCUMENT</div>
+            <div class="dcard-title">クラブ資料室</div>
+            <p class="dcard-desc">会費・保険、会則、親の心得、勝者と敗者。閲覧・ダウンロードはこちら。</p>
+            <a href="documents.html" class="dcard-link">資料室を開く →</a>
+          </div>
+          <div class="dcard">
+            <div class="dcard-label">DOCUMENT</div>
+            <div class="dcard-title">会議資料</div>
+            <p class="dcard-desc">保護者会議やチーム会議の資料をご確認ください。</p>
+            <a href="#" class="dcard-link">ダウンロード →</a>
+          </div>
+          <div class="dcard">
+            <div class="dcard-label">MANAGEMENT</div>
+            <div class="dcard-title">連絡先管理</div>
+            <p class="dcard-desc">クラブスタッフ、チーム関係者の連絡先一覧。</p>
+            <a href="#contacts" class="dcard-link">確認する →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 連絡先 -->
+      <section class="club-sec" id="contacts">
+        <div class="club-sec-title"><span class="c-en">CONTACTS</span><span class="c-ja">連絡先</span></div>
+        <div class="dash-grid dash-grid--4">
+          <div class="dcard">
+            <div class="dcard-label">クラブ代表</div>
+            <div class="dcard-title">田畑 雅宏</div>
+            <p class="dcard-desc">クラブ全般に関するご連絡はこちらへ。</p>
+            <a href="tel:09014632183" class="dcard-link">📞 090-1463-2183</a>
+          </div>
+          <div class="dcard">
+            <div class="dcard-label">JY監督</div>
+            <div class="dcard-title">田畑 辰朗</div>
+            <p class="dcard-desc">ジュニアユース(U-15)に関するご連絡。</p>
+            <a href="tel:08066636011" class="dcard-link">📞 080-6663-6011</a>
+          </div>
+          <div class="dcard">
+            <div class="dcard-label">JY監督</div>
+            <div class="dcard-title">宮坂 正介</div>
+            <p class="dcard-desc">ジュニアユース(U-15)に関するご連絡。</p>
+            <a href="tel:09070178531" class="dcard-link">📞 090-7017-8531</a>
+          </div>
+          <div class="dcard">
+            <div class="dcard-label">Jr統括</div>
+            <div class="dcard-title">林 那央斗</div>
+            <p class="dcard-desc">ジュニア(U-12)・スクールに関するご連絡。</p>
+            <a href="tel:08095483411" class="dcard-link">📞 080-9548-3411</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- スケジュールカレンダー -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">CALENDAR</span><span class="c-ja">スケジュールカレンダー</span></div>
+        <div class="filter-bar">
+          <button class="filter-btn on calendar-tab" data-calendar="u15">ジュニアユース (U-15)</button>
+          <button class="filter-btn calendar-tab" data-calendar="u12">ジュニア (U-12)</button>
+        </div>
+        <div class="cal-frame active" id="calendar-u15">
+          <iframe src="https://calendar.google.com/calendar/embed?src=a3F1a2FhanY5bXVvZzdhNWNwNnR0Z29uN2tAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&ctz=Asia%2FTokyo" style="border:0" allowfullscreen loading="lazy" title="U-15カレンダー"></iframe>
+        </div>
+        <div class="cal-frame" id="calendar-u12">
+          <iframe src="https://calendar.google.com/calendar/embed?src=ZGFjdmFmc2t1OW41NDBhaWZxdWxhMDdpbmNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&ctz=Asia%2FTokyo" style="border:0" allowfullscreen loading="lazy" title="U-12カレンダー"></iframe>
+        </div>
+      </section>
+
+      <!-- モチベーション動画 -->
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">MOVIE</span><span class="c-ja">モチベーション動画</span></div>
+        <p style="color:#4c5157;font-size:13.5px;margin-bottom:18px;">グランデの試合映像やハイライトをご覧ください。</p>
+        <div class="video-grid">
+          <div class="video-card">
+            <iframe src="https://www.youtube.com/embed/GOheWb7Clu8" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="ウィナーズカップ2025"></iframe>
+            <div class="video-title">ウィナーズカップ2025</div>
+          </div>
+          <div class="video-card">
+            <iframe src="https://www.youtube.com/embed/nyggtqdo93k" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="ウィナーズカップ2025 FINAL"></iframe>
+            <div class="video-title">ウィナーズカップ2025 FINAL</div>
+          </div>
+          <div class="video-card">
+            <iframe src="https://www.youtube.com/embed/eXjbI2FItIk" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="高円宮杯2024"></iframe>
+            <div class="video-title">高円宮杯2024</div>
+          </div>
+          <div class="video-card">
+            <iframe src="https://www.youtube.com/embed/CiqpImT08Yc" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="ウィナーズカップ2023 Final"></iframe>
+            <div class="video-title">ウィナーズカップ2023 Final</div>
+          </div>
+          <div class="video-card">
+            <iframe src="https://www.youtube.com/embed/8FDbPVfFNLM" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="高円宮杯2023"></iframe>
+            <div class="video-title">高円宮杯2023</div>
+          </div>
+          <div class="video-card">
+            <iframe src="https://www.youtube.com/embed/S5C40M5O3MQ" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="ウィナーズカップ2022"></iframe>
+            <div class="video-title">ウィナーズカップ2022</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- アイテムショップ -->
+      <section class="club-sec" style="margin-bottom:0;">
+        <div class="club-sec-title"><span class="c-en">SHOP</span><span class="c-ja">アイテムショップ</span></div>
+        <p style="color:#4c5157;font-size:13.5px;margin-bottom:18px;">グランデオフィシャルグッズをお買い求めいただけます。</p>
+        <a href="../shop/" class="jform-submit" style="display:inline-block;width:auto;padding:15px 44px;text-align:center;text-decoration:none;">ショップへ進む →</a>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="gf">
+    <div class="gf-top">
+      <div class="gf-top-inner">
+        <div class="gf-brand">
+          <img src="../assets/logo.png" alt="八ヶ岳グランデFC">
+          <div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳グランデFC</div>
+            <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
+          </div>
+        </div>
+        <nav class="gf-nav">
+          <a href="news.html">お知らせ</a>
+          <a href="matches.html">試合情報</a>
+          <a href="team.html">選手・スタッフ</a>
+          <a href="club.html">クラブを知る</a>
+          <a href="initiatives.html">クラブの取り組み</a>
+          <a href="join.html">入会・体験</a>
+          <a href="partners.html">パートナー</a>
+          <a href="members.html">クラブ員専用</a>
+          <a href="contact.html">お問い合わせ</a>
+        </nav>
+        <div class="gf-sns">
+          <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+          <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4L15.9 12z"/></svg></a>
+          <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" aria-label="LINE"><svg viewBox="0 0 24 24"><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.8 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c0 .3-.2 1.2 1 .6 1.3-.5 6.9-4.1 9.4-7 1.8-1.9 2.7-3.8 2.7-5.9z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="contact.html">お問い合わせ</a>
+          <a href="members.html">クラブ員専用</a>
+        </div>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+
+    // ログイン確認(未ログインならログインページへ)
+    if (!localStorage.getItem('memberLoggedIn')) {
+      window.location.href = 'members.html';
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('memberLoggedIn');
+      localStorage.removeItem('memberLoginTime');
+      window.location.href = 'members.html';
+    }
+
+    // カレンダータブ切り替え
+    document.querySelectorAll('.calendar-tab').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        document.querySelectorAll('.calendar-tab').forEach(function(t){ t.classList.remove('on'); });
+        document.querySelectorAll('.cal-frame').forEach(function(c){ c.classList.remove('active'); });
+        this.classList.add('on');
+        document.getElementById('calendar-' + this.dataset.calendar).classList.add('active');
+      });
+    });
+
+    ConfigLoader.apply({ pageTitle: 'クラブ員専用ページ' });
+  </script>
+</body>
+</html>
