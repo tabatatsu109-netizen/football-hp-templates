@@ -614,6 +614,9 @@ function renderSchedCard(sc, today) {
   const isPast = sc.date < today;
   const timeStr = [sc.time, sc.endTime].filter(Boolean).join('–');
   const name = sc.opponent ? `vs ${sc.opponent}` : (sc.title || sc.type);
+  const isMatchLike = sc.type !== '練習';
+  const linkedMatch = sc.matchId ? matches.find(m => m.id === sc.matchId) : null;
+  const resultPosted = !!(linkedMatch && linkedMatch.result && linkedMatch.result.grandePosted);
   return `
     <div class="sched-card" onclick="openScheduleModal('${sc.id}')">
       <div class="sched-card-inner">
@@ -634,7 +637,9 @@ function renderSchedCard(sc, today) {
         <div class="sched-card-right">
           ${isPast ? '<span class="past-pill">終了</span>' : ''}
           ${sc.posted ? '<span class="posted-pill">告知済み</span>' : ''}
-          ${!isPast && sc.type==='試合' ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();startAnnouncement('${sc.id}')">告知する</button>` : ''}
+          ${resultPosted ? '<span class="posted-pill">結果公開済み</span>' : ''}
+          ${!isPast && isMatchLike ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();startAnnouncement('${sc.id}')">📢 告知</button><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openSnsFromSchedId('${sc.id}')">📸 SNS画像</button>` : ''}
+          ${isPast && isMatchLike && !resultPosted ? `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();continueResultFromSchedule('${sc.id}')">🏆 結果を登録</button>` : ''}
           <button class="btn btn-ghost btn-sm" style="color:var(--c-red);font-size:12px" onclick="event.stopPropagation();deleteSchedule('${sc.id}')">削除</button>
         </div>
       </div>
@@ -801,6 +806,17 @@ function createMatch() {
   saveLocal();
   closeModal('modal-match-create');
   openMatchDetail(m.id);
+}
+// スケジュールカードのボタン用ヘルパー
+function openSnsFromSchedId(id) {
+  const sc = schedules.find(s => s.id === id);
+  if (sc) openSnsFromSchedule(sc);
+}
+function continueResultFromSchedule(id) {
+  const sc = schedules.find(s => s.id === id);
+  if (!sc) return;
+  const m = sc.matchId ? matches.find(x => x.id === sc.matchId) : null;
+  if (m) { openMatchDetail(m.id); } else { startResultFromSchedule(id); }
 }
 // スケジュールの予定から結果登録を始める（試合情報は自動入力）
 function startResultFromSchedule(schedId) {

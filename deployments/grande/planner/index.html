@@ -57,12 +57,6 @@
         <span class="nav-item-icon">🚨</span> 緊急連絡
       </div>
       <div class="nav-group-label">🌐 ホームページに載せる</div>
-      <div class="nav-item" data-nav="page-announcement">
-        <span class="nav-item-icon">📢</span> 試合告知
-      </div>
-      <div class="nav-item" data-nav="page-result-entry">
-        <span class="nav-item-icon">🏆</span> 試合結果
-      </div>
       <div class="nav-item" data-nav="page-news">
         <span class="nav-item-icon">📝</span> ニュース投稿
       </div>
@@ -206,6 +200,7 @@
         <button class="btn btn-primary btn-sm" id="btn-add-schedule">+ 追加</button>
       </div>
       <div class="page-inner" style="padding-top:10px">
+        <div style="background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12.5px;color:var(--c-text2);line-height:1.7">💡 予定を登録すると、ホームページのNEXT MATCHに自動表示。各予定のボタンから <b>📢 告知</b>・<b>📸 SNS画像</b>（試合前）、<b>🏆 結果登録→HP投稿</b>（試合後）がそのまま作れます。</div>
         <div class="filter-tabs" id="schedule-filter-tabs">
           <button class="filter-tab active" data-sfilter="all">すべて</button>
           <button class="filter-tab" data-sfilter="試合">試合</button>
@@ -709,12 +704,12 @@
             <div class="form-label">投稿タイプ</div>
             <div class="post-type-row" id="post-type-row">
               <button class="post-type-btn active" data-ptype="お知らせ">お知らせ</button>
-              <button class="post-type-btn" data-ptype="試合結果">試合結果</button>
               <button class="post-type-btn" data-ptype="イベント">イベント</button>
               <button class="post-type-btn" data-ptype="選手募集">選手募集</button>
               <button class="post-type-btn" data-ptype="活動報告">活動報告</button>
               <button class="post-type-btn" data-ptype="その他">その他</button>
             </div>
+            <div style="font-size:12px;color:var(--c-muted);margin-top:4px">※ 試合の告知・結果はスケジュール画面の各予定のボタンから投稿できます（自動で記事になります）</div>
           </div>
           <div class="form-row-2">
             <div class="form-group">
@@ -1480,6 +1475,6 @@
 
 </div><!-- /#app -->
 <script src="mp-config.js?v=20260719a"></script>
-<script src="script.js?v=20260719e"></script>
+<script src="script.js?v=20260719f"></script>
 </body>
 </html>
