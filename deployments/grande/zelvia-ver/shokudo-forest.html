@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>グランデ食堂の森 | 八ヶ岳グランデFC</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans JP', sans-serif; background: #eaf6ee; color: #2b3a2e; }
+    a { text-decoration: none; color: inherit; }
+
+    /* パスワードゲート */
+    #sk-gate { position: fixed; inset: 0; z-index: 9999; background: #14351f; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .sk-gate-card { background: #fff; border-radius: 16px; padding: 36px 30px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .sk-gate-title { font-size: 22px; font-weight: 900; margin: 8px 0 4px; }
+    .sk-gate-sub { font-size: 12.5px; color: #8a9099; margin-bottom: 20px; line-height: 1.8; }
+    .sk-gate-input { width: 100%; border: 1.5px solid #dcdfe3; border-radius: 10px; padding: 12px 14px; font-size: 16px; text-align: center; letter-spacing: 3px; margin-bottom: 12px; }
+    .sk-gate-input:focus { outline: none; border-color: #1a5c2d; }
+    .sk-gate-btn { width: 100%; background: #1a5c2d; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .sk-gate-err { color: #dc2626; font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+
+    /* ヘッダー */
+    .fr-top { background: #14351f; color: #fff; padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; }
+    .fr-top a { font-size: 12.5px; opacity: .85; }
+    .fr-top a:hover { opacity: 1; }
+    .fr-top .brand { font-family: 'Oswald', sans-serif; font-size: 15px; letter-spacing: 2px; }
+
+    /* ヒーロー（森） */
+    .forest { position: relative; background: url('assets/forest/forest-bg.jpg') center bottom / cover no-repeat; padding: 34px 16px 0; overflow: hidden; }
+    .forest::after { content: ''; display: block; height: 24px; }
+    .fr-title-wrap { text-align: center; position: relative; z-index: 2; }
+    .fr-title {
+      display: inline-block; font-family: 'Yomogi', 'Noto Sans JP', cursive; font-size: clamp(30px, 6vw, 46px); font-weight: 700;
+      color: #3d5a2c; background: linear-gradient(180deg, #f7e8c5, #ecd9a8); border: 3px solid #b98d4f; border-radius: 14px;
+      padding: 8px 26px; box-shadow: 0 6px 0 #9a7340, 0 10px 22px rgba(0,0,0,.18); text-shadow: 0 2px 0 rgba(255,255,255,.6);
+    }
+    .fr-catch { display: inline-block; margin-top: 12px; background: rgba(255,255,255,.88); border-radius: 999px; padding: 7px 20px; font-size: clamp(13px, 2.6vw, 16px); font-weight: 900; color: #2f6b3a; box-shadow: 0 3px 10px rgba(0,0,0,.1); }
+    .fr-rank-label { text-align: center; margin: 26px 0 4px; font-size: clamp(15px, 3vw, 20px); font-weight: 900; color: #2f5d38; position: relative; z-index: 2; text-shadow: 0 1px 0 rgba(255,255,255,.8); }
+
+    /* 表彰台 */
+    .podium { display: flex; align-items: flex-end; justify-content: center; gap: 2vw; max-width: 1080px; margin: 0 auto; position: relative; z-index: 2; padding: 10px 0 0; }
+    .pod { text-align: center; flex: 1; max-width: 300px; }
+    .pod-badge { width: 46px; height: 52px; margin: 0 auto -6px; position: relative; z-index: 3; display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 20px; color: #fff; clip-path: polygon(0 0, 100% 0, 100% 72%, 50% 100%, 0 72%); box-shadow: 0 4px 10px rgba(0,0,0,.2); }
+    .pod-badge small { position: absolute; top: -16px; font-size: 15px; }
+    .pod-1 .pod-badge { background: linear-gradient(180deg, #f5c93c, #d9a415); width: 56px; height: 62px; font-size: 25px; }
+    .pod-2 .pod-badge { background: linear-gradient(180deg, #c8ccd4, #9aa1ad); }
+    .pod-3 .pod-badge { background: linear-gradient(180deg, #d29a63, #b1743a); }
+    .pod-tree { width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+    .pod-tree img { max-width: 100%; height: auto; filter: drop-shadow(0 8px 12px rgba(0,0,0,.15)); }
+    .pod-1 .pod-tree { height: min(34vw, 300px); }
+    .pod-2 .pod-tree, .pod-3 .pod-tree { height: min(26vw, 225px); }
+    .pod-count { margin-top: 6px; font-weight: 900; color: #234d2c; font-size: clamp(18px, 3.6vw, 28px); text-shadow: 0 1px 0 rgba(255,255,255,.8); }
+    .pod-count b { font-family: 'Oswald', sans-serif; font-size: clamp(26px, 5vw, 44px); }
+    .pod-next { font-size: clamp(10px, 2vw, 13px); font-weight: 700; color: #7a5a00; background: rgba(255,251,235,.92); border-radius: 999px; display: inline-block; padding: 3px 12px; margin-top: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+    .pod-plate { margin: 10px auto 0; background: linear-gradient(180deg, #a4713d, #85552a); color: #fff; border-radius: 8px; padding: 8px 6px 7px; max-width: 170px; box-shadow: 0 4px 0 #6b421e, 0 8px 14px rgba(0,0,0,.2); }
+    .pod-plate .nm { font-size: clamp(13px, 2.6vw, 17px); font-weight: 900; }
+    .pod-plate .gr { font-size: clamp(10px, 1.8vw, 12px); opacity: .85; margin-top: 1px; }
+    .podium-ground { height: 46px; background: linear-gradient(180deg, transparent, rgba(63,120,58,.25)); position: relative; z-index: 1; margin-top: -20px; }
+
+    /* セクション共通 */
+    .sec { max-width: 900px; margin: 0 auto; padding: 34px 18px 0; }
+    .card { background: #fffdf5; border: 2px solid #e3d9b8; border-radius: 18px; padding: 24px 22px; box-shadow: 0 6px 18px rgba(90,70,20,.07); }
+    .card-title { font-size: 17px; font-weight: 900; color: #2f5d38; margin-bottom: 14px; }
+
+    /* みんなの森 合計 */
+    .total-num { font-family: 'Oswald', sans-serif; font-size: clamp(44px, 9vw, 68px); font-weight: 700; color: #1a5c2d; line-height: 1; }
+    .total-num small { font-family: 'Noto Sans JP', sans-serif; font-size: 18px; font-weight: 900; margin-left: 4px; }
+    .total-sub { font-size: 13px; font-weight: 700; color: #6b7b6e; margin-top: 6px; }
+    .mile { display: flex; margin-top: 22px; }
+    .mile-step { flex: 1; text-align: center; position: relative; }
+    .mile-step::before { content: ''; position: absolute; top: 11px; left: -50%; width: 100%; height: 5px; background: #ddd7c2; z-index: 0; }
+    .mile-step:first-child::before { display: none; }
+    .mile-step.on::before { background: #3f9a4e; }
+    .mile-dot { position: relative; z-index: 1; width: 24px; height: 24px; border-radius: 50%; background: #ddd7c2; color: #fff; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; }
+    .mile-step.on .mile-dot { background: #3f9a4e; }
+    .mile-label { font-size: 11.5px; font-weight: 700; margin-top: 6px; color: #6b7b6e; }
+    .mile-name { font-size: 10.5px; color: #9aa59c; }
+    .mile-step.on .mile-label { color: #2f6b3a; }
+
+    /* 成長ステージ */
+    .stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; }
+    .stage { background: #fff; border: 1.5px solid #e6dfc8; border-radius: 14px; padding: 12px 8px; text-align: center; }
+    .stage img { height: 62px; width: auto; max-width: 100%; object-fit: contain; }
+    .stage .qm { height: 62px; display: flex; align-items: center; justify-content: center; font-size: 34px; color: #cfc9b2; }
+    .stage-th { font-family: 'Oswald', sans-serif; font-size: 13px; color: #1a5c2d; font-weight: 700; margin-top: 6px; }
+    .stage-nm { font-size: 11.5px; font-weight: 900; margin-top: 1px; }
+    .stage.locked .stage-nm, .stage.locked .stage-th { color: #b3ac93; }
+
+    /* メッセージ */
+    .msg { display: flex; gap: 14px; align-items: flex-start; }
+    .msg-icon { font-size: 34px; flex-shrink: 0; }
+    .msg-body { font-size: 14px; line-height: 2; font-weight: 500; }
+
+    .fr-foot { text-align: center; padding: 36px 16px 30px; font-size: 11.5px; color: #8a9a8d; }
+    .fr-foot a { color: #2f6b3a; font-weight: 700; }
+    .sk-loading { text-align: center; padding: 60px 0; color: #6b7b6e; font-weight: 700; position: relative; z-index: 2; }
+  </style>
+</head>
+<body>
+
+  <!-- パスワードゲート -->
+  <div id="sk-gate">
+    <div class="sk-gate-card">
+      <div style="font-size:38px">🌳</div>
+      <div class="sk-gate-title">グランデ食堂の森</div>
+      <div class="sk-gate-sub">ジュニアユースの保護者・選手専用ページです。<br>クラブからお知らせしたパスワードを入力してください。</div>
+      <input class="sk-gate-input" type="password" id="sk-gate-pw" placeholder="パスワード" autocomplete="off">
+      <button class="sk-gate-btn" onclick="skGateSubmit()">森に入る</button>
+      <div class="sk-gate-err" id="sk-gate-err"></div>
+    </div>
+  </div>
+
+  <div class="fr-top">
+    <span class="brand">GRANDE FC</span>
+    <a href="shokudo-members.html">← グランデ食堂ページへ戻る</a>
+  </div>
+
+  <!-- 森 -->
+  <section class="forest">
+    <div class="fr-title-wrap">
+      <div class="fr-title">グランデ食堂の森</div><br>
+      <div class="fr-catch">🌱 食べることで、心も体も大きく育つ！</div>
+    </div>
+    <div class="fr-rank-label">🍃 今までの合計ランキング TOP3 🍃</div>
+    <div id="podium-area"><div class="sk-loading">⏳ 森を育てています…</div></div>
+    <div class="podium-ground"></div>
+  </section>
+
+  <!-- みんなの森（合計） -->
+  <section class="sec">
+    <div class="card">
+      <div class="card-title">🌍 グランデ食堂の森（みんなの合計）</div>
+      <div id="total-area"></div>
+    </div>
+  </section>
+
+  <!-- 成長ステージ -->
+  <section class="sec">
+    <div class="card">
+      <div class="card-title">🌱 木の育ちかた（食べた回数で育つよ）</div>
+      <div class="stages" id="stages-area"></div>
+      <div style="font-size:11.5px;color:#9aa59c;margin-top:10px">？のステージは、みんなが育てたら見られるようになるお楽しみ！</div>
+    </div>
+  </section>
+
+  <!-- メッセージ -->
+  <section class="sec">
+    <div class="card">
+      <div class="msg">
+        <div class="msg-icon">🍚</div>
+        <div class="msg-body"><b>食堂からのメッセージ</b><br>たくさん食べることは、サッカーの力になります。これからも、みんなでモリモリ食べて、大きく成長していこう！</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="fr-foot">
+    © 八ヶ岳グランデFC ／ <a href="shokudo-members.html">出席記録・BMIチェックはこちら</a>
+  </div>
+
+  <script>
+    // ===== パスワードゲート（食堂ページと共通） =====
+    var SK_PASS = 'GS';
+    function skGateUnlock() { var g = document.getElementById('sk-gate'); if (g) g.style.display = 'none'; }
+    function skGateSubmit() {
+      var v = (document.getElementById('sk-gate-pw').value || '').trim();
+      if (v.toUpperCase() === SK_PASS.toUpperCase()) { localStorage.setItem('shokudoAccess', 'ok'); skGateUnlock(); }
+      else { document.getElementById('sk-gate-err').textContent = 'パスワードが違います'; document.getElementById('sk-gate-pw').value = ''; }
+    }
+    document.getElementById('sk-gate-pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') skGateSubmit(); });
+    if (localStorage.getItem('shokudoAccess') === 'ok') skGateUnlock();
+
+    // ===== 設定 =====
+    var FIREBASE_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+    var CLUB_ID = 'grande';
+    var JY_CATS = ['U15', 'U14', 'U13'];
+    // 成長ステージ（食数のしきい値）。画像が用意できたら img を差し替え/追加する
+    var STAGES = [
+      { th: 1,   name: '水やり',   img: 'assets/forest/tree-1.png' },
+      { th: 10,  name: '若木',     img: 'assets/forest/tree-2.png' },
+      { th: 30,  name: '大きな木', img: 'assets/forest/tree-3.png' },
+      { th: 60,  name: '花が咲く', img: null },
+      { th: 100, name: '実がなる', img: null },
+      { th: 150, name: '大樹',     img: null },
+    ];
+    var MILESTONES = [
+      { th: 500,   label: '500食',    name: '森のはじまり' },
+      { th: 1000,  label: '1,000食',  name: '木が生い茂る' },
+      { th: 2000,  label: '2,000食',  name: '森が広がる' },
+      { th: 3000,  label: '3,000食',  name: '大きな森へ！' },
+      { th: 5000,  label: '5,000食',  name: '伝説の森へ！' },
+    ];
+
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function categoryOf(p) {
+      if (p.category && JY_CATS.indexOf(p.category) >= 0) return p.category;
+      var g = String(p.grade || '');
+      if (g.indexOf('中1') === 0) return 'U13';
+      if (g.indexOf('中2') === 0) return 'U14';
+      if (g.indexOf('中3') === 0) return 'U15';
+      return null;
+    }
+    function gradeLabel(p) {
+      if (p.grade) return p.grade;
+      var c = categoryOf(p);
+      return c || '';
+    }
+    // 現在のステージ（画像があるステージまでで表示画像を決める）
+    function stageOf(count) {
+      var st = STAGES[0];
+      for (var i = 0; i < STAGES.length; i++) { if (count >= STAGES[i].th) st = STAGES[i]; }
+      return st;
+    }
+    function stageImg(count) {
+      var img = STAGES[0].img;
+      for (var i = 0; i < STAGES.length; i++) { if (count >= STAGES[i].th && STAGES[i].img) img = STAGES[i].img; }
+      return img;
+    }
+    function nextStage(count) {
+      for (var i = 0; i < STAGES.length; i++) { if (count < STAGES[i].th) return STAGES[i]; }
+      return null;
+    }
+    var NEXT_VERB = { '若木': '若木になります！', '大きな木': '大きな木になります！', '花が咲く': '花が咲きます！', '実がなる': '実がなります！', '大樹': '大樹になります！' };
+
+    function render(data) {
+      var players = data.players || [];
+      var sessions = data.shokudoSessions || [];
+      // 選手ごとの食数（参加回数）
+      var counts = {};
+      sessions.forEach(function(s){
+        Object.keys(s.cups || {}).forEach(function(pid){
+          if ((+s.cups[pid] || 0) > 0) counts[pid] = (counts[pid] || 0) + 1;
+        });
+      });
+      var jy = players.filter(function(p){ return !!categoryOf(p); });
+      var rows = jy.map(function(p){ return { p: p, count: counts[p.id] || 0 }; })
+        .filter(function(r){ return r.count > 0; })
+        .sort(function(a,b){ return b.count - a.count; });
+
+      // --- TOP3 表彰台（表示順: 2位, 1位, 3位） ---
+      var podEl = document.getElementById('podium-area');
+      if (rows.length === 0) {
+        podEl.innerHTML = '<div class="sk-loading">まだ記録がありません。食堂が始まったら森が育ちます 🌱</div>';
+      } else {
+        var top3 = rows.slice(0, 3);
+        var order = [1, 0, 2];  // 2位・1位・3位の並び
+        var crowns = ['👑', '', ''];
+        var html = '<div class="podium">';
+        order.forEach(function(idx){
+          var r = top3[idx];
+          if (!r) { html += '<div class="pod"></div>'; return; }
+          var next = nextStage(r.count);
+          var nextTxt = next ? 'あと' + (next.th - r.count) + '食で' + (NEXT_VERB[next.name] || next.name + '！') : 'もう森の王様です！';
+          html += '<div class="pod pod-' + (idx + 1) + '">' +
+            '<div class="pod-badge">' + (crowns[idx] ? '<small>' + crowns[idx] + '</small>' : '') + (idx + 1) + '</div>' +
+            '<div class="pod-tree"><img src="' + stageImg(r.count) + '" alt=""></div>' +
+            '<div class="pod-count"><b>' + r.count + '</b> 食</div><br>' +
+            '<span class="pod-next">' + esc(nextTxt) + '</span>' +
+            '<div class="pod-plate"><div class="nm">' + esc(r.p.name) + '</div><div class="gr">' + esc(gradeLabel(r.p)) + (r.p.main ? '｜' + esc(r.p.main) : '') + '</div></div>' +
+          '</div>';
+        });
+        html += '</div>';
+        podEl.innerHTML = html;
+      }
+
+      // --- 合計 ---
+      var total = 0;
+      Object.keys(counts).forEach(function(pid){ total += counts[pid]; });
+      var totalEl = document.getElementById('total-area');
+      var mileHtml = '<div class="mile">' + MILESTONES.map(function(m){
+        return '<div class="mile-step' + (total >= m.th ? ' on' : '') + '"><div class="mile-dot">' + (total >= m.th ? '✓' : '') + '</div>' +
+          '<div class="mile-label">' + m.label + '</div><div class="mile-name">' + m.name + '</div></div>';
+      }).join('') + '</div>';
+      totalEl.innerHTML =
+        '<div class="total-num">' + total.toLocaleString() + '<small>食</small></div>' +
+        '<div class="total-sub">みんなで大きな森を育てています！</div>' + mileHtml;
+
+      // --- ステージ凡例 ---
+      document.getElementById('stages-area').innerHTML = STAGES.map(function(s){
+        return '<div class="stage' + (s.img ? '' : ' locked') + '">' +
+          (s.img ? '<img src="' + s.img + '" alt="">' : '<div class="qm">？</div>') +
+          '<div class="stage-th">' + s.th + '食〜</div><div class="stage-nm">' + esc(s.name) + '</div></div>';
+      }).join('');
+    }
+
+    fetch(FIREBASE_URL + '/clubs/' + CLUB_ID + '.json')
+      .then(function(res){ return res.json(); })
+      .then(function(d){ render(d || {}); })
+      .catch(function(){
+        document.getElementById('podium-area').innerHTML = '<div class="sk-loading">読み込みに失敗しました。再読み込みしてください。</div>';
+      });
+  </script>
+</body>
+</html>
