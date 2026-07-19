@@ -67,8 +67,28 @@
 
     /* スタジアム建設 */
     .std-photo { position: relative; border-radius: 14px; overflow: hidden; margin-bottom: 16px; aspect-ratio: 16 / 8.5; }
-    .std-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .std-photo .std-name { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, rgba(10,30,15,.8), transparent); color: #fff; font-weight: 900; font-size: 15px; padding: 26px 14px 10px; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+    .std-photo img { width: 100%; height: 100%; object-fit: cover; display: block; animation: kenburns 18s ease-in-out infinite alternate; }
+    @keyframes kenburns { from { transform: scale(1) translateX(0); } to { transform: scale(1.09) translateX(-2%); } }
+    .std-photo .std-name { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, rgba(10,30,15,.8), transparent); color: #fff; font-weight: 900; font-size: 15px; padding: 26px 14px 10px; text-shadow: 0 1px 3px rgba(0,0,0,.5); z-index: 2; }
+    .std-badge { position: absolute; top: 10px; right: 10px; z-index: 2; background: #ffce31; color: #5a4300; font-size: 12px; font-weight: 900; border-radius: 999px; padding: 5px 12px; box-shadow: 0 3px 8px rgba(0,0,0,.2); animation: bob 2.2s ease-in-out infinite; }
+    @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-5px) rotate(2deg); } }
+
+    /* レベルアップ祝賀演出 */
+    #lvup { position: fixed; inset: 0; z-index: 9000; background: rgba(8, 24, 12, .88); display: none; align-items: center; justify-content: center; padding: 20px; }
+    #lvup.show { display: flex; }
+    .lvup-card { max-width: 640px; width: 100%; text-align: center; animation: lvupIn .5s ease; }
+    @keyframes lvupIn { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .lvup-title { color: #ffe066; font-size: clamp(22px, 5vw, 34px); font-weight: 900; text-shadow: 0 2px 12px rgba(0,0,0,.5); margin-bottom: 14px; animation: lvupPulse 1.2s ease-in-out infinite; }
+    @keyframes lvupPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+    .lvup-stage { position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 16 / 9; border: 4px solid #ffe066; box-shadow: 0 0 60px rgba(255, 224, 102, .35); }
+    .lvup-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .lvup-stage .old { z-index: 1; }
+    .lvup-stage .new { z-index: 2; opacity: 0; animation: lvupFade 2.2s ease .9s forwards; }
+    @keyframes lvupFade { 0% { opacity: 0; filter: brightness(2); } 40% { opacity: 1; filter: brightness(1.6); } 100% { opacity: 1; filter: brightness(1); } }
+    .lvup-name { color: #fff; font-size: clamp(15px, 3vw, 20px); font-weight: 900; margin-top: 14px; }
+    .lvup-close { margin-top: 18px; background: #ffe066; color: #5a4300; border: none; border-radius: 999px; padding: 12px 34px; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; }
+    .confetti { position: absolute; top: -14px; width: 10px; height: 16px; z-index: 9001; animation: confFall linear forwards; }
+    @keyframes confFall { to { transform: translateY(110vh) rotate(720deg); } }
     .std-lv { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
     .std-lv .lv { font-family: 'Oswald', sans-serif; font-size: clamp(40px, 8vw, 60px); font-weight: 700; color: #1a5c2d; line-height: 1; }
     .std-lv .total { font-size: 14px; font-weight: 700; color: #6b7b6e; }
@@ -110,6 +130,19 @@
       <input class="sk-gate-input" type="password" id="sk-gate-pw" placeholder="パスワード" autocomplete="off">
       <button class="sk-gate-btn" onclick="skGateSubmit()">キックオフ！</button>
       <div class="sk-gate-err" id="sk-gate-err"></div>
+    </div>
+  </div>
+
+  <!-- レベルアップ祝賀 -->
+  <div id="lvup">
+    <div class="lvup-card">
+      <div class="lvup-title">🎉 スタジアムが進化した！ 🎉</div>
+      <div class="lvup-stage">
+        <img class="old" id="lvup-old" src="" alt="">
+        <img class="new" id="lvup-new" src="" alt="">
+      </div>
+      <div class="lvup-name" id="lvup-name"></div>
+      <button class="lvup-close" onclick="closeLvup()">やったー！</button>
     </div>
   </div>
 
@@ -295,11 +328,51 @@
       var stStage = stadiumOf(total);
       var stNext = nextStadium(total);
       document.getElementById('total-area').innerHTML =
-        '<div class="std-photo"><img src="' + stadiumImg(total) + '" alt=""><div class="std-name">🏟 ' + esc(stStage.name) + '</div></div>' +
-        '<div class="std-lv"><span class="lv">Lv.' + lv + '</span><span class="total">みんなの合計 ' + total.toLocaleString() + '食</span></div>' +
-        '<div class="std-bar"><div class="std-bar-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="std-photo"><img src="' + stadiumImg(total) + '" alt=""><div class="std-badge">🏗 建設中 Lv.' + lv + '</div><div class="std-name">🏟 ' + esc(stStage.name) + '</div></div>' +
+        '<div class="std-lv"><span class="lv">Lv.' + lv + '</span><span class="total">みんなの合計 <b id="std-count">0</b>食</span></div>' +
+        '<div class="std-bar"><div class="std-bar-fill" id="std-fill" style="width:0%"></div></div>' +
         '<div class="std-next">🔨 あと' + toNext + '食でスタジアムが進化！' + (stNext ? '　次は「' + esc(stNext.name) + '」' : '') + '</div>' +
         '<div class="std-note">スタジアムは100食ごとにレベルアップ。この先の姿はお楽しみに！</div>';
+
+      // 数字カウントアップ＆バーのアニメーション（画面に入ったら開始）
+      var counted = false;
+      var totalCard = document.getElementById('total-area');
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (!e.isIntersecting || counted) return;
+          counted = true;
+          var el = document.getElementById('std-count');
+          var start = null;
+          function step(ts) {
+            if (!start) start = ts;
+            var t = Math.min((ts - start) / 1200, 1);
+            var ease = 1 - Math.pow(1 - t, 3);
+            el.textContent = Math.round(total * ease).toLocaleString();
+            if (t < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+          setTimeout(function(){ document.getElementById('std-fill').style.width = pct + '%'; }, 150);
+          io.disconnect();
+        });
+      }, { threshold: 0.4 });
+      io.observe(totalCard);
+
+      // レベルアップ祝賀（前回見たLvより上がっていたら1回だけ）
+      try {
+        var seenKey = 'shokudoStadiumLv';
+        var seen = localStorage.getItem(seenKey);
+        if (seen === null) {
+          localStorage.setItem(seenKey, String(lv));
+        } else if (lv > parseInt(seen, 10)) {
+          var prevStage = stadiumOf(Math.max(0, stStage.th - 1));
+          document.getElementById('lvup-old').src = (prevStage.img || stadiumImg(Math.max(0, stStage.th - 1)));
+          document.getElementById('lvup-new').src = stadiumImg(total);
+          document.getElementById('lvup-name').textContent = 'Lv.' + lv + '「' + stStage.name + '」';
+          document.getElementById('lvup').classList.add('show');
+          launchConfetti();
+          localStorage.setItem(seenKey, String(lv));
+        }
+      } catch (e) {}
 
       // --- キャリアの道のり ---
       document.getElementById('stages-area').innerHTML = CAREER.map(function(s){
@@ -307,6 +380,24 @@
           (s.img ? '<div class="ph"><img src="' + s.img + '" alt="" loading="lazy"></div>' : '<div class="qm">？</div>') +
           '<div class="stage-body"><div class="stage-th">' + s.th + '食〜</div><div class="stage-nm">' + esc(s.name) + '</div><div class="stage-ttl">' + esc(s.title) + '</div></div></div>';
       }).join('');
+    }
+
+    function closeLvup() { document.getElementById('lvup').classList.remove('show'); }
+    function launchConfetti() {
+      var colors = ['#ffce31', '#ff6b6b', '#4dd08a', '#5aa9ff', '#ff9ff3', '#ffffff'];
+      for (var i = 0; i < 80; i++) {
+        var c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (2.2 + Math.random() * 2.5) + 's';
+        c.style.animationDelay = (Math.random() * 1.8) + 's';
+        c.style.width = (7 + Math.random() * 7) + 'px';
+        c.style.height = (12 + Math.random() * 8) + 'px';
+        c.style.borderRadius = Math.random() < 0.4 ? '50%' : '2px';
+        document.body.appendChild(c);
+        c.addEventListener('animationend', function(){ this.remove(); });
+      }
     }
 
     fetch(FIREBASE_URL + '/clubs/' + CLUB_ID + '.json')
