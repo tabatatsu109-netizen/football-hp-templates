@@ -308,10 +308,23 @@ const AuroraConnector = (function () {
         '</div>' +
         '<div class="nm-vs">VS</div>' +
         '<div class="nm-team">' +
-          '<div class="nm-logo-away">LOGO</div>' +
+          '<div class="nm-logo-away"><span class="nm-abbr-away">' + escapeHTML(oppAbbr(opp)) + '</span></div>' +
           '<div class="nm-team-name">' + escapeHTML(opp) + '</div>' +
         '</div>' +
       '</div>';
+  }
+
+  // 相手チームのエンブレム代わりの頭文字バッジ（例: FC VALON → FV / 八ヶ岳SC → 八ヶ）
+  function oppAbbr(name) {
+    var s = String(name || '').trim();
+    if (!s) return 'VS';
+    var latin = /^[\x20-\x7E]+$/.test(s);
+    if (latin) {
+      var words = s.split(/\s+/).filter(Boolean);
+      if (words.length >= 2) return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+      return s.slice(0, 2).toUpperCase();
+    }
+    return s.slice(0, 2);
   }
 
   function renderResults(matches) {
