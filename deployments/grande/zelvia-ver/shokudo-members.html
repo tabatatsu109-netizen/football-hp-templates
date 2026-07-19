@@ -28,9 +28,38 @@
     .sk-ok { color: #16a34a; font-weight: 700; }
     .sk-ng { color: #d97706; font-weight: 700; }
     .sk-loading { font-size: 13px; color: #8a9099; padding: 20px 0; text-align: center; }
+    /* パスワードゲート */
+    #sk-gate { position: fixed; inset: 0; z-index: 9999; background: #14351f; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .sk-gate-card { background: #fff; border-radius: 16px; padding: 36px 30px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .sk-gate-title { font-size: 22px; font-weight: 900; margin: 8px 0 4px; }
+    .sk-gate-sub { font-size: 12.5px; color: #8a9099; margin-bottom: 20px; line-height: 1.8; }
+    .sk-gate-input { width: 100%; border: 1.5px solid #dcdfe3; border-radius: 10px; padding: 12px 14px; font-size: 16px; text-align: center; letter-spacing: 3px; margin-bottom: 12px; }
+    .sk-gate-input:focus { outline: none; border-color: #1a5c2d; }
+    .sk-gate-btn { width: 100%; background: #1a5c2d; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .sk-gate-err { color: #dc2626; font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+    /* BMI計算ツール */
+    .sk-calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    @media (max-width: 520px) { .sk-calc-grid { grid-template-columns: 1fr; } }
+    .sk-calc-label { font-size: 12px; font-weight: 700; color: #5a6068; margin-bottom: 5px; display: block; }
+    .sk-calc-input { width: 100%; border: 1.5px solid #dcdfe3; border-radius: 8px; padding: 10px 12px; font-size: 15px; font-family: inherit; box-sizing: border-box; }
+    .sk-calc-btn { background: #1a5c2d; color: #fff; border: none; border-radius: 10px; padding: 12px 34px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .sk-calc-result { margin-top: 16px; background: var(--tk-bg); border: 1px solid #e8dcb0; border-radius: 12px; padding: 18px; font-size: 14px; line-height: 2; display: none; }
+    .sk-calc-bmi { font-family: 'Oswald', sans-serif; font-size: 34px; font-weight: 700; color: #1a5c2d; line-height: 1; }
   </style>
 </head>
 <body>
+
+  <!-- パスワードゲート（ジュニアユースの保護者・選手専用） -->
+  <div id="sk-gate">
+    <div class="sk-gate-card">
+      <div style="font-size:38px">🍜</div>
+      <div class="sk-gate-title">グランデ食堂</div>
+      <div class="sk-gate-sub">ジュニアユースの保護者・選手専用ページです。<br>クラブからお知らせしたパスワードを入力してください。</div>
+      <input class="sk-gate-input" type="password" id="sk-gate-pw" placeholder="パスワード" autocomplete="off">
+      <button class="sk-gate-btn" onclick="skGateSubmit()">閲覧する</button>
+      <div class="sk-gate-err" id="sk-gate-err"></div>
+    </div>
+  </div>
 
   <!-- ヘッダー -->
   <header class="gh">
@@ -81,7 +110,7 @@
     <div class="tk-hero-inner">
       <p class="tk-hero-en">MEMBERS ONLY</p>
       <h1 class="tk-hero-title">グランデ食堂</h1>
-      <p class="tk-hero-sub">出席記録・ランキング・BMI。食堂のすべてがここでわかります。</p>
+      <p class="tk-hero-sub">出席記録・ご請求額・BMIチェック。食堂のことはここでわかります。</p>
     </div>
   </section>
   <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><a href="members-dashboard.html">クラブ員専用</a><span>›</span><span>グランデ食堂</span></div></div>
@@ -94,7 +123,7 @@
         <p class="tk-text">
           毎週月曜日の練習後、ジュニアユース(中学生)の選手が「べるが」内レストラン<strong>「レ・アルピ」</strong>にて食事を摂ります。
           白州米と地元野菜、栄養士監修のメニューで、成長期のカラダを食卓から育てます。
-          このページでは、参加記録・月別のご請求額・ランキング・BMIの推移をご覧いただけます。
+          このページでは、参加記録・月別のご請求額の確認と、BMIチェックができます。
         </p>
       </div>
     </section>
@@ -103,12 +132,11 @@
     <section class="tk-sec tk-sec--band">
       <div class="tk-sec-inner">
         <p class="tk-sec-en">RECORDS</p>
-        <h2 class="tk-sec-ja">参加記録・ランキング・BMI</h2>
+        <h2 class="tk-sec-ja">参加記録・BMIチェック</h2>
 
         <div class="filter-bar sk-tabs">
           <button class="filter-btn on sk-tab" data-sktab="attend">📅 出席・食数</button>
-          <button class="filter-btn sk-tab" data-sktab="rank">🏆 ランキング</button>
-          <button class="filter-btn sk-tab" data-sktab="bmi">📊 BMI</button>
+          <button class="filter-btn sk-tab" data-sktab="bmi">📊 BMI計算</button>
         </div>
 
         <div class="sk-panel" id="sk-content">
@@ -188,10 +216,24 @@
     document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
 
-    // ログイン確認（未ログインならログインページへ）
-    if (!localStorage.getItem('memberLoggedIn')) {
-      window.location.href = 'members.html';
+    // ===== パスワードゲート（ジュニアユース保護者・選手専用） =====
+    var SK_PASS = 'GS';
+    function skGateUnlock() {
+      var g = document.getElementById('sk-gate');
+      if (g) g.style.display = 'none';
     }
+    function skGateSubmit() {
+      var v = (document.getElementById('sk-gate-pw').value || '').trim();
+      if (v.toUpperCase() === SK_PASS.toUpperCase()) {
+        localStorage.setItem('shokudoAccess', 'ok');
+        skGateUnlock();
+      } else {
+        document.getElementById('sk-gate-err').textContent = 'パスワードが違います';
+        document.getElementById('sk-gate-pw').value = '';
+      }
+    }
+    document.getElementById('sk-gate-pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') skGateSubmit(); });
+    if (localStorage.getItem('shokudoAccess') === 'ok') skGateUnlock();
 
     // ===== グランデ食堂データ =====
     var FIREBASE_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
@@ -240,7 +282,6 @@
       });
       var el = document.getElementById('sk-content');
       if (skTab === 'attend') el.innerHTML = renderAttend();
-      if (skTab === 'rank')   el.innerHTML = renderRank();
       if (skTab === 'bmi')    el.innerHTML = renderBmi();
     }
 
@@ -276,61 +317,56 @@
       return html;
     }
 
-    function renderRank() {
-      var stats = {};
-      skData.sessions.forEach(function(s){
-        Object.keys(s.cups||{}).forEach(function(pid){
-          var c = +(s.cups[pid]) || 0;
-          if (c <= 0) return;
-          if (!stats[pid]) stats[pid] = { count: 0, cups: 0 };
-          stats[pid].count++; stats[pid].cups += c;
-        });
-      });
-      var rows = Object.keys(stats).map(function(pid){
-        return { name: playerName(pid), count: stats[pid].count, cups: stats[pid].cups };
-      }).sort(function(a,b){ return skRankMetric === 'cups' ? b.cups - a.cups : b.count - a.count; });
-      if (rows.length === 0) return '<div class="sk-empty">まだ記録がありません。</div>';
-      var medals = ['🥇','🥈','🥉'];
-      return '<div style="margin-bottom:14px"><select class="sk-select" onchange="skRankMetric=this.value;renderTabs()">' +
-        '<option value="count"'+(skRankMetric==='count'?' selected':'')+'>参加回数（全期間）</option>' +
-        '<option value="cups"'+(skRankMetric==='cups'?' selected':'')+'>ごはん杯数（全期間）</option>' +
-        '</select></div>' +
-        rows.map(function(r,i){
-          return '<div class="sk-rank-row"><span class="sk-medal">'+(i<3?medals[i]:(i+1)+'位')+'</span>' +
-            '<span style="flex:1">'+esc(r.name)+'</span>' +
-            '<b>'+(skRankMetric==='cups'? r.cups+'杯' : r.count+'回')+'</b>' +
-            '<span style="color:#8a9099;font-size:12px">'+(skRankMetric==='cups'? r.count+'回' : r.cups+'杯')+'</span></div>';
-        }).join('');
-    }
-
+    // BMI計算ツール（JFAフィジカルプロジェクトの年代別目標値を使用）
+    var JFA_TARGETS = {
+      'U13F': { field: 19.0, gk: 20.5 }, 'U13': { field: 19.5, gk: 20.5 },
+      'U14F': { field: 20.0, gk: 21.5 }, 'U14': { field: 20.5, gk: 21.5 },
+      'U15':  { field: 21.0, gk: 21.5 }, 'U16': { field: 22.0, gk: 22.5 },
+      'U17':  { field: 22.0, gk: 23.0 }, 'U18': { field: 22.5, gk: 23.5 },
+      'U19':  { field: 23.0, gk: 23.5 }, 'U20': { field: 23.5, gk: 24.0 },
+    };
     function renderBmi() {
-      var list = jyPlayers();
-      var latest = {};
-      skData.bmi.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); })
-        .forEach(function(r){ latest[r.playerId] = r; });
-      var html = '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>選手</th><th class="ctr">最新BMI</th><th class="ctr">目標</th><th class="ctr">判定</th><th>計測日</th></tr></thead><tbody>';
-      list.forEach(function(p){
-        var r = latest[p.id];
-        var t = (isGK(p) ? BMI_TARGET_GK : BMI_TARGET)[categoryOf(p)];
-        var cell = '−';
-        if (r && t) cell = (r.bmi >= t) ? '<span class="sk-ok">達成</span>' : '<span class="sk-ng">あと'+(t - r.bmi).toFixed(1)+'</span>';
-        html += '<tr><td>'+esc(p.name)+'</td><td class="ctr"><b>'+(r? r.bmi.toFixed(1):'−')+'</b></td><td class="ctr">'+(t!=null? t.toFixed(1):'−')+'</td><td class="ctr">'+cell+'</td><td style="color:#8a9099">'+(r? esc(r.date||''):'−')+'</td></tr>';
-      });
-      html += '</tbody></table></div>';
-      html += '<div style="margin-top:18px"><select class="sk-select" onchange="skBmiPlayer=this.value;renderTabs()"><option value="">-- 選手別の推移を見る --</option>' +
-        list.map(function(p){ return '<option value="'+esc(p.id)+'"'+(skBmiPlayer===p.id?' selected':'')+'>'+esc(p.name)+'</option>'; }).join('') + '</select>';
-      if (skBmiPlayer) {
-        var hist = skData.bmi.filter(function(r){ return r.playerId === skBmiPlayer; })
-          .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
-        html += '<div style="margin-top:10px">' + (hist.length ? hist.map(function(r){
-          return '<div style="display:flex;gap:12px;padding:8px 2px;border-bottom:1px solid #eceef1;font-size:13px">' +
-            '<b style="min-width:86px">'+esc(r.date||'')+'</b>' +
-            '<span>身長 '+r.height+'cm ／ 体重 '+r.weight+'kg</span>' +
-            '<b style="margin-left:auto">BMI '+r.bmi.toFixed(1)+'</b></div>';
-        }).join('') : '<div class="sk-empty">記録がありません。</div>') + '</div>';
+      var catOpts = Object.keys(JFA_TARGETS).map(function(c){ return '<option value="'+c+'">'+c+'</option>'; }).join('');
+      return '' +
+        '<div style="font-size:13.5px;color:#5a6068;margin-bottom:14px;line-height:1.9"><b>BMI ＝ 体重[kg] ÷（身長[m]）²</b><br>身長・体重を入力して「計算」を押すと、BMIと年代別の目標値との比較が表示されます。</div>' +
+        '<div class="sk-calc-grid">' +
+          '<div><label class="sk-calc-label">身長（cm）</label><input class="sk-calc-input" type="number" step="0.1" id="sk-calc-h" placeholder="例: 160.5"></div>' +
+          '<div><label class="sk-calc-label">体重（kg）</label><input class="sk-calc-input" type="number" step="0.1" id="sk-calc-w" placeholder="例: 48.2"></div>' +
+          '<div><label class="sk-calc-label">カテゴリー</label><select class="sk-calc-input" id="sk-calc-cat"><option value="U13" selected>U13</option>' + catOpts.replace('<option value="U13">U13</option>','') + '</select></div>' +
+          '<div><label class="sk-calc-label">ポジション</label><select class="sk-calc-input" id="sk-calc-pos"><option value="field">DF / MF / FW</option><option value="gk">GK</option></select></div>' +
+        '</div>' +
+        '<button class="sk-calc-btn" onclick="skCalc()">計算</button>' +
+        '<div class="sk-calc-result" id="sk-calc-result"></div>' +
+        '<div style="margin-top:22px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">各年代のBMI目標値（JFAフィジカルプロジェクトより）</div>' +
+        '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th></th>' +
+          Object.keys(JFA_TARGETS).map(function(c){ return '<th class="ctr">'+c+'</th>'; }).join('') +
+        '</tr></thead><tbody>' +
+          '<tr><td><b>DF/MF/FW</b></td>' + Object.keys(JFA_TARGETS).map(function(c){ return '<td class="ctr">'+JFA_TARGETS[c].field.toFixed(1)+'</td>'; }).join('') + '</tr>' +
+          '<tr><td><b>GK</b></td>' + Object.keys(JFA_TARGETS).map(function(c){ return '<td class="ctr">'+JFA_TARGETS[c].gk.toFixed(1)+'</td>'; }).join('') + '</tr>' +
+        '</tbody></table></div>' +
+        '<div style="font-size:11.5px;color:#8a9099;margin-top:8px;line-height:1.8">F：フューチャー（9月1日生まれ以降の選手）<br>※ この目標値はサッカー選手を対象としたもので、一般の肥満指数とは意味合いが異なります。</div></div>';
+    }
+    function skCalc() {
+      var h = parseFloat(document.getElementById('sk-calc-h').value);
+      var w = parseFloat(document.getElementById('sk-calc-w').value);
+      var cat = document.getElementById('sk-calc-cat').value;
+      var pos = document.getElementById('sk-calc-pos').value;
+      var out = document.getElementById('sk-calc-result');
+      if (isNaN(h) || isNaN(w) || h <= 0 || w <= 0) {
+        out.style.display = 'block';
+        out.innerHTML = '<span style="color:#dc2626">身長と体重を正しく入力してください。</span>';
+        return;
       }
-      html += '</div>';
-      return html;
+      var bmi = w / Math.pow(h / 100, 2);
+      var t = JFA_TARGETS[cat][pos === 'gk' ? 'gk' : 'field'];
+      var diff = bmi - t;
+      var judge = diff >= 0
+        ? '<span class="sk-ok">目標達成！この調子で食べて動こう 💪</span>'
+        : '<span class="sk-ng">目標まで あと ' + Math.abs(diff).toFixed(1) + '。しっかり食べて大きくなろう 🍚</span>';
+      out.style.display = 'block';
+      out.innerHTML =
+        'あなたのBMI：<span class="sk-calc-bmi">' + bmi.toFixed(1) + '</span><br>' +
+        '目標値（' + esc(cat) + ' / ' + (pos === 'gk' ? 'GK' : 'DF・MF・FW') + '）：<b>' + t.toFixed(1) + '</b><br>' + judge;
     }
 
     document.querySelectorAll('.sk-tab').forEach(function(b){
