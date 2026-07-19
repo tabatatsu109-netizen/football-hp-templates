@@ -244,12 +244,15 @@
     <!-- ========== Page: Match Detail ========== -->
     <div class="page" id="page-match-detail">
       <div class="match-detail-top" id="match-detail-top">
-        <div style="display:flex;align-items:center;gap:10px">
-          <button class="btn-back" id="btn-back-match">←</button>
-          <div>
-            <div class="match-detail-opp" id="md-opponent">---</div>
-            <div class="match-detail-meta" id="md-meta"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn-back" id="btn-back-match">←</button>
+            <div>
+              <div class="match-detail-opp" id="md-opponent">---</div>
+              <div class="match-detail-meta" id="md-meta"></div>
+            </div>
           </div>
+          <button class="btn btn-ghost btn-sm" style="color:var(--c-red);white-space:nowrap" onclick="deleteCurrentMatch()">🗑 この試合を削除</button>
         </div>
       </div>
       <div class="tab-bar" id="match-tab-bar">
@@ -1475,6 +1478,6 @@
 
 </div><!-- /#app -->
 <script src="mp-config.js?v=20260719a"></script>
-<script src="script.js?v=20260719f"></script>
+<script src="script.js?v=20260720a"></script>
 </body>
 </html>

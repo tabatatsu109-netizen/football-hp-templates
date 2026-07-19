@@ -1468,6 +1468,41 @@ async function unpublish() {
   }
 }
 
+// 個別の試合を削除：公開済みなら投稿も一緒に消し、紐づくスケジュールは残して連携だけ外す
+function deleteCurrentMatch() {
+  if (!currentMatch) return;
+  const m = currentMatch;
+  const label = m.opponent ? `vs ${m.opponent}（${fmtDateFull(m.date)}）` : fmtDateFull(m.date);
+  showConfirm('試合を削除', `${label} の試合記録を削除します。\n布陣・結果・ホームページの表示もすべて消えます。\nスケジュールの予定自体は残ります。\nよろしいですか？`, '削除する', async () => {
+    if (m.result?.grandeNewsId) {
+      posts = posts.filter(p => p.id !== m.result.grandeNewsId);
+    }
+    schedules.forEach(s => { if (s.matchId === m.id) { s.matchId = null; s.posted = false; } });
+    matches = matches.filter(x => x.id !== m.id);
+    currentMatch = null;
+    saveLocal();
+
+    const s = getSettings();
+    if (isCloudConfigured(s)) {
+      setSyncIcon('💾');
+      try {
+        const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setSyncIcon('☁️');
+      } catch(e) {
+        setSyncIcon('⚠️');
+        showToast('クラウドへの反映に失敗しました: ' + e.message, 'error');
+      }
+    }
+    showToast('試合を削除しました', 'success');
+    popPage();
+  });
+}
+
 // ===== PLAYERS =====
 function renderPlayers() {
   // Build filter chips
