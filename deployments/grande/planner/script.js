@@ -171,6 +171,11 @@ let surveyResponses = [];
 let surveyResultsLoading = false;
 let responseSearchQuery = '';
 let expandedResponseKeys = new Set();
+let shokudoSessions = [];   // 食堂: 食事セッション {id, date, menu, cups:{playerId:杯数}}
+let shokudoBmi = [];        // 食堂: BMI記録 {id, playerId, date, height, weight, bmi}
+let editingShokudoId = null;
+let shokudoTab = 'input';
+let shokudoRankMetric = 'count';
 
 // ===== SETTINGS =====
 // clubName/clubId/firebaseUrl は mp-config.js のみ。LocalStorageには firebaseSecret だけ保存。
@@ -223,6 +228,8 @@ function loadLocal() {
   posts     = JSON.parse(localStorage.getItem(`${p}posts`)     || '[]');
   opponents = JSON.parse(localStorage.getItem(`${p}opponents`) || '[]');
   surveys   = JSON.parse(localStorage.getItem(`${p}surveys`)   || '[]');
+  shokudoSessions = JSON.parse(localStorage.getItem(`${p}shokudoSessions`) || '[]');
+  shokudoBmi      = JSON.parse(localStorage.getItem(`${p}shokudoBmi`)      || '[]');
 }
 // 運用開始リセットの印。クラウドにも保存して全端末に「削除済み」を伝える。
 // これが無いと、古いデータを持った端末が保存した時に削除済みデータが復活してしまう
@@ -241,6 +248,8 @@ function saveLocal() {
   localStorage.setItem(`${p}posts`,     JSON.stringify(posts));
   localStorage.setItem(`${p}opponents`, JSON.stringify(opponents));
   localStorage.setItem(`${p}surveys`,   JSON.stringify(surveys));
+  localStorage.setItem(`${p}shokudoSessions`, JSON.stringify(shokudoSessions));
+  localStorage.setItem(`${p}shokudoBmi`,      JSON.stringify(shokudoBmi));
   scheduleCloudSave();
 }
 
@@ -255,7 +264,7 @@ function scheduleCloudSave() {
       const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+        body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSyncIcon('☁️');
@@ -285,6 +294,8 @@ function applyCloudData(r) {
   if (r.players)   players   = r.players;
   if (r.opponents) opponents = r.opponents;
   if (r.surveys)   surveys   = r.surveys;
+  if (r.shokudoSessions) shokudoSessions = r.shokudoSessions;
+  if (r.shokudoBmi)      shokudoBmi      = r.shokudoBmi;
 
   if (cloudStamp > localStamp) {
     matches   = Array.isArray(r.matches)   ? r.matches   : [];
@@ -329,7 +340,7 @@ async function saveToCloud() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -389,6 +400,7 @@ function showPage(pageId, opts = {}) {
   if (pageId === 'page-survey-results') renderSurveyResults();
   if (pageId === 'page-sns')          renderSnsPage();
   if (pageId === 'page-emergency')    renderEmergencyPage();
+  if (pageId === 'page-shokudo')      renderShokudoPage();
   if (pageId === 'page-news')         renderNews();
   if (pageId === 'page-announcement') renderAnnouncement();
   if (pageId === 'page-result-entry') renderResultEntry();
@@ -3072,6 +3084,11 @@ function bindEvents() {
   snsBindDrag();
   window.addEventListener('resize', snsFitPreview);
 
+  // 食堂管理
+  document.querySelectorAll('#shokudo-tab-bar .tab-btn').forEach(b => {
+    b.addEventListener('click', () => switchShokudoTab(b.dataset.sktab));
+  });
+
   // 緊急連絡
   document.getElementById('btn-emergency-send')?.addEventListener('click', sendEmergencyViaGas);
   document.getElementById('btn-emergency-groups-reload')?.addEventListener('click', () => loadEmergencyGroups(true));
@@ -3884,6 +3901,296 @@ function copyEmergencyMessage() {
   });
 }
 
+// ===== 食堂管理 =====
+// mp-config.js に shokudo: { name, price, categories } を設定したクラブだけ有効になる
+function shokudoCfg() {
+  const cfg = (typeof MP_CONFIG !== 'undefined') ? MP_CONFIG : {};
+  return cfg.shokudo || null;
+}
+function isShokudoEnabled() { return !!shokudoCfg(); }
+function shokudoName()  { return (shokudoCfg() || {}).name  || '食堂管理'; }
+function shokudoPrice() { return (shokudoCfg() || {}).price || 900; }
+function shokudoCats()  { return (shokudoCfg() || {}).categories || ['U15', 'U14', 'U13']; }
+function shokudoPlayers() {
+  const cats = shokudoCats();
+  return players.filter(p => cats.includes(p.category))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ja'));
+}
+function skFindPlayer(id) { return players.find(p => p.id === id); }
+function skPlayerName(id) { const p = skFindPlayer(id); return p ? p.name : '(退団選手)'; }
+
+function renderShokudoPage() {
+  document.querySelectorAll('#shokudo-tab-bar .tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.sktab === shokudoTab);
+  });
+  ['input', 'billing', 'rank', 'bmi'].forEach(t => {
+    const el = document.getElementById(`shokudo-pane-${t}`);
+    if (el) el.style.display = (t === shokudoTab) ? '' : 'none';
+  });
+  if (shokudoTab === 'input')   renderShokudoInput();
+  if (shokudoTab === 'billing') renderShokudoBilling();
+  if (shokudoTab === 'rank')    renderShokudoRank();
+  if (shokudoTab === 'bmi')     renderShokudoBmiPane();
+}
+function switchShokudoTab(t) { shokudoTab = t; renderShokudoPage(); }
+
+// --- 入力タブ ---
+function renderShokudoInput() {
+  const el = document.getElementById('shokudo-pane-input');
+  if (!el) return;
+  const target = shokudoSessions.find(s => s.id === editingShokudoId);
+  const dateVal = target ? target.date : new Date().toISOString().split('T')[0];
+  const menuVal = target ? (target.menu || '') : '';
+  const cups = target ? (target.cups || {}) : {};
+  const list = shokudoPlayers();
+
+  el.innerHTML = `
+    <div class="form-group">
+      <div class="form-label">${target ? '✏️ 記録を編集' : '📝 食事を記録'}</div>
+      <div class="form-row-2">
+        <div class="form-group"><label class="form-label">日付</label><input class="form-input" type="date" id="sk-date" value="${escEmg(dateVal)}"></div>
+        <div class="form-group"><label class="form-label">メニュー</label><input class="form-input" type="text" id="sk-menu" value="${escEmg(menuVal)}" placeholder="例: ご飯・チキンステーキ・味噌汁"></div>
+      </div>
+      <div class="form-label" style="margin-top:4px">参加選手と杯数（食べたごはんの杯数を入力）</div>
+      ${list.length === 0 ? '<div style="font-size:12.5px;color:var(--c-muted)">対象カテゴリーの選手が登録されていません（選手・スタッフ画面で登録してください）</div>' : `
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px">
+        ${list.map(p => `
+          <label style="display:flex;align-items:center;gap:6px;background:var(--c-surface2,rgba(0,0,0,.04));border-radius:8px;padding:7px 10px;font-size:13px">
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escEmg(p.name)}</span>
+            <input type="number" min="0" step="0.5" class="form-input" style="width:58px;padding:4px 6px;font-size:13px" id="sk-cup-${escEmg(p.id)}" value="${cups[p.id] != null ? cups[p.id] : ''}" placeholder="杯">
+          </label>
+        `).join('')}
+      </div>`}
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-primary" style="flex:1" onclick="saveShokudoSession()">${target ? '💾 更新する' : '＋ 記録する'}</button>
+        ${target ? '<button class="btn btn-secondary" onclick="cancelShokudoEdit()">キャンセル</button>' : ''}
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:18px">
+      <div class="form-label">📋 記録一覧（新しい順）</div>
+      ${shokudoSessions.length === 0 ? '<div style="font-size:12.5px;color:var(--c-muted)">まだ記録がありません</div>' : `
+      <div>
+        ${[...shokudoSessions].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 30).map(s => {
+          const n = Object.keys(s.cups || {}).length;
+          const total = Object.values(s.cups || {}).reduce((a, b) => a + (+b || 0), 0);
+          return `<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--c-border,rgba(0,0,0,.08));font-size:13px">
+            <b style="min-width:86px">${escEmg(s.date || '')}</b>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--c-text2)">${escEmg(s.menu || '（メニュー未記入）')}</span>
+            <span style="white-space:nowrap">${n}名 / ${total}杯</span>
+            <button class="btn btn-secondary btn-sm" onclick="editShokudoSession('${escEmg(s.id)}')">編集</button>
+            <button class="btn btn-secondary btn-sm" onclick="deleteShokudoSession('${escEmg(s.id)}')">🗑</button>
+          </div>`;
+        }).join('')}
+      </div>`}
+    </div>`;
+}
+function saveShokudoSession() {
+  const date = (document.getElementById('sk-date')?.value || '').trim();
+  const menu = (document.getElementById('sk-menu')?.value || '').trim();
+  if (!date) { showToast('日付を入力してください', 'error'); return; }
+  const cups = {};
+  shokudoPlayers().forEach(p => {
+    const v = parseFloat(document.getElementById(`sk-cup-${p.id}`)?.value);
+    if (!isNaN(v) && v > 0) cups[p.id] = v;
+  });
+  if (Object.keys(cups).length === 0) { showToast('参加選手の杯数を1人以上入力してください', 'error'); return; }
+  if (editingShokudoId) {
+    const s = shokudoSessions.find(x => x.id === editingShokudoId);
+    if (s) { s.date = date; s.menu = menu; s.cups = cups; }
+    editingShokudoId = null;
+    showToast('記録を更新しました', 'success');
+  } else {
+    shokudoSessions.push({ id: Date.now().toString(), date, menu, cups });
+    showToast('記録しました', 'success');
+  }
+  saveLocal();
+  renderShokudoInput();
+}
+function editShokudoSession(id) { editingShokudoId = id; renderShokudoInput(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function cancelShokudoEdit() { editingShokudoId = null; renderShokudoInput(); }
+function deleteShokudoSession(id) {
+  const s = shokudoSessions.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(`${s.date} の記録を削除しますか？`)) return;
+  shokudoSessions = shokudoSessions.filter(x => x.id !== id);
+  if (editingShokudoId === id) editingShokudoId = null;
+  saveLocal();
+  renderShokudoInput();
+  showToast('削除しました', 'success');
+}
+
+// --- 出席・請求タブ ---
+function shokudoMonths() {
+  const set = new Set(shokudoSessions.map(s => (s.date || '').slice(0, 7)).filter(Boolean));
+  return [...set].sort().reverse();
+}
+function renderShokudoBilling() {
+  const el = document.getElementById('shokudo-pane-billing');
+  if (!el) return;
+  const months = shokudoMonths();
+  if (months.length === 0) { el.innerHTML = '<div style="font-size:12.5px;color:var(--c-muted)">まだ記録がありません</div>'; return; }
+  const sel = el.querySelector('#sk-month')?.value;
+  const month = months.includes(sel) ? sel : months[0];
+  const sessions = shokudoSessions.filter(s => (s.date || '').startsWith(month)).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  const price = shokudoPrice();
+  const rows = shokudoPlayers().map(p => {
+    let attended = 0, cups = 0;
+    sessions.forEach(s => { const c = (s.cups || {})[p.id]; if (c != null && c > 0) { attended++; cups += +c; } });
+    return { p, attended, cups, amount: attended * price };
+  }).filter(r => r.attended > 0 || true);
+  const totalAmount = rows.reduce((a, r) => a + r.amount, 0);
+  el.innerHTML = `
+    <div class="form-group">
+      <label class="form-label">対象月</label>
+      <select class="form-select" id="sk-month" onchange="renderShokudoBilling()">
+        ${months.map(m => `<option value="${m}" ${m === month ? 'selected' : ''}>${m.replace('-', '年')}月</option>`).join('')}
+      </select>
+    </div>
+    <div style="font-size:12.5px;color:var(--c-muted);margin-bottom:8px">開催 ${sessions.length}回 ／ 1食 ${price.toLocaleString()}円</div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="border-bottom:2px solid var(--c-border,rgba(0,0,0,.15));text-align:left">
+          <th style="padding:7px 6px">選手</th><th style="padding:7px 6px;text-align:center">参加</th><th style="padding:7px 6px;text-align:center">杯数</th><th style="padding:7px 6px;text-align:right">請求額</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr style="border-bottom:1px solid var(--c-border,rgba(0,0,0,.07))">
+            <td style="padding:7px 6px">${escEmg(r.p.name)}</td>
+            <td style="padding:7px 6px;text-align:center">${r.attended}回</td>
+            <td style="padding:7px 6px;text-align:center">${r.cups}杯</td>
+            <td style="padding:7px 6px;text-align:right;font-weight:700">${r.amount.toLocaleString()}円</td>
+          </tr>`).join('')}
+        </tbody>
+        <tfoot><tr style="border-top:2px solid var(--c-border,rgba(0,0,0,.15))">
+          <td style="padding:8px 6px;font-weight:700">合計</td><td></td><td></td>
+          <td style="padding:8px 6px;text-align:right;font-weight:700">${totalAmount.toLocaleString()}円</td>
+        </tr></tfoot>
+      </table>
+    </div>`;
+}
+
+// --- ランキングタブ ---
+function renderShokudoRank() {
+  const el = document.getElementById('shokudo-pane-rank');
+  if (!el) return;
+  const stats = {};
+  shokudoSessions.forEach(s => {
+    Object.entries(s.cups || {}).forEach(([pid, c]) => {
+      if (!stats[pid]) stats[pid] = { count: 0, cups: 0 };
+      if (+c > 0) { stats[pid].count++; stats[pid].cups += +c; }
+    });
+  });
+  const metric = shokudoRankMetric;
+  const rows = Object.entries(stats)
+    .map(([pid, st]) => ({ name: skPlayerName(pid), ...st }))
+    .sort((a, b) => metric === 'cups' ? (b.cups - a.cups) : (b.count - a.count));
+  el.innerHTML = `
+    <div class="form-group">
+      <label class="form-label">集計項目（全期間）</label>
+      <select class="form-select" onchange="shokudoRankMetric=this.value;renderShokudoRank()">
+        <option value="count" ${metric === 'count' ? 'selected' : ''}>参加回数</option>
+        <option value="cups" ${metric === 'cups' ? 'selected' : ''}>ごはん杯数</option>
+      </select>
+    </div>
+    ${rows.length === 0 ? '<div style="font-size:12.5px;color:var(--c-muted)">まだ記録がありません</div>' : rows.map((r, i) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px solid var(--c-border,rgba(0,0,0,.07));font-size:14px">
+        <b style="width:34px;font-size:16px">${i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1) + '位'}</b>
+        <span style="flex:1">${escEmg(r.name)}</span>
+        <b>${metric === 'cups' ? r.cups + '杯' : r.count + '回'}</b>
+        <span style="color:var(--c-muted);font-size:12px">${metric === 'cups' ? r.count + '回' : r.cups + '杯'}</span>
+      </div>`).join('')}`;
+}
+
+// --- BMIタブ ---
+const SHOKUDO_BMI_TARGET    = { U13: 19.5, U14: 20.5, U15: 21.0 };
+const SHOKUDO_BMI_TARGET_GK = { U13: 20.5, U14: 21.5, U15: 21.5 };
+function skBmiTarget(p) {
+  if (!p) return null;
+  const isGK = (p.position === 'GK');
+  const t = isGK ? SHOKUDO_BMI_TARGET_GK[p.category] : SHOKUDO_BMI_TARGET[p.category];
+  return t || null;
+}
+function renderShokudoBmiPane() {
+  const el = document.getElementById('shokudo-pane-bmi');
+  if (!el) return;
+  const list = shokudoPlayers();
+  const detailSel = el.querySelector('#sk-bmi-detail')?.value || '';
+  const latest = {};
+  [...shokudoBmi].sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(r => { latest[r.playerId] = r; });
+  el.innerHTML = `
+    <div class="form-group">
+      <div class="form-label">📏 BMI計測を記録</div>
+      <div class="form-row-2">
+        <div class="form-group"><label class="form-label">選手</label>
+          <select class="form-select" id="sk-bmi-player">${list.map(p => `<option value="${escEmg(p.id)}">${escEmg(p.name)}（${escEmg(p.category || '')}）</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">計測日</label><input class="form-input" type="date" id="sk-bmi-date" value="${new Date().toISOString().split('T')[0]}"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label class="form-label">身長（cm）</label><input class="form-input" type="number" step="0.1" id="sk-bmi-h" placeholder="160.5"></div>
+        <div class="form-group"><label class="form-label">体重（kg）</label><input class="form-input" type="number" step="0.1" id="sk-bmi-w" placeholder="48.2"></div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="addShokudoBmi()">＋ 記録する</button>
+    </div>
+    <div class="form-group" style="margin-top:18px">
+      <div class="form-label">📋 最新BMI一覧（目標＝カテゴリー別基準値）</div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="border-bottom:2px solid var(--c-border,rgba(0,0,0,.15));text-align:left">
+          <th style="padding:7px 6px">選手</th><th style="padding:7px 6px;text-align:center">最新BMI</th><th style="padding:7px 6px;text-align:center">目標</th><th style="padding:7px 6px;text-align:center">判定</th><th style="padding:7px 6px">計測日</th>
+        </tr></thead>
+        <tbody>
+        ${list.map(p => {
+          const r = latest[p.id];
+          const t = skBmiTarget(p);
+          const ok = r && t && r.bmi >= t;
+          return `<tr style="border-bottom:1px solid var(--c-border,rgba(0,0,0,.07))">
+            <td style="padding:7px 6px">${escEmg(p.name)}</td>
+            <td style="padding:7px 6px;text-align:center;font-weight:700">${r ? r.bmi.toFixed(1) : '−'}</td>
+            <td style="padding:7px 6px;text-align:center">${t != null ? t.toFixed(1) : '−'}</td>
+            <td style="padding:7px 6px;text-align:center">${r && t ? (ok ? '<span style="color:var(--c-green,#16a34a);font-weight:700">達成</span>' : `<span style="color:#d97706;font-weight:700">あと${(t - r.bmi).toFixed(1)}</span>`) : '−'}</td>
+            <td style="padding:7px 6px;color:var(--c-muted)">${r ? escEmg(r.date || '') : '−'}</td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:18px">
+      <div class="form-label">📊 選手別の推移</div>
+      <select class="form-select" id="sk-bmi-detail" onchange="renderShokudoBmiPane()">
+        <option value="">-- 選手を選択 --</option>
+        ${list.map(p => `<option value="${escEmg(p.id)}" ${detailSel === p.id ? 'selected' : ''}>${escEmg(p.name)}</option>`).join('')}
+      </select>
+      <div style="margin-top:10px">
+      ${detailSel ? ([...shokudoBmi].filter(r => r.playerId === detailSel).sort((a, b) => (b.date || '').localeCompare(a.date || '')).map(r => `
+        <div style="display:flex;gap:12px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--c-border,rgba(0,0,0,.07));font-size:13px">
+          <b style="min-width:86px">${escEmg(r.date || '')}</b>
+          <span>身長 ${r.height}cm ／ 体重 ${r.weight}kg</span>
+          <b style="margin-left:auto">BMI ${r.bmi.toFixed(1)}</b>
+          <button class="btn btn-secondary btn-sm" onclick="deleteShokudoBmi('${escEmg(r.id)}')">🗑</button>
+        </div>`).join('') || '<div style="font-size:12.5px;color:var(--c-muted)">記録がありません</div>') : ''}
+      </div>
+    </div>`;
+}
+function addShokudoBmi() {
+  const pid = document.getElementById('sk-bmi-player')?.value;
+  const date = document.getElementById('sk-bmi-date')?.value;
+  const h = parseFloat(document.getElementById('sk-bmi-h')?.value);
+  const w = parseFloat(document.getElementById('sk-bmi-w')?.value);
+  if (!pid || !date) { showToast('選手と計測日を入力してください', 'error'); return; }
+  if (isNaN(h) || isNaN(w) || h <= 0 || w <= 0) { showToast('身長・体重を正しく入力してください', 'error'); return; }
+  const bmi = w / Math.pow(h / 100, 2);
+  shokudoBmi.push({ id: Date.now().toString(), playerId: pid, date, height: h, weight: w, bmi: Math.round(bmi * 10) / 10 });
+  saveLocal();
+  renderShokudoBmiPane();
+  showToast(`記録しました（BMI ${bmi.toFixed(1)}）`, 'success');
+}
+function deleteShokudoBmi(id) {
+  if (!confirm('このBMI記録を削除しますか？')) return;
+  shokudoBmi = shokudoBmi.filter(r => r.id !== id);
+  saveLocal();
+  renderShokudoBmiPane();
+}
+
 // ===== INIT =====
 function initApp() {
   loadLocal();
@@ -3897,6 +4204,13 @@ function initApp() {
   document.getElementById('sidebar-avatar').textContent = (s.clubName||'?')[0];
   const subEl = document.getElementById('sidebar-club-sub');
   if (subEl) subEl.textContent = s.clubId || '';
+
+  // 食堂管理：mp-config に shokudo 設定があるクラブだけ表示
+  if (isShokudoEnabled()) {
+    document.querySelectorAll('.shokudo-nav-label').forEach(el => { el.textContent = shokudoName(); });
+  } else {
+    document.querySelectorAll('[data-nav="page-shokudo"]').forEach(el => { el.style.display = 'none'; });
+  }
 
   // Auto-load from cloud if configured
   if (isCloudConfigured(s)) {

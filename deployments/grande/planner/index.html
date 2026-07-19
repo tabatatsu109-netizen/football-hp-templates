@@ -78,6 +78,9 @@
       <div class="nav-item" data-nav="page-emergency">
         <span class="nav-item-icon">🚨</span> 緊急連絡
       </div>
+      <div class="nav-item" data-nav="page-shokudo">
+        <span class="nav-item-icon">🍜</span> <span class="shokudo-nav-label">食堂管理</span>
+      </div>
       <div class="nav-item" data-nav="page-settings">
         <span class="nav-item-icon">⚙️</span> 設定
       </div>
@@ -667,6 +670,27 @@
       </div>
     </div><!-- /page-emergency -->
 
+    <!-- ========== Page: 食堂管理 ========== -->
+    <div class="page" id="page-shokudo">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">🍜 <span class="shokudo-nav-label">食堂管理</span></div>
+        </div>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+        <div class="tab-bar" style="margin:-14px -14px 14px;border-radius:0" id="shokudo-tab-bar">
+          <button class="tab-btn active" data-sktab="input">📝 入力</button>
+          <button class="tab-btn" data-sktab="billing">📅 出席・請求</button>
+          <button class="tab-btn" data-sktab="rank">🏆 ランキング</button>
+          <button class="tab-btn" data-sktab="bmi">📊 BMI</button>
+        </div>
+        <div id="shokudo-pane-input"></div>
+        <div id="shokudo-pane-billing" style="display:none"></div>
+        <div id="shokudo-pane-rank" style="display:none"></div>
+        <div id="shokudo-pane-bmi" style="display:none"></div>
+      </div>
+    </div><!-- /page-shokudo -->
+
     <!-- ========== Page: News ========== -->
     <div class="page" id="page-news">
       <div class="page-hdr">
@@ -909,6 +933,7 @@
           <button class="btn btn-secondary btn-full" data-nav="page-survey" style="justify-content:flex-start;gap:12px"><span>🗳️</span> アンケート</button>
           <button class="btn btn-secondary btn-full" data-nav="page-sns" style="justify-content:flex-start;gap:12px"><span>📸</span> SNS画像作成</button>
           <button class="btn btn-secondary btn-full" data-nav="page-emergency" style="justify-content:flex-start;gap:12px"><span>🚨</span> 緊急連絡</button>
+          <button class="btn btn-secondary btn-full" data-nav="page-shokudo" style="justify-content:flex-start;gap:12px"><span>🍜</span> <span class="shokudo-nav-label">食堂管理</span></button>
         </div>
         <div class="form-label" style="margin-bottom:10px">設定</div>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -1457,6 +1482,6 @@
 
 </div><!-- /#app -->
 <script src="mp-config.js?v=20260719a"></script>
-<script src="script.js?v=20260719b"></script>
+<script src="script.js?v=20260719c"></script>
 </body>
 </html>

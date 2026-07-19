@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>グランデ食堂（クラブ員専用） | 八ヶ岳グランデFC</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=20260719a">
+  <style>
+    :root { --tk: #c99a1e; --tk-dark: #4a3405; --tk-bg: #fbf5e6; }
+    /* 食堂データビュー */
+    .sk-panel { background: #fff; border: 1px solid #e4e6e9; border-radius: 14px; padding: 22px; margin-top: 22px; }
+    .sk-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .sk-note { font-size: 12px; color: #8a9099; margin-top: 10px; line-height: 1.8; }
+    .sk-table-wrap { overflow-x: auto; }
+    .sk-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .sk-table th { text-align: left; padding: 9px 8px; border-bottom: 2px solid #dcdfe3; font-size: 12px; color: #5a6068; white-space: nowrap; }
+    .sk-table td { padding: 9px 8px; border-bottom: 1px solid #eceef1; }
+    .sk-table .ctr { text-align: center; }
+    .sk-table .rgt { text-align: right; }
+    .sk-select { border: 1.5px solid #1a5c2d; border-radius: 8px; padding: 7px 12px; font-size: 13px; font-family: inherit; background: #fff; }
+    .sk-rank-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #eceef1; font-size: 14px; }
+    .sk-medal { width: 40px; font-size: 17px; font-weight: 700; }
+    .sk-empty { font-size: 13px; color: #8a9099; padding: 14px 0; }
+    .sk-ok { color: #16a34a; font-weight: 700; }
+    .sk-ng { color: #d97706; font-weight: 700; }
+    .sk-loading { font-size: 13px; color: #8a9099; padding: 20px 0; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+          <span class="gh-logo-name">GRANDE FC</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">取り組み</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="members-dashboard.html" class="gh-login">クラブ員TOP</a>
+        <a href="../itemshop.html" class="gh-cta gh-cta--trial">ショップ<small>STORE</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="members-dashboard.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用TOP</span></a>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <div class="m-nav-ctas">
+      <a href="../itemshop.html" class="m-cta-trial">アイテムショップ</a>
+    </div>
+  </nav>
+
+  <!-- ヒーロー -->
+  <section class="tk-hero" style="--tk-dark:#4a3405;">
+    <div class="tk-hero-bg" style="background-image:url('../assets/torikumi/shokudo-3.jpg');"></div>
+    <div class="tk-hero-inner">
+      <p class="tk-hero-en">MEMBERS ONLY</p>
+      <h1 class="tk-hero-title">グランデ食堂</h1>
+      <p class="tk-hero-sub">出席記録・ランキング・BMI。食堂のすべてがここでわかります。</p>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><a href="members-dashboard.html">クラブ員専用</a><span>›</span><span>グランデ食堂</span></div></div>
+
+  <main>
+    <!-- リード -->
+    <section class="tk-sec">
+      <div class="tk-sec-inner">
+        <p class="tk-lead">毎週月曜日、練習のあとは<br><em>みんなで同じ釜の飯</em>を。</p>
+        <p class="tk-text">
+          毎週月曜日の練習後、ジュニアユース(中学生)の選手が「べるが」内レストラン<strong>「レ・アルピ」</strong>にて食事を摂ります。
+          白州米と地元野菜、栄養士監修のメニューで、成長期のカラダを食卓から育てます。
+          このページでは、参加記録・月別のご請求額・ランキング・BMIの推移をご覧いただけます。
+        </p>
+      </div>
+    </section>
+
+    <!-- データビュー -->
+    <section class="tk-sec tk-sec--band">
+      <div class="tk-sec-inner">
+        <p class="tk-sec-en">RECORDS</p>
+        <h2 class="tk-sec-ja">参加記録・ランキング・BMI</h2>
+
+        <div class="filter-bar sk-tabs">
+          <button class="filter-btn on sk-tab" data-sktab="attend">📅 出席・食数</button>
+          <button class="filter-btn sk-tab" data-sktab="rank">🏆 ランキング</button>
+          <button class="filter-btn sk-tab" data-sktab="bmi">📊 BMI</button>
+        </div>
+
+        <div class="sk-panel" id="sk-content">
+          <div class="sk-loading">⏳ データを読み込んでいます…</div>
+        </div>
+        <p class="sk-note">
+          ※ 記録はコーチが入力した時点で自動的に反映されます。<br>
+          ※ ご請求額は「参加回数 × 1食900円」で計算しています。金額は目安であり、正式なご請求はクラブからの案内に従ってください。
+        </p>
+      </div>
+    </section>
+
+    <!-- こだわり -->
+    <section class="tk-sec">
+      <div class="tk-sec-inner">
+        <p class="tk-sec-en">4 POINTS</p>
+        <h2 class="tk-sec-ja">グランデ食堂のこだわり</h2>
+        <div class="tk-points tk-points--4">
+          <div class="tk-point">
+            <div class="tk-point-num">01</div>
+            <div class="tk-point-title">白州米と地元野菜</div>
+            <p class="tk-point-text">白州米と、地元の農家さんが育てた新鮮な野菜を使用。地域の恵みで選手のカラダをつくります。</p>
+          </div>
+          <div class="tk-point">
+            <div class="tk-point-num">02</div>
+            <div class="tk-point-title">栄養士が監修</div>
+            <p class="tk-point-text">栄養士の監修のもと、成長期の選手に最適なメニューを提供します。</p>
+          </div>
+          <div class="tk-point">
+            <div class="tk-point-num">03</div>
+            <div class="tk-point-title">化学調味料を極力使わない</div>
+            <p class="tk-point-text">体への負担が少ない、素材の味を活かした調理を心がけています。</p>
+          </div>
+          <div class="tk-point">
+            <div class="tk-point-num">04</div>
+            <div class="tk-point-title">ごはん・汁物おかわり自由</div>
+            <p class="tk-point-text">育ち盛りに嬉しいおかわり自由。しっかり食べて、しっかり大きく。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ギャラリー -->
+    <section class="tk-sec tk-sec--band">
+      <div class="tk-sec-inner">
+        <p class="tk-sec-en">GALLERY</p>
+        <h2 class="tk-sec-ja">グランデ食堂の風景</h2>
+        <div class="tk-photos">
+          <div class="tk-photo tk-photo--wide" style="background-image:url('../assets/torikumi/shokudo-3.jpg');"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/shokudo-2.jpg');"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/shokudo-1.jpg');"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/shokudo-4.jpg');"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/shokudo-5.jpg');"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- フッター -->
+  <footer class="gf">
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="members-dashboard.html">クラブ員専用TOP</a>
+          <a href="shokudo.html">グランデ食堂について（公開ページ）</a>
+          <a href="contact.html">お問い合わせ</a>
+        </div>
+        <span>© <span id="footer-year"></span> 八ヶ岳グランデFC. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+
+    // ログイン確認（未ログインならログインページへ）
+    if (!localStorage.getItem('memberLoggedIn')) {
+      window.location.href = 'members.html';
+    }
+
+    // ===== グランデ食堂データ =====
+    var FIREBASE_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+    var CLUB_ID = 'grande';
+    var PRICE = 900;
+    var JY_CATS = ['U15', 'U14', 'U13'];
+    var BMI_TARGET    = { U13: 19.5, U14: 20.5, U15: 21.0 };
+    var BMI_TARGET_GK = { U13: 20.5, U14: 21.5, U15: 21.5 };
+
+    var skData = { players: [], sessions: [], bmi: [] };
+    var skTab = 'attend';
+    var skMonth = '';
+    var skRankMetric = 'count';
+    var skBmiPlayer = '';
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function jyPlayers() {
+      return skData.players.filter(function(p){ return JY_CATS.indexOf(p.category) >= 0; })
+        .sort(function(a,b){ return (a.name||'').localeCompare(b.name||'', 'ja'); });
+    }
+    function playerName(id) {
+      var p = skData.players.find(function(x){ return x.id === id; });
+      return p ? p.name : '(退団選手)';
+    }
+    function months() {
+      var set = {};
+      skData.sessions.forEach(function(s){ var m = (s.date||'').slice(0,7); if (m) set[m] = 1; });
+      return Object.keys(set).sort().reverse();
+    }
+
+    function renderTabs() {
+      document.querySelectorAll('.sk-tab').forEach(function(b){
+        b.classList.toggle('on', b.dataset.sktab === skTab);
+      });
+      var el = document.getElementById('sk-content');
+      if (skTab === 'attend') el.innerHTML = renderAttend();
+      if (skTab === 'rank')   el.innerHTML = renderRank();
+      if (skTab === 'bmi')    el.innerHTML = renderBmi();
+    }
+
+    function renderAttend() {
+      var ms = months();
+      if (ms.length === 0) return '<div class="sk-empty">まだ記録がありません。</div>';
+      if (ms.indexOf(skMonth) < 0) skMonth = ms[0];
+      var sessions = skData.sessions.filter(function(s){ return (s.date||'').indexOf(skMonth) === 0; })
+        .sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+      var html = '<div style="margin-bottom:14px"><select class="sk-select" onchange="skMonth=this.value;renderTabs()">' +
+        ms.map(function(m){ return '<option value="'+m+'"'+(m===skMonth?' selected':'')+'>'+m.replace('-','年')+'月</option>'; }).join('') +
+        '</select> <span style="font-size:12.5px;color:#8a9099;margin-left:8px">開催 '+sessions.length+'回</span></div>';
+
+      // 開催日とメニュー
+      html += '<div style="margin-bottom:16px">' + sessions.map(function(s){
+        var n = Object.keys(s.cups||{}).length;
+        return '<div style="display:flex;gap:10px;padding:7px 2px;border-bottom:1px dashed #eceef1;font-size:13px">' +
+          '<b style="min-width:82px">'+esc((s.date||'').slice(5).replace('-','/'))+'</b>' +
+          '<span style="flex:1;color:#5a6068">'+esc(s.menu||'')+'</span>' +
+          '<span style="white-space:nowrap;color:#8a9099">'+n+'名</span></div>';
+      }).join('') + '</div>';
+
+      // 選手別 出席・請求
+      html += '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>選手</th><th class="ctr">参加</th><th class="ctr">ごはん杯数</th><th class="rgt">ご請求額(目安)</th></tr></thead><tbody>';
+      var total = 0;
+      jyPlayers().forEach(function(p){
+        var att = 0, cups = 0;
+        sessions.forEach(function(s){ var c = (s.cups||{})[p.id]; if (c != null && c > 0) { att++; cups += (+c); } });
+        var amount = att * PRICE; total += amount;
+        html += '<tr><td>'+esc(p.name)+'</td><td class="ctr">'+att+'回</td><td class="ctr">'+cups+'杯</td><td class="rgt"><b>'+amount.toLocaleString()+'円</b></td></tr>';
+      });
+      html += '</tbody></table></div>';
+      return html;
+    }
+
+    function renderRank() {
+      var stats = {};
+      skData.sessions.forEach(function(s){
+        Object.keys(s.cups||{}).forEach(function(pid){
+          var c = +(s.cups[pid]) || 0;
+          if (c <= 0) return;
+          if (!stats[pid]) stats[pid] = { count: 0, cups: 0 };
+          stats[pid].count++; stats[pid].cups += c;
+        });
+      });
+      var rows = Object.keys(stats).map(function(pid){
+        return { name: playerName(pid), count: stats[pid].count, cups: stats[pid].cups };
+      }).sort(function(a,b){ return skRankMetric === 'cups' ? b.cups - a.cups : b.count - a.count; });
+      if (rows.length === 0) return '<div class="sk-empty">まだ記録がありません。</div>';
+      var medals = ['🥇','🥈','🥉'];
+      return '<div style="margin-bottom:14px"><select class="sk-select" onchange="skRankMetric=this.value;renderTabs()">' +
+        '<option value="count"'+(skRankMetric==='count'?' selected':'')+'>参加回数（全期間）</option>' +
+        '<option value="cups"'+(skRankMetric==='cups'?' selected':'')+'>ごはん杯数（全期間）</option>' +
+        '</select></div>' +
+        rows.map(function(r,i){
+          return '<div class="sk-rank-row"><span class="sk-medal">'+(i<3?medals[i]:(i+1)+'位')+'</span>' +
+            '<span style="flex:1">'+esc(r.name)+'</span>' +
+            '<b>'+(skRankMetric==='cups'? r.cups+'杯' : r.count+'回')+'</b>' +
+            '<span style="color:#8a9099;font-size:12px">'+(skRankMetric==='cups'? r.count+'回' : r.cups+'杯')+'</span></div>';
+        }).join('');
+    }
+
+    function renderBmi() {
+      var list = jyPlayers();
+      var latest = {};
+      skData.bmi.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); })
+        .forEach(function(r){ latest[r.playerId] = r; });
+      var html = '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>選手</th><th class="ctr">最新BMI</th><th class="ctr">目標</th><th class="ctr">判定</th><th>計測日</th></tr></thead><tbody>';
+      list.forEach(function(p){
+        var r = latest[p.id];
+        var t = (p.position === 'GK' ? BMI_TARGET_GK : BMI_TARGET)[p.category];
+        var cell = '−';
+        if (r && t) cell = (r.bmi >= t) ? '<span class="sk-ok">達成</span>' : '<span class="sk-ng">あと'+(t - r.bmi).toFixed(1)+'</span>';
+        html += '<tr><td>'+esc(p.name)+'</td><td class="ctr"><b>'+(r? r.bmi.toFixed(1):'−')+'</b></td><td class="ctr">'+(t!=null? t.toFixed(1):'−')+'</td><td class="ctr">'+cell+'</td><td style="color:#8a9099">'+(r? esc(r.date||''):'−')+'</td></tr>';
+      });
+      html += '</tbody></table></div>';
+      html += '<div style="margin-top:18px"><select class="sk-select" onchange="skBmiPlayer=this.value;renderTabs()"><option value="">-- 選手別の推移を見る --</option>' +
+        list.map(function(p){ return '<option value="'+esc(p.id)+'"'+(skBmiPlayer===p.id?' selected':'')+'>'+esc(p.name)+'</option>'; }).join('') + '</select>';
+      if (skBmiPlayer) {
+        var hist = skData.bmi.filter(function(r){ return r.playerId === skBmiPlayer; })
+          .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+        html += '<div style="margin-top:10px">' + (hist.length ? hist.map(function(r){
+          return '<div style="display:flex;gap:12px;padding:8px 2px;border-bottom:1px solid #eceef1;font-size:13px">' +
+            '<b style="min-width:86px">'+esc(r.date||'')+'</b>' +
+            '<span>身長 '+r.height+'cm ／ 体重 '+r.weight+'kg</span>' +
+            '<b style="margin-left:auto">BMI '+r.bmi.toFixed(1)+'</b></div>';
+        }).join('') : '<div class="sk-empty">記録がありません。</div>') + '</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    document.querySelectorAll('.sk-tab').forEach(function(b){
+      b.addEventListener('click', function(){ skTab = b.dataset.sktab; renderTabs(); });
+    });
+
+    fetch(FIREBASE_URL + '/clubs/' + CLUB_ID + '.json')
+      .then(function(res){ return res.json(); })
+      .then(function(d){
+        d = d || {};
+        skData.players  = d.players || [];
+        skData.sessions = d.shokudoSessions || [];
+        skData.bmi      = d.shokudoBmi || [];
+        renderTabs();
+      })
+      .catch(function(){
+        document.getElementById('sk-content').innerHTML = '<div class="sk-empty">データの読み込みに失敗しました。時間をおいて再読み込みしてください。</div>';
+      });
+
+    if (window.ConfigLoader) ConfigLoader.apply({ pageTitle: 'グランデ食堂（クラブ員専用）' });
+  </script>
+</body>
+</html>
