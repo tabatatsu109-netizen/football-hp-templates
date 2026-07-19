@@ -749,7 +749,9 @@ function renderMatches() {
   const copySelect = document.getElementById('nm-copy');
   copySelect.innerHTML = '<option value="">引き継がない</option>' + items.slice(0,10).map(m => `<option value="${m.id}">${fmtDate(m.date)} ${m.opponent}</option>`).join('');
 }
+let resultFromSchedId = null; // スケジュール起点の結果登録（作成後にスケジュールと紐付ける）
 function openMatchCreateModal(prefill = {}) {
+  resultFromSchedId = null;
   document.getElementById('nm-opponent').value = prefill.opponent || '';
   document.getElementById('nm-date').value = prefill.date || todayStr();
   document.getElementById('nm-type').value = prefill.type || '公式戦';
@@ -790,9 +792,29 @@ function createMatch() {
     result: null,
   };
   matches.unshift(m);
+  // スケジュールから来た場合は紐付けておく（二重表示を防ぐ）
+  if (resultFromSchedId) {
+    const sc = schedules.find(s => s.id === resultFromSchedId);
+    if (sc) sc.matchId = m.id;
+    resultFromSchedId = null;
+  }
   saveLocal();
   closeModal('modal-match-create');
   openMatchDetail(m.id);
+}
+// スケジュールの予定から結果登録を始める（試合情報は自動入力）
+function startResultFromSchedule(schedId) {
+  const sc = schedules.find(s => s.id === schedId);
+  if (!sc) return;
+  openMatchCreateModal({
+    opponent: sc.opponent || '',
+    date: sc.date || '',
+    type: sc.type === '大会' ? 'フェスティバル' : '公式戦',
+    category: sc.category || '',
+    competition: sc.competition || '',
+    venue: sc.venue || '',
+  });
+  resultFromSchedId = schedId;
 }
 
 // ===== MATCH DETAIL =====
@@ -2315,11 +2337,36 @@ function renderResultEntry() {
   const today = todayStr();
   const pending = matches.filter(m => !m.result?.grandePosted && m.date <= today).sort((a,b) => a.date < b.date ? 1 : -1);
   const el = document.getElementById('result-entry-match-list');
-  if (pending.length === 0) {
-    el.innerHTML = '<div style="padding:12px;font-size:13px;color:var(--c-muted);text-align:center">未公開の試合はありません</div>';
+
+  // スケジュール起点：試合日を過ぎた予定で、まだ結果登録が始まっていないもの
+  const schedPending = schedules.filter(s =>
+    s.date && s.date <= today && s.type !== '練習' && (s.opponent || '').trim() &&
+    (!s.matchId || !matches.some(m => m.id === s.matchId))
+  ).sort((a, b) => a.date < b.date ? 1 : -1).slice(0, 10);
+
+  const schedHtml = schedPending.length === 0 ? '' : `
+    <div style="font-size:12px;font-weight:700;color:var(--c-text2);margin:2px 0 6px">📅 スケジュールの試合から登録（タップ → スコア入力へ）</div>
+    ${schedPending.map(s => `
+      <div class="match-card" onclick="startResultFromSchedule('${s.id}')">
+        <div class="match-card-top">
+          <span style="font-size:12px;color:var(--c-muted)">${fmtDate(s.date)}</span>
+          <span class="chip type-official" style="margin-left:6px">${escEmg(s.type || '試合')}</span>
+          ${s.category ? `<span style="font-size:11px;color:var(--c-muted);margin-left:6px">${escEmg(s.category)}</span>` : ''}
+        </div>
+        <div class="match-card-body">
+          <span class="match-card-opp">${escEmg(s.opponent)}</span>
+          <span class="no-result-text">結果を登録する →</span>
+        </div>
+      </div>
+    `).join('')}
+    ${pending.length ? '<div style="font-size:12px;font-weight:700;color:var(--c-text2);margin:14px 0 6px">✏️ 登録途中・未公開の試合</div>' : ''}
+  `;
+
+  if (pending.length === 0 && schedPending.length === 0) {
+    el.innerHTML = '<div style="padding:12px;font-size:13px;color:var(--c-muted);text-align:center">未公開の試合はありません<br><span style="font-size:12px">スケジュールに試合を登録すると、試合日のあとにここへ表示されます</span></div>';
     return;
   }
-  el.innerHTML = pending.map(m => {
+  el.innerHTML = schedHtml + pending.map(m => {
     const rstr = getResultStr(m);
     const typeCls = m.type === '公式戦' ? 'type-official' : 'type-tm';
     return `
@@ -4221,6 +4268,18 @@ function initApp() {
     document.querySelectorAll('.shokudo-nav-label').forEach(el => { el.textContent = shokudoName(); });
   } else {
     document.querySelectorAll('[data-nav="page-shokudo"]').forEach(el => { el.style.display = 'none'; });
+  }
+
+  // 試合管理を使わないクラブ向け（mp-config: hideMatchManagement: true）
+  // メニューから隠すだけで機能・データは残す。結果登録はスケジュール起点でできる
+  if (typeof MP_CONFIG !== 'undefined' && MP_CONFIG.hideMatchManagement) {
+    document.querySelectorAll('[data-nav="page-matches"]').forEach(el => { el.style.display = 'none'; });
+    const bnav = document.querySelector('.bnav-item[data-bnav="page-matches"]');
+    if (bnav) {
+      bnav.dataset.bnav = 'page-result-entry';
+      bnav.innerHTML = '<span class="bnav-icon">🏆</span><span class="bnav-label">試合結果</span>';
+      bottomNavPages.push('page-result-entry');
+    }
   }
 
   // Auto-load from cloud if configured

@@ -7,6 +7,10 @@ const MP_CONFIG = {
   firebaseUrl:    'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app',
   firebaseSecret: '',  // 設定画面から入力 → LocalStorage に保存される
 
+  // 試合管理（フォーメーション・スタメン管理）はメニューから非表示
+  // （false にすると復活します。結果登録はスケジュール起点で可能）
+  hideMatchManagement: true,
+
   // グランデ食堂（食堂管理機能を有効化）
   shokudo: {
     name: 'グランデ食堂',
