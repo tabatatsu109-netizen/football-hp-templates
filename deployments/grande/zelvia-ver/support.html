@@ -20,7 +20,9 @@
     .sp-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #1a5c2d; transform: scaleX(0); transition: transform .3s ease; transform-origin: left; }
     .sp-card:hover { border-color: #1a5c2d; box-shadow: 0 12px 32px rgba(26,92,45,.14); transform: translateY(-4px); }
     .sp-card:hover::after { transform: scaleX(1); }
-    .sp-icon { width: 52px; height: 52px; border-radius: 12px; background: #eaf4ec; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 14px; }
+    .sp-icon { width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, #14351f, #1a5c2d); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; transition: all .25s; }
+    .sp-icon svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .sp-card:hover .sp-icon { background: linear-gradient(135deg, #1a5c2d, #2f8a44); transform: scale(1.06); }
     .sp-title { font-size: 15px; font-weight: 900; color: #22282e; margin-bottom: 12px; }
     .sp-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; }
     .sp-tags li { background: #f2f3f5; color: #3a4046; font-size: 12px; padding: 4px 10px; border-radius: 6px; font-weight: 500; transition: all .2s; }
@@ -29,7 +31,9 @@
     .sp-act-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
     .sp-act { background: #fff; border: 1px solid #e4e6e9; border-radius: 14px; overflow: hidden; transition: all .25s; }
     .sp-act:hover { box-shadow: 0 8px 24px rgba(0,0,0,.1); transform: translateY(-3px); }
-    .sp-act-img { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+    .sp-act-img { height: 120px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .sp-act-img::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,255,255,.07) 1px, transparent 1px); background-size: 18px 18px; }
+    .sp-act-img svg { width: 44px; height: 44px; fill: none; stroke: rgba(255,255,255,.92); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; position: relative; }
     .sp-act-img.g1 { background: linear-gradient(135deg, #14351f, #1a5c2d); }
     .sp-act-img.g2 { background: linear-gradient(135deg, #6b4e0f, #c99a1e); }
     .sp-act-img.g3 { background: linear-gradient(135deg, #2a3a4a, #4a6070); }
@@ -38,7 +42,8 @@
     .sp-act-desc { font-size: 12.5px; color: #6b7178; line-height: 1.8; }
 
     .sp-message { background: #fff; border: 1px solid #e4e6e9; border-radius: 18px; padding: 40px 28px; text-align: center; max-width: 760px; margin: 0 auto; }
-    .sp-message-icon { font-size: 42px; margin-bottom: 12px; }
+    .sp-message-icon { margin-bottom: 12px; }
+    .sp-message-icon svg { width: 44px; height: 44px; fill: none; stroke: #1a5c2d; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
     .sp-message-title { font-size: clamp(20px, 3.6vw, 26px); font-weight: 900; color: #22282e; margin-bottom: 18px; }
     .sp-message-title em { color: #1a5c2d; font-style: normal; }
     .sp-message-body { font-size: 14px; color: #3a4046; line-height: 2.2; }
@@ -136,42 +141,42 @@
         </div>
         <div class="sp-grid">
           <div class="sp-card">
-            <div class="sp-icon">🤝</div>
+            <div class="sp-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21M12 3C9.5 5.6 8.2 8.7 8.2 12s1.3 6.4 3.8 9"/></svg></div>
             <div class="sp-title">パートナーとして応援する</div>
             <ul class="sp-tags"><li>法人パートナー</li><li>個人サポーター</li><li>マンスリーサポーター</li><li>協賛金</li></ul>
           </div>
           <div class="sp-card">
-            <div class="sp-icon">🍚</div>
+            <div class="sp-icon"><svg viewBox="0 0 24 24"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M9 11V7a1.5 1.5 0 0 1 3 0M12 8.5a1.5 1.5 0 0 1 3 0V11"/></svg></div>
             <div class="sp-title">グランデ食堂を応援する</div>
             <ul class="sp-tags"><li>お米の提供</li><li>食材の提供</li><li>協賛金</li><li>ボランティア参加</li></ul>
           </div>
           <div class="sp-card">
-            <div class="sp-icon">⚽</div>
+            <div class="sp-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l4.3 3.1-1.6 5H9.3l-1.6-5z"/><path d="M12 3v4.5M20.6 9.1l-4.3 1.5M17.3 20l-2.6-4.4M9.3 15.6L6.7 20M3.4 9.1l4.3 1.5"/></svg></div>
             <div class="sp-title">モノで応援する</div>
             <ul class="sp-tags"><li>サッカー用品</li><li>ボール</li><li>トレーニング用品</li><li>備品</li></ul>
           </div>
           <div class="sp-card">
-            <div class="sp-icon">🚌</div>
+            <div class="sp-icon"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="15" height="12" rx="1"/><path d="M16 9h4l3 3v4h-7V9z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg></div>
             <div class="sp-title">遠征・イベントを応援する</div>
             <ul class="sp-tags"><li>バス協賛</li><li>宿泊協力</li><li>ガソリン協賛</li><li>イベント協賛</li></ul>
           </div>
           <div class="sp-card">
-            <div class="sp-icon">📷</div>
+            <div class="sp-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
             <div class="sp-title">スキルで応援する</div>
             <ul class="sp-tags"><li>写真撮影</li><li>動画制作</li><li>デザイン</li><li>WEB制作</li><li>栄養指導</li><li>通訳</li></ul>
           </div>
           <div class="sp-card">
-            <div class="sp-icon">🙌</div>
+            <div class="sp-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
             <div class="sp-title">ボランティアとして応援する</div>
             <ul class="sp-tags"><li>イベント運営</li><li>会場設営</li><li>大会運営</li><li>グランデ食堂</li></ul>
           </div>
           <div class="sp-card">
-            <div class="sp-icon">🎓</div>
+            <div class="sp-icon"><svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
             <div class="sp-title">OB・OGサポーター</div>
             <ul class="sp-tags"><li>練習参加</li><li>職業講話</li><li>キャリア相談</li><li>進路サポート</li></ul>
           </div>
           <div class="sp-card">
-            <div class="sp-icon">📣</div>
+            <div class="sp-icon"><svg viewBox="0 0 24 24"><path d="M3 11l18-7-7 18-2.5-7.5z"/></svg></div>
             <div class="sp-title">クラブを広める</div>
             <ul class="sp-tags"><li>SNSシェア</li><li>選手募集の紹介</li><li>イベント告知協力</li></ul>
           </div>
@@ -186,45 +191,31 @@
         </div>
         <div class="sp-act-grid">
           <div class="sp-act">
-            <div class="sp-act-img g1">🍚</div>
+            <div class="sp-act-img g1"><svg viewBox="0 0 24 24"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M9 11V7a1.5 1.5 0 0 1 3 0M12 8.5a1.5 1.5 0 0 1 3 0V11"/></svg></div>
             <div class="sp-act-body">
               <div class="sp-act-title">グランデ食堂</div>
               <div class="sp-act-desc">地元食材・白州米・栄養士監修の食事で選手の心と体を育てる食育プロジェクト。毎週月曜日に実施中。</div>
             </div>
           </div>
           <div class="sp-act">
-            <div class="sp-act-img g2">✈️</div>
+            <div class="sp-act-img g2"><svg viewBox="0 0 24 24"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></div>
             <div class="sp-act-body">
               <div class="sp-act-title">遠征活動</div>
               <div class="sp-act-desc">県外大会や合宿への遠征。選手たちが全国の強豪チームと戦う機会を支えています。</div>
             </div>
           </div>
           <div class="sp-act">
-            <div class="sp-act-img g3">🏘️</div>
+            <div class="sp-act-img g3"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
             <div class="sp-act-body">
               <div class="sp-act-title">地域イベント</div>
               <div class="sp-act-desc">巡回サッカー教室や地域行事への参加。サッカーを通じて地域とつながる取り組み。</div>
             </div>
           </div>
           <div class="sp-act">
-            <div class="sp-act-img g1">⚽</div>
+            <div class="sp-act-img g1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l4.3 3.1-1.6 5H9.3l-1.6-5z"/><path d="M12 3v4.5M20.6 9.1l-4.3 1.5M17.3 20l-2.6-4.4M9.3 15.6L6.7 20M3.4 9.1l4.3 1.5"/></svg></div>
             <div class="sp-act-body">
               <div class="sp-act-title">育成環境整備</div>
               <div class="sp-act-desc">トレーニング用具・ウェア・設備の充実で、選手たちが最高の環境で練習できるよう整えています。</div>
-            </div>
-          </div>
-          <div class="sp-act">
-            <div class="sp-act-img g2">🌡️</div>
-            <div class="sp-act-body">
-              <div class="sp-act-title">BMI・体調管理</div>
-              <div class="sp-act-desc">毎月のBMI測定と栄養指導で、選手一人ひとりの体づくりをサポートしています。</div>
-            </div>
-          </div>
-          <div class="sp-act">
-            <div class="sp-act-img g3">🎓</div>
-            <div class="sp-act-body">
-              <div class="sp-act-title">キャリア教育</div>
-              <div class="sp-act-desc">OBによる職業講話や進路相談など、サッカー以外の人生設計も一緒に考えます。</div>
             </div>
           </div>
         </div>
@@ -233,7 +224,7 @@
       <!-- メッセージ -->
       <section>
         <div class="sp-message">
-          <div class="sp-message-icon">🌱</div>
+          <div class="sp-message-icon"><svg viewBox="0 0 24 24"><path d="M12 22V9"/><path d="M12 9C12 5 9 2.5 4 2.5c0 5 3.5 6.5 8 6.5z"/><path d="M12 13c0-3.5 2.8-5.5 7-5.5 0 4.5-3 5.5-7 5.5z"/></svg></div>
           <div class="sp-message-title">応援の形は、<em>人それぞれ。</em></div>
           <div class="sp-message-body">
             GRANDE FCは、多くの人の支えによって活動しています。<br><br>
