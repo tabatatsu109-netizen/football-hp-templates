@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>グランデ食堂の森 | 八ヶ岳グランデFC</title>
+  <title>グランデ食堂 プロ選手への道 | 八ヶ岳グランデFC</title>
   <meta name="robots" content="noindex">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,66 +29,65 @@
     .fr-top a:hover { opacity: 1; }
     .fr-top .brand { font-family: 'Oswald', sans-serif; font-size: 15px; letter-spacing: 2px; }
 
-    /* ヒーロー（森） */
-    .forest { position: relative; background: url('assets/forest/forest-bg.jpg') center bottom / cover no-repeat; padding: 34px 16px 0; overflow: hidden; }
-    .forest::after { content: ''; display: block; height: 24px; }
+    /* ヒーロー */
+    .forest { position: relative; background: url('assets/forest/forest-bg.jpg') center bottom / cover no-repeat; padding: 34px 16px 30px; overflow: hidden; }
     .fr-title-wrap { text-align: center; position: relative; z-index: 2; }
     .fr-title {
-      display: inline-block; font-family: 'Yomogi', 'Noto Sans JP', cursive; font-size: clamp(30px, 6vw, 46px); font-weight: 700;
+      display: inline-block; font-family: 'Yomogi', 'Noto Sans JP', cursive; font-size: clamp(28px, 5.6vw, 44px); font-weight: 700;
       color: #3d5a2c; background: linear-gradient(180deg, #f7e8c5, #ecd9a8); border: 3px solid #b98d4f; border-radius: 14px;
       padding: 8px 26px; box-shadow: 0 6px 0 #9a7340, 0 10px 22px rgba(0,0,0,.18); text-shadow: 0 2px 0 rgba(255,255,255,.6);
     }
     .fr-catch { display: inline-block; margin-top: 12px; background: rgba(255,255,255,.88); border-radius: 999px; padding: 7px 20px; font-size: clamp(13px, 2.6vw, 16px); font-weight: 900; color: #2f6b3a; box-shadow: 0 3px 10px rgba(0,0,0,.1); }
-    .fr-rank-label { text-align: center; margin: 26px 0 4px; font-size: clamp(15px, 3vw, 20px); font-weight: 900; color: #2f5d38; position: relative; z-index: 2; text-shadow: 0 1px 0 rgba(255,255,255,.8); }
+    .fr-rank-label { text-align: center; margin: 26px 0 12px; font-size: clamp(15px, 3vw, 20px); font-weight: 900; color: #2f5d38; position: relative; z-index: 2; text-shadow: 0 1px 0 rgba(255,255,255,.8); }
 
     /* 表彰台 */
-    .podium { display: flex; align-items: flex-end; justify-content: center; gap: 2vw; max-width: 1080px; margin: 0 auto; position: relative; z-index: 2; padding: 10px 0 0; }
-    .pod { text-align: center; flex: 1; max-width: 300px; }
-    .pod-badge { width: 46px; height: 52px; margin: 0 auto -6px; position: relative; z-index: 3; display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 20px; color: #fff; clip-path: polygon(0 0, 100% 0, 100% 72%, 50% 100%, 0 72%); box-shadow: 0 4px 10px rgba(0,0,0,.2); }
+    .podium { display: flex; align-items: flex-end; justify-content: center; gap: 2vw; max-width: 1060px; margin: 0 auto; position: relative; z-index: 2; }
+    .pod { text-align: center; flex: 1; max-width: 330px; }
+    .pod-badge { width: 46px; height: 52px; margin: 0 auto -14px; position: relative; z-index: 3; display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 20px; color: #fff; clip-path: polygon(0 0, 100% 0, 100% 72%, 50% 100%, 0 72%); filter: drop-shadow(0 3px 5px rgba(0,0,0,.25)); }
     .pod-badge small { position: absolute; top: -16px; font-size: 15px; }
     .pod-1 .pod-badge { background: linear-gradient(180deg, #f5c93c, #d9a415); width: 56px; height: 62px; font-size: 25px; }
     .pod-2 .pod-badge { background: linear-gradient(180deg, #c8ccd4, #9aa1ad); }
     .pod-3 .pod-badge { background: linear-gradient(180deg, #d29a63, #b1743a); }
-    .pod-tree { width: 100%; display: flex; align-items: flex-end; justify-content: center; }
-    .pod-tree img { max-width: 100%; height: auto; filter: drop-shadow(0 8px 12px rgba(0,0,0,.15)); }
-    .pod-1 .pod-tree { height: min(34vw, 300px); }
-    .pod-2 .pod-tree, .pod-3 .pod-tree { height: min(26vw, 225px); }
-    .pod-count { margin-top: 6px; font-weight: 900; color: #234d2c; font-size: clamp(18px, 3.6vw, 28px); text-shadow: 0 1px 0 rgba(255,255,255,.8); }
-    .pod-count b { font-family: 'Oswald', sans-serif; font-size: clamp(26px, 5vw, 44px); }
-    .pod-next { font-size: clamp(10px, 2vw, 13px); font-weight: 700; color: #7a5a00; background: rgba(255,251,235,.92); border-radius: 999px; display: inline-block; padding: 3px 12px; margin-top: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
-    .pod-plate { margin: 10px auto 0; background: linear-gradient(180deg, #a4713d, #85552a); color: #fff; border-radius: 8px; padding: 8px 6px 7px; max-width: 170px; box-shadow: 0 4px 0 #6b421e, 0 8px 14px rgba(0,0,0,.2); }
+    .pod-photo { position: relative; border-radius: 16px; overflow: hidden; border: 4px solid #fff; box-shadow: 0 10px 26px rgba(0,0,0,.22); aspect-ratio: 4 / 3.4; }
+    .pod-1 .pod-photo { aspect-ratio: 4 / 3.8; border-color: #f5d97c; }
+    .pod-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pod-stage { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, rgba(10,30,15,.82), transparent); color: #fff; font-weight: 900; font-size: clamp(12px, 2.2vw, 16px); padding: 22px 8px 8px; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+    .pod-count { margin-top: 8px; font-weight: 900; color: #234d2c; font-size: clamp(16px, 3vw, 24px); text-shadow: 0 1px 0 rgba(255,255,255,.8); }
+    .pod-count b { font-family: 'Oswald', sans-serif; font-size: clamp(24px, 4.4vw, 40px); }
+    .pod-next { font-size: clamp(10px, 1.9vw, 13px); font-weight: 700; color: #7a5a00; background: rgba(255,251,235,.94); border-radius: 999px; display: inline-block; padding: 3px 12px; margin-top: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+    .pod-plate { margin: 10px auto 0; background: linear-gradient(180deg, #a4713d, #85552a); color: #fff; border-radius: 8px; padding: 8px 6px 7px; max-width: 190px; box-shadow: 0 4px 0 #6b421e, 0 8px 14px rgba(0,0,0,.2); }
     .pod-plate .nm { font-size: clamp(13px, 2.6vw, 17px); font-weight: 900; }
-    .pod-plate .gr { font-size: clamp(10px, 1.8vw, 12px); opacity: .85; margin-top: 1px; }
-    .podium-ground { height: 46px; background: linear-gradient(180deg, transparent, rgba(63,120,58,.25)); position: relative; z-index: 1; margin-top: -20px; }
+    .pod-plate .gr { font-size: clamp(10px, 1.8vw, 12px); opacity: .9; margin-top: 1px; }
+    .pod-plate .ttl { display: inline-block; margin-top: 4px; background: rgba(255,255,255,.18); border-radius: 999px; font-size: clamp(10px, 1.8vw, 12px); font-weight: 900; padding: 2px 10px; color: #ffe9b0; }
 
     /* セクション共通 */
     .sec { max-width: 900px; margin: 0 auto; padding: 34px 18px 0; }
     .card { background: #fffdf5; border: 2px solid #e3d9b8; border-radius: 18px; padding: 24px 22px; box-shadow: 0 6px 18px rgba(90,70,20,.07); }
     .card-title { font-size: 17px; font-weight: 900; color: #2f5d38; margin-bottom: 14px; }
 
-    /* みんなの森 合計 */
-    .total-num { font-family: 'Oswald', sans-serif; font-size: clamp(44px, 9vw, 68px); font-weight: 700; color: #1a5c2d; line-height: 1; }
-    .total-num small { font-family: 'Noto Sans JP', sans-serif; font-size: 18px; font-weight: 900; margin-left: 4px; }
-    .total-sub { font-size: 13px; font-weight: 700; color: #6b7b6e; margin-top: 6px; }
-    .mile { display: flex; margin-top: 22px; }
-    .mile-step { flex: 1; text-align: center; position: relative; }
-    .mile-step::before { content: ''; position: absolute; top: 11px; left: -50%; width: 100%; height: 5px; background: #ddd7c2; z-index: 0; }
-    .mile-step:first-child::before { display: none; }
-    .mile-step.on::before { background: #3f9a4e; }
-    .mile-dot { position: relative; z-index: 1; width: 24px; height: 24px; border-radius: 50%; background: #ddd7c2; color: #fff; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; }
-    .mile-step.on .mile-dot { background: #3f9a4e; }
-    .mile-label { font-size: 11.5px; font-weight: 700; margin-top: 6px; color: #6b7b6e; }
-    .mile-name { font-size: 10.5px; color: #9aa59c; }
-    .mile-step.on .mile-label { color: #2f6b3a; }
+    /* スタジアム建設 */
+    .std-photo { position: relative; border-radius: 14px; overflow: hidden; margin-bottom: 16px; aspect-ratio: 16 / 8.5; }
+    .std-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .std-photo .std-name { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, rgba(10,30,15,.8), transparent); color: #fff; font-weight: 900; font-size: 15px; padding: 26px 14px 10px; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+    .std-lv { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .std-lv .lv { font-family: 'Oswald', sans-serif; font-size: clamp(40px, 8vw, 60px); font-weight: 700; color: #1a5c2d; line-height: 1; }
+    .std-lv .total { font-size: 14px; font-weight: 700; color: #6b7b6e; }
+    .std-bar { margin-top: 14px; height: 18px; background: #e6e0ca; border-radius: 999px; overflow: hidden; }
+    .std-bar-fill { height: 100%; background: linear-gradient(90deg, #3f9a4e, #7ac256); border-radius: 999px; transition: width .6s; }
+    .std-next { margin-top: 8px; font-size: 13px; font-weight: 700; color: #7a5a00; }
+    .std-note { margin-top: 10px; font-size: 11.5px; color: #9aa59c; }
 
-    /* 成長ステージ */
-    .stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; }
-    .stage { background: #fff; border: 1.5px solid #e6dfc8; border-radius: 14px; padding: 12px 8px; text-align: center; }
-    .stage img { height: 62px; width: auto; max-width: 100%; object-fit: contain; }
-    .stage .qm { height: 62px; display: flex; align-items: center; justify-content: center; font-size: 34px; color: #cfc9b2; }
-    .stage-th { font-family: 'Oswald', sans-serif; font-size: 13px; color: #1a5c2d; font-weight: 700; margin-top: 6px; }
+    /* キャリアの道のり */
+    .stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+    .stage { background: #fff; border: 1.5px solid #e6dfc8; border-radius: 14px; overflow: hidden; text-align: center; }
+    .stage .ph { aspect-ratio: 4 / 3; width: 100%; }
+    .stage .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .stage .qm { aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; font-size: 34px; color: #cfc9b2; background: #f6f3e7; }
+    .stage-body { padding: 8px 6px 10px; }
+    .stage-th { font-family: 'Oswald', sans-serif; font-size: 12.5px; color: #1a5c2d; font-weight: 700; }
     .stage-nm { font-size: 11.5px; font-weight: 900; margin-top: 1px; }
-    .stage.locked .stage-nm, .stage.locked .stage-th { color: #b3ac93; }
+    .stage-ttl { font-size: 10px; color: #b08a2e; font-weight: 900; margin-top: 1px; }
+    .stage.locked .stage-nm, .stage.locked .stage-th, .stage.locked .stage-ttl { color: #b3ac93; }
 
     /* メッセージ */
     .msg { display: flex; gap: 14px; align-items: flex-start; }
@@ -105,11 +104,11 @@
   <!-- パスワードゲート -->
   <div id="sk-gate">
     <div class="sk-gate-card">
-      <div style="font-size:38px">🌳</div>
-      <div class="sk-gate-title">グランデ食堂の森</div>
+      <div style="font-size:38px">⚽</div>
+      <div class="sk-gate-title">グランデ食堂<br>プロ選手への道</div>
       <div class="sk-gate-sub">ジュニアユースの保護者・選手専用ページです。<br>クラブからお知らせしたパスワードを入力してください。</div>
       <input class="sk-gate-input" type="password" id="sk-gate-pw" placeholder="パスワード" autocomplete="off">
-      <button class="sk-gate-btn" onclick="skGateSubmit()">森に入る</button>
+      <button class="sk-gate-btn" onclick="skGateSubmit()">キックオフ！</button>
       <div class="sk-gate-err" id="sk-gate-err"></div>
     </div>
   </div>
@@ -119,31 +118,30 @@
     <a href="shokudo-members.html">← グランデ食堂ページへ戻る</a>
   </div>
 
-  <!-- 森 -->
+  <!-- ヒーロー＆表彰台 -->
   <section class="forest">
     <div class="fr-title-wrap">
-      <div class="fr-title">グランデ食堂の森</div><br>
-      <div class="fr-catch">🌱 食べることで、心も体も大きく育つ！</div>
+      <div class="fr-title">⚽ プロ選手への道</div><br>
+      <div class="fr-catch">🍚 食べることで、心も体も大きく育つ！</div>
     </div>
-    <div class="fr-rank-label">🍃 今までの合計ランキング TOP3 🍃</div>
-    <div id="podium-area"><div class="sk-loading">⏳ 森を育てています…</div></div>
-    <div class="podium-ground"></div>
+    <div class="fr-rank-label">🔥 今までの合計ランキング TOP3 🔥</div>
+    <div id="podium-area"><div class="sk-loading">⏳ キックオフ準備中…</div></div>
   </section>
 
-  <!-- みんなの森（合計） -->
+  <!-- スタジアム建設（みんなの合計） -->
   <section class="sec">
     <div class="card">
-      <div class="card-title">🌍 グランデ食堂の森（みんなの合計）</div>
+      <div class="card-title">🏟 グランデスタジアム建設（みんなの合計）</div>
       <div id="total-area"></div>
     </div>
   </section>
 
-  <!-- 成長ステージ -->
+  <!-- キャリアの道のり -->
   <section class="sec">
     <div class="card">
-      <div class="card-title">🌱 木の育ちかた（食べた回数で育つよ）</div>
+      <div class="card-title">⚽ キャリアの道のり（食べた回数でステップアップ！）</div>
       <div class="stages" id="stages-area"></div>
-      <div style="font-size:11.5px;color:#9aa59c;margin-top:10px">？のステージは、みんなが育てたら見られるようになるお楽しみ！</div>
+      <div style="font-size:11.5px;color:#9aa59c;margin-top:10px">？のステージは、誰かがたどり着いたら見られるようになるお楽しみ！</div>
     </div>
   </section>
 
@@ -152,7 +150,7 @@
     <div class="card">
       <div class="msg">
         <div class="msg-icon">🍚</div>
-        <div class="msg-body"><b>食堂からのメッセージ</b><br>たくさん食べることは、サッカーの力になります。これからも、みんなでモリモリ食べて、大きく成長していこう！</div>
+        <div class="msg-body"><b>食堂からのメッセージ</b><br>たくさん食べることは、サッカーの力になります。これからも、みんなでモリモリ食べて、プロへの階段を駆け上がっていこう！</div>
       </div>
     </div>
   </section>
@@ -177,22 +175,50 @@
     var FIREBASE_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
     var CLUB_ID = 'grande';
     var JY_CATS = ['U15', 'U14', 'U13'];
-    // 成長ステージ（食数のしきい値）。画像が用意できたら img を差し替え/追加する
-    var STAGES = [
-      { th: 1,   name: '水やり',   img: 'assets/forest/tree-1.png' },
-      { th: 10,  name: '若木',     img: 'assets/forest/tree-2.png' },
-      { th: 30,  name: '大きな木', img: 'assets/forest/tree-3.png' },
-      { th: 60,  name: '花が咲く', img: null },
-      { th: 100, name: '実がなる', img: null },
-      { th: 150, name: '大樹',     img: null },
+    // キャリアステージ（10食ごと）。画像ができたら img を追加すると解放される
+    var CAREER = [
+      { th: 1,   name: 'ボールと出会う',   title: '見習い',        img: 'assets/forest/career-1.jpg' },
+      { th: 10,  name: '特訓の日々',       title: 'ルーキー',      img: 'assets/forest/career-2.jpg' },
+      { th: 20,  name: 'ユニフォーム授与', title: 'レギュラー',    img: 'assets/forest/career-3.jpg' },
+      { th: 30,  name: 'スタジアムへ',     title: 'エース',        img: 'assets/forest/career-4.jpg' },
+      { th: 40,  name: 'プロ契約',         title: 'プロ',          img: 'assets/forest/career-5.jpg' },
+      { th: 50,  name: 'デビュー戦へ',     title: 'プロ1年目',     img: 'assets/forest/career-6.jpg' },
+      { th: 60,  name: '初ゴール！',       title: '点取り屋',      img: 'assets/forest/career-7.jpg' },
+      { th: 70,  name: '背番号10',         title: '10番',          img: null },
+      { th: 80,  name: '優勝',             title: 'チャンピオン',  img: null },
+      { th: 90,  name: '海外挑戦',         title: '海外組',        img: null },
+      { th: 100, name: '日本代表',         title: '代表戦士',      img: null },
+      { th: 110, name: 'W杯の舞台',        title: '世界のスター',  img: null },
+      { th: 120, name: '殿堂入り',         title: 'レジェンド',    img: null },
     ];
-    var MILESTONES = [
-      { th: 500,   label: '500食',    name: '森のはじまり' },
-      { th: 1000,  label: '1,000食',  name: '木が生い茂る' },
-      { th: 2000,  label: '2,000食',  name: '森が広がる' },
-      { th: 3000,  label: '3,000食',  name: '大きな森へ！' },
-      { th: 5000,  label: '5,000食',  name: '伝説の森へ！' },
+    var STADIUM_STEP = 100; // 100食ごとにスタジアムが進化
+    // スタジアムのステージ（画像ができたら img を追加すると解放される）
+    var STADIUM = [
+      { th: 0,   name: 'グラウンド予定地（土のグラウンド）', img: 'assets/forest/stadium-1.jpg' },
+      { th: 100, name: '白線完成！コートができた', img: 'assets/forest/stadium-2.jpg' },
+      { th: 200, name: '芝生のピッチ完成！', img: 'assets/forest/stadium-3.jpg' },
+      { th: 300, name: 'ベンチ・フェンス設置', img: null },
+      { th: 400, name: 'ナイター照明が立つ', img: null },
+      { th: 500, name: '観客席ができる', img: null },
+      { th: 600, name: 'スタンド拡張', img: null },
+      { th: 700, name: '大型ビジョン設置', img: null },
+      { th: 800, name: '屋根付きメインスタンド', img: null },
+      { th: 900, name: '満員の大スタジアム！', img: null },
     ];
+    function stadiumOf(total) {
+      var st = STADIUM[0];
+      for (var i = 0; i < STADIUM.length; i++) { if (total >= STADIUM[i].th) st = STADIUM[i]; }
+      return st;
+    }
+    function stadiumImg(total) {
+      var img = STADIUM[0].img;
+      for (var i = 0; i < STADIUM.length; i++) { if (total >= STADIUM[i].th && STADIUM[i].img) img = STADIUM[i].img; }
+      return img;
+    }
+    function nextStadium(total) {
+      for (var i = 0; i < STADIUM.length; i++) { if (total < STADIUM[i].th) return STADIUM[i]; }
+      return null;
+    }
 
     function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function categoryOf(p) {
@@ -203,32 +229,25 @@
       if (g.indexOf('中3') === 0) return 'U15';
       return null;
     }
-    function gradeLabel(p) {
-      if (p.grade) return p.grade;
-      var c = categoryOf(p);
-      return c || '';
-    }
-    // 現在のステージ（画像があるステージまでで表示画像を決める）
+    function gradeLabel(p) { return p.grade || categoryOf(p) || ''; }
     function stageOf(count) {
-      var st = STAGES[0];
-      for (var i = 0; i < STAGES.length; i++) { if (count >= STAGES[i].th) st = STAGES[i]; }
+      var st = CAREER[0];
+      for (var i = 0; i < CAREER.length; i++) { if (count >= CAREER[i].th) st = CAREER[i]; }
       return st;
     }
     function stageImg(count) {
-      var img = STAGES[0].img;
-      for (var i = 0; i < STAGES.length; i++) { if (count >= STAGES[i].th && STAGES[i].img) img = STAGES[i].img; }
+      var img = CAREER[0].img;
+      for (var i = 0; i < CAREER.length; i++) { if (count >= CAREER[i].th && CAREER[i].img) img = CAREER[i].img; }
       return img;
     }
     function nextStage(count) {
-      for (var i = 0; i < STAGES.length; i++) { if (count < STAGES[i].th) return STAGES[i]; }
+      for (var i = 0; i < CAREER.length; i++) { if (count < CAREER[i].th) return CAREER[i]; }
       return null;
     }
-    var NEXT_VERB = { '若木': '若木になります！', '大きな木': '大きな木になります！', '花が咲く': '花が咲きます！', '実がなる': '実がなります！', '大樹': '大樹になります！' };
 
     function render(data) {
       var players = data.players || [];
       var sessions = data.shokudoSessions || [];
-      // 選手ごとの食数（参加回数）
       var counts = {};
       sessions.forEach(function(s){
         Object.keys(s.cups || {}).forEach(function(pid){
@@ -240,49 +259,53 @@
         .filter(function(r){ return r.count > 0; })
         .sort(function(a,b){ return b.count - a.count; });
 
-      // --- TOP3 表彰台（表示順: 2位, 1位, 3位） ---
+      // --- TOP3 表彰台（2位・1位・3位の並び） ---
       var podEl = document.getElementById('podium-area');
       if (rows.length === 0) {
-        podEl.innerHTML = '<div class="sk-loading">まだ記録がありません。食堂が始まったら森が育ちます 🌱</div>';
+        podEl.innerHTML = '<div class="sk-loading">まだ記録がありません。食堂が始まったらキャリアがスタートします ⚽</div>';
       } else {
         var top3 = rows.slice(0, 3);
-        var order = [1, 0, 2];  // 2位・1位・3位の並び
+        var order = [1, 0, 2];
         var crowns = ['👑', '', ''];
         var html = '<div class="podium">';
         order.forEach(function(idx){
           var r = top3[idx];
           if (!r) { html += '<div class="pod"></div>'; return; }
+          var st = stageOf(r.count);
           var next = nextStage(r.count);
-          var nextTxt = next ? 'あと' + (next.th - r.count) + '食で' + (NEXT_VERB[next.name] || next.name + '！') : 'もう森の王様です！';
+          var nextTxt = next ? 'あと' + (next.th - r.count) + '食で「' + next.name + '」！' : 'キャリア完全制覇！レジェンド！';
           html += '<div class="pod pod-' + (idx + 1) + '">' +
             '<div class="pod-badge">' + (crowns[idx] ? '<small>' + crowns[idx] + '</small>' : '') + (idx + 1) + '</div>' +
-            '<div class="pod-tree"><img src="' + stageImg(r.count) + '" alt=""></div>' +
+            '<div class="pod-photo"><img src="' + stageImg(r.count) + '" alt=""><div class="pod-stage">' + esc(st.name) + '</div></div>' +
             '<div class="pod-count"><b>' + r.count + '</b> 食</div><br>' +
             '<span class="pod-next">' + esc(nextTxt) + '</span>' +
-            '<div class="pod-plate"><div class="nm">' + esc(r.p.name) + '</div><div class="gr">' + esc(gradeLabel(r.p)) + (r.p.main ? '｜' + esc(r.p.main) : '') + '</div></div>' +
+            '<div class="pod-plate"><div class="nm">' + esc(r.p.name) + '</div><div class="gr">' + esc(gradeLabel(r.p)) + (r.p.main ? '｜' + esc(r.p.main) : '') + '</div><span class="ttl">' + esc(st.title) + '</span></div>' +
           '</div>';
         });
         html += '</div>';
         podEl.innerHTML = html;
       }
 
-      // --- 合計 ---
+      // --- スタジアム建設（合計） ---
       var total = 0;
       Object.keys(counts).forEach(function(pid){ total += counts[pid]; });
-      var totalEl = document.getElementById('total-area');
-      var mileHtml = '<div class="mile">' + MILESTONES.map(function(m){
-        return '<div class="mile-step' + (total >= m.th ? ' on' : '') + '"><div class="mile-dot">' + (total >= m.th ? '✓' : '') + '</div>' +
-          '<div class="mile-label">' + m.label + '</div><div class="mile-name">' + m.name + '</div></div>';
-      }).join('') + '</div>';
-      totalEl.innerHTML =
-        '<div class="total-num">' + total.toLocaleString() + '<small>食</small></div>' +
-        '<div class="total-sub">みんなで大きな森を育てています！</div>' + mileHtml;
+      var lv = Math.floor(total / STADIUM_STEP);
+      var toNext = STADIUM_STEP - (total % STADIUM_STEP);
+      var pct = Math.round((total % STADIUM_STEP) / STADIUM_STEP * 100);
+      var stStage = stadiumOf(total);
+      var stNext = nextStadium(total);
+      document.getElementById('total-area').innerHTML =
+        '<div class="std-photo"><img src="' + stadiumImg(total) + '" alt=""><div class="std-name">🏟 ' + esc(stStage.name) + '</div></div>' +
+        '<div class="std-lv"><span class="lv">Lv.' + lv + '</span><span class="total">みんなの合計 ' + total.toLocaleString() + '食</span></div>' +
+        '<div class="std-bar"><div class="std-bar-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="std-next">🔨 あと' + toNext + '食でスタジアムが進化！' + (stNext ? '　次は「' + esc(stNext.name) + '」' : '') + '</div>' +
+        '<div class="std-note">スタジアムは100食ごとにレベルアップ。この先の姿はお楽しみに！</div>';
 
-      // --- ステージ凡例 ---
-      document.getElementById('stages-area').innerHTML = STAGES.map(function(s){
+      // --- キャリアの道のり ---
+      document.getElementById('stages-area').innerHTML = CAREER.map(function(s){
         return '<div class="stage' + (s.img ? '' : ' locked') + '">' +
-          (s.img ? '<img src="' + s.img + '" alt="">' : '<div class="qm">？</div>') +
-          '<div class="stage-th">' + s.th + '食〜</div><div class="stage-nm">' + esc(s.name) + '</div></div>';
+          (s.img ? '<div class="ph"><img src="' + s.img + '" alt="" loading="lazy"></div>' : '<div class="qm">？</div>') +
+          '<div class="stage-body"><div class="stage-th">' + s.th + '食〜</div><div class="stage-nm">' + esc(s.name) + '</div><div class="stage-ttl">' + esc(s.title) + '</div></div></div>';
       }).join('');
     }
 
