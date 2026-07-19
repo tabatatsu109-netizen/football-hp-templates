@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRANDEを応援する | 八ヶ岳グランデFC</title>
+  <meta name="description" content="八ヶ岳グランデFCは、お金だけでなく時間・経験・知識・人とのつながりなど、さまざまな形の応援を歓迎しています。あなたにできる応援の形を見つけてください。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=20260719a">
+  <style>
+    /* 応援ページ専用 */
+    .sp-catch { background: #1a5c2d; padding: 44px 20px; text-align: center; }
+    .sp-catch p { color: rgba(255,255,255,.92); font-size: clamp(14px, 2.4vw, 18px); line-height: 2.1; font-weight: 500; max-width: 680px; margin: 0 auto; }
+    .sp-catch strong { color: #ffd75e; font-weight: 900; }
+
+    .sp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+    .sp-card { background: #fff; border: 1px solid #e4e6e9; border-radius: 14px; padding: 24px 22px; transition: all .25s; position: relative; overflow: hidden; }
+    .sp-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #1a5c2d; transform: scaleX(0); transition: transform .3s ease; transform-origin: left; }
+    .sp-card:hover { border-color: #1a5c2d; box-shadow: 0 12px 32px rgba(26,92,45,.14); transform: translateY(-4px); }
+    .sp-card:hover::after { transform: scaleX(1); }
+    .sp-icon { width: 52px; height: 52px; border-radius: 12px; background: #eaf4ec; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 14px; }
+    .sp-title { font-size: 15px; font-weight: 900; color: #22282e; margin-bottom: 12px; }
+    .sp-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; }
+    .sp-tags li { background: #f2f3f5; color: #3a4046; font-size: 12px; padding: 4px 10px; border-radius: 6px; font-weight: 500; transition: all .2s; }
+    .sp-card:hover .sp-tags li { background: #e5f2e8; color: #1a5c2d; }
+
+    .sp-act-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
+    .sp-act { background: #fff; border: 1px solid #e4e6e9; border-radius: 14px; overflow: hidden; transition: all .25s; }
+    .sp-act:hover { box-shadow: 0 8px 24px rgba(0,0,0,.1); transform: translateY(-3px); }
+    .sp-act-img { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+    .sp-act-img.g1 { background: linear-gradient(135deg, #14351f, #1a5c2d); }
+    .sp-act-img.g2 { background: linear-gradient(135deg, #6b4e0f, #c99a1e); }
+    .sp-act-img.g3 { background: linear-gradient(135deg, #2a3a4a, #4a6070); }
+    .sp-act-body { padding: 16px 18px; }
+    .sp-act-title { font-size: 14.5px; font-weight: 900; color: #22282e; margin-bottom: 6px; }
+    .sp-act-desc { font-size: 12.5px; color: #6b7178; line-height: 1.8; }
+
+    .sp-message { background: #fff; border: 1px solid #e4e6e9; border-radius: 18px; padding: 40px 28px; text-align: center; max-width: 760px; margin: 0 auto; }
+    .sp-message-icon { font-size: 42px; margin-bottom: 12px; }
+    .sp-message-title { font-size: clamp(20px, 3.6vw, 26px); font-weight: 900; color: #22282e; margin-bottom: 18px; }
+    .sp-message-title em { color: #1a5c2d; font-style: normal; }
+    .sp-message-body { font-size: 14px; color: #3a4046; line-height: 2.2; }
+    .sp-message-body strong { color: #1a5c2d; font-weight: 900; }
+    .sp-message-sig { margin-top: 24px; font-size: 12.5px; color: #8a9099; font-style: italic; }
+
+    .sp-cta { background: #14351f; border-radius: 18px; padding: 48px 24px; text-align: center; margin-top: 40px; }
+    .sp-cta-en { font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 4px; color: #ffd75e; margin-bottom: 10px; }
+    .sp-cta-title { color: #fff; font-size: clamp(20px, 3.6vw, 28px); font-weight: 900; line-height: 1.5; margin-bottom: 12px; }
+    .sp-cta-desc { color: rgba(255,255,255,.7); font-size: 13px; line-height: 1.9; margin-bottom: 26px; }
+    .sp-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .sp-btn-gold { display: inline-block; background: #ffd75e; color: #14351f; padding: 14px 34px; font-size: 14px; font-weight: 900; border-radius: 999px; text-decoration: none; transition: all .2s; }
+    .sp-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(255,215,94,.35); }
+    .sp-btn-outline { display: inline-block; background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.45); padding: 14px 34px; font-size: 14px; font-weight: 700; border-radius: 999px; text-decoration: none; transition: all .2s; }
+    .sp-btn-outline:hover { border-color: #fff; background: rgba(255,255,255,.06); }
+
+    .sp-sec-title { margin-bottom: 22px; }
+    .sp-sec-title .en { font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 4px; color: #c99a1e; display: block; margin-bottom: 4px; }
+    .sp-sec-title .ja { font-size: clamp(20px, 3.6vw, 28px); font-weight: 900; color: #22282e; }
+    .sp-sec-title .ja em { color: #1a5c2d; font-style: normal; }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+          <span class="gh-logo-name">GRANDE FC</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">取り組み</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="members.html" class="gh-login">ログイン</a>
+        <a href="join.html#apply" class="gh-cta gh-cta--trial">体験申込<small>TRIAL</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link nav-thanks" href="message.html"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+    <a class="m-link" href="members.html"><span class="n-en">MEMBERS</span><span class="n-ja">クラブ員専用</span></a>
+    <div class="m-nav-ctas">
+      <a href="join.html#apply" class="m-cta-trial">体験申込</a>
+    </div>
+  </nav>
+
+  <!-- ページヒーロー -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">SUPPORT GRANDE</div>
+      <div class="ph-ja">GRANDEを応援する</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><a href="partners.html">パートナー</a><span>›</span><span>GRANDEを応援する</span></div></div>
+
+  <!-- キャッチ -->
+  <div class="sp-catch">
+    <p>応援は、<strong>お金だけではありません。</strong><br>
+    時間、経験、知識、モノ、人とのつながり。<br>
+    <strong>さまざまな形でクラブを応援できます。</strong></p>
+  </div>
+
+  <main class="page-body">
+    <div class="container">
+
+      <!-- 応援の形 -->
+      <section style="margin-bottom:56px">
+        <div class="sp-sec-title">
+          <span class="en">HOW TO SUPPORT</span>
+          <span class="ja">あなたにできる<em>応援の形</em></span>
+        </div>
+        <div class="sp-grid">
+          <div class="sp-card">
+            <div class="sp-icon">🤝</div>
+            <div class="sp-title">パートナーとして応援する</div>
+            <ul class="sp-tags"><li>法人パートナー</li><li>個人サポーター</li><li>マンスリーサポーター</li><li>協賛金</li></ul>
+          </div>
+          <div class="sp-card">
+            <div class="sp-icon">🍚</div>
+            <div class="sp-title">グランデ食堂を応援する</div>
+            <ul class="sp-tags"><li>お米の提供</li><li>食材の提供</li><li>協賛金</li><li>ボランティア参加</li></ul>
+          </div>
+          <div class="sp-card">
+            <div class="sp-icon">⚽</div>
+            <div class="sp-title">モノで応援する</div>
+            <ul class="sp-tags"><li>サッカー用品</li><li>ボール</li><li>トレーニング用品</li><li>備品</li></ul>
+          </div>
+          <div class="sp-card">
+            <div class="sp-icon">🚌</div>
+            <div class="sp-title">遠征・イベントを応援する</div>
+            <ul class="sp-tags"><li>バス協賛</li><li>宿泊協力</li><li>ガソリン協賛</li><li>イベント協賛</li></ul>
+          </div>
+          <div class="sp-card">
+            <div class="sp-icon">📷</div>
+            <div class="sp-title">スキルで応援する</div>
+            <ul class="sp-tags"><li>写真撮影</li><li>動画制作</li><li>デザイン</li><li>WEB制作</li><li>栄養指導</li><li>通訳</li></ul>
+          </div>
+          <div class="sp-card">
+            <div class="sp-icon">🙌</div>
+            <div class="sp-title">ボランティアとして応援する</div>
+            <ul class="sp-tags"><li>イベント運営</li><li>会場設営</li><li>大会運営</li><li>グランデ食堂</li></ul>
+          </div>
+          <div class="sp-card">
+            <div class="sp-icon">🎓</div>
+            <div class="sp-title">OB・OGサポーター</div>
+            <ul class="sp-tags"><li>練習参加</li><li>職業講話</li><li>キャリア相談</li><li>進路サポート</li></ul>
+          </div>
+          <div class="sp-card">
+            <div class="sp-icon">📣</div>
+            <div class="sp-title">クラブを広める</div>
+            <ul class="sp-tags"><li>SNSシェア</li><li>選手募集の紹介</li><li>イベント告知協力</li></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 応援が活きている場所 -->
+      <section style="margin-bottom:56px">
+        <div class="sp-sec-title">
+          <span class="en">YOUR SUPPORT IN ACTION</span>
+          <span class="ja">応援が<em>活きている場所</em></span>
+        </div>
+        <div class="sp-act-grid">
+          <div class="sp-act">
+            <div class="sp-act-img g1">🍚</div>
+            <div class="sp-act-body">
+              <div class="sp-act-title">グランデ食堂</div>
+              <div class="sp-act-desc">地元食材・白州米・栄養士監修の食事で選手の心と体を育てる食育プロジェクト。毎週月曜日に実施中。</div>
+            </div>
+          </div>
+          <div class="sp-act">
+            <div class="sp-act-img g2">✈️</div>
+            <div class="sp-act-body">
+              <div class="sp-act-title">遠征活動</div>
+              <div class="sp-act-desc">県外大会や合宿への遠征。選手たちが全国の強豪チームと戦う機会を支えています。</div>
+            </div>
+          </div>
+          <div class="sp-act">
+            <div class="sp-act-img g3">🏘️</div>
+            <div class="sp-act-body">
+              <div class="sp-act-title">地域イベント</div>
+              <div class="sp-act-desc">巡回サッカー教室や地域行事への参加。サッカーを通じて地域とつながる取り組み。</div>
+            </div>
+          </div>
+          <div class="sp-act">
+            <div class="sp-act-img g1">⚽</div>
+            <div class="sp-act-body">
+              <div class="sp-act-title">育成環境整備</div>
+              <div class="sp-act-desc">トレーニング用具・ウェア・設備の充実で、選手たちが最高の環境で練習できるよう整えています。</div>
+            </div>
+          </div>
+          <div class="sp-act">
+            <div class="sp-act-img g2">🌡️</div>
+            <div class="sp-act-body">
+              <div class="sp-act-title">BMI・体調管理</div>
+              <div class="sp-act-desc">毎月のBMI測定と栄養指導で、選手一人ひとりの体づくりをサポートしています。</div>
+            </div>
+          </div>
+          <div class="sp-act">
+            <div class="sp-act-img g3">🎓</div>
+            <div class="sp-act-body">
+              <div class="sp-act-title">キャリア教育</div>
+              <div class="sp-act-desc">OBによる職業講話や進路相談など、サッカー以外の人生設計も一緒に考えます。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- メッセージ -->
+      <section>
+        <div class="sp-message">
+          <div class="sp-message-icon">🌱</div>
+          <div class="sp-message-title">応援の形は、<em>人それぞれ。</em></div>
+          <div class="sp-message-body">
+            GRANDE FCは、多くの人の支えによって活動しています。<br><br>
+            応援は、お金だけではありません。<br>
+            時間、経験、知識、人とのつながり。<br><br>
+            <strong>どんな形でも、子どもたちにとって大きな力になります。</strong><br><br>
+            あなたもGRANDEの仲間として、一緒に未来をつくりませんか。
+          </div>
+          <div class="sp-message-sig">— 八ヶ岳グランデフットボールクラブ</div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="sp-cta">
+        <div class="sp-cta-en">JOIN US</div>
+        <div class="sp-cta-title">あなたの応援が、<br>選手たちの未来につながる。</div>
+        <p class="sp-cta-desc">どんな形の応援でも、まずはお気軽にご連絡ください。<br>一緒にできることを考えます。</p>
+        <div class="sp-cta-btns">
+          <a class="sp-btn-gold" href="contact.html">応援について問い合わせる →</a>
+          <a class="sp-btn-outline" href="partners.html">パートナー一覧を見る</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="gf">
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="partners.html">パートナー</a>
+          <a href="contact.html">お問い合わせ</a>
+        </div>
+        <span>© <span id="footer-year"></span> 八ヶ岳グランデFC. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- フローティングCTA -->
+  <div class="float-btns">
+    <a href="join.html#apply" class="fb-trial">体験申込</a>
+  </div>
+
+  <script src="js/config-loader.js"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+    mobileNav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ mobileNav.classList.remove('open'); }); });
+    if (window.ConfigLoader) ConfigLoader.apply({ pageTitle: 'GRANDEを応援する' });
+  </script>
+</body>
+</html>
