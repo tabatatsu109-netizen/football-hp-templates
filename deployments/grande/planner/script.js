@@ -3911,9 +3911,20 @@ function isShokudoEnabled() { return !!shokudoCfg(); }
 function shokudoName()  { return (shokudoCfg() || {}).name  || '食堂管理'; }
 function shokudoPrice() { return (shokudoCfg() || {}).price || 900; }
 function shokudoCats()  { return (shokudoCfg() || {}).categories || ['U15', 'U14', 'U13']; }
+// カテゴリーが未入力でも学年（中1〜中3）からジュニアユースを自動判定する
+function skCategoryOf(p) {
+  if (p.category && shokudoCats().includes(p.category)) return p.category;
+  const g = String(p.grade || '');
+  if (g.indexOf('中1') === 0) return 'U13';
+  if (g.indexOf('中2') === 0) return 'U14';
+  if (g.indexOf('中3') === 0) return 'U15';
+  return null;
+}
+function skIsGK(p) {
+  return p.main === 'GK' || p.mainGroup === 'GK' || p.position === 'GK';
+}
 function shokudoPlayers() {
-  const cats = shokudoCats();
-  return players.filter(p => cats.includes(p.category))
+  return players.filter(p => !!skCategoryOf(p))
     .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ja'));
 }
 function skFindPlayer(id) { return players.find(p => p.id === id); }
@@ -4105,8 +4116,8 @@ const SHOKUDO_BMI_TARGET    = { U13: 19.5, U14: 20.5, U15: 21.0 };
 const SHOKUDO_BMI_TARGET_GK = { U13: 20.5, U14: 21.5, U15: 21.5 };
 function skBmiTarget(p) {
   if (!p) return null;
-  const isGK = (p.position === 'GK');
-  const t = isGK ? SHOKUDO_BMI_TARGET_GK[p.category] : SHOKUDO_BMI_TARGET[p.category];
+  const cat = skCategoryOf(p);
+  const t = skIsGK(p) ? SHOKUDO_BMI_TARGET_GK[cat] : SHOKUDO_BMI_TARGET[cat];
   return t || null;
 }
 function renderShokudoBmiPane() {
@@ -4121,7 +4132,7 @@ function renderShokudoBmiPane() {
       <div class="form-label">📏 BMI計測を記録</div>
       <div class="form-row-2">
         <div class="form-group"><label class="form-label">選手</label>
-          <select class="form-select" id="sk-bmi-player">${list.map(p => `<option value="${escEmg(p.id)}">${escEmg(p.name)}（${escEmg(p.category || '')}）</option>`).join('')}</select></div>
+          <select class="form-select" id="sk-bmi-player">${list.map(p => `<option value="${escEmg(p.id)}">${escEmg(p.name)}（${escEmg(skCategoryOf(p) || '')}）</option>`).join('')}</select></div>
         <div class="form-group"><label class="form-label">計測日</label><input class="form-input" type="date" id="sk-bmi-date" value="${new Date().toISOString().split('T')[0]}"></div>
       </div>
       <div class="form-row-2">

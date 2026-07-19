@@ -210,8 +210,18 @@
     function esc(s) {
       return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+    // カテゴリー未入力でも学年（中1〜中3）からジュニアユースを判定
+    function categoryOf(p) {
+      if (p.category && JY_CATS.indexOf(p.category) >= 0) return p.category;
+      var g = String(p.grade || '');
+      if (g.indexOf('中1') === 0) return 'U13';
+      if (g.indexOf('中2') === 0) return 'U14';
+      if (g.indexOf('中3') === 0) return 'U15';
+      return null;
+    }
+    function isGK(p) { return p.main === 'GK' || p.mainGroup === 'GK' || p.position === 'GK'; }
     function jyPlayers() {
-      return skData.players.filter(function(p){ return JY_CATS.indexOf(p.category) >= 0; })
+      return skData.players.filter(function(p){ return !!categoryOf(p); })
         .sort(function(a,b){ return (a.name||'').localeCompare(b.name||'', 'ja'); });
     }
     function playerName(id) {
@@ -301,7 +311,7 @@
       var html = '<div class="sk-table-wrap"><table class="sk-table"><thead><tr><th>選手</th><th class="ctr">最新BMI</th><th class="ctr">目標</th><th class="ctr">判定</th><th>計測日</th></tr></thead><tbody>';
       list.forEach(function(p){
         var r = latest[p.id];
-        var t = (p.position === 'GK' ? BMI_TARGET_GK : BMI_TARGET)[p.category];
+        var t = (isGK(p) ? BMI_TARGET_GK : BMI_TARGET)[categoryOf(p)];
         var cell = '−';
         if (r && t) cell = (r.bmi >= t) ? '<span class="sk-ok">達成</span>' : '<span class="sk-ng">あと'+(t - r.bmi).toFixed(1)+'</span>';
         html += '<tr><td>'+esc(p.name)+'</td><td class="ctr"><b>'+(r? r.bmi.toFixed(1):'−')+'</b></td><td class="ctr">'+(t!=null? t.toFixed(1):'−')+'</td><td class="ctr">'+cell+'</td><td style="color:#8a9099">'+(r? esc(r.date||''):'−')+'</td></tr>';
