@@ -196,12 +196,14 @@ function getSettings() {
     firebaseSecret: localStorage.getItem(getSecretKey()) || '',
     gasUrl:         localStorage.getItem(getGasStoreKey('url')) || '',
     gasKey:         localStorage.getItem(getGasStoreKey('key')) || '',
+    imgbbKey:       localStorage.getItem(getGasStoreKey('imgbb')) || '',
   };
 }
 function saveSettings(s) {
   localStorage.setItem(getSecretKey(), s.firebaseSecret || '');
   if ('gasUrl' in s) localStorage.setItem(getGasStoreKey('url'), s.gasUrl || '');
   if ('gasKey' in s) localStorage.setItem(getGasStoreKey('key'), s.gasKey || '');
+  if ('imgbbKey' in s) localStorage.setItem(getGasStoreKey('imgbb'), s.imgbbKey || '');
 }
 function isGasConfigured(s) {
   return !!(s.gasUrl && s.gasKey);
@@ -1512,6 +1514,147 @@ function deleteCurrentMatch() {
   });
 }
 
+// ===== PHOTO PICKER（カード写真の選択） =====
+// ホームページに置いてあるクラブ写真ライブラリ（assets/toprandom/）
+const HP_PHOTO_BASE = (typeof MP_CONFIG !== 'undefined' && MP_CONFIG.photoBase)
+  || 'https://grande.no-football.jp/deployments/grande/assets/toprandom/';
+const HP_PHOTOS = [
+  'photo2.jpg', 'photo3.jpg',
+  'LINE_ALBUM_エルドラード、ラーゴ_260627_10.jpg',
+  'LINE_ALBUM_エルドラード、ラーゴ_260627_11.jpg',
+  'LINE_ALBUM_エルドラード、ラーゴ_260627_14.jpg',
+  'LINE_ALBUM_エルドラード、ラーゴ_260627_36.jpg',
+  'LINE_ALBUM_エルドラード、ラーゴ_260627_52.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_8.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_19.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_21.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_23.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_31.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_32.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_38.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_39.jpg',
+  'LINE_ALBUM_ジュニア20251124_260627_40.jpg',
+  'LINE_ALBUM_高円宮杯アズール_260627_1.jpg',
+  'LINE_ALBUM_高円宮杯アズール_260627_3.jpg',
+  'LINE_ALBUM_高円宮杯アズール_260627_4.jpg',
+  'LINE_ALBUM_U12リーグ最終節_260627_1.jpg',
+  'LINE_ALBUM_U12リーグ最終節_260627_2.jpg',
+  'LINE_ALBUM_U12リーグ最終節_260627_3.jpg',
+  'LINE_ALBUM_U12リーグ最終節_260627_4.jpg',
+  'LINE_ALBUM_DEN合宿_260627_1.jpg',
+  'LINE_ALBUM_DEN合宿_260627_2.jpg',
+  'LINE_ALBUM_DEN合宿_260627_3.jpg',
+  'LINE_ALBUM_2026バーモントカップ2次リーグ_260627_1.jpg',
+  'LINE_ALBUM_2026バーモントカップ2次リーグ_260627_2.jpg',
+  'LINE_ALBUM_20251012石和中_260627_2.jpg',
+];
+function hpPhotoUrl(name) { return HP_PHOTO_BASE + encodeURIComponent(name); }
+
+let photoPickTarget = null;   // 'post' | 'ann'
+let annCardImage = null;      // 告知用に選んだ写真URL
+
+function openPhotoPicker(target) {
+  photoPickTarget = target;
+  const grid = document.getElementById('photo-picker-grid');
+  grid.innerHTML = HP_PHOTOS.map((name, i) => `
+    <button type="button" onclick="pickPhoto(${i})" style="padding:0;border:2px solid var(--c-border);border-radius:10px;overflow:hidden;background:#eee;cursor:pointer;aspect-ratio:4/3">
+      <img src="${hpPhotoUrl(name)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" alt="">
+    </button>`).join('');
+  openModal('modal-photo-picker');
+}
+
+function pickPhoto(idx) {
+  const url = hpPhotoUrl(HP_PHOTOS[idx]);
+  closeModal('modal-photo-picker');
+  if (photoPickTarget === 'post') {
+    document.getElementById('post-image').value = url;
+    updatePhotoPreview('post');
+  } else if (photoPickTarget === 'ann') {
+    annCardImage = url;
+    updatePhotoPreview('ann');
+  }
+  showToast('写真を選びました ✓', 'success');
+}
+
+function updatePhotoPreview(target) {
+  if (target === 'post') {
+    const url = document.getElementById('post-image').value.trim();
+    const img = document.getElementById('post-image-preview');
+    const clr = document.getElementById('post-image-clear');
+    if (url) { img.src = url; img.style.display = 'block'; if (clr) clr.style.display = ''; }
+    else { img.style.display = 'none'; if (clr) clr.style.display = 'none'; }
+  } else if (target === 'ann') {
+    const img = document.getElementById('ann-image-preview');
+    const clr = document.getElementById('ann-image-clear');
+    if (annCardImage) { img.src = annCardImage; img.style.display = 'block'; if (clr) clr.style.display = ''; }
+    else { img.style.display = 'none'; if (clr) clr.style.display = 'none'; }
+  }
+}
+
+function clearPickedPhoto(target) {
+  if (target === 'post') { document.getElementById('post-image').value = ''; }
+  else if (target === 'ann') { annCardImage = null; }
+  updatePhotoPreview(target);
+}
+
+// スマホの写真をImgBBへアップロードして使う（自動で縮小してから送る）
+function uploadPickerPhoto(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  const s = getSettings();
+  if (!s.imgbbKey) {
+    document.getElementById('photo-upload-nokey').style.display = 'block';
+    return;
+  }
+  document.getElementById('photo-upload-nokey').style.display = 'none';
+  const btn = document.getElementById('photo-upload-btn');
+  const status = document.getElementById('photo-upload-status');
+  btn.style.display = 'none';
+  status.style.display = 'block';
+
+  // 画像を最大1600pxに縮小・JPEG圧縮（通信量と表示速度のため）
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1600;
+      let w = img.width, h = img.height;
+      if (Math.max(w, h) > MAX) {
+        const ratio = MAX / Math.max(w, h);
+        w = Math.round(w * ratio); h = Math.round(h * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const base64 = canvas.toDataURL('image/jpeg', 0.82).split(',')[1];
+
+      const fd = new FormData();
+      fd.append('image', base64);
+      fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(s.imgbbKey), { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(data => {
+          const url = data && data.data && data.data.display_url;
+          if (!url) throw new Error('ImgBB error');
+          closeModal('modal-photo-picker');
+          if (photoPickTarget === 'post') {
+            document.getElementById('post-image').value = url;
+            updatePhotoPreview('post');
+          } else if (photoPickTarget === 'ann') {
+            annCardImage = url;
+            updatePhotoPreview('ann');
+          }
+          showToast('写真をアップロードしました ✓', 'success');
+        })
+        .catch(err => { console.error(err); showToast('アップロードに失敗しました。電波とAPIキーを確認してください', 'error'); })
+        .finally(() => { btn.style.display = ''; status.style.display = 'none'; });
+    };
+    img.onerror = () => { showToast('画像を読み込めませんでした', 'error'); btn.style.display = ''; status.style.display = 'none'; };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 // ===== LIVE MATCH CENTER（ライブ速報） =====
 // データはFirebaseの /clubs/{clubId}-live に保存する（通常データとは独立、上書き事故なし）
 let liveSchedId = null;
@@ -2557,7 +2700,7 @@ async function postAnnouncement() {
     type: '試合告知',
     date: sc?.date || todayStr(),
     body,
-    image: announcementSnsImage || null,
+    image: annCardImage || announcementSnsImage || null,
     source: 'announcement',
     published: true,
   };
@@ -2593,6 +2736,11 @@ async function postAnnouncement() {
 }
 function startAnnouncement(schedId) {
   selectedAnnSchedId = schedId;
+  annCardImage = null;
+  const annPrev = document.getElementById('ann-image-preview');
+  if (annPrev) annPrev.style.display = 'none';
+  const annClr = document.getElementById('ann-image-clear');
+  if (annClr) annClr.style.display = 'none';
   pushPage('page-announcement');
 }
 
@@ -3214,12 +3362,15 @@ function renderSettingsPage() {
   const gasKeyEl = document.getElementById('settings-gas-key');
   if (gasUrlEl) gasUrlEl.value = s.gasUrl || '';
   if (gasKeyEl) gasKeyEl.value = s.gasKey || '';
+  const imgbbEl = document.getElementById('settings-imgbb-key');
+  if (imgbbEl) imgbbEl.value = s.imgbbKey || '';
 }
 function saveSettingsForm() {
   const secret = document.getElementById('settings-firebase-secret').value.trim();
   const gasUrl = (document.getElementById('settings-gas-url')?.value || '').trim();
   const gasKey = (document.getElementById('settings-gas-key')?.value || '').trim();
-  saveSettings({ firebaseSecret: secret, gasUrl, gasKey });
+  const imgbbKey = (document.getElementById('settings-imgbb-key')?.value || '').trim();
+  saveSettings({ firebaseSecret: secret, gasUrl, gasKey, imgbbKey });
   emergencyGroupsLoaded = false; // GAS設定が変わったらグループを取り直す
   showToast('設定を保存しました', 'success');
   // 保存後すぐにクラウドから読み込む
