@@ -1034,3 +1034,6 @@ img { max-width: 100%; display: block; }
   transition: background 0.15s, color 0.15s;
 }
 .btn-danger-full:hover { background: #d9534f; color: #fff; }
+
+/* ===== LIVE MATCH CENTER ===== */
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }

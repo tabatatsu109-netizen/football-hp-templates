@@ -235,6 +235,57 @@
   var lastDetail = null;
   function setupOnDataOnceMore() { if (lastDetail) setupMatchday(lastDetail); }
 
+  /* ── ライブ速報バナー ──
+     Firebaseの /clubs/{clubId}-live を定期確認し、今日の試合が
+     LIVE中ならマッチデー・バナーを速報モードに切り替える */
+  var liveNow = null;
+  function fbBase(detail) {
+    var c = detail && detail.config;
+    return {
+      url: (c && c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app',
+      id: (c && c.integration && c.integration.firebaseClubId) || 'grande',
+    };
+  }
+  function pollLive(detail) {
+    var fb = fbBase(detail);
+    fetch(fb.url + '/clubs/' + fb.id + '-live.json?t=' + Date.now())
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var todayS = localDateStr(new Date());
+        var active = d && d.date === todayS && (d.status === 'live' || d.status === 'ht' || d.status === 'ft');
+        if (active) {
+          liveNow = d;
+          renderMdayLive(document.getElementById('matchday-banner'), d);
+        } else if (liveNow) {
+          liveNow = null;
+          setupOnDataOnceMore(); /* ライブ終了→通常表示に戻す */
+        }
+      })
+      .catch(function () {});
+  }
+  function renderMdayLive(host, d) {
+    if (!host) return;
+    if (mdayTimer) clearInterval(mdayTimer);
+    moveAboveHero(host);
+    var st = d.status;
+    var isWinFt = st === 'ft' && (d.myScore || 0) > (d.oppScore || 0);
+    var flag = st === 'live'
+      ? '<span class="mday-flag mday-flag--red"><i class="mday-reddot"></i>LIVE</span>'
+      : st === 'ht' ? '<span class="mday-flag mday-flag--red">ハーフタイム</span>'
+      : '<span class="mday-flag">FULL TIME</span>';
+    var title = st === 'ft' ? (isWinFt ? 'WIN!' : 'FULL TIME') : 'LIVE NOW';
+    host.innerHTML = mdayShell('mday--today' + (isWinFt ? ' mday--win' : ''),
+      '<div class="mday-head">' + flag + '<span class="mday-title">' + title + '</span></div>' +
+      '<div class="mday-score-row">' +
+        '<span class="mday-team">GRANDE</span>' +
+        '<span class="mday-score">' + (d.myScore || 0) + '<i>-</i>' + (d.oppScore || 0) + '</span>' +
+        '<span class="mday-team">' + esc(d.opponent || '') + '</span>' +
+      '</div>' +
+      '<a href="live.html" class="mday-live-btn">' + (st === 'ft' ? '試合の経過を見る →' : '🔴 ライブ速報を観戦する →') + '</a>'
+    );
+    host.style.display = 'block';
+  }
+
   /* ══════════════ 4. スコアのカウントアップ演出＋勝利エフェクト ══════════════ */
   var confettiDone = false;
 
@@ -315,10 +366,17 @@
   }
 
   /* ══════════════ 起動 ══════════════ */
+  var livePollStarted = false;
   document.addEventListener('grande:data', function (e) {
     lastDetail = e.detail || {};
     try { setupMatchday(lastDetail); } catch (err) { console.error('[mday]', err); }
     try { setupResultAnimations(); } catch (err) { console.error('[score-fx]', err); }
+    /* ライブ速報の監視（トップページのみ、30秒間隔） */
+    if (!livePollStarted && document.getElementById('matchday-banner')) {
+      livePollStarted = true;
+      try { pollLive(lastDetail); } catch (err) {}
+      setInterval(function () { try { pollLive(lastDetail); } catch (err) {} }, 30000);
+    }
   });
 
   /* イベントが来ないページでも結果リストがあれば演出を有効化 */

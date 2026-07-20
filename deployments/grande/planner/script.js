@@ -638,6 +638,7 @@ function renderSchedCard(sc, today) {
           ${isPast ? '<span class="past-pill">終了</span>' : ''}
           ${sc.posted ? '<span class="posted-pill">告知済み</span>' : ''}
           ${resultPosted ? '<span class="posted-pill">結果公開済み</span>' : ''}
+          ${!isPast && isMatchLike && sc.live ? `<button class="btn btn-sm" style="background:#e53935;color:#fff;font-weight:700" onclick="event.stopPropagation();openLivePage('${sc.id}')">🔴 ライブ速報</button>` : ''}
           ${!isPast && isMatchLike ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();startAnnouncement('${sc.id}')">📢 告知</button><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openSnsFromSchedId('${sc.id}')">📸 SNS画像</button>` : ''}
           ${isPast && isMatchLike && !resultPosted ? `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();continueResultFromSchedule('${sc.id}')">🏆 結果を登録</button>` : ''}
           <button class="btn btn-ghost btn-sm" style="color:var(--c-red);font-size:12px" onclick="event.stopPropagation();deleteSchedule('${sc.id}')">削除</button>
@@ -664,6 +665,8 @@ function openScheduleModal(id = null) {
     document.getElementById('sf-venue').value = sc.venue || '';
     document.getElementById('sf-competition').value = sc.competition || '';
     document.getElementById('sf-notes').value = sc.notes || '';
+    const liveCb = document.getElementById('sf-live');
+    if (liveCb) liveCb.checked = !!sc.live;
   } else {
     title.textContent = 'スケジュールを追加';
     document.getElementById('sf-date').value = todayStr();
@@ -676,6 +679,8 @@ function openScheduleModal(id = null) {
     document.getElementById('sf-venue').value = '';
     document.getElementById('sf-competition').value = '';
     document.getElementById('sf-notes').value = '';
+    const liveCb2 = document.getElementById('sf-live');
+    if (liveCb2) liveCb2.checked = false;
   }
   openModal('modal-schedule');
 }
@@ -694,6 +699,7 @@ function saveScheduleForm() {
     venue: document.getElementById('sf-venue').value,
     competition: document.getElementById('sf-competition').value,
     notes: document.getElementById('sf-notes').value,
+    live: document.getElementById('sf-live')?.checked || false,
     posted: editingSchedId ? (schedules.find(s => s.id === editingSchedId)?.posted || false) : false,
     matchId: editingSchedId ? (schedules.find(s => s.id === editingSchedId)?.matchId || null) : null,
   };
@@ -1212,12 +1218,15 @@ let concedeRows = [];
 function renderResult() {
   if (!currentMatch) return;
   const r = currentMatch.result;
-  document.getElementById('result-my-score').value = r?.myScore ?? 0;
-  document.getElementById('result-opp-score').value = r?.oppScore ?? 0;
+  // ライブ速報からの引き継ぎ（結果未入力のときだけ）
+  const pre = (!r && window._livePrefill) ? window._livePrefill : null;
+  if (pre) window._livePrefill = null;
+  document.getElementById('result-my-score').value = r?.myScore ?? (pre ? pre.my : 0);
+  document.getElementById('result-opp-score').value = r?.oppScore ?? (pre ? pre.opp : 0);
   document.getElementById('result-format').value = r?.format || '40分×2';
   document.getElementById('result-image').value = r?.imageUrl || '';
 
-  goalRows = r?.goals ? [...r.goals] : [];
+  goalRows = r?.goals ? [...r.goals] : (pre && pre.goals.length ? [...pre.goals] : []);
   concedeRows = r?.concedes ? [...r.concedes] : [];
   renderGoalRows();
   renderConcedeRows();
@@ -1501,6 +1510,210 @@ function deleteCurrentMatch() {
     showToast('試合を削除しました', 'success');
     popPage();
   });
+}
+
+// ===== LIVE MATCH CENTER（ライブ速報） =====
+// データはFirebaseの /clubs/{clubId}-live に保存する（通常データとは独立、上書き事故なし）
+let liveSchedId = null;
+let liveData = null;
+
+function getLiveUrl(s) { return `${s.firebaseUrl}/clubs/${s.clubId}-live.json`; }
+
+function newLiveData(sc) {
+  return {
+    schedId: sc.id, date: sc.date, opponent: sc.opponent || '',
+    category: sc.category || '', competition: sc.competition || sc.type || '',
+    status: 'pre', myScore: 0, oppScore: 0, events: [], updatedAt: Date.now(),
+  };
+}
+
+function openLivePage(schedId) {
+  const sc = schedules.find(s => s.id === schedId);
+  if (!sc) return;
+  const s = getSettings();
+  if (!isCloudConfigured(s)) { showToast('設定ページでFirebaseを設定してください', 'error'); return; }
+  liveSchedId = schedId;
+  pushPage('page-live');
+  document.getElementById('live-body').innerHTML = '<div style="text-align:center;color:var(--c-muted);padding:30px">読み込み中...</div>';
+  fetch(`${getLiveUrl(s)}?auth=${s.firebaseSecret}`)
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      liveData = (d && d.schedId === schedId) ? d : newLiveData(sc);
+      if (!Array.isArray(liveData.events)) liveData.events = [];
+      renderLivePage();
+    })
+    .catch(() => { liveData = newLiveData(sc); renderLivePage(); });
+}
+
+function livePush() {
+  const s = getSettings();
+  liveData.updatedAt = Date.now();
+  return fetch(`${getLiveUrl(s)}?auth=${s.firebaseSecret}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(liveData),
+  }).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    setSyncIcon('☁️');
+  }).catch(e => {
+    setSyncIcon('⚠️');
+    showToast('送信失敗（電波を確認）: ' + e.message, 'error');
+  });
+}
+
+function fmtLiveTime(ts) {
+  const d = new Date(ts);
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+const LIVE_EV_LABEL = {
+  ko:  { icon: '▶️', label: 'キックオフ' },
+  ko2: { icon: '▶️', label: '後半キックオフ' },
+  ht:  { icon: '⏸', label: 'ハーフタイム' },
+  ft:  { icon: '🏁', label: '試合終了' },
+  goal:    { icon: '⚽', label: 'ゴール！' },
+  oppgoal: { icon: '😢', label: '失点' },
+};
+
+function renderLivePage() {
+  const el = document.getElementById('live-body');
+  if (!el || !liveData) return;
+  const st = liveData.status;
+  const stLabel = st === 'pre' ? '試合前' : st === 'live' ? '🔴 LIVE配信中' : st === 'ht' ? 'ハーフタイム' : '試合終了';
+  const stColor = st === 'live' ? '#e53935' : st === 'ft' ? '#666' : 'var(--c-green, #1a6b2f)';
+
+  const bigBtn = (label, color, fn, sub) => `
+    <button onclick="${fn}" style="width:100%;padding:16px 10px;border-radius:14px;background:${color};color:#fff;font-weight:900;font-size:17px;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)">
+      ${label}${sub ? `<div style="font-size:11px;font-weight:400;opacity:.85;margin-top:2px">${sub}</div>` : ''}
+    </button>`;
+
+  let buttons = '';
+  if (st === 'pre') {
+    buttons = bigBtn('▶️ キックオフ！', '#1a6b2f', "liveEvent('ko')", '押すとHPの速報がスタートします');
+  } else if (st === 'live') {
+    buttons = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        ${bigBtn('⚽ ゴール！', '#e5a100', "liveEvent('goal')")}
+        ${bigBtn('😢 失点', '#78909c', "liveEvent('oppgoal')")}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        ${bigBtn('⏸ ハーフタイム', '#455a64', "liveEvent('ht')")}
+        ${bigBtn('🏁 試合終了', '#263238', "liveEvent('ft')")}
+      </div>`;
+  } else if (st === 'ht') {
+    buttons = `
+      ${bigBtn('▶️ 後半キックオフ', '#1a6b2f', "liveEvent('ko2')")}
+      <div style="margin-top:10px">${bigBtn('🏁 試合終了', '#263238', "liveEvent('ft')")}</div>`;
+  } else {
+    buttons = `
+      <div style="background:#f0faf0;border:1px solid #b2d8b2;border-radius:10px;padding:12px;text-align:center;font-size:13px;margin-bottom:10px">
+        お疲れさまでした！このスコアで正式な結果登録に進めます
+      </div>
+      ${bigBtn('🏆 この結果を登録する', '#1a6b2f', 'liveToResult()')}`;
+  }
+
+  const evHtml = [...liveData.events].reverse().map(ev => {
+    const meta = LIVE_EV_LABEL[ev.type] || { icon: '・', label: ev.type };
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px solid var(--c-border);font-size:14px">
+      <span style="font-size:12px;color:var(--c-muted);min-width:40px">${fmtLiveTime(ev.ts)}</span>
+      <span>${meta.icon}</span>
+      <span style="font-weight:700">${meta.label}</span>
+      ${ev.scorer ? `<span style="color:var(--c-muted)">${escEmg(ev.scorer)}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="background:linear-gradient(135deg,#14351f,#1a5c2d);border-radius:16px;padding:18px 14px;color:#fff;text-align:center;margin-bottom:14px">
+      <div style="display:inline-block;background:${stColor};padding:3px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:8px;${st==='live'?'animation:pulse 1.5s infinite':''}">${stLabel}</div>
+      <div style="font-size:13px;opacity:.8">${escEmg(liveData.competition)}${liveData.category ? '・' + escEmg(liveData.category) : ''}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px">
+        <span style="font-weight:900;font-size:15px">GRANDE</span>
+        <span style="font-size:42px;font-weight:900;letter-spacing:2px">${liveData.myScore}<span style="color:#c8a94a;padding:0 6px">-</span>${liveData.oppScore}</span>
+        <span style="font-weight:900;font-size:15px">${escEmg(liveData.opponent)}</span>
+      </div>
+    </div>
+    ${buttons}
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-secondary btn-sm" style="flex:1" onclick="liveUndo()" ${liveData.events.length ? '' : 'disabled'}>↩️ 1つ取り消す</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--c-red)" onclick="liveClear()">速報を削除</button>
+    </div>
+    ${liveData.events.length ? `<div style="margin-top:16px"><div style="font-size:12px;font-weight:700;color:var(--c-text2);margin-bottom:4px">経過</div>${evHtml}</div>` : ''}
+  `;
+}
+
+function liveEvent(type) {
+  if (!liveData) return;
+  if (type === 'goal') { openLiveScorerPicker(); return; }
+  applyLiveEvent({ type, ts: Date.now() });
+}
+
+function applyLiveEvent(ev) {
+  liveData.events.push(ev);
+  if (ev.type === 'goal') liveData.myScore++;
+  if (ev.type === 'oppgoal') liveData.oppScore++;
+  if (ev.type === 'ko' || ev.type === 'ko2') liveData.status = 'live';
+  if (ev.type === 'ht') liveData.status = 'ht';
+  if (ev.type === 'ft') liveData.status = 'ft';
+  renderLivePage();
+  livePush();
+}
+
+function openLiveScorerPicker() {
+  const sc = schedules.find(s => s.id === liveSchedId);
+  const cat = sc ? (sc.category || '') : '';
+  let list = players;
+  if (cat) {
+    const filtered = players.filter(p => skCategoryOf(p) === cat.replace('-', ''));
+    if (filtered.length) list = filtered;
+  }
+  const el = document.getElementById('live-scorer-list');
+  el.innerHTML = list.map(p => `
+    <button class="btn btn-secondary" style="padding:12px 6px;font-size:14px" onclick="liveGoalWithScorer('${escEmg(p.name).replace(/'/g, '')}')">
+      ${p.number ? `<span style="color:var(--c-muted);font-size:12px">#${p.number}</span> ` : ''}${escEmg(p.name)}
+    </button>`).join('') || '<div style="grid-column:1/-1;color:var(--c-muted);font-size:13px;text-align:center">選手が登録されていません</div>';
+  openModal('modal-live-scorer');
+}
+
+function liveGoalWithScorer(name) {
+  closeModal('modal-live-scorer');
+  applyLiveEvent({ type: 'goal', ts: Date.now(), scorer: name || '' });
+}
+
+function liveUndo() {
+  if (!liveData || !liveData.events.length) return;
+  const ev = liveData.events.pop();
+  if (ev.type === 'goal') liveData.myScore = Math.max(0, liveData.myScore - 1);
+  if (ev.type === 'oppgoal') liveData.oppScore = Math.max(0, liveData.oppScore - 1);
+  let st = 'pre';
+  liveData.events.forEach(e => {
+    if (e.type === 'ko' || e.type === 'ko2') st = 'live';
+    if (e.type === 'ht') st = 'ht';
+    if (e.type === 'ft') st = 'ft';
+  });
+  liveData.status = st;
+  renderLivePage();
+  livePush();
+  showToast('1つ取り消しました');
+}
+
+function liveClear() {
+  showConfirm('ライブ速報を削除', '速報データを削除します。ホームページの速報ページからも消えます。よろしいですか？', '削除する', () => {
+    const s = getSettings();
+    fetch(`${getLiveUrl(s)}?auth=${s.firebaseSecret}`, { method: 'DELETE' })
+      .then(() => { liveData = null; showToast('削除しました'); popPage(); })
+      .catch(e => showToast('削除失敗: ' + e.message, 'error'));
+  });
+}
+
+// 試合終了後：ライブのスコアを結果登録に引き継ぐ
+function liveToResult() {
+  if (!liveData) return;
+  window._livePrefill = {
+    my: liveData.myScore,
+    opp: liveData.oppScore,
+    goals: (liveData.events || []).filter(e => e.type === 'goal' && e.scorer).map(e => ({ scorer: e.scorer, assist: '', minute: '' })),
+  };
+  continueResultFromSchedule(liveSchedId);
 }
 
 // ===== PLAYERS =====
