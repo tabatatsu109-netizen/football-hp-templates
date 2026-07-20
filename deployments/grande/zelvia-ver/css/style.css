@@ -239,12 +239,9 @@ img { max-width: 100%; display: block; }
 .nm-logo-img { width: 82%; height: 82%; object-fit: contain; }
 .nm-logo-away {
   width: 70px; height: 70px; margin: 0 auto; border-radius: 50%;
-  background: #fff; border: 2px solid var(--line);
+  background: var(--bg-gray); border: 1px solid var(--line);
   display: flex; align-items: center; justify-content: center;
-}
-.nm-abbr-away {
-  font-family: 'Oswald', 'Noto Sans JP', sans-serif; font-weight: 700;
-  font-size: 20px; letter-spacing: 1px; color: #3a3f45;
+  font-family: 'Oswald', sans-serif; font-size: 10px; color: #9aa0a8;
 }
 .nm-team-name { margin-top: 10px; font-weight: 900; font-size: 14px; letter-spacing: 0.5px; }
 .nm-team-label { color: #9aa0a8; font-size: 10px; letter-spacing: 2px; margin-top: 2px; }
@@ -1125,3 +1122,134 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
 .tk-banner-en { display: block; font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; color: #7fce97; letter-spacing: 4px; font-size: 13px; }
 .tk-banner-ja { display: block; color: #fff; font-weight: 900; font-size: clamp(22px, 3.4vw, 34px); letter-spacing: 2px; margin-top: 4px; }
 .tk-banner-sub { display: block; color: rgba(255,255,255,0.82); font-size: 12.5px; letter-spacing: 1px; margin-top: 10px; line-height: 1.9; }
+
+/* ═══════════════════════════════════════════════
+   MOBILE EXPERIENCE PACK (2026-07)
+   マッチデー・モード / スコア演出 / ボトムナビ / PWA
+   ═══════════════════════════════════════════════ */
+
+/* ── マッチデー・バナー ── */
+#matchday-banner { display: none; }
+.mday {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(120deg, #0a2413 0%, #0e3a1c 45%, #14532a 100%);
+  border-top: 3px solid #c8a94a;
+  border-bottom: 3px solid #c8a94a;
+  color: #fff;
+  text-align: center;
+}
+.mday-stripes {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(-55deg, rgba(255,255,255,.04) 0 18px, transparent 18px 36px);
+  animation: mday-slide 24s linear infinite;
+  pointer-events: none;
+}
+@keyframes mday-slide { from { transform: translateX(0); } to { transform: translateX(-120px); } }
+.mday-inner { position: relative; padding: 26px 16px 30px; max-width: 720px; margin: 0 auto; }
+.mday-head { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+.mday-flag {
+  background: #c8a94a; color: #0e3a1c;
+  font-weight: 900; font-size: 11px; letter-spacing: 2px;
+  padding: 4px 10px; border-radius: 3px;
+  animation: mday-blink 2.4s ease-in-out infinite;
+}
+.mday-flag--next { background: rgba(255,255,255,.14); color: #e8d48b; animation: none; }
+@keyframes mday-blink { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+.mday-title {
+  font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700;
+  font-size: clamp(30px, 8vw, 46px); letter-spacing: 3px; line-height: 1;
+  background: linear-gradient(180deg, #fff 55%, #c8a94a);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.mday-next-date { font-family: 'Oswald', sans-serif; font-size: clamp(18px, 5vw, 24px); font-weight: 700; letter-spacing: 1px; color: #fff; }
+.mday-vs { font-weight: 900; font-size: clamp(17px, 4.6vw, 22px); margin-bottom: 2px; }
+.mday-vs--sm { font-size: clamp(15px, 4vw, 18px); }
+.mday-cat {
+  display: inline-block; margin-left: 8px; vertical-align: middle;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(200,169,74,.5);
+  color: #e8d48b; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+}
+.mday-comp { color: rgba(255,255,255,.55); font-size: 12.5px; margin-bottom: 4px; }
+.mday-count-label { color: #c8a94a; font-size: 11px; font-weight: 700; letter-spacing: 3px; margin: 10px 0 6px; }
+.mday-count { display: flex; justify-content: center; align-items: center; gap: 3px; }
+.mday-digit {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 34px; padding: 7px 2px;
+  background: rgba(0,0,0,.35); border: 1px solid rgba(200,169,74,.35); border-radius: 7px;
+  font-family: 'Oswald', sans-serif; font-size: 27px; font-weight: 700; color: #fff;
+  box-shadow: inset 0 -12px 14px rgba(0,0,0,.3);
+}
+.mday-count--sm .mday-digit { min-width: 27px; font-size: 21px; padding: 5px 2px; }
+.mday-sep { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #c8a94a; padding: 0 2px; }
+.mday-gap { width: 10px; }
+.mday-live { font-weight: 900; font-size: 19px; color: #e8d48b; animation: mday-blink 1.2s ease-in-out infinite; }
+.mday-score-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 8px 0 6px; flex-wrap: wrap; }
+.mday-team { font-weight: 900; font-size: clamp(14px, 4vw, 18px); }
+.mday-score { font-family: 'Oswald', sans-serif; font-size: clamp(40px, 11vw, 58px); font-weight: 700; line-height: 1; }
+.mday-score i { font-style: normal; color: #c8a94a; padding: 0 6px; }
+.mday--win .mday-title { background: linear-gradient(180deg, #ffe9a8 30%, #c8a94a); -webkit-background-clip: text; background-clip: text; }
+.mday--win { border-color: #e8d48b; box-shadow: 0 0 40px rgba(200,169,74,.25) inset; }
+
+/* ── スコアのカウントアップ演出 ── */
+.score-rolling { opacity: .75; }
+.score-landed { animation: score-pop .45s cubic-bezier(.2, 2.2, .4, 1); display: inline-block; }
+@keyframes score-pop { 0% { transform: scale(1.55); } 100% { transform: scale(1); } }
+.row-win-glow .result-badge.badge-win {
+  animation: win-glow 1.8s ease-in-out 2;
+}
+@keyframes win-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(200,169,74,0); }
+  50% { box-shadow: 0 0 18px rgba(200,169,74,.9), 0 0 36px rgba(200,169,74,.4); }
+}
+
+/* ── 紙吹雪 ── */
+.gv-confetti {
+  position: fixed; z-index: 9999;
+  width: 8px; height: 12px; border-radius: 2px;
+  pointer-events: none;
+  animation: gv-confetti-fly 1.4s cubic-bezier(.2, .6, .4, 1) forwards;
+}
+@keyframes gv-confetti-fly {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), calc(var(--dy) + 160px)) rotate(var(--rot)); opacity: 0; }
+}
+
+/* ── アプリ風ボトムナビ（スマホのみ） ── */
+.bnav-m {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 950;
+  display: flex;
+  background: rgba(8, 26, 14, .93);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(200,169,74,.25);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.bnav-m a {
+  position: relative;
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 9px 0 8px;
+  color: rgba(255,255,255,.55);
+  font-size: 10px; font-weight: 700; letter-spacing: .5px;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .2s;
+}
+.bnav-m a svg {
+  width: 22px; height: 22px;
+  fill: none; stroke: currentColor; stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.bnav-m a.on { color: #fff; }
+.bnav-m a.bnav-m-cta { color: #e8d48b; }
+.bnav-m a:active { transform: scale(.94); }
+.bnav-dot {
+  position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+  width: 4px; height: 4px; border-radius: 50%; background: #c8a94a;
+}
+@media (min-width: 900px) {
+  .bnav-m { display: none; }
+}
+@media (max-width: 899px) {
+  body.has-bnav { padding-bottom: calc(62px + env(safe-area-inset-bottom, 0)); }
+  body.has-bnav .float-btns { display: none; }
+}

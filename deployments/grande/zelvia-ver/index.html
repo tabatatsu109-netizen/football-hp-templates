@@ -2,8 +2,13 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>八ヶ岳グランデFC</title>
+  <meta name="theme-color" content="#0e3a1c">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="八ヶ岳グランデFC公式サイト。八ヶ岳の大自然のもと、子どもたちがサッカーを通じて心と身体を磨き、夢に向かって努力できるクラブ。">
   <meta property="og:title" content="八ヶ岳グランデFC">
   <meta property="og:description" content="感動するサッカーの追求 — CORAZON GRANDE">
@@ -11,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260719a">
+  <link rel="stylesheet" href="css/style.css?v=20260720a">
 </head>
 <body>
 
@@ -91,6 +96,9 @@
     <span class="hero-scroll">SCROLL</span>
   </section>
 
+  <!-- マッチデー・モード（試合当日/次の試合カウントダウン、JSが自動制御） -->
+  <div id="matchday-banner"></div>
+
   <!-- プロモバナー スライダー: 体験練習(固定) + 新着ニュース(自動) -->
   <section class="promo">
     <div class="promo-track" id="promo-track">
@@ -124,6 +132,7 @@
           <div class="nm-center" style="color:#9aa0a8;font-size:13px;">データを取得中</div>
         </div>
         <div class="nm-actions">
+          <a href="contact.html" class="nm-btn nm-btn-light">会場・アクセス</a>
           <a href="matches.html" class="nm-btn nm-btn-dark">試合詳細</a>
         </div>
       </div>
@@ -325,8 +334,9 @@
     </div>
   </div>
 
-  <script src="js/config-loader.js"></script>
-  <script src="js/match-planner-connector.js?v=20260719a"></script>
+  <script src="js/config-loader.js?v=20260720a"></script>
+  <script src="js/match-planner-connector.js?v=20260720a"></script>
+  <script src="js/mobile-experience.js?v=20260720a"></script>
   <script>
     // 年号
     document.getElementById('footer-year').textContent = new Date().getFullYear();
