@@ -159,6 +159,16 @@ function saveProductData(){
 /* ───────── PRODUCTS (built-in + custom) ───────── */
 function allProds(){ return PRODS.concat(S.customProds); }
 function prodById(pid){ return allProds().filter(function(p){ return p.id===pid; })[0]; }
+function brandOf(p){ return (p.brand || "").trim() || "その他"; }
+function uniqueBrands(){
+  var seen = {}, list = [];
+  allProds().forEach(function(p){
+    var b = brandOf(p);
+    if(!seen[b]){ seen[b] = true; list.push(b); }
+  });
+  return list;
+}
+function matchBrand(p, filter){ return filter==="すべて" || brandOf(p)===filter; }
 
 function getOrderedProds(){
   var all = allProds();
@@ -197,6 +207,37 @@ function dropProduct(targetPid){
   order.splice(to,0,dragPid);
   S.productOrder = order;
   dragPid = null;
+  render();
+  saveProductData().then(function(){ showToast("並び順を保存しました ✓"); }).catch(function(){ showError("保存に失敗しました"); });
+}
+
+/* 複数選択の一括移動 */
+function selectedIds(){
+  return currentOrderIds().filter(function(id){ return S.selectedProds[id]; });
+}
+function moveSelected(mode){
+  var order = currentOrderIds();
+  var sel = order.filter(function(id){ return S.selectedProds[id]; });
+  if(!sel.length) return;
+  var rest = order.filter(function(id){ return !S.selectedProds[id]; });
+  if(mode==="top"){
+    order = sel.concat(rest);
+  } else if(mode==="bottom"){
+    order = rest.concat(sel);
+  } else if(mode==="up"){
+    for(var i=1;i<order.length;i++){
+      if(S.selectedProds[order[i]] && !S.selectedProds[order[i-1]]){
+        var t=order[i-1]; order[i-1]=order[i]; order[i]=t;
+      }
+    }
+  } else if(mode==="down"){
+    for(var j=order.length-2;j>=0;j--){
+      if(S.selectedProds[order[j]] && !S.selectedProds[order[j+1]]){
+        var t2=order[j+1]; order[j+1]=order[j]; order[j]=t2;
+      }
+    }
+  }
+  S.productOrder = order;
   render();
   saveProductData().then(function(){ showToast("並び順を保存しました ✓"); }).catch(function(){ showError("保存に失敗しました"); });
 }
@@ -252,7 +293,10 @@ var S = {
   photoUploading:null,
   productOrder:[],
   customProds:[],
-  editProd:null
+  editProd:null,
+  brandFilter:"すべて",
+  adminBrandFilter:"すべて",
+  selectedProds:{}
 };
 
 function selFor(p){
@@ -432,8 +476,8 @@ function productCardHtml(p){
   }).join("");
   var imgUrl = S.productImages[p.id];
   var imgArea = imgUrl
-    ? '<img src="'+esc(imgUrl)+'" style="width:100%;height:180px;object-fit:cover;display:block">'
-    : '<div style="background:#f0f4f0;padding:20px;min-height:120px;display:flex;align-items:center;justify-content:center"><div style="font-size:40px">'+icon+'</div></div>';
+    ? '<div style="width:100%;height:210px;background:#fafcfa;display:flex;align-items:center;justify-content:center;padding:10px"><img src="'+esc(imgUrl)+'" style="max-width:100%;max-height:100%;object-fit:contain;display:block"></div>'
+    : '<div style="background:#f0f4f0;padding:20px;height:210px;display:flex;align-items:center;justify-content:center"><div style="font-size:40px">'+icon+'</div></div>';
   return (
     '<div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)">'+
       '<div style="position:relative">'+
@@ -513,7 +557,16 @@ function productsSectionHtml(){
     return '<button onclick=\'App.setView("'+vd.v+'")\' style="white-space:nowrap;padding:8px 18px;border-radius:99px;border:2px solid '+(active?vd.bg:"#ccc")+';background:'+(active?vd.bg:"#fff")+';color:'+(active?"#fff":"#555")+';font-weight:700;font-size:13px">'+esc(vd.label)+'</button>';
   }).join("");
 
-  var allOrdered = getOrderedProds();
+  var brands = uniqueBrands();
+  var brandTabsHtml = "";
+  if(brands.length > 1){
+    brandTabsHtml = '<div class="flt-wrap" style="margin-bottom:16px">'+["すべて"].concat(brands).map(function(b){
+      var active = S.brandFilter===b;
+      return '<button onclick=\'App.setBrandFilter("'+esc(b)+'")\' style="white-space:nowrap;padding:6px 16px;border-radius:99px;border:1.5px solid '+(active?G.g3:"#ccc")+';background:'+(active?G.g3:"#fff")+';color:'+(active?"#fff":"#666")+';font-weight:700;font-size:12px">'+(b==="すべて"?"全ブランド":esc(b))+'</button>';
+    }).join("")+'</div>';
+  }
+
+  var allOrdered = getOrderedProds().filter(function(p){ return matchBrand(p, S.brandFilter); });
   var list;
   var guideHtml = "";
   if(S.view==="junior"){
@@ -534,7 +587,8 @@ function productsSectionHtml(){
     '<div style="max-width:1200px;margin:0 auto;padding:36px 16px 60px">'+
       '<div style="font-size:11px;font-weight:700;color:'+G.g1+';letter-spacing:4px;text-transform:uppercase;margin-bottom:6px">ITEMS</div>'+
       '<div style="font-size:clamp(24px,5vw,36px);font-weight:900;letter-spacing:2px;margin-bottom:20px">商品一覧</div>'+
-      '<div class="flt-wrap" style="margin-bottom:16px">'+tabsHtml+'</div>'+
+      '<div class="flt-wrap" style="margin-bottom:10px">'+tabsHtml+'</div>'+
+      brandTabsHtml+
       guideHtml+
       '<div class="pgrid">'+prodsHtml+'</div>'+
     '</div>'
@@ -851,21 +905,53 @@ function statsTabHtml(){
   return '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:16px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">STATS</div>'+body;
 }
 function photosTabHtml(){
-  var ordered = getOrderedProds();
-  var total = ordered.length;
-  var cardsHtml = ordered.map(function(p, i){
+  var fullOrder = currentOrderIds();
+  var total = fullOrder.length;
+  var ordered = getOrderedProds().filter(function(p){ return matchBrand(p, S.adminBrandFilter); });
+
+  /* ブランド絞り込みチップ */
+  var brands = uniqueBrands();
+  var brandChips = '<div class="sf-wrap" style="margin-bottom:12px">'+["すべて"].concat(brands).map(function(b){
+    var active = S.adminBrandFilter===b;
+    return '<button onclick=\'App.setAdminBrandFilter("'+esc(b)+'")\' style="padding:6px 14px;border-radius:99px;font-weight:700;font-size:12px;white-space:nowrap;background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#555")+';box-shadow:0 1px 4px rgba(0,0,0,.08)">'+(b==="すべて"?"全ブランド":esc(b))+'</button>';
+  }).join("")+'</div>';
+
+  /* 選択中の一括操作バー */
+  var selCount = selectedIds().length;
+  var visibleIds = ordered.map(function(p){ return p.id; });
+  var allVisibleSelected = visibleIds.length>0 && visibleIds.every(function(id){ return S.selectedProds[id]; });
+  var bulkBtnStyle = 'padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;background:#fff;border:1.5px solid '+G.g1+';color:'+G.g1+';white-space:nowrap';
+  var bulkBar =
+    '<div style="position:sticky;top:0;z-index:50;background:'+(selCount?'#eef7ee':'#f7f7f7')+';border:1.5px solid '+(selCount?G.g1:'#ddd')+';border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+      '<label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#444;cursor:pointer;white-space:nowrap">'+
+        '<input type="checkbox" '+(allVisibleSelected?"checked":"")+' onchange="App.toggleSelectAllVisible()" style="width:16px;height:16px"> 表示中を全選択'+
+      '</label>'+
+      '<span style="font-size:12px;font-weight:700;color:'+(selCount?G.g1:'#999')+';white-space:nowrap">'+selCount+'件選択中</span>'+
+      (selCount?
+        '<button onclick="App.moveSelected(\'top\')" style="'+bulkBtnStyle+'">⤒ 一番上へ</button>'+
+        '<button onclick="App.moveSelected(\'up\')" style="'+bulkBtnStyle+'">↑ 上へ</button>'+
+        '<button onclick="App.moveSelected(\'down\')" style="'+bulkBtnStyle+'">↓ 下へ</button>'+
+        '<button onclick="App.moveSelected(\'bottom\')" style="'+bulkBtnStyle+'">⤓ 一番下へ</button>'+
+        '<button onclick="App.clearSelection()" style="padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;background:#fff;border:1.5px solid #ccc;color:#888;white-space:nowrap">✕ 選択解除</button>'
+      :'<span style="font-size:11px;color:#aaa">チェックを入れると、まとめて移動できます</span>')+
+    '</div>';
+
+  var cardsHtml = ordered.map(function(p){
+    var i = fullOrder.indexOf(p.id);
     var url = S.productImages[p.id];
     var uploading = S.photoUploading === p.id;
     var isCustom = S.customProds.some(function(c){ return c.id===p.id; });
+    var isSel = !!S.selectedProds[p.id];
     var icon = p.cat==="ソックス"?"🧦":p.cat==="バッグ"?"🎒":p.cat==="ボトムス"?"👖":"👕";
     var imgHtml = url
-      ? '<img src="'+esc(url)+'" style="width:72px;height:72px;object-fit:cover;border-radius:8px;flex-shrink:0">'
+      ? '<div style="width:72px;height:72px;border-radius:8px;background:#fafcfa;border:1px solid #eee;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="'+esc(url)+'" style="max-width:100%;max-height:100%;object-fit:contain"></div>'
       : '<div style="width:72px;height:72px;border-radius:8px;background:#f0f4f0;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">'+icon+'</div>';
     var moveHtml =
-      '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0">'+
+      '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+
+        '<input type="checkbox" '+(isSel?"checked":"")+' onchange="App.toggleSelectProd('+p.id+')" style="width:18px;height:18px;cursor:pointer;accent-color:'+G.g1+'">'+
         '<div title="ドラッグして並び替え" style="cursor:grab;color:#bbb;font-size:18px;padding:4px 2px;user-select:none;line-height:1">⠿</div>'+
         '<div style="display:flex;flex-direction:column;gap:3px">'+
-          '<button onclick="App.moveProduct('+p.id+',-1)" '+(i===0?"disabled":"")+' style="width:26px;height:26px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:13px;cursor:'+(i===0?"not-allowed":"pointer")+';color:'+(i===0?"#ccc":"#333")+'">↑</button>'+
+          '<button onclick="App.moveProduct('+p.id+',-1)" '+(i<=0?"disabled":"")+' style="width:26px;height:26px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:13px;cursor:'+(i<=0?"not-allowed":"pointer")+';color:'+(i<=0?"#ccc":"#333")+'">↑</button>'+
           '<button onclick="App.moveProduct('+p.id+',1)" '+(i===total-1?"disabled":"")+' style="width:26px;height:26px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:13px;cursor:'+(i===total-1?"not-allowed":"pointer")+';color:'+(i===total-1?"#ccc":"#333")+'">↓</button>'+
         '</div>'+
       '</div>';
@@ -877,12 +963,12 @@ function photosTabHtml(){
         'ondragleave="App.dragLeave(event)" '+
         'ondrop="App.dropOn(event,'+p.id+')" '+
         'ondragend="App.dragEnd(event)" '+
-        'style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:10px;border:2px solid transparent">'+
+        'style="background:'+(isSel?'#f2f9f2':'#fff')+';border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:10px;border:2px solid '+(isSel?G.g1:'transparent')+'">'+
         moveHtml+
         imgHtml+
         '<div style="flex:1;min-width:0">'+
           '<div style="font-weight:700;font-size:13px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name)+(isCustom?' <span style="background:#e8f2ff;color:#1a56b0;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;vertical-align:middle">追加商品</span>':'')+'</div>'+
-          '<div style="font-size:11px;color:#888;margin-bottom:8px">'+fmt(p.price)+' · '+esc(p.cat)+'</div>'+
+          '<div style="font-size:11px;color:#888;margin-bottom:8px">'+fmt(p.price)+' · '+esc(p.cat)+' · '+esc(brandOf(p))+'</div>'+
           '<div style="display:flex;gap:5px;flex-wrap:wrap">'+
             '<label style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:'+(uploading?"#aaa":G.g1)+';color:#fff;border-radius:6px;font-size:11px;font-weight:700;cursor:'+(uploading?"not-allowed":"pointer")+'">'+
               (uploading?'⏳ 中…':'📷 写真')+
@@ -895,15 +981,17 @@ function photosTabHtml(){
         '</div>'+
       '</div>'
     );
-  }).join("");
+  }).join("") || '<div style="color:#aaa;padding:30px 0;text-align:center">このブランドの商品はありません</div>';
   return (
     '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:12px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">PRODUCTS</div>'+
-    '<div style="background:#f0f8f0;border:1px solid #b2d8b2;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#555;line-height:1.8">'+
+    '<div style="background:#f0f8f0;border:1px solid #b2d8b2;border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:#555;line-height:1.8">'+
       '🛍 商品の<strong>並び替え・写真・複製</strong>ができます。<br>'+
-      '・並び替え：<strong>⠿ をドラッグ＆ドロップ</strong>（スマホは ↑↓ ボタン）<br>'+
-      '・複製：「⧉ 複製」を押すと同じ内容の商品が作られ、名前や価格を変えて保存できます。<br>'+
+      '・並び替え：カードを<strong>ドラッグ＆ドロップ</strong>。複数まとめて動かすときは<strong>チェック</strong>を入れて上のボタンで移動。<br>'+
+      '・ブランドで絞り込んでから「表示中を全選択」→「⤒ 一番上へ」とすると、ブランドごとにまとめられます。<br>'+
       '・写真は <strong>ImgBB</strong>（無料）にアップロードされます。初回は <strong>⚙️ 設定タブ</strong> でAPIキーを設定してください。'+
     '</div>'+
+    brandChips+
+    bulkBar+
     '<div class="olist">'+cardsHtml+'</div>'
   );
 }
@@ -1080,6 +1168,19 @@ window.App = {
   },
   saveCfg:function(){ showToast("設定を保存しました（デモ）"); },
   moveProduct:function(pid, dir){ moveProduct(pid, dir); },
+  /* ブランド絞り込み・複数選択 */
+  setBrandFilter:function(b){ S.brandFilter=b; render(); },
+  setAdminBrandFilter:function(b){ S.adminBrandFilter=b; render(); },
+  toggleSelectProd:function(pid){ if(S.selectedProds[pid]) delete S.selectedProds[pid]; else S.selectedProds[pid]=true; render(); },
+  toggleSelectAllVisible:function(){
+    var visible = getOrderedProds().filter(function(p){ return matchBrand(p, S.adminBrandFilter); }).map(function(p){ return p.id; });
+    var allSel = visible.length>0 && visible.every(function(id){ return S.selectedProds[id]; });
+    if(allSel){ visible.forEach(function(id){ delete S.selectedProds[id]; }); }
+    else { visible.forEach(function(id){ S.selectedProds[id]=true; }); }
+    render();
+  },
+  clearSelection:function(){ S.selectedProds={}; render(); },
+  moveSelected:function(mode){ moveSelected(mode); },
   /* ドラッグ＆ドロップ */
   dragStart:function(ev, pid){ dragPid = pid; ev.dataTransfer.effectAllowed = "move"; try{ ev.dataTransfer.setData("text/plain", String(pid)); }catch(e){} ev.currentTarget.style.opacity = ".4"; },
   dragOver:function(ev){ ev.preventDefault(); ev.dataTransfer.dropEffect = "move"; },
