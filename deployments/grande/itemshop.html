@@ -132,6 +132,7 @@ function fetchFromBin(){
       if(rec.productImages) S.productImages = rec.productImages;
       if(rec.imgbbKey) S.imgbbKey = rec.imgbbKey;
       if(rec.productOrder && rec.productOrder.length) S.productOrder = rec.productOrder;
+      if(Array.isArray(rec.customProds)) S.customProds = rec.customProds;
     }
     return (rec && Array.isArray(rec.orders)) ? rec.orders : [];
   });
@@ -149,31 +150,55 @@ function saveToBin(payload){
   });
 }
 function saveOrdersToBin(orders){
-  return saveToBin({ orders: orders, productImages: S.productImages, imgbbKey: S.imgbbKey, productOrder: S.productOrder });
+  return saveToBin({ orders: orders, productImages: S.productImages, imgbbKey: S.imgbbKey, productOrder: S.productOrder, customProds: S.customProds });
 }
 function saveProductData(){
-  return saveToBin({ orders: S.orders, productImages: S.productImages, imgbbKey: S.imgbbKey, productOrder: S.productOrder });
+  return saveToBin({ orders: S.orders, productImages: S.productImages, imgbbKey: S.imgbbKey, productOrder: S.productOrder, customProds: S.customProds });
 }
 
+/* ───────── PRODUCTS (built-in + custom) ───────── */
+function allProds(){ return PRODS.concat(S.customProds); }
+function prodById(pid){ return allProds().filter(function(p){ return p.id===pid; })[0]; }
+
 function getOrderedProds(){
-  if(!S.productOrder.length) return PRODS.slice();
+  var all = allProds();
+  if(!S.productOrder.length) return all.slice();
   var map = {};
-  PRODS.forEach(function(p){ map[p.id] = p; });
+  all.forEach(function(p){ map[p.id] = p; });
   var ordered = S.productOrder.map(function(id){ return map[id]; }).filter(Boolean);
   var inOrder = S.productOrder;
-  PRODS.forEach(function(p){ if(inOrder.indexOf(p.id)<0) ordered.push(p); });
+  all.forEach(function(p){ if(inOrder.indexOf(p.id)<0) ordered.push(p); });
   return ordered;
+}
+function currentOrderIds(){
+  return getOrderedProds().map(function(p){ return p.id; });
 }
 
 function moveProduct(pid, dir){
-  var order = S.productOrder.length ? S.productOrder.slice() : PRODS.map(function(p){ return p.id; });
+  var order = currentOrderIds();
   var idx = order.indexOf(pid);
-  if(idx<0){ order = PRODS.map(function(p){ return p.id; }); idx = order.indexOf(pid); }
+  if(idx<0) return;
   var newIdx = idx + dir;
   if(newIdx<0 || newIdx>=order.length) return;
   var tmp = order[idx]; order[idx] = order[newIdx]; order[newIdx] = tmp;
   S.productOrder = order;
   saveProductData().then(function(){ render(); }).catch(function(){ showError("保存に失敗しました"); });
+}
+
+/* ドラッグ＆ドロップ並び替え */
+var dragPid = null;
+function dropProduct(targetPid){
+  if(dragPid===null || dragPid===targetPid) return;
+  var order = currentOrderIds();
+  var from = order.indexOf(dragPid);
+  var to = order.indexOf(targetPid);
+  if(from<0 || to<0) return;
+  order.splice(from,1);
+  order.splice(to,0,dragPid);
+  S.productOrder = order;
+  dragPid = null;
+  render();
+  saveProductData().then(function(){ showToast("並び順を保存しました ✓"); }).catch(function(){ showError("保存に失敗しました"); });
 }
 
 function uploadToImgBB(file, pid){
@@ -211,7 +236,7 @@ function esc(s){
 /* ───────── STATE ───────── */
 var S = {
   page:"shop", view:"all", cart:[], cartOpen:false, step:0,
-  orders: DEMO_ORDERS.map(function(o){ return Object.assign({}, o, {items:o.items.map(function(i){ return Object.assign({},i); })}); }),
+  orders: [],
   lastOrder:null,
   form:{pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""},
   pwErr:"",
@@ -225,7 +250,9 @@ var S = {
   productImages:{},
   imgbbKey:"",
   photoUploading:null,
-  productOrder:[]
+  productOrder:[],
+  customProds:[],
+  editProd:null
 };
 
 function selFor(p){
@@ -250,7 +277,7 @@ function showError(msg){
 
 /* ───────── CART ───────── */
 function addToCart(pid, size, qty){
-  var p = PRODS.filter(function(x){ return x.id===pid; })[0];
+  var p = prodById(pid);
   var idx = -1;
   S.cart.forEach(function(i,ii){ if(i.pid===pid && i.size===size) idx=ii; });
   if(idx>=0) S.cart[idx].qty += qty;
@@ -285,12 +312,16 @@ function placeOrder(){
   if(S.placing) return;
   var oid = genId();
   var order = Object.assign({}, S.form, {id:oid, date:new Date().toISOString(), items:S.cart.map(function(i){return Object.assign({},i);}), total:cartTotal(), status:"未確認"});
-  var newOrders = [order].concat(S.orders);
 
   S.placing = true;
   render();
 
-  saveOrdersToBin(newOrders).then(function(){
+  // 保存前に最新の注文一覧を取得してから追加する（他の人の注文を消さないため）
+  var newOrders;
+  fetchFromBin().then(function(latestOrders){
+    newOrders = [order].concat(latestOrders);
+    return saveOrdersToBin(newOrders);
+  }).then(function(){
     S.orders = newOrders;
     S.lastOrder = order;
     S.cart = [];
@@ -335,7 +366,7 @@ function printInvoice(oid){
 
 /* ───────── ADMIN HELPERS ───────── */
 function adminStatsCalc(){
-  return PRODS.map(function(p){
+  return allProds().map(function(p){
     var sc = {};
     p.sizes.forEach(function(s){ sc[s]=0; });
     S.orders.forEach(function(o){ o.items.forEach(function(i){ if(i.pid===p.id) sc[i.size]=(sc[i.size]||0)+i.qty; }); });
@@ -685,7 +716,7 @@ function loginPageHtml(){
 
 /* ───────── ADMIN PAGE ───────── */
 function adminHeaderHtml(){
-  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["photos","📸 商品画像"],["cfg","⚙️ 設定"]];
+  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["photos","🛍 商品管理"],["cfg","⚙️ 設定"]];
   var tabsHtml = tabs.map(function(pair){
     var t=pair[0], l=pair[1];
     var active = S.adminTab===t;
@@ -825,39 +856,92 @@ function photosTabHtml(){
   var cardsHtml = ordered.map(function(p, i){
     var url = S.productImages[p.id];
     var uploading = S.photoUploading === p.id;
+    var isCustom = S.customProds.some(function(c){ return c.id===p.id; });
     var icon = p.cat==="ソックス"?"🧦":p.cat==="バッグ"?"🎒":p.cat==="ボトムス"?"👖":"👕";
     var imgHtml = url
       ? '<img src="'+esc(url)+'" style="width:72px;height:72px;object-fit:cover;border-radius:8px;flex-shrink:0">'
       : '<div style="width:72px;height:72px;border-radius:8px;background:#f0f4f0;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">'+icon+'</div>';
     var moveHtml =
-      '<div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">'+
-        '<button onclick="App.moveProduct('+p.id+',-1)" '+(i===0?"disabled":"")+' style="width:28px;height:28px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:14px;cursor:'+(i===0?"not-allowed":"pointer")+';color:'+(i===0?"#ccc":"#333")+'">↑</button>'+
-        '<button onclick="App.moveProduct('+p.id+',1)" '+(i===total-1?"disabled":"")+' style="width:28px;height:28px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:14px;cursor:'+(i===total-1?"not-allowed":"pointer")+';color:'+(i===total-1?"#ccc":"#333")+'">↓</button>'+
+      '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0">'+
+        '<div title="ドラッグして並び替え" style="cursor:grab;color:#bbb;font-size:18px;padding:4px 2px;user-select:none;line-height:1">⠿</div>'+
+        '<div style="display:flex;flex-direction:column;gap:3px">'+
+          '<button onclick="App.moveProduct('+p.id+',-1)" '+(i===0?"disabled":"")+' style="width:26px;height:26px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:13px;cursor:'+(i===0?"not-allowed":"pointer")+';color:'+(i===0?"#ccc":"#333")+'">↑</button>'+
+          '<button onclick="App.moveProduct('+p.id+',1)" '+(i===total-1?"disabled":"")+' style="width:26px;height:26px;border:1px solid #ddd;border-radius:5px;background:#f5f5f5;font-size:13px;cursor:'+(i===total-1?"not-allowed":"pointer")+';color:'+(i===total-1?"#ccc":"#333")+'">↓</button>'+
+        '</div>'+
       '</div>';
     return (
-      '<div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px">'+
+      '<div draggable="true" '+
+        'ondragstart="App.dragStart(event,'+p.id+')" '+
+        'ondragover="App.dragOver(event)" '+
+        'ondragenter="App.dragEnter(event)" '+
+        'ondragleave="App.dragLeave(event)" '+
+        'ondrop="App.dropOn(event,'+p.id+')" '+
+        'ondragend="App.dragEnd(event)" '+
+        'style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:flex;align-items:center;gap:10px;border:2px solid transparent">'+
         moveHtml+
         imgHtml+
         '<div style="flex:1;min-width:0">'+
-          '<div style="font-weight:700;font-size:13px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name)+'</div>'+
+          '<div style="font-weight:700;font-size:13px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.name)+(isCustom?' <span style="background:#e8f2ff;color:#1a56b0;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;vertical-align:middle">追加商品</span>':'')+'</div>'+
           '<div style="font-size:11px;color:#888;margin-bottom:8px">'+fmt(p.price)+' · '+esc(p.cat)+'</div>'+
           '<div style="display:flex;gap:5px;flex-wrap:wrap">'+
             '<label style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:'+(uploading?"#aaa":G.g1)+';color:#fff;border-radius:6px;font-size:11px;font-weight:700;cursor:'+(uploading?"not-allowed":"pointer")+'">'+
-              (uploading?'⏳ 中…':'📷 写真を選択')+
+              (uploading?'⏳ 中…':'📷 写真')+
               '<input type="file" accept="image/*" '+(uploading?"disabled":"")+' onchange="App.handlePhotoUpload('+p.id+',this)" style="display:none">'+
             '</label>'+
-            (url?'<button onclick="App.deletePhoto('+p.id+')" style="padding:6px 10px;background:#fff;border:1.5px solid #e0e0e0;border-radius:6px;font-size:11px;color:#e53935;cursor:pointer;font-weight:700">✕</button>':'')+'</div>'+
+            '<button onclick="App.duplicateProduct('+p.id+')" style="padding:6px 12px;background:#fff;border:1.5px solid '+G.g1+';border-radius:6px;font-size:11px;color:'+G.g1+';cursor:pointer;font-weight:700">⧉ 複製</button>'+
+            (isCustom?'<button onclick="App.editProduct('+p.id+')" style="padding:6px 12px;background:#fff;border:1.5px solid #888;border-radius:6px;font-size:11px;color:#555;cursor:pointer;font-weight:700">✎ 編集</button>':'')+
+            (isCustom?'<button onclick="App.deleteCustomProd('+p.id+')" style="padding:6px 10px;background:#fff;border:1.5px solid #e0e0e0;border-radius:6px;font-size:11px;color:#e53935;cursor:pointer;font-weight:700">🗑</button>':'')+
+            (url?'<button onclick="App.deletePhoto('+p.id+')" style="padding:6px 10px;background:#fff;border:1.5px solid #e0e0e0;border-radius:6px;font-size:11px;color:#e53935;cursor:pointer;font-weight:700">写真✕</button>':'')+'</div>'+
         '</div>'+
       '</div>'
     );
   }).join("");
   return (
-    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:12px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">PHOTOS</div>'+
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:12px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">PRODUCTS</div>'+
     '<div style="background:#f0f8f0;border:1px solid #b2d8b2;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#555;line-height:1.8">'+
-      '📸 各商品の写真を設定します。写真は <strong>ImgBB</strong>（無料）にアップロードされ、URLがJSONBinに保存されます。<br>'+
-      '初回は <strong>⚙️ 設定タブ</strong> で ImgBB APIキーを入力・保存してください（<a href="https://api.imgbb.com/" target="_blank" style="color:'+G.g1+'">api.imgbb.com</a> で無料取得）。'+
+      '🛍 商品の<strong>並び替え・写真・複製</strong>ができます。<br>'+
+      '・並び替え：<strong>⠿ をドラッグ＆ドロップ</strong>（スマホは ↑↓ ボタン）<br>'+
+      '・複製：「⧉ 複製」を押すと同じ内容の商品が作られ、名前や価格を変えて保存できます。<br>'+
+      '・写真は <strong>ImgBB</strong>（無料）にアップロードされます。初回は <strong>⚙️ 設定タブ</strong> でAPIキーを設定してください。'+
     '</div>'+
     '<div class="olist">'+cardsHtml+'</div>'
+  );
+}
+
+/* ───────── PRODUCT EDIT MODAL ───────── */
+function editProdModalHtml(){
+  if(!S.editProd) return "";
+  var p = S.editProd;
+  var catOpts = CATS.slice(1).map(function(c){ return '<option '+(p.cat===c?"selected":"")+'>'+esc(c)+'</option>'; }).join("");
+  function field(label, inner){
+    return '<div style="margin-bottom:12px"><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;margin-bottom:5px">'+label+'</label>'+inner+'</div>';
+  }
+  var inputStyle = 'width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa';
+  return (
+    '<div style="position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.65);overflow-y:auto;padding:20px 16px;display:flex;align-items:flex-start;justify-content:center">'+
+      '<div style="background:#fff;border-radius:16px;width:100%;max-width:480px;overflow:hidden">'+
+        '<div style="background:'+G.g3+';padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid '+G.gold+'">'+
+          '<div style="color:#fff;font-weight:900;font-size:18px;letter-spacing:2px;font-family:\'Barlow Condensed\',sans-serif">'+(p._isNew?"商品を複製":"商品を編集")+'</div>'+
+          '<button onclick="App.cancelEditProd()" style="color:#fff;font-size:24px">✕</button>'+
+        '</div>'+
+        '<div style="padding:20px 22px">'+
+          field('商品名 *','<input id="ep-name" value="'+esc(p.name)+'" style="'+inputStyle+'">')+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="frow">'+
+            field('価格（円） *','<input id="ep-price" type="number" value="'+p.price+'" style="'+inputStyle+'">')+
+            field('ブランド','<input id="ep-brand" value="'+esc(p.brand)+'" style="'+inputStyle+'">')+
+          '</div>'+
+          field('カテゴリ','<select id="ep-cat" style="'+inputStyle+'">'+catOpts+'</select>')+
+          field('説明','<textarea id="ep-desc" style="'+inputStyle+';height:60px;resize:vertical">'+esc(p.desc||"")+'</textarea>')+
+          field('サイズ（「、」区切りで入力）','<input id="ep-sizes" value="'+esc(p.sizes.join("、"))+'" style="'+inputStyle+'" placeholder="例：S、M、L、O、XO">')+
+          '<div style="display:flex;gap:16px;margin-bottom:16px">'+
+            '<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input id="ep-reqj" type="checkbox" '+(p.reqJ?"checked":"")+'> 🟡 ジュニア必需品</label>'+
+            '<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input id="ep-reqju" type="checkbox" '+(p.reqJU?"checked":"")+'> 🔴 ジュニアユース必需品</label>'+
+          '</div>'+
+          '<button onclick="App.saveEditProd()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:900;font-size:15px;margin-bottom:8px">✓ 保存する</button>'+
+          '<button onclick="App.cancelEditProd()" style="width:100%;padding:12px;background:#f0f0f0;color:#555;border-radius:8px;font-weight:700;font-size:14px">キャンセル</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>'
   );
 }
 
@@ -946,6 +1030,7 @@ function render(){
   else if(S.page==="admin") html = adminPageHtml();
   html += cartDrawerHtml();
   html += orderModalHtml();
+  html += editProdModalHtml();
   html += toastHtml();
   document.getElementById("app").innerHTML = html;
   bindInputs();
@@ -956,9 +1041,9 @@ window.App = {
   openCart:function(){ S.cartOpen=true; render(); },
   closeCart:function(){ S.cartOpen=false; render(); },
   setView:function(v){ S.view=v; render(); },
-  addProdToCart:function(pid){ var p=PRODS.filter(function(x){return x.id===pid;})[0]; if(p){ var sel=selFor(p); addToCart(pid, sel.size, sel.qty); } },
-  setProdSize:function(pid,sz){ selFor(PRODS.filter(function(x){return x.id===pid;})[0]).size=sz; render(); },
-  changeProdQty:function(pid,d){ var s=selFor(PRODS.filter(function(x){return x.id===pid;})[0]); s.qty=Math.max(1,s.qty+d); render(); },
+  addProdToCart:function(pid){ var p=prodById(pid); if(p){ var sel=selFor(p); addToCart(pid, sel.size, sel.qty); } },
+  setProdSize:function(pid,sz){ var p=prodById(pid); if(p){ selFor(p).size=sz; render(); } },
+  changeProdQty:function(pid,d){ var p=prodById(pid); if(p){ var s=selFor(p); s.qty=Math.max(1,s.qty+d); render(); } },
   changeCartQty:function(idx,d){ changeCartQty(idx,d); },
   removeCartItem:function(idx){ removeCartItem(idx); },
   goCheckout:function(){ S.step=1; render(); },
@@ -995,6 +1080,78 @@ window.App = {
   },
   saveCfg:function(){ showToast("設定を保存しました（デモ）"); },
   moveProduct:function(pid, dir){ moveProduct(pid, dir); },
+  /* ドラッグ＆ドロップ */
+  dragStart:function(ev, pid){ dragPid = pid; ev.dataTransfer.effectAllowed = "move"; try{ ev.dataTransfer.setData("text/plain", String(pid)); }catch(e){} ev.currentTarget.style.opacity = ".4"; },
+  dragOver:function(ev){ ev.preventDefault(); ev.dataTransfer.dropEffect = "move"; },
+  dragEnter:function(ev){ if(dragPid!==null && ev.currentTarget) ev.currentTarget.style.border = "2px dashed "+G.g1; },
+  dragLeave:function(ev){ if(ev.currentTarget) ev.currentTarget.style.border = "2px solid transparent"; },
+  dropOn:function(ev, pid){ ev.preventDefault(); ev.currentTarget.style.border = "2px solid transparent"; dropProduct(pid); },
+  dragEnd:function(ev){ if(ev.currentTarget) ev.currentTarget.style.opacity = "1"; dragPid = null; },
+  /* 複製・編集・削除 */
+  duplicateProduct:function(pid){
+    var src = prodById(pid);
+    if(!src) return;
+    S.editProd = {
+      id: Date.now(),
+      name: src.name + "（コピー）",
+      brand: src.brand, desc: src.desc, price: src.price, cat: src.cat,
+      sizes: src.sizes.slice(), reqJ: !!src.reqJ, reqJU: !!src.reqJU,
+      _isNew: true, _srcId: pid
+    };
+    render();
+  },
+  editProduct:function(pid){
+    var p = S.customProds.filter(function(c){ return c.id===pid; })[0];
+    if(!p) return;
+    S.editProd = Object.assign({}, p, {sizes:p.sizes.slice(), _isNew:false});
+    render();
+  },
+  cancelEditProd:function(){ S.editProd = null; render(); },
+  saveEditProd:function(){
+    var p = S.editProd;
+    if(!p) return;
+    var name = (document.getElementById("ep-name").value || "").trim();
+    var price = parseInt(document.getElementById("ep-price").value, 10);
+    var sizes = (document.getElementById("ep-sizes").value || "").split(/[、,]/).map(function(s){ return s.trim(); }).filter(Boolean);
+    if(!name){ showError("商品名を入力してください"); return; }
+    if(isNaN(price) || price<0){ showError("価格を正しく入力してください"); return; }
+    if(!sizes.length){ showError("サイズを1つ以上入力してください"); return; }
+    var saved = {
+      id: p.id, name: name,
+      brand: (document.getElementById("ep-brand").value || "").trim(),
+      desc: (document.getElementById("ep-desc").value || "").trim(),
+      price: price,
+      cat: document.getElementById("ep-cat").value,
+      sizes: sizes,
+      reqJ: document.getElementById("ep-reqj").checked,
+      reqJU: document.getElementById("ep-reqju").checked
+    };
+    if(p._isNew){
+      S.customProds.push(saved);
+      var order = currentOrderIds().filter(function(id){ return id!==saved.id; });
+      var srcIdx = order.indexOf(p._srcId);
+      if(srcIdx>=0) order.splice(srcIdx+1, 0, saved.id);
+      else order.push(saved.id);
+      S.productOrder = order;
+    } else {
+      var idx = -1;
+      S.customProds.forEach(function(c,ci){ if(c.id===p.id) idx=ci; });
+      if(idx>=0) S.customProds[idx] = saved;
+    }
+    S.editProd = null;
+    render();
+    saveProductData().then(function(){ showToast(p._isNew ? "商品を複製しました ✓" : "商品を保存しました ✓"); }).catch(function(){ showError("保存に失敗しました"); });
+  },
+  deleteCustomProd:function(pid){
+    var p = S.customProds.filter(function(c){ return c.id===pid; })[0];
+    if(!p) return;
+    if(!confirm("「"+p.name+"」を削除しますか？")) return;
+    S.customProds = S.customProds.filter(function(c){ return c.id!==pid; });
+    S.productOrder = S.productOrder.filter(function(id){ return id!==pid; });
+    delete S.productImages[pid];
+    render();
+    saveProductData().then(function(){ showToast("商品を削除しました"); }).catch(function(){ showError("削除に失敗しました"); });
+  },
   handlePhotoUpload:function(pid, input){ if(input.files && input.files[0]) uploadToImgBB(input.files[0], pid); },
   deletePhoto:function(pid){
     if(!confirm("この写真を削除しますか？")) return;
@@ -1021,6 +1178,8 @@ fetch(JSONBIN_URL + "/latest", {
   if(rec && rec.productImages){ S.productImages = rec.productImages; changed = true; }
   if(rec && rec.imgbbKey){ S.imgbbKey = rec.imgbbKey; }
   if(rec && rec.productOrder && rec.productOrder.length){ S.productOrder = rec.productOrder; changed = true; }
+  if(rec && Array.isArray(rec.customProds) && rec.customProds.length){ S.customProds = rec.customProds; changed = true; }
+  if(rec && Array.isArray(rec.orders)){ S.orders = rec.orders; }
   if(changed) render();
 }).catch(function(){});
 
