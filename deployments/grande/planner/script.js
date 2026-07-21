@@ -584,6 +584,10 @@ function renderDashboard() {
 
 // ===== SCHEDULE =====
 function renderSchedule() {
+  // カレンダー取り込みはGAS設定済みの端末（管理者）だけに表示
+  const gcalBtn = document.getElementById('btn-gcal-import');
+  if (gcalBtn) gcalBtn.style.display = isGasConfigured(getSettings()) ? '' : 'none';
+
   const today = todayStr();
   let items = [...schedules];
   if (scheduleFilter !== 'all') items = items.filter(s => s.type === scheduleFilter);
