@@ -1514,6 +1514,195 @@ function deleteCurrentMatch() {
   });
 }
 
+// ===== GOOGLE CALENDAR 取り込み =====
+// GAS経由でクラブ共有カレンダーを読み、候補をプレビュー→確認して取り込む
+let gcalEvents = [];
+let gcalParsed = [];
+
+function getGcalCalId() { return localStorage.getItem(getGasStoreKey('gcal')) || ''; }
+function setGcalCalId(id) { localStorage.setItem(getGasStoreKey('gcal'), id || ''); }
+
+async function openGcalImport() {
+  const s = getSettings();
+  if (!isGasConfigured(s)) {
+    showToast('設定ページでGAS連携（URLと送信キー）を設定してください', 'error');
+    return;
+  }
+  openModal('modal-gcal-import');
+  document.getElementById('gcal-import-footer').style.display = 'none';
+  const body = document.getElementById('gcal-import-body');
+  const calId = getGcalCalId();
+  if (!calId) { await gcalShowCalendarPicker(); return; }
+  await gcalLoadEvents(calId);
+}
+
+async function gcalShowCalendarPicker() {
+  const body = document.getElementById('gcal-import-body');
+  body.innerHTML = '<div style="text-align:center;color:var(--c-muted);padding:24px">⏳ カレンダー一覧を取得中…</div>';
+  try {
+    const data = await gasCall('calendars');
+    const cals = data.calendars || [];
+    body.innerHTML = `
+      <div style="font-size:13px;color:var(--c-text2);margin-bottom:10px">取り込み元のカレンダーを選んでください（クラブ用の共有カレンダー）。次回からは自動でこのカレンダーを読みます。</div>
+      ${cals.map((c, i) => `
+        <button class="btn btn-secondary btn-full" style="justify-content:flex-start;margin-bottom:8px;text-align:left" onclick="gcalPickCalendar(${i})">📅 ${escEmg(c.name)}</button>
+      `).join('') || '<div style="color:var(--c-muted)">カレンダーが見つかりません</div>'}
+    `;
+    window._gcalCals = cals;
+  } catch (e) {
+    body.innerHTML = `<div style="color:var(--c-red);font-size:13px;padding:10px">取得に失敗しました: ${escEmg(e.message)}<br><br>GASのコードが最新版（カレンダー対応版）に更新されているか確認してください。</div>`;
+  }
+}
+
+async function gcalPickCalendar(idx) {
+  const c = (window._gcalCals || [])[idx];
+  if (!c) return;
+  setGcalCalId(c.id);
+  showToast(`「${c.name}」を取り込み元に設定しました`, 'success');
+  await gcalLoadEvents(c.id);
+}
+
+async function gcalLoadEvents(calId) {
+  const body = document.getElementById('gcal-import-body');
+  body.innerHTML = '<div style="text-align:center;color:var(--c-muted);padding:24px">⏳ 予定を読み込み中…（今後4週間）</div>';
+  try {
+    const data = await gasCall('events', { calendarId: calId, days: 28 });
+    gcalEvents = data.events || [];
+    gcalParsed = gcalEvents.map(parseGcalEvent);
+    renderGcalCandidates();
+  } catch (e) {
+    body.innerHTML = `<div style="color:var(--c-red);font-size:13px;padding:10px">読み込み失敗: ${escEmg(e.message)}<br><br><button class="btn btn-secondary btn-sm" onclick="gcalResetCalendar()">別のカレンダーを選び直す</button></div>`;
+  }
+}
+
+function gcalResetCalendar() { setGcalCalId(''); gcalShowCalendarPicker(); }
+
+// 予定のタイトル・本文から試合情報を推測する
+function parseGcalEvent(ev) {
+  const title = String(ev.title || '');
+  const text = title + '\n' + String(ev.desc || '');
+  const start = new Date(ev.start);
+  const end = new Date(ev.end);
+  const p = (n) => String(n).padStart(2, '0');
+  const date = `${start.getFullYear()}-${p(start.getMonth() + 1)}-${p(start.getDate())}`;
+
+  // 時刻：KO表記が本文にあれば優先、なければ予定の開始時刻
+  let time = ev.allDay ? '' : `${p(start.getHours())}:${p(start.getMinutes())}`;
+  const ko = text.match(/(\d{1,2}):(\d{2})\s*KO|KO\s*(\d{1,2}):(\d{2})/i);
+  if (ko) time = `${p(ko[1] || ko[3])}:${ko[2] || ko[4]}`;
+  let endTime = (!ev.allDay && end.getDate() === start.getDate()) ? `${p(end.getHours())}:${p(end.getMinutes())}` : '';
+
+  // 相手：vs 〇〇（スペース入りチーム名にも対応。時刻や括弧以降は除く）
+  function extractOpp(str) {
+    const m = String(str || '').match(/vs\.?[\s　]*([^（(「【\n]+)/i);
+    if (!m) return '';
+    return m[1].replace(/[\s　]*\d{1,2}:\d{2}.*$/, '').replace(/[\s　]+(KO|集合|解散).*$/i, '').trim();
+  }
+  const opponent = extractOpp(title) || extractOpp(text);
+
+  // カテゴリー：U15 / U-12 など
+  const catMatch = text.match(/U-?(\d{1,2})/i);
+  const category = catMatch ? 'U' + catMatch[1] : '';
+
+  // 種別
+  let type = 'その他';
+  if (/TR(?![A-Z])|練習(?!試合)|トレーニング(?!マッチ)/i.test(title)) type = '練習';
+  else if (/大会|杯|カップ|フェス|選手権/.test(title)) type = '大会';
+  else if (opponent || /TM|試合|リーグ/i.test(title)) type = '試合';
+
+  // 大会名：タイトルの vs より前の部分（リーグ・杯などを含むとき）
+  let competition = '';
+  const beforeVs = title.split(/vs/i)[0].trim();
+  if (beforeVs && /リーグ|杯|大会|選手権|節|カップ|TM|フェス/.test(beforeVs)) competition = beforeVs;
+
+  // 会場：場所欄の先頭部分、なければ「@〇〇」表記
+  let venue = String(ev.location || '').split(/[、,]/)[0].trim();
+  if (!venue) {
+    const at = text.match(/[@＠]([^\s　]+)/);
+    if (at) venue = at[1];
+  }
+
+  return { gcalId: ev.id, date, time, endTime, type, category, opponent, venue, competition, title };
+}
+
+function renderGcalCandidates() {
+  const body = document.getElementById('gcal-import-body');
+  const today = todayStr();
+
+  // すでに取り込み済み（gcalId一致）or 同日同相手の予定は除外
+  const fresh = gcalParsed.filter(c =>
+    c.date >= today &&
+    !schedules.some(sc => sc.gcalId === c.gcalId || (sc.date === c.date && c.opponent && sc.opponent === c.opponent))
+  );
+
+  if (fresh.length === 0) {
+    body.innerHTML = `
+      <div style="text-align:center;color:var(--c-muted);padding:24px">新しく取り込める予定はありません<br><span style="font-size:12px">（すでに取り込み済み、または今後4週間に予定がありません）</span></div>
+      <button class="btn btn-ghost btn-sm btn-full" onclick="gcalResetCalendar()">別のカレンダーを選び直す</button>`;
+    document.getElementById('gcal-import-footer').style.display = 'none';
+    return;
+  }
+
+  window._gcalFresh = fresh;
+  const selStyle = 'width:100%;min-width:0;box-sizing:border-box;padding:7px 8px;border:1.5px solid var(--c-border);border-radius:8px;font-size:13px;background:var(--c-surface)';
+  body.innerHTML = `
+    <div style="font-size:12.5px;color:var(--c-text2);margin-bottom:10px">内容を確認して、取り込む予定にチェックを入れてください。間違っている項目はその場で直せます。</div>
+    ${fresh.map((c, i) => `
+      <div style="border:1.5px solid var(--c-border);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--c-surface)">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:8px">
+          <input type="checkbox" id="gc-use-${i}" checked style="width:20px;height:20px;margin-top:2px;accent-color:var(--c-green,#1a6b2f)">
+          <div>
+            <div style="font-weight:700;font-size:14px">${fmtDate(c.date)} ${escEmg(c.title)}</div>
+          </div>
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <select id="gc-type-${i}" style="${selStyle}">
+            ${['試合','練習','大会','その他'].map(t => `<option ${c.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+          <input id="gc-cat-${i}" value="${attrEsc(c.category)}" placeholder="カテゴリ (U15等)" style="${selStyle}">
+          <input id="gc-opp-${i}" value="${attrEsc(c.opponent)}" placeholder="対戦相手" style="${selStyle}">
+          <input id="gc-time-${i}" value="${attrEsc(c.time)}" placeholder="時刻 (KO)" style="${selStyle}">
+          <input id="gc-venue-${i}" value="${attrEsc(c.venue)}" placeholder="会場" style="${selStyle};grid-column:1/-1">
+          <input id="gc-comp-${i}" value="${attrEsc(c.competition)}" placeholder="大会・リーグ名" style="${selStyle};grid-column:1/-1">
+        </div>
+      </div>
+    `).join('')}
+  `;
+  document.getElementById('gcal-import-footer').style.display = '';
+}
+
+function importGcalSelected() {
+  const fresh = window._gcalFresh || [];
+  let count = 0;
+  fresh.forEach((c, i) => {
+    const use = document.getElementById(`gc-use-${i}`);
+    if (!use || !use.checked) return;
+    schedules.push({
+      id: String(Date.now() + count),
+      date: c.date,
+      time: (document.getElementById(`gc-time-${i}`).value || '').trim(),
+      endTime: c.endTime || '',
+      type: document.getElementById(`gc-type-${i}`).value,
+      category: (document.getElementById(`gc-cat-${i}`).value || '').trim(),
+      opponent: (document.getElementById(`gc-opp-${i}`).value || '').trim(),
+      title: '',
+      venue: (document.getElementById(`gc-venue-${i}`).value || '').trim(),
+      competition: (document.getElementById(`gc-comp-${i}`).value || '').trim(),
+      notes: '',
+      live: false,
+      posted: false,
+      matchId: null,
+      gcalId: c.gcalId,
+    });
+    count++;
+  });
+  if (count === 0) { showToast('取り込む予定にチェックを入れてください', 'error'); return; }
+  saveLocal();
+  closeModal('modal-gcal-import');
+  renderSchedule();
+  showToast(`${count}件の予定を取り込みました ✓`, 'success');
+}
+
 // ===== PHOTO PICKER（カード写真の選択） =====
 // ホームページに置いてあるクラブ写真ライブラリ（assets/toprandom/）
 const HP_PHOTO_BASE = (typeof MP_CONFIG !== 'undefined' && MP_CONFIG.photoBase)

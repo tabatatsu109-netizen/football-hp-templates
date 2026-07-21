@@ -197,6 +197,7 @@
         <div class="page-hdr-left">
           <div class="page-title">📅 スケジュール</div>
         </div>
+        <button class="btn btn-secondary btn-sm" id="btn-gcal-import" onclick="openGcalImport()" style="margin-right:6px">📆 カレンダー取り込み</button>
         <button class="btn btn-primary btn-sm" id="btn-add-schedule">+ 追加</button>
       </div>
       <div class="page-inner" style="padding-top:10px">
@@ -1001,6 +1002,24 @@
     </button>
   </nav>
 
+  <!-- ===== Modal: Google Calendar Import ===== -->
+  <div class="modal-overlay" id="modal-gcal-import">
+    <div class="bottom-sheet" style="max-height:88vh">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title">📆 Googleカレンダーから取り込み</div>
+        <button class="btn-icon btn-icon-sm" onclick="closeModal('modal-gcal-import')">✕</button>
+      </div>
+      <div class="sheet-body" id="gcal-import-body" style="max-height:65vh;overflow-y:auto">
+        <div style="text-align:center;color:var(--c-muted);padding:24px">読み込み中...</div>
+      </div>
+      <div class="sheet-footer" id="gcal-import-footer" style="display:none">
+        <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-gcal-import')">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-gcal-import-go" onclick="importGcalSelected()">✓ チェックした予定を取り込む</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Modal: Photo Picker ===== -->
   <div class="modal-overlay" id="modal-photo-picker">
     <div class="bottom-sheet">
@@ -1561,6 +1580,6 @@
 
 </div><!-- /#app -->
 <script src="mp-config.js?v=20260719a"></script>
-<script src="script.js?v=20260720d"></script>
+<script src="script.js?v=20260721a"></script>
 </body>
 </html>
