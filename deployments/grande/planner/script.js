@@ -359,6 +359,17 @@ function setSyncTime() {
 }
 
 // バックグラウンド自動同期（トーストなし）
+// 入力中に画面を描き直すと未保存の入力が消えるため、
+// フォーム操作中・入力ページ表示中は自動同期での再描画をスキップする
+function isUserEntryActive() {
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT')) return true;
+  if (document.querySelector('.modal-overlay.open')) return true;
+  // 入力欄が多く、書きかけの内容を持ちやすいページ
+  const formPages = ['page-shokudo', 'page-announcement', 'page-news', 'page-emergency', 'page-live'];
+  return formPages.includes(currentPage);
+}
+
 async function autoSync() {
   const s = getSettings();
   if (!isCloudConfigured(s)) return;
@@ -369,7 +380,7 @@ async function autoSync() {
     applyCloudData(r);
     setSyncIcon('☁️');
     setSyncTime();
-    renderCurrentPage();
+    if (!isUserEntryActive()) renderCurrentPage();
   } catch(e) { /* silent */ }
 }
 
