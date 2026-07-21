@@ -1515,12 +1515,19 @@ function deleteCurrentMatch() {
 }
 
 // ===== GOOGLE CALENDAR 取り込み =====
-// GAS経由でクラブ共有カレンダーを読み、候補をプレビュー→確認して取り込む
+// GAS経由でクラブ共有カレンダー（複数可）を読み、月ごとに候補をプレビュー。
+// 新規の取り込みに加えて、カレンダー側の「変更」「削除」も検知して反映できる。
 let gcalEvents = [];
 let gcalParsed = [];
+let gcalNew = [];
+let gcalChanged = [];
+let gcalDeleted = [];
+let gcalActiveMonth = '';
 
-function getGcalCalId() { return localStorage.getItem(getGasStoreKey('gcal')) || ''; }
-function setGcalCalId(id) { localStorage.setItem(getGasStoreKey('gcal'), id || ''); }
+function getGcalCals() {
+  try { return JSON.parse(localStorage.getItem(getGasStoreKey('gcals')) || '[]'); } catch (e) { return []; }
+}
+function setGcalCals(arr) { localStorage.setItem(getGasStoreKey('gcals'), JSON.stringify(arr || [])); }
 
 async function openGcalImport() {
   const s = getSettings();
@@ -1530,52 +1537,63 @@ async function openGcalImport() {
   }
   openModal('modal-gcal-import');
   document.getElementById('gcal-import-footer').style.display = 'none';
-  const body = document.getElementById('gcal-import-body');
-  const calId = getGcalCalId();
-  if (!calId) { await gcalShowCalendarPicker(); return; }
-  await gcalLoadEvents(calId);
+  if (getGcalCals().length === 0) { await gcalShowCalendarPicker(); return; }
+  await gcalLoadEvents();
 }
 
 async function gcalShowCalendarPicker() {
   const body = document.getElementById('gcal-import-body');
+  document.getElementById('gcal-import-footer').style.display = 'none';
   body.innerHTML = '<div style="text-align:center;color:var(--c-muted);padding:24px">⏳ カレンダー一覧を取得中…</div>';
   try {
     const data = await gasCall('calendars');
     const cals = data.calendars || [];
-    body.innerHTML = `
-      <div style="font-size:13px;color:var(--c-text2);margin-bottom:10px">取り込み元のカレンダーを選んでください（クラブ用の共有カレンダー）。次回からは自動でこのカレンダーを読みます。</div>
-      ${cals.map((c, i) => `
-        <button class="btn btn-secondary btn-full" style="justify-content:flex-start;margin-bottom:8px;text-align:left" onclick="gcalPickCalendar(${i})">📅 ${escEmg(c.name)}</button>
-      `).join('') || '<div style="color:var(--c-muted)">カレンダーが見つかりません</div>'}
-    `;
+    const selected = new Set(getGcalCals().map(c => c.id));
     window._gcalCals = cals;
+    body.innerHTML = `
+      <div style="font-size:13px;color:var(--c-text2);margin-bottom:10px">取り込み元のカレンダーに<strong>チェック</strong>を入れてください（複数OK。例：ジュニアとジュニアユースの両方）</div>
+      ${cals.map((c, i) => `
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--c-border);border-radius:10px;margin-bottom:8px;cursor:pointer">
+          <input type="checkbox" id="gcal-cal-${i}" ${selected.has(c.id) ? 'checked' : ''} style="width:20px;height:20px;accent-color:var(--c-green,#1a6b2f)">
+          <span style="font-weight:700;font-size:14px">📅 ${escEmg(c.name)}</span>
+        </label>
+      `).join('') || '<div style="color:var(--c-muted)">カレンダーが見つかりません</div>'}
+      <button class="btn btn-primary btn-full" style="margin-top:8px" onclick="gcalSaveCalendarChoice()">この内容で読み込む</button>
+    `;
   } catch (e) {
     body.innerHTML = `<div style="color:var(--c-red);font-size:13px;padding:10px">取得に失敗しました: ${escEmg(e.message)}<br><br>GASのコードが最新版（カレンダー対応版）に更新されているか確認してください。</div>`;
   }
 }
 
-async function gcalPickCalendar(idx) {
-  const c = (window._gcalCals || [])[idx];
-  if (!c) return;
-  setGcalCalId(c.id);
-  showToast(`「${c.name}」を取り込み元に設定しました`, 'success');
-  await gcalLoadEvents(c.id);
+async function gcalSaveCalendarChoice() {
+  const cals = window._gcalCals || [];
+  const chosen = cals.filter((c, i) => document.getElementById(`gcal-cal-${i}`)?.checked);
+  if (chosen.length === 0) { showToast('カレンダーを1つ以上選んでください', 'error'); return; }
+  setGcalCals(chosen.map(c => ({ id: c.id, name: c.name })));
+  showToast(`${chosen.length}件のカレンダーを設定しました`, 'success');
+  await gcalLoadEvents();
 }
 
-async function gcalLoadEvents(calId) {
+async function gcalLoadEvents() {
   const body = document.getElementById('gcal-import-body');
-  body.innerHTML = '<div style="text-align:center;color:var(--c-muted);padding:24px">⏳ 予定を読み込み中…（今後4週間）</div>';
+  document.getElementById('gcal-import-footer').style.display = 'none';
+  body.innerHTML = '<div style="text-align:center;color:var(--c-muted);padding:24px">⏳ 予定を読み込み中…（今後3ヶ月）</div>';
   try {
-    const data = await gasCall('events', { calendarId: calId, days: 28 });
-    gcalEvents = data.events || [];
-    gcalParsed = gcalEvents.map(parseGcalEvent);
+    const cals = getGcalCals();
+    const all = [];
+    for (const c of cals) {
+      const data = await gasCall('events', { calendarId: c.id, days: 92 });
+      (data.events || []).forEach(ev => { ev._calId = c.id; ev._calName = c.name; all.push(ev); });
+    }
+    gcalEvents = all;
+    gcalParsed = all.map(parseGcalEvent);
+    buildGcalDiff();
+    gcalActiveMonth = '';
     renderGcalCandidates();
   } catch (e) {
-    body.innerHTML = `<div style="color:var(--c-red);font-size:13px;padding:10px">読み込み失敗: ${escEmg(e.message)}<br><br><button class="btn btn-secondary btn-sm" onclick="gcalResetCalendar()">別のカレンダーを選び直す</button></div>`;
+    body.innerHTML = `<div style="color:var(--c-red);font-size:13px;padding:10px">読み込み失敗: ${escEmg(e.message)}<br><br><button class="btn btn-secondary btn-sm" onclick="gcalShowCalendarPicker()">カレンダーを選び直す</button></div>`;
   }
 }
-
-function gcalResetCalendar() { setGcalCalId(''); gcalShowCalendarPicker(); }
 
 // 予定のタイトル・本文から試合情報を推測する
 function parseGcalEvent(ev) {
@@ -1622,42 +1640,130 @@ function parseGcalEvent(ev) {
     if (at) venue = at[1];
   }
 
-  return { gcalId: ev.id, date, time, endTime, type, category, opponent, venue, competition, title };
+  return { gcalId: ev.id, calId: ev._calId, calName: ev._calName || '', date, time, endTime, type, category, opponent, venue, competition, title, _use: false };
+}
+
+// 新規・変更・削除を仕分けする
+function buildGcalDiff() {
+  const today = todayStr();
+  const byId = {};
+  gcalParsed.forEach(c => { byId[c.gcalId] = c; });
+
+  gcalNew = gcalParsed.filter(c =>
+    c.date >= today &&
+    !schedules.some(sc => sc.gcalId === c.gcalId || (sc.date === c.date && c.opponent && sc.opponent === c.opponent))
+  );
+  gcalNew.forEach(c => { c._use = false; }); // 基本チェックなし（必要なものだけ選ぶ）
+
+  gcalChanged = [];
+  schedules.forEach(sc => {
+    if (!sc.gcalId) return;
+    const c = byId[sc.gcalId];
+    if (!c || c.date < today) return;
+    const diffs = [];
+    if (sc.date !== c.date) diffs.push(['日付', fmtDate(sc.date), fmtDate(c.date)]);
+    if ((sc.time || '') !== (c.time || '')) diffs.push(['時刻', sc.time || 'なし', c.time || 'なし']);
+    if ((sc.venue || '') !== (c.venue || '')) diffs.push(['会場', sc.venue || 'なし', c.venue || 'なし']);
+    if ((sc.opponent || '') !== (c.opponent || '')) diffs.push(['相手', sc.opponent || 'なし', c.opponent || 'なし']);
+    if (diffs.length) gcalChanged.push({ sc, c, diffs, _use: true });
+  });
+
+  const selCalIds = new Set(getGcalCals().map(x => x.id));
+  const fetchedIds = new Set(gcalParsed.map(c => c.gcalId));
+  gcalDeleted = schedules
+    .filter(sc => sc.gcalId && sc.gcalCal && selCalIds.has(sc.gcalCal) && sc.date >= today && !fetchedIds.has(sc.gcalId))
+    .map(sc => ({ sc, _use: false }));
+}
+
+function gcalMonths() {
+  const set = new Set();
+  gcalNew.forEach(c => set.add(c.date.slice(0, 7)));
+  gcalChanged.forEach(x => set.add(x.c.date.slice(0, 7)));
+  gcalDeleted.forEach(x => set.add(x.sc.date.slice(0, 7)));
+  return [...set].sort();
+}
+function monthLabel(ym) { return parseInt(ym.slice(5), 10) + '月'; }
+function gcalSetMonth(ym) { collectGcalDom(); gcalActiveMonth = ym; renderGcalCandidates(); }
+
+// 表示中の入力値・チェック状態をJS側に保存（月切り替えや取り込み前に呼ぶ）
+function collectGcalDom() {
+  gcalNew.forEach((c, i) => {
+    const use = document.getElementById(`gc-use-${i}`);
+    if (!use) return; // この月には表示されていない
+    c._use = use.checked;
+    c.type = document.getElementById(`gc-type-${i}`).value;
+    c.category = (document.getElementById(`gc-cat-${i}`).value || '').trim();
+    c.opponent = (document.getElementById(`gc-opp-${i}`).value || '').trim();
+    c.time = (document.getElementById(`gc-time-${i}`).value || '').trim();
+    c.venue = (document.getElementById(`gc-venue-${i}`).value || '').trim();
+    c.competition = (document.getElementById(`gc-comp-${i}`).value || '').trim();
+  });
+  gcalChanged.forEach((x, i) => {
+    const el = document.getElementById(`gc-chg-${i}`);
+    if (el) x._use = el.checked;
+  });
+  gcalDeleted.forEach((x, i) => {
+    const el = document.getElementById(`gc-del-${i}`);
+    if (el) x._use = el.checked;
+  });
+}
+
+function gcalToggleMonthAll(on) {
+  collectGcalDom();
+  gcalNew.forEach(c => { if (c.date.slice(0, 7) === gcalActiveMonth) c._use = on; });
+  renderGcalCandidates();
+}
+
+function calChip(name) {
+  if (!name) return '';
+  const short = name.replace(/グランデ/g, '').trim() || name;
+  return `<span style="background:#eef4ff;color:#2b5eb5;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:middle">${escEmg(short)}</span>`;
 }
 
 function renderGcalCandidates() {
   const body = document.getElementById('gcal-import-body');
-  const today = todayStr();
+  const months = gcalMonths();
 
-  // すでに取り込み済み（gcalId一致）or 同日同相手の予定は除外
-  const fresh = gcalParsed.filter(c =>
-    c.date >= today &&
-    !schedules.some(sc => sc.gcalId === c.gcalId || (sc.date === c.date && c.opponent && sc.opponent === c.opponent))
-  );
-
-  if (fresh.length === 0) {
+  if (gcalNew.length + gcalChanged.length + gcalDeleted.length === 0) {
     body.innerHTML = `
-      <div style="text-align:center;color:var(--c-muted);padding:24px">新しく取り込める予定はありません<br><span style="font-size:12px">（すでに取り込み済み、または今後4週間に予定がありません）</span></div>
-      <button class="btn btn-ghost btn-sm btn-full" onclick="gcalResetCalendar()">別のカレンダーを選び直す</button>`;
+      <div style="text-align:center;color:var(--c-muted);padding:24px">新しい予定・変更はありません<br><span style="font-size:12px">（今後3ヶ月分を確認しました）</span></div>
+      <button class="btn btn-ghost btn-sm btn-full" onclick="gcalShowCalendarPicker()">カレンダーを選び直す</button>`;
     document.getElementById('gcal-import-footer').style.display = 'none';
     return;
   }
 
-  window._gcalFresh = fresh;
+  if (!gcalActiveMonth || months.indexOf(gcalActiveMonth) < 0) gcalActiveMonth = months[0];
+  const ym = gcalActiveMonth;
+  const inMonth = (d) => d.slice(0, 7) === ym;
+
+  const monthTabs = `
+    <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px">
+      ${months.map(m => `
+        <button onclick="gcalSetMonth('${m}')" style="white-space:nowrap;padding:7px 16px;border-radius:99px;border:1.5px solid ${m === ym ? 'var(--c-green,#1a6b2f)' : 'var(--c-border)'};background:${m === ym ? 'var(--c-green,#1a6b2f)' : 'var(--c-surface)'};color:${m === ym ? '#fff' : 'var(--c-text2)'};font-weight:700;font-size:13px;cursor:pointer">${monthLabel(m)}</button>
+      `).join('')}
+    </div>`;
+
   const selStyle = 'width:100%;min-width:0;box-sizing:border-box;padding:7px 8px;border:1.5px solid var(--c-border);border-radius:8px;font-size:13px;background:var(--c-surface)';
-  body.innerHTML = `
-    <div style="font-size:12.5px;color:var(--c-text2);margin-bottom:10px">内容を確認して、取り込む予定にチェックを入れてください。間違っている項目はその場で直せます。</div>
-    ${fresh.map((c, i) => `
-      <div style="border:1.5px solid var(--c-border);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--c-surface)">
+
+  /* --- 新規 --- */
+  const newInMonth = gcalNew.map((c, i) => ({ c, i })).filter(x => inMonth(x.c.date));
+  const newHtml = newInMonth.length === 0 ? '' : `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px">
+      <div style="font-size:13px;font-weight:900">🆕 新しい予定（${newInMonth.length}件）</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="gcalToggleMonthAll(true)">全選択</button>
+        <button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="gcalToggleMonthAll(false)">全解除</button>
+      </div>
+    </div>
+    ${newInMonth.map(({ c, i }) => `
+      <div style="border:1.5px solid ${c._use ? 'var(--c-green,#1a6b2f)' : 'var(--c-border)'};border-radius:12px;padding:12px;margin-bottom:10px;background:var(--c-surface)">
         <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:8px">
-          <input type="checkbox" id="gc-use-${i}" checked style="width:20px;height:20px;margin-top:2px;accent-color:var(--c-green,#1a6b2f)">
-          <div>
-            <div style="font-weight:700;font-size:14px">${fmtDate(c.date)} ${escEmg(c.title)}</div>
-          </div>
+          <input type="checkbox" id="gc-use-${i}" ${c._use ? 'checked' : ''} onchange="this.closest('div[style]').style.borderColor=this.checked?'var(--c-green,#1a6b2f)':'var(--c-border)'" style="width:22px;height:22px;margin-top:2px;accent-color:var(--c-green,#1a6b2f)">
+          <div style="font-weight:700;font-size:14px">${fmtDate(c.date)} ${escEmg(c.title)}${calChip(c.calName)}</div>
         </label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <select id="gc-type-${i}" style="${selStyle}">
-            ${['試合','練習','大会','その他'].map(t => `<option ${c.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+            ${['試合', '練習', '大会', 'その他'].map(t => `<option ${c.type === t ? 'selected' : ''}>${t}</option>`).join('')}
           </select>
           <input id="gc-cat-${i}" value="${attrEsc(c.category)}" placeholder="カテゴリ (U15等)" style="${selStyle}">
           <input id="gc-opp-${i}" value="${attrEsc(c.opponent)}" placeholder="対戦相手" style="${selStyle}">
@@ -1666,41 +1772,94 @@ function renderGcalCandidates() {
           <input id="gc-comp-${i}" value="${attrEsc(c.competition)}" placeholder="大会・リーグ名" style="${selStyle};grid-column:1/-1">
         </div>
       </div>
-    `).join('')}
+    `).join('')}`;
+
+  /* --- 変更 --- */
+  const chgInMonth = gcalChanged.map((x, i) => ({ x, i })).filter(({ x }) => inMonth(x.c.date));
+  const chgHtml = chgInMonth.length === 0 ? '' : `
+    <div style="font-size:13px;font-weight:900;margin:14px 0 8px">🔄 カレンダー側で変更された予定（${chgInMonth.length}件）</div>
+    ${chgInMonth.map(({ x, i }) => `
+      <div style="border:1.5px solid #e5a100;border-radius:12px;padding:12px;margin-bottom:10px;background:#fffdf5">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" id="gc-chg-${i}" ${x._use ? 'checked' : ''} style="width:22px;height:22px;margin-top:2px;accent-color:#e5a100">
+          <div style="min-width:0">
+            <div style="font-weight:700;font-size:14px;margin-bottom:4px">${fmtDate(x.c.date)} ${escEmg(x.c.title)}${calChip(x.c.calName)}</div>
+            ${x.diffs.map(d => `<div style="font-size:12.5px;color:#7a5c00">・${d[0]}：<s style="color:#aaa">${escEmg(d[1])}</s> → <strong>${escEmg(d[2])}</strong></div>`).join('')}
+          </div>
+        </label>
+      </div>
+    `).join('')}`;
+
+  /* --- 削除 --- */
+  const delInMonth = gcalDeleted.map((x, i) => ({ x, i })).filter(({ x }) => inMonth(x.sc.date));
+  const delHtml = delInMonth.length === 0 ? '' : `
+    <div style="font-size:13px;font-weight:900;margin:14px 0 8px">🗑 カレンダーから消えた予定（${delInMonth.length}件）</div>
+    <div style="font-size:11.5px;color:var(--c-muted);margin-bottom:8px">チェックするとプランナーのスケジュールからも削除されます</div>
+    ${delInMonth.map(({ x, i }) => `
+      <div style="border:1.5px solid #f3c1c1;border-radius:12px;padding:12px;margin-bottom:10px;background:#fff8f8">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+          <input type="checkbox" id="gc-del-${i}" ${x._use ? 'checked' : ''} style="width:22px;height:22px;accent-color:var(--c-red,#e53935)">
+          <div style="font-weight:700;font-size:14px">${fmtDate(x.sc.date)} ${escEmg(x.sc.opponent ? 'vs ' + x.sc.opponent : (x.sc.title || x.sc.type))}</div>
+        </label>
+      </div>
+    `).join('')}`;
+
+  const emptyMonth = (newInMonth.length + chgInMonth.length + delInMonth.length) === 0
+    ? '<div style="text-align:center;color:var(--c-muted);padding:20px">この月の新しい予定・変更はありません</div>' : '';
+
+  body.innerHTML = `
+    ${monthTabs}
+    <div style="font-size:12px;color:var(--c-muted);margin-bottom:10px">取り込みたい予定に<strong>チェック</strong>を入れてください（内容はその場で直せます）</div>
+    ${newHtml}${chgHtml}${delHtml}${emptyMonth}
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:6px" onclick="gcalShowCalendarPicker()">カレンダーを選び直す</button>
   `;
   document.getElementById('gcal-import-footer').style.display = '';
 }
 
 function importGcalSelected() {
-  const fresh = window._gcalFresh || [];
-  let count = 0;
-  fresh.forEach((c, i) => {
-    const use = document.getElementById(`gc-use-${i}`);
-    if (!use || !use.checked) return;
+  collectGcalDom();
+  let nNew = 0, nChg = 0, nDel = 0;
+
+  gcalNew.forEach((c) => {
+    if (!c._use) return;
     schedules.push({
-      id: String(Date.now() + count),
-      date: c.date,
-      time: (document.getElementById(`gc-time-${i}`).value || '').trim(),
-      endTime: c.endTime || '',
-      type: document.getElementById(`gc-type-${i}`).value,
-      category: (document.getElementById(`gc-cat-${i}`).value || '').trim(),
-      opponent: (document.getElementById(`gc-opp-${i}`).value || '').trim(),
-      title: '',
-      venue: (document.getElementById(`gc-venue-${i}`).value || '').trim(),
-      competition: (document.getElementById(`gc-comp-${i}`).value || '').trim(),
-      notes: '',
-      live: false,
-      posted: false,
-      matchId: null,
-      gcalId: c.gcalId,
+      id: String(Date.now() + nNew),
+      date: c.date, time: c.time, endTime: c.endTime || '',
+      type: c.type, category: c.category, opponent: c.opponent,
+      title: '', venue: c.venue, competition: c.competition, notes: '',
+      live: false, posted: false, matchId: null,
+      gcalId: c.gcalId, gcalCal: c.calId,
     });
-    count++;
+    nNew++;
   });
-  if (count === 0) { showToast('取り込む予定にチェックを入れてください', 'error'); return; }
+
+  gcalChanged.forEach((x) => {
+    if (!x._use) return;
+    const sc = x.sc;
+    sc.date = x.c.date;
+    sc.time = x.c.time;
+    if (x.c.endTime) sc.endTime = x.c.endTime;
+    sc.venue = x.c.venue;
+    if (x.c.opponent) sc.opponent = x.c.opponent;
+    if (x.c.competition) sc.competition = x.c.competition;
+    nChg++;
+  });
+
+  gcalDeleted.forEach((x) => {
+    if (!x._use) return;
+    schedules = schedules.filter(sc => sc !== x.sc);
+    nDel++;
+  });
+
+  if (nNew + nChg + nDel === 0) { showToast('反映する予定にチェックを入れてください', 'error'); return; }
   saveLocal();
   closeModal('modal-gcal-import');
   renderSchedule();
-  showToast(`${count}件の予定を取り込みました ✓`, 'success');
+  const parts = [];
+  if (nNew) parts.push(`新規${nNew}件`);
+  if (nChg) parts.push(`変更${nChg}件`);
+  if (nDel) parts.push(`削除${nDel}件`);
+  showToast(`${parts.join('・')}を反映しました ✓`, 'success');
 }
 
 // ===== PHOTO PICKER（カード写真の選択） =====
