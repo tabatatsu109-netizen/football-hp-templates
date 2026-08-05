@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>選手会員証 | 八ヶ岳グランデFC</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js?v=20260805d"></script>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+          <span class="gh-logo-name">GRANDE FC</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">取り組み</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="#" class="gh-login" onclick="handleLogout(); return false;">ログアウト</a>
+        <a href="../itemshop.html" class="gh-cta gh-cta--trial">ショップ<small>STORE</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link nav-thanks" href="message.html"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+    <a class="m-link" href="#" onclick="handleLogout(); return false;"><span class="n-en">LOGOUT</span><span class="n-ja">ログアウト</span></a>
+    <div class="m-nav-ctas">
+      <a href="../itemshop.html" class="m-cta-trial">アイテムショップ</a>
+    </div>
+  </nav>
+
+  <!-- ページヒーロー -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">MEMBER&#39;S CARD</div>
+      <div class="ph-ja">選手会員証</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>&rsaquo;</span><a href="members-dashboard.html">クラブ員専用</a><span>&rsaquo;</span><span>選手会員証</span></div></div>
+
+  <main class="page-body">
+    <div class="container">
+
+      <!-- 選手を選ぶ -->
+      <div class="mc-picker" id="mc-picker" style="display:none;">
+        <div class="mc-picker-title">会員証を表示する選手を選んでください</div>
+        <p class="mc-picker-desc">選んだ内容はこの端末に記憶されます。あとから変更できます。</p>
+        <div class="mc-field">
+          <label for="mc-grade">学年</label>
+          <select id="mc-grade"><option value="">選択してください</option></select>
+        </div>
+        <div class="mc-field">
+          <label for="mc-player">選手</label>
+          <select id="mc-player" disabled><option value="">先に学年を選んでください</option></select>
+        </div>
+        <button class="mc-submit" id="mc-submit" disabled>この選手の会員証を表示</button>
+      </div>
+
+      <p class="no-data" id="mc-status">読み込み中...</p>
+
+      <!-- 会員証 -->
+      <div id="mc-wrap" style="display:none;">
+        <div class="mc-card">
+          <div class="mc-head">
+            <img src="../assets/logo.png" alt="">
+            <div class="mc-head-txt">
+              <div class="mc-head-club">GRANDE FC</div>
+              <div class="mc-head-label">MEMBER&#39;S CARD</div>
+            </div>
+          </div>
+          <div class="mc-body">
+            <div class="mc-photo" id="mc-photo"></div>
+            <div class="mc-info">
+              <div class="mc-number" id="mc-number"></div>
+              <div class="mc-name" id="mc-name"></div>
+              <div class="mc-name-en" id="mc-name-en"></div>
+              <div class="mc-meta" id="mc-meta"></div>
+            </div>
+          </div>
+          <div class="mc-foot">
+            <div class="mc-valid"><small>VALID</small><span id="mc-valid"></span></div>
+            <div class="mc-clock"><small>NOW</small><span id="mc-clock">--:--:--</span></div>
+          </div>
+        </div>
+
+        <div class="mc-actions">
+          <a href="supporters.html" class="mc-btn">サポーター店を見る &rarr;</a>
+          <button class="mc-btn mc-btn--ghost" id="mc-change">別の選手に変更する</button>
+        </div>
+
+        <div class="mc-note">
+          <b>ご利用にあたって</b>
+          <ul>
+            <li>この会員証は<b>選手本人のみ</b>ご利用いただけます。</li>
+            <li>有効期限は年度末（3月31日）です。</li>
+            <li>特典の内容・条件はお店ごとに異なります。各店の記載をご確認ください。</li>
+            <li>お店の方へ：<b>右下の時計が1秒ごとに動いているか</b>、カードの光沢が流れているかをご確認ください。画面の保存画像では動きません。</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </main>
+<!-- フッター -->
+  <footer class="gf">
+    <div class="gf-top">
+      <div class="gf-top-inner">
+        <div class="gf-brand">
+          <img src="../assets/logo.png" alt="八ヶ岳グランデFC">
+          <div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳グランデFC</div>
+            <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
+          </div>
+        </div>
+        <nav class="gf-nav">
+          <a href="news.html">お知らせ</a>
+          <a href="matches.html">試合情報</a>
+          <a href="team.html">選手・スタッフ</a>
+          <a href="club.html">クラブを知る</a>
+          <a href="initiatives.html">クラブの取り組み</a>
+          <a href="join.html">入会・体験</a>
+          <a href="partners.html">パートナー</a>
+          <a href="members.html">クラブ員専用</a>
+          <a href="contact.html">お問い合わせ</a>
+        </nav>
+        <div class="gf-sns">
+          <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+          <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4L15.9 12z"/></svg></a>
+          <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" aria-label="LINE"><svg viewBox="0 0 24 24"><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.8 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c0 .3-.2 1.2 1 .6 1.3-.5 6.9-4.1 9.4-7 1.8-1.9 2.7-3.8 2.7-5.9z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="contact.html">お問い合わせ</a>
+          <a href="members.html">クラブ員専用</a>
+        </div>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  
+  <script src="js/config-loader.js?v=20260805d"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+    ConfigLoader.apply({ pageTitle: '選手会員証' });
+
+    // 未ログインならログイン画面へ
+    if (localStorage.getItem('memberLoggedIn') !== 'true') {
+      location.replace('members.html');
+    }
+
+    (function(){
+      var KEY = 'grandeMemberCard';   // この端末で選んだ選手ID
+      var statusEl = document.getElementById('mc-status');
+      var pickerEl = document.getElementById('mc-picker');
+      var wrapEl   = document.getElementById('mc-wrap');
+      var players  = [];
+      var clockTimer = null;
+
+      function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+      // category が空の選手が多いので学年から補う
+      function categoryOf(p){
+        if (p.category) return p.category === 'U15' ? 'U-15' : p.category;
+        var g = String(p.grade || '');
+        if (g.indexOf('\u4e2d') === 0) return 'U-15';
+        if (g.indexOf('\u5c0f') === 0) return 'U-12';
+        return '';
+      }
+      // 4月始まりの年度
+      function nendo(){
+        var d = new Date();
+        return (d.getMonth() + 1) >= 4 ? d.getFullYear() : d.getFullYear() - 1;
+      }
+      function gradeOrder(g){
+        g = String(g || '');
+        var n = parseInt(g.replace(/[^0-9]/g, ''), 10) || 0;
+        return (g.indexOf('\u4e2d') === 0 ? 100 : 0) + n;
+      }
+
+      function buildPicker(){
+        var gradeSel  = document.getElementById('mc-grade');
+        var playerSel = document.getElementById('mc-player');
+        var submit    = document.getElementById('mc-submit');
+
+        var grades = [];
+        players.forEach(function(p){ if (p.grade && grades.indexOf(p.grade) < 0) grades.push(p.grade); });
+        grades.sort(function(a, b){ return gradeOrder(a) - gradeOrder(b); });
+        grades.forEach(function(g){
+          var o = document.createElement('option');
+          o.value = g; o.textContent = g;
+          gradeSel.appendChild(o);
+        });
+
+        gradeSel.addEventListener('change', function(){
+          playerSel.innerHTML = '';
+          submit.disabled = true;
+          if (!this.value) {
+            playerSel.disabled = true;
+            playerSel.innerHTML = '<option value="">先に学年を選んでください</option>';
+            return;
+          }
+          playerSel.disabled = false;
+          playerSel.innerHTML = '<option value="">選択してください</option>';
+          players.filter(function(p){ return p.grade === gradeSel.value; })
+                 .sort(function(a, b){ return (parseInt(a.number, 10) || 999) - (parseInt(b.number, 10) || 999); })
+                 .forEach(function(p){
+                    var o = document.createElement('option');
+                    o.value = p.id;
+                    o.textContent = (p.number ? '#' + p.number + '\u3000' : '') + p.name;
+                    playerSel.appendChild(o);
+                 });
+        });
+        playerSel.addEventListener('change', function(){ submit.disabled = !this.value; });
+        submit.addEventListener('click', function(){
+          if (!playerSel.value) return;
+          try { localStorage.setItem(KEY, playerSel.value); } catch(e){}
+          show(playerSel.value);
+        });
+      }
+
+      function show(id){
+        var p = null;
+        for (var i = 0; i < players.length; i++) if (String(players[i].id) === String(id)) p = players[i];
+        if (!p) { openPicker(); return; }
+
+        document.getElementById('mc-photo').innerHTML = p.photo
+          ? '<img src="' + esc(p.photo) + '" alt="' + esc(p.name) + '">'
+          : '<div class="mc-noimg">\u26bd</div>';
+        document.getElementById('mc-number').textContent  = p.number ? '#' + p.number : '';
+        document.getElementById('mc-name').textContent    = p.name || '';
+        document.getElementById('mc-name-en').textContent = p.nameRoman || '';
+        document.getElementById('mc-meta').textContent =
+          [categoryOf(p), p.grade, p.mainGroup].filter(Boolean).join('\u3000/\u3000');
+        document.getElementById('mc-valid').textContent = nendo() + '年度';
+
+        statusEl.style.display = 'none';
+        pickerEl.style.display = 'none';
+        wrapEl.style.display   = '';
+
+        // 秒まで動く時計（保存画像との見分け用）
+        var clockEl = document.getElementById('mc-clock');
+        function z(n){ return (n < 10 ? '0' : '') + n; }
+        function tick(){
+          var d = new Date();
+          clockEl.textContent = d.getFullYear() + '/' + z(d.getMonth() + 1) + '/' + z(d.getDate()) +
+                                ' ' + z(d.getHours()) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds());
+        }
+        tick();
+        if (clockTimer) clearInterval(clockTimer);
+        clockTimer = setInterval(tick, 1000);
+      }
+
+      function openPicker(){
+        if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+        statusEl.style.display = 'none';
+        wrapEl.style.display   = 'none';
+        pickerEl.style.display = '';
+      }
+
+      document.getElementById('mc-change').addEventListener('click', function(){
+        try { localStorage.removeItem(KEY); } catch(e){}
+        document.getElementById('mc-grade').value = '';
+        var ps = document.getElementById('mc-player');
+        ps.innerHTML = '<option value="">先に学年を選んでください</option>';
+        ps.disabled = true;
+        document.getElementById('mc-submit').disabled = true;
+        openPicker();
+      });
+
+      ConfigLoader.load().then(function(c){
+        var fbUrl  = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
+        return fetch(fbUrl + '/clubs/' + clubId + '/players.json');
+      }).then(function(r){ return r.json(); }).then(function(d){
+        var arr = !d ? [] : (Object.prototype.toString.call(d) === '[object Array]' ? d
+                                                                                   : Object.keys(d).map(function(k){ return d[k]; }));
+        players = arr.filter(function(p){ return p && p.name && p.id; });
+        if (!players.length) { statusEl.textContent = '選手データがまだ登録されていません。'; return; }
+        buildPicker();
+        var saved = null;
+        try { saved = localStorage.getItem(KEY); } catch(e){}
+        if (saved) show(saved); else openPicker();
+      }).catch(function(e){
+        console.error('[member-card]', e);
+        statusEl.textContent = '選手データを読み込めませんでした。時間をおいて再度お試しください。';
+      });
+    })();
+  </script>
+</body>
+</html>

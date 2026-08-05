@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>サポーター店 | 八ヶ岳グランデFC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js?v=20260805d"></script>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+          <span class="gh-logo-name">GRANDE FC</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">取り組み</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="#" class="gh-login" onclick="handleLogout(); return false;">ログアウト</a>
+        <a href="../itemshop.html" class="gh-cta gh-cta--trial">ショップ<small>STORE</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link nav-thanks" href="message.html"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+    <a class="m-link" href="#" onclick="handleLogout(); return false;"><span class="n-en">LOGOUT</span><span class="n-ja">ログアウト</span></a>
+    <div class="m-nav-ctas">
+      <a href="../itemshop.html" class="m-cta-trial">アイテムショップ</a>
+    </div>
+  </nav>
+
+  <!-- ページヒーロー -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">SUPPORTERS</div>
+      <div class="ph-ja">サポーター店</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>&rsaquo;</span><a href="partners.html">パートナー</a><span>&rsaquo;</span><span>サポーター店</span></div></div>
+
+  <main class="page-body">
+    <div class="container">
+
+      <p class="sup-lead" id="sup-lead"></p>
+
+      <div class="sup-filter" id="sup-filter"></div>
+      <div id="sup-list"><p class="no-data">読み込み中...</p></div>
+
+      <!-- サポーター店の募集 -->
+      <section class="sup-recruit">
+        <p class="sup-recruit-en">JOIN US</p>
+        <h2 class="sup-recruit-ja">サポーター店になりませんか？</h2>
+        <p class="sup-recruit-desc">
+          年会費や協賛金は<strong>一切いただきません</strong>。お店で無理なくできる特典を<strong>ひとつ</strong>決めていただくだけです。<br>
+          「協賛は難しいけれど、地元の子どもたちを何か応援したい」——そんな気持ちを形にする仕組みです。
+          クラブのOB・保護者の方はもちろん、地域のお店ならどなたでも大歓迎です。
+        </p>
+
+        <div class="sup-steps">
+          <div class="sup-step">
+            <div class="sup-step-no">STEP 01</div>
+            <div class="sup-step-title">特典を決める</div>
+            <p class="sup-step-desc">お店の負担にならない範囲で構いません。迷ったら下の例からお選びください。</p>
+          </div>
+          <div class="sup-step">
+            <div class="sup-step-no">STEP 02</div>
+            <div class="sup-step-title">クラブへご連絡</div>
+            <p class="sup-step-desc">お店の情報と特典内容をお知らせください。掲載用のお写真もあれば頂戴します。</p>
+          </div>
+          <div class="sup-step">
+            <div class="sup-step-no">STEP 03</div>
+            <div class="sup-step-title">このページに掲載</div>
+            <p class="sup-step-desc">公式サイトに掲載し、クラブ員へご案内します。掲載費もいただきません。</p>
+          </div>
+        </div>
+
+        <p class="sup-recruit-desc" style="margin-top:26px;margin-bottom:0;"><strong>特典の例</strong></p>
+        <div class="sup-examples">
+          <span class="sup-example">デザート1品サービス</span>
+          <span class="sup-example">ドリンク1杯サービス</span>
+          <span class="sup-example">ごはん大盛り無料</span>
+          <span class="sup-example">お会計5%OFF</span>
+          <span class="sup-example">1品サービス</span>
+          <span class="sup-example">お菓子プレゼント</span>
+        </div>
+
+        <a href="contact.html" class="sup-recruit-cta">サポーター店について問い合わせる &rarr;</a>
+      </section>
+
+    </div>
+  </main>
+<!-- フッター -->
+  <footer class="gf">
+    <div class="gf-top">
+      <div class="gf-top-inner">
+        <div class="gf-brand">
+          <img src="../assets/logo.png" alt="八ヶ岳グランデFC">
+          <div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳グランデFC</div>
+            <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
+          </div>
+        </div>
+        <nav class="gf-nav">
+          <a href="news.html">お知らせ</a>
+          <a href="matches.html">試合情報</a>
+          <a href="team.html">選手・スタッフ</a>
+          <a href="club.html">クラブを知る</a>
+          <a href="initiatives.html">クラブの取り組み</a>
+          <a href="join.html">入会・体験</a>
+          <a href="partners.html">パートナー</a>
+          <a href="members.html">クラブ員専用</a>
+          <a href="contact.html">お問い合わせ</a>
+        </nav>
+        <div class="gf-sns">
+          <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+          <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4L15.9 12z"/></svg></a>
+          <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" aria-label="LINE"><svg viewBox="0 0 24 24"><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.8 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c0 .3-.2 1.2 1 .6 1.3-.5 6.9-4.1 9.4-7 1.8-1.9 2.7-3.8 2.7-5.9z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="contact.html">お問い合わせ</a>
+          <a href="members.html">クラブ員専用</a>
+        </div>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  
+  <script src="js/config-loader.js?v=20260805d"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+    ConfigLoader.apply({ pageTitle: 'サポーター店' });
+
+    (function(){
+      var listEl   = document.getElementById('sup-list');
+      var filterEl = document.getElementById('sup-filter');
+      var shops = [];
+      var active = 'ALL';
+
+      function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+      function badges(s){
+        var h = '';
+        if (s.owner) {
+          var cls = s.owner.indexOf('OB') >= 0 ? ' sup-badge--ob'
+                  : (s.owner.indexOf('保護者') >= 0 ? ' sup-badge--parent' : '');
+          h += '<span class="sup-badge' + cls + '">' + esc(s.owner) + '</span>';
+        }
+        if (s.category) h += '<span class="sup-badge">' + esc(s.category) + '</span>';
+        return h ? '<div class="sup-badges">' + h + '</div>' : '';
+      }
+
+      function card(s){
+        var photo = s.photo
+          ? '<div class="sup-photo" style="background-image:url(\'' + esc(s.photo) + '\')">' + badges(s) + '</div>'
+          : '<div class="sup-photo">' + badges(s) + '<div class="sup-noimg">\ud83c\udfea</div></div>';
+
+        var meta = [];
+        if (s.address) meta.push(esc(s.address));
+        if (s.hours)   meta.push('営業時間: ' + esc(s.hours));
+        if (s.tel)     meta.push('TEL: ' + esc(s.tel));
+
+        var links = '';
+        if (s.mapUrl) links += '<a class="sup-link" href="' + esc(s.mapUrl) + '" target="_blank" rel="noopener">地図を見る</a>';
+        if (s.tel)    links += '<a class="sup-link" href="tel:' + esc(String(s.tel).replace(/[^0-9+]/g, '')) + '">電話する</a>';
+        if (s.url)    links += '<a class="sup-link" href="' + esc(s.url) + '" target="_blank" rel="noopener">お店を見る</a>';
+
+        return '<div class="sup-card">' + photo +
+          '<div class="sup-body">' +
+            (s.category ? '<div class="sup-cat">' + esc(s.category) + '</div>' : '') +
+            '<div class="sup-name">' + esc(s.name) + '</div>' +
+            '<div class="sup-perk"><span>会員証提示で</span>' + esc(s.perk || '') + '</div>' +
+            (s.conditions ? '<p class="sup-cond">' + esc(s.conditions) + '</p>' : '') +
+            (meta.length ? '<p class="sup-meta">' + meta.join('<br>') + '</p>' : '') +
+            (links ? '<div class="sup-links">' + links + '</div>' : '') +
+          '</div></div>';
+      }
+
+      function render(){
+        var rows = (active === 'ALL') ? shops : shops.filter(function(s){ return s.category === active; });
+        if (!rows.length) {
+          listEl.innerHTML = '<p class="no-data">この業種のサポーター店はまだありません。</p>';
+          return;
+        }
+        listEl.innerHTML = '<div class="sup-grid">' + rows.map(card).join('') + '</div>';
+      }
+
+      function buildFilter(){
+        var cats = [];
+        shops.forEach(function(s){ if (s.category && cats.indexOf(s.category) < 0) cats.push(s.category); });
+        if (cats.length < 2) { filterEl.style.display = 'none'; return; }
+        var all = ['ALL'].concat(cats);
+        filterEl.innerHTML = all.map(function(c, i){
+          return '<button class="sup-fbtn' + (i === 0 ? ' on' : '') + '" data-cat="' + esc(c) + '">' +
+                 (c === 'ALL' ? 'すべて' : esc(c)) + '</button>';
+        }).join('');
+        filterEl.addEventListener('click', function(e){
+          var b = e.target.closest('.sup-fbtn');
+          if (!b) return;
+          active = b.getAttribute('data-cat');
+          filterEl.querySelectorAll('.sup-fbtn').forEach(function(x){ x.classList.toggle('on', x === b); });
+          render();
+        });
+      }
+
+      function empty(){
+        filterEl.style.display = 'none';
+        listEl.innerHTML =
+          '<div class="sup-empty">' +
+            '<div class="sup-empty-icon">\ud83c\udf7d\ufe0f</div>' +
+            '<div class="sup-empty-title">サポーター店 第1号を募集しています</div>' +
+            '<p class="sup-empty-desc">' +
+              'カフェ・居酒屋・お弁当屋さん・美容室・書店など、業種は問いません。<br>' +
+              '「デザート1品」でも立派な応援です。まずは下記からお気軽にご相談ください。' +
+            '</p>' +
+          '</div>';
+      }
+
+      ConfigLoader.load().then(function(c){
+        var sup = c.supporters || {};
+        var lead = document.getElementById('sup-lead');
+        if (sup.lead) lead.textContent = sup.lead; else lead.style.display = 'none';
+        shops = (sup.shops || []).filter(function(s){ return s && s.name; });
+        if (!shops.length) { empty(); return; }
+        buildFilter();
+        render();
+      }).catch(function(e){
+        console.error('[supporters]', e);
+        listEl.innerHTML = '<p class="no-data">サポーター店の情報を読み込めませんでした。</p>';
+      });
+    })();
+  </script>
+</body>
+</html>

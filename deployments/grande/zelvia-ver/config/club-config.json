@@ -118,5 +118,10 @@
     "showPlayers": false,
     "showSchool": true
   },
-  "sponsors": []
+  "sponsors": [],
+  "supporters": {
+    "_readme": "サポーター店の一覧。shops に店舗を追加すると supporters.html に自動で並びます。name=店名 / category=飲食・物販・サービス・その他 / owner=OB・保護者・空 / perk=特典内容（必須・一覧の主役） / conditions=利用条件 / address=住所 / hours=営業時間 / tel=電話 / mapUrl=Googleマップ / url=店のサイトやSNS / photo=写真パス",
+    "lead": "グランデの選手会員証をお店で見せると、ちょっと嬉しい特典が受けられます。いずれもクラブのOBや保護者の皆さん、地域の方々が「できる形で応援したい」と手を挙げてくださったお店です。",
+    "shops": []
+  }
 }

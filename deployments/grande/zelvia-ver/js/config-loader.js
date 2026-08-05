@@ -146,7 +146,9 @@ const ConfigLoader = (function () {
 
   /** club-config.json を fetch して返す */
   async function load() {
-    var res = await fetch(CONFIG_PATH);
+    // no-cache: サーバーに必ず問い合わせて最新かどうか確認する（ETagが同じなら再ダウンロードは発生しない）。
+    // club-config.json を編集して公開したとき、再訪問者に古い内容が残らないようにするため。
+    var res = await fetch(CONFIG_PATH, { cache: 'no-cache' });
     if (!res.ok) throw new Error('club-config.json の読み込みに失敗しました (' + res.status + ')');
     return res.json();
   }
