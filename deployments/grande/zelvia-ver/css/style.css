@@ -1693,3 +1693,30 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
 .sup-examples { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 .sup-example { background: rgba(255,255,255,0.14); border-radius: 999px; padding: 8px 16px; font-size: 12.5px; font-weight: 700; }
 .sup-recruit-cta { display: inline-block; margin-top: 26px; background: #fff; color: #10401e; font-size: 14px; font-weight: 900; letter-spacing: 1px; padding: 15px 38px; border-radius: 999px; }
+
+/* ============================================================
+   v3.6 セーフエリア対応（PWA / ノッチ・Dynamic Island）
+   index.html は viewport-fit=cover + black-translucent のため、
+   ホーム画面から起動するとコンテンツがステータスバーの下まで広がる。
+   固定ヘッダーとメニューを安全域のぶんだけ内側に寄せる。
+   （ボトムナビは .bnav-m 側で inset-bottom を対応済み）
+   通常のブラウザ表示では env() が 0 になるため見た目は変わらない。
+   ============================================================ */
+.gh { padding-top: env(safe-area-inset-top, 0px); }
+.gh-inner {
+  padding-left: calc(16px + env(safe-area-inset-left, 0px));
+  padding-right: calc(12px + env(safe-area-inset-right, 0px));
+}
+.m-nav {
+  padding-top: calc(24px + env(safe-area-inset-top, 0px));
+  padding-left: calc(24px + env(safe-area-inset-left, 0px));
+  padding-right: calc(24px + env(safe-area-inset-right, 0px));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+/* ステータスバーの文字は black-translucent 指定により白で描かれる。
+   デイモードのヘッダーは白背景なので、安全域の帯だけ theme-color と同じ濃緑で塗る。 */
+.gh::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: #0e3a1c;
+}
