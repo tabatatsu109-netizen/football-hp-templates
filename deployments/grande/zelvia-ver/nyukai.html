@@ -16,7 +16,7 @@
     /* ── ウィザード ── */
     .wiz-wrap { max-width: 860px; margin: 0 auto; }
     .wiz-progress { display: flex; gap: 6px; margin-bottom: 28px; }
-    .wiz-progress span { flex: 1; height: 6px; border-radius: 3px; background: #dfe5e0; transition: background .3s; }
+    .wiz-progress span { flex: 1; height: 6px; border-radius: 3px; background: var(--bg-gray); transition: background .3s; }
     .wiz-progress span.on { background: var(--main-color); }
     .wiz-step-label { font-family: 'Oswald', sans-serif; font-style: italic; font-weight: 700; color: var(--main-color); letter-spacing: 3px; font-size: 13px; }
     .wiz-step-title { font-size: clamp(20px, 3vw, 26px); font-weight: 900; margin: 4px 0 22px; }
@@ -24,9 +24,9 @@
     .wiz-panel.on { display: block; animation: wizIn .35s ease; }
     @keyframes wizIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
     .wiz-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; }
-    .wiz-btn { border: 2px solid var(--main-color); background: var(--main-color); color: #fff; font-weight: 900; font-size: 15px; letter-spacing: 2px; padding: 14px 34px; border-radius: 999px; cursor: pointer; transition: opacity .2s; font-family: inherit; }
+    .wiz-btn { border: 2px solid var(--main-color); background: var(--main-color); color: var(--on-main); font-weight: 900; font-size: 15px; letter-spacing: 2px; padding: 14px 34px; border-radius: 999px; cursor: pointer; transition: opacity .2s; font-family: inherit; }
     .wiz-btn:hover { opacity: .88; }
-    .wiz-btn--ghost { background: #fff; color: var(--main-color); }
+    .wiz-btn--ghost { background: var(--card); color: var(--main-color); }
     .wiz-btn:disabled { opacity: .4; cursor: not-allowed; }
     .wiz-note { font-size: 12.5px; color: #667; line-height: 1.9; margin-top: 10px; }
     .jform-hint { font-size: 12px; color: #889; margin-top: 4px; }
@@ -35,19 +35,19 @@
     .wiz-error.show { display: block; }
 
     /* ── A4申込書プレビュー ── */
-    .sheet-scroll { overflow-x: auto; background: #e8ebe8; border-radius: 10px; padding: clamp(10px, 3vw, 30px); }
+    .sheet-scroll { overflow-x: auto; background: var(--bg-gray); border-radius: 10px; padding: clamp(10px, 3vw, 30px); }
     .sheet { width: 210mm; min-height: 290mm; margin: 0 auto; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.18); padding: 12mm 11mm; box-sizing: border-box; color: #111; font-family: 'Noto Sans JP', sans-serif; position: relative; }
     .sh-head { display: grid; grid-template-columns: 34mm 1fr 34mm; align-items: start; gap: 4mm; margin-bottom: 5mm; }
     .sh-emblem { width: 30mm; height: auto; }
     .sh-titles { text-align: center; }
     .sh-year { font-size: 15px; font-weight: 700; letter-spacing: 4px; }
-    .sh-club { font-size: 17px; font-weight: 900; color: #1a5c2d; margin-top: 2mm; letter-spacing: 1px; }
-    .sh-cat { font-size: 15px; font-weight: 900; color: #1a5c2d; margin-top: 1mm; }
+    .sh-club { font-size: 17px; font-weight: 900; color: var(--main-color); margin-top: 2mm; letter-spacing: 1px; }
+    .sh-cat { font-size: 15px; font-weight: 900; color: var(--main-color); margin-top: 1mm; }
     .sh-photo { width: 28mm; height: 36mm; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #666; text-align: center; line-height: 1.8; overflow: hidden; justify-self: end; }
     .sh-photo img { width: 100%; height: 100%; object-fit: cover; }
     table.sh { width: 100%; border-collapse: collapse; table-layout: fixed; }
     table.sh th, table.sh td { border: 1.2px solid #333; padding: 1.6mm 2mm; font-size: 10.5px; vertical-align: top; word-break: break-all; }
-    table.sh th { background: #eef3ee; font-weight: 700; text-align: left; white-space: nowrap; }
+    table.sh th { background: var(--bg-gray); font-weight: 700; text-align: left; white-space: nowrap; }
     .sh-val { font-size: 12px; font-weight: 700; min-height: 4.6mm; display: block; }
     .sh-small th, .sh-small td { font-size: 9.5px; padding: 1.2mm 1.6mm; }
     .sh-sec { margin-top: 3mm; }
@@ -65,12 +65,12 @@
     .next-flow { text-align: left; max-width: 640px; margin: 36px auto 0; border-top: 1px solid var(--line); padding-top: 30px; }
     .next-flow-title { font-weight: 900; font-size: 13px; letter-spacing: 2px; color: var(--main-color); text-align: center; margin-bottom: 18px; }
     .next-steps { display: flex; flex-direction: column; gap: 14px; }
-    .next-step { display: flex; gap: 14px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+    .next-step { display: flex; gap: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
     .next-step--done { background: var(--bg-gray); }
     .next-step-num { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--main-color); color: #fff; font-weight: 900; font-family: 'Oswald', sans-serif; display: flex; align-items: center; justify-content: center; font-size: 15px; }
     .next-step--done .next-step-num { background: #9aa39c; }
     .next-step-head { font-weight: 900; font-size: 14.5px; margin-bottom: 5px; }
-    .next-step-text { font-size: 12.5px; line-height: 1.9; color: #4c5157; }
+    .next-step-text { font-size: 12.5px; line-height: 1.9; color: var(--ink-soft); }
     .next-contacts { margin-top: 22px; }
     .next-contacts-title { font-size: 12px; font-weight: 700; color: var(--ink-sub); text-align: center; margin-bottom: 10px; }
     .next-contacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -78,7 +78,7 @@
     .next-contact:hover { border-color: var(--main-color); }
     .next-contact-label { font-size: 10.5px; font-weight: 700; color: var(--main-color); }
     .next-contact-name { font-size: 13.5px; font-weight: 900; margin: 2px 0; }
-    .next-contact-tel { font-size: 12px; color: #4c5157; }
+    .next-contact-tel { font-size: 12px; color: var(--ink-soft); }
     @media (max-width: 480px) { .next-contacts-grid { grid-template-columns: 1fr; } }
 
     /* ── 印刷: シートのみ ── */
@@ -95,6 +95,7 @@
       .sheet-scroll { margin-left: -20px; margin-right: -20px; border-radius: 0; }
     }
   </style>
+  <script src="js/theme.js?v=20260805a"></script>
 </head>
 <body>
 

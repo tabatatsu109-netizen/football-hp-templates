@@ -12,6 +12,7 @@
   <style>
     :root { --tk: #c99a1e; --tk-dark: #4a3405; --tk-bg: #fbf5e6; }
   </style>
+  <script src="js/theme.js?v=20260805a"></script>
 </head>
 <body>
 
@@ -111,6 +112,24 @@
       </div>
     </section>
 
+    <!-- みんなのスタジアム建設（匿名の集計値のみ。個人記録は会員ページ） -->
+    <section class="tk-sec">
+      <div class="tk-sec-inner">
+        <p class="tk-sec-en">STADIUM PROJECT</p>
+        <h2 class="tk-sec-ja">みんなのスタジアム建設</h2>
+        <p class="tk-text">
+          選手が食堂で1食食べるごとに、クラブの夢の「グランデスタジアム」が一歩ずつ完成へ近づいていきます。<br>
+          <strong>100食ごとにレベルアップ</strong>。ただ食べるだけでなく、みんなで一つのものを育てていく仕掛けです。
+        </p>
+
+        <div id="skp-stadium" style="margin-top:24px;"><p class="skp-loading">読み込み中…</p></div>
+
+        <h3 class="tk-point-title" style="margin-top:40px;">⚽ プロ選手への道（キャリアの道のり）</h3>
+        <p class="skp-sub">食べた回数に応じて、選手ひとりひとりのキャリアもステップアップしていきます。「？」のステージは、誰かがたどり着いたら見られるようになるお楽しみ。<br>※ 選手個人の記録・費用はクラブ員専用ページでご確認いただけます。</p>
+        <div class="skp-stages" id="skp-stages"></div>
+      </div>
+    </section>
+
     <section class="tk-sec">
       <div class="tk-sec-inner">
         <p class="tk-sec-en">GALLERY</p>
@@ -189,8 +208,62 @@
   </div>
 
   <script src="js/config-loader.js"></script>
+  <script src="js/shokudo-summary.js?v=20260805a"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // ── みんなのスタジアム建設 / キャリアの道のり（匿名の集計値のみ） ──
+    (function(){
+      var box = document.getElementById('skp-stadium');
+      var stagesEl = document.getElementById('skp-stages');
+      if (!box || !window.ShokudoSummary) return;
+
+      function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+      // キャリアの道のり（データ取得を待たずに描画できる）
+      stagesEl.innerHTML = ShokudoSummary.CAREER.map(function(s){
+        return '<div class="skp-stage' + (s.img ? '' : ' is-locked') + '">' +
+          (s.img ? '<div class="ph"><img src="' + s.img + '" alt="' + esc(s.name) + '" loading="lazy"></div>'
+                 : '<div class="qm">？</div>') +
+          '<div class="skp-stage-body">' +
+            '<div class="skp-th">' + s.th + '食〜</div>' +
+            '<div class="skp-nm">' + esc(s.name) + '</div>' +
+            '<div class="skp-ttl">' + esc(s.title) + '</div>' +
+          '</div></div>';
+      }).join('');
+
+      ConfigLoader.load().then(function(c){
+        var fbUrl = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+        var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
+        return fetch(fbUrl + '/clubs/' + clubId + '.json');
+      }).then(function(r){ return r.json(); }).then(function(data){
+        var s = ShokudoSummary.compute(data || {});
+        if (s.total === 0) {
+          box.innerHTML = '<p class="skp-loading">食堂がスタートすると、ここにスタジアムの建設状況が表示されます ⚽</p>';
+          return;
+        }
+        box.innerHTML =
+          '<div class="skp-photo">' +
+            '<img src="' + s.stageImg + '" alt="' + esc(s.stage.name) + '">' +
+            '<span class="skp-badge">🏗 建設中 Lv.' + s.level + '</span>' +
+            '<span class="skp-name">🏟 ' + esc(s.stage.name) + '</span>' +
+          '</div>' +
+          '<div class="sk-stats">' +
+            '<div class="sk-stat"><span class="sk-num" id="skp-total">0<small>食</small></span><span class="sk-label">累計提供食数</span></div>' +
+            '<div class="sk-stat"><span class="sk-num">Lv.' + s.level + '</span><span class="sk-label">スタジアム建設</span></div>' +
+            '<div class="sk-stat"><span class="sk-num" id="skp-days">0<small>日</small></span><span class="sk-label">開催日数</span></div>' +
+          '</div>' +
+          '<div class="sk-bar"><span id="skp-fill"></span></div>' +
+          '<p class="sk-next">🔨 あと' + s.toNext + '食でスタジアムが進化！' + (s.next ? '　次は「' + esc(s.next.name) + '」' : '') + '</p>';
+
+        ShokudoSummary.countUp(document.getElementById('skp-total'), s.total, '食');
+        ShokudoSummary.countUp(document.getElementById('skp-days'), s.days, '日');
+        setTimeout(function(){ document.getElementById('skp-fill').style.width = s.pct + '%'; }, 200);
+      }).catch(function(e){
+        console.error('[shokudo-stadium]', e);
+        box.innerHTML = '<p class="skp-loading">建設状況を読み込めませんでした。時間をおいて再度お試しください。</p>';
+      });
+    })();
     var mobileNav = document.getElementById('mobile-nav');
     document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });

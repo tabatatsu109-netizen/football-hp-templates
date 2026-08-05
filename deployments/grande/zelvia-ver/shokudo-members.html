@@ -8,31 +8,31 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260719a">
+  <link rel="stylesheet" href="css/style.css?v=20260805a">
   <style>
     :root { --tk: #c99a1e; --tk-dark: #4a3405; --tk-bg: #fbf5e6; }
     /* 食堂データビュー */
-    .sk-panel { background: #fff; border: 1px solid #e4e6e9; border-radius: 14px; padding: 22px; margin-top: 22px; }
+    .sk-panel { background: var(--card); border: 1px solid #e4e6e9; border-radius: 14px; padding: 22px; margin-top: 22px; }
     .sk-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-    .sk-note { font-size: 12px; color: #8a9099; margin-top: 10px; line-height: 1.8; }
+    .sk-note { font-size: 12px; color: var(--ink-sub); margin-top: 10px; line-height: 1.8; }
     .sk-table-wrap { overflow-x: auto; }
     .sk-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-    .sk-table th { text-align: left; padding: 9px 8px; border-bottom: 2px solid #dcdfe3; font-size: 12px; color: #5a6068; white-space: nowrap; }
+    .sk-table th { text-align: left; padding: 9px 8px; border-bottom: 2px solid #dcdfe3; font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
     .sk-table td { padding: 9px 8px; border-bottom: 1px solid #eceef1; }
     .sk-table .ctr { text-align: center; }
     .sk-table .rgt { text-align: right; }
-    .sk-select { border: 1.5px solid #1a5c2d; border-radius: 8px; padding: 7px 12px; font-size: 13px; font-family: inherit; background: #fff; }
+    .sk-select { border: 1.5px solid #1a5c2d; border-radius: 8px; padding: 7px 12px; font-size: 13px; font-family: inherit; background: var(--card); }
     .sk-rank-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid #eceef1; font-size: 14px; }
     .sk-medal { width: 40px; font-size: 17px; font-weight: 700; }
-    .sk-empty { font-size: 13px; color: #8a9099; padding: 14px 0; }
+    .sk-empty { font-size: 13px; color: var(--ink-sub); padding: 14px 0; }
     .sk-ok { color: #16a34a; font-weight: 700; }
     .sk-ng { color: #d97706; font-weight: 700; }
-    .sk-loading { font-size: 13px; color: #8a9099; padding: 20px 0; text-align: center; }
+    .sk-loading { font-size: 13px; color: var(--ink-sub); padding: 20px 0; text-align: center; }
     /* パスワードゲート */
     #sk-gate { position: fixed; inset: 0; z-index: 9999; background: #14351f; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .sk-gate-card { background: #fff; border-radius: 16px; padding: 36px 30px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .sk-gate-card { background: var(--card); border-radius: 16px; padding: 36px 30px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
     .sk-gate-title { font-size: 22px; font-weight: 900; margin: 8px 0 4px; }
-    .sk-gate-sub { font-size: 12.5px; color: #8a9099; margin-bottom: 20px; line-height: 1.8; }
+    .sk-gate-sub { font-size: 12.5px; color: var(--ink-sub); margin-bottom: 20px; line-height: 1.8; }
     .sk-gate-input { width: 100%; border: 1.5px solid #dcdfe3; border-radius: 10px; padding: 12px 14px; font-size: 16px; text-align: center; letter-spacing: 3px; margin-bottom: 12px; }
     .sk-gate-input:focus { outline: none; border-color: #1a5c2d; }
     .sk-gate-btn { width: 100%; background: #1a5c2d; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
@@ -40,12 +40,13 @@
     /* BMI計算ツール */
     .sk-calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     @media (max-width: 520px) { .sk-calc-grid { grid-template-columns: 1fr; } }
-    .sk-calc-label { font-size: 12px; font-weight: 700; color: #5a6068; margin-bottom: 5px; display: block; }
+    .sk-calc-label { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 5px; display: block; }
     .sk-calc-input { width: 100%; border: 1.5px solid #dcdfe3; border-radius: 8px; padding: 10px 12px; font-size: 15px; font-family: inherit; box-sizing: border-box; }
     .sk-calc-btn { background: #1a5c2d; color: #fff; border: none; border-radius: 10px; padding: 12px 34px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
     .sk-calc-result { margin-top: 16px; background: var(--tk-bg); border: 1px solid #e8dcb0; border-radius: 12px; padding: 18px; font-size: 14px; line-height: 2; display: none; }
-    .sk-calc-bmi { font-family: 'Oswald', sans-serif; font-size: 34px; font-weight: 700; color: #1a5c2d; line-height: 1; }
+    .sk-calc-bmi { font-family: 'Oswald', sans-serif; font-size: 34px; font-weight: 700; color: var(--main-color); line-height: 1; }
   </style>
+  <script src="js/theme.js?v=20260805a"></script>
 </head>
 <body>
 
@@ -307,15 +308,15 @@
         .sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
       var html = '<div style="margin-bottom:14px"><select class="sk-select" onchange="skMonth=this.value;renderTabs()">' +
         ms.map(function(m){ return '<option value="'+m+'"'+(m===skMonth?' selected':'')+'>'+m.replace('-','年')+'月</option>'; }).join('') +
-        '</select> <span style="font-size:12.5px;color:#8a9099;margin-left:8px">開催 '+sessions.length+'回</span></div>';
+        '</select> <span style="font-size:12.5px;color:var(--ink-sub);margin-left:8px">開催 '+sessions.length+'回</span></div>';
 
       // 開催日とメニュー
       html += '<div style="margin-bottom:16px">' + sessions.map(function(s){
         var n = Object.keys(s.cups||{}).length;
         return '<div style="display:flex;gap:10px;padding:7px 2px;border-bottom:1px dashed #eceef1;font-size:13px">' +
           '<b style="min-width:82px">'+esc((s.date||'').slice(5).replace('-','/'))+'</b>' +
-          '<span style="flex:1;color:#5a6068">'+esc(s.menu||'')+'</span>' +
-          '<span style="white-space:nowrap;color:#8a9099">'+n+'名</span></div>';
+          '<span style="flex:1;color:var(--ink-soft)">'+esc(s.menu||'')+'</span>' +
+          '<span style="white-space:nowrap;color:var(--ink-sub)">'+n+'名</span></div>';
       }).join('') + '</div>';
 
       // 選手別 出席・請求
@@ -342,7 +343,7 @@
     function renderBmi() {
       var catOpts = Object.keys(JFA_TARGETS).map(function(c){ return '<option value="'+c+'">'+c+'</option>'; }).join('');
       return '' +
-        '<div style="font-size:13.5px;color:#5a6068;margin-bottom:14px;line-height:1.9"><b>BMI ＝ 体重[kg] ÷（身長[m]）²</b><br>身長・体重を入力して「計算」を押すと、BMIと年代別の目標値との比較が表示されます。</div>' +
+        '<div style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;line-height:1.9"><b>BMI ＝ 体重[kg] ÷（身長[m]）²</b><br>身長・体重を入力して「計算」を押すと、BMIと年代別の目標値との比較が表示されます。</div>' +
         '<div class="sk-calc-grid">' +
           '<div><label class="sk-calc-label">身長（cm）</label><input class="sk-calc-input" type="number" step="0.1" id="sk-calc-h" placeholder="例: 160.5"></div>' +
           '<div><label class="sk-calc-label">体重（kg）</label><input class="sk-calc-input" type="number" step="0.1" id="sk-calc-w" placeholder="例: 48.2"></div>' +
@@ -358,7 +359,7 @@
           '<tr><td><b>DF/MF/FW</b></td>' + Object.keys(JFA_TARGETS).map(function(c){ return '<td class="ctr">'+JFA_TARGETS[c].field.toFixed(1)+'</td>'; }).join('') + '</tr>' +
           '<tr><td><b>GK</b></td>' + Object.keys(JFA_TARGETS).map(function(c){ return '<td class="ctr">'+JFA_TARGETS[c].gk.toFixed(1)+'</td>'; }).join('') + '</tr>' +
         '</tbody></table></div>' +
-        '<div style="font-size:11.5px;color:#8a9099;margin-top:8px;line-height:1.8">F：フューチャー（9月1日生まれ以降の選手）<br>※ この目標値はサッカー選手を対象としたもので、一般の肥満指数とは意味合いが異なります。</div></div>';
+        '<div style="font-size:11.5px;color:var(--ink-sub);margin-top:8px;line-height:1.8">F：フューチャー（9月1日生まれ以降の選手）<br>※ この目標値はサッカー選手を対象としたもので、一般の肥満指数とは意味合いが異なります。</div></div>';
     }
     function skCalc() {
       var h = parseFloat(document.getElementById('sk-calc-h').value);

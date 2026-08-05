@@ -63,7 +63,16 @@ const ConfigLoader = (function () {
     var main   = get(c, 'design.mainColor');
     var sub    = get(c, 'design.subColor');
     var accent = get(c, 'design.accentColor');
-    if (main)   root.style.setProperty('--main-color',   main);
+    // クラブのブランド色は --brand-main に常に保持しておく。
+    // --main-color のインライン指定はデイモードのときだけ行う
+    // （ナイトモードは css の :root[data-theme="night"] の配色を使うため。
+    //   インライン指定はどんなセレクタより強く、上書きできなくなる）
+    if (main) {
+      root.style.setProperty('--brand-main', main);
+      if (root.getAttribute('data-theme') !== 'night') {
+        root.style.setProperty('--main-color', main);
+      }
+    }
     if (sub)    root.style.setProperty('--sub-color',    sub);
     if (accent) root.style.setProperty('--accent-color', accent);
   }

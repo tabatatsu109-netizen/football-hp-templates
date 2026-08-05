@@ -452,7 +452,10 @@ const AuroraConnector = (function () {
     var html = sorted.map(function (n, i) {
       // Match Planner は category / type で保存するため n.cat も参照
       var cat = n.cat || n.category || n.type || 'お知らせ';
-      var cc = catColor(cat);
+      // ナイトモードでは配色が暗いため、データ側の濃いカテゴリ色は使わず
+      // CSS のアクセント色に任せる（インライン指定は CSS より強いため）
+      var night = document.documentElement.getAttribute('data-theme') === 'night';
+      var cc = night ? 'var(--main-color)' : catColor(cat);
       return '<a href="news.html" class="news-row" onclick="AuroraConnector.openNewsDetail(' + i + '); return false;">' +
         '<span class="news-date">' + escapeHTML(formatDate(n.date)) + '</span>' +
         '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';">' + escapeHTML(cat) + '</span>' +

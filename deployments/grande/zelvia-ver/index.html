@@ -16,7 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260720b">
+  <link rel="stylesheet" href="css/style.css?v=20260805a">
+  <script src="js/theme.js?v=20260805a"></script>
 </head>
 <body>
 
@@ -168,13 +169,35 @@
         <a href="members.html" class="quick-card" style="background-image:url('../assets/toprandom/LINE_ALBUM_高円宮杯アズール_260627_1.jpg')">
           <div class="quick-body"><span class="quick-en">MEMBERS</span><span class="quick-ja">クラブ員専用ページ</span></div>
         </a>
+        <a href="shokudo.html" class="quick-card quick-card--wide" style="background-image:url('../assets/torikumi/shokudo-1.jpg')">
+          <div class="quick-body"><span class="quick-en">SHOKUDO</span><span class="quick-ja">グランデ食堂</span></div>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- クラブステートメント -->
-  <section class="statement">
+  <!-- クラブステートメント + 八ヶ岳パララックス(季節で色が変わる) -->
+  <section class="statement" id="statement">
+    <div class="yt-sky" aria-hidden="true"></div>
     <div class="statement-bg" style="background-image:url('../assets/toprandom/LINE_ALBUM_エルドラード、ラーゴ_260627_36.jpg')"></div>
+    <div class="yt-range" aria-hidden="true">
+      <!-- ① 遠景: 赤岳を主峰とする八ヶ岳の稜線 -->
+      <svg class="yt-layer yt-l1" data-speed="14" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <path d="M0,400 L0,218 L120,204 L230,216 L330,180 L410,198 L500,158 L570,178 L640,124 L676,148 L730,132 L800,166 L880,152 L960,186 L1050,172 L1140,200 L1240,190 L1340,206 L1440,216 L1440,400 Z"/>
+      </svg>
+      <!-- ② 中景の山なみ -->
+      <svg class="yt-layer yt-l2" data-speed="30" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <path d="M0,400 L0,214 L110,198 L220,214 L330,182 L440,204 L560,150 L680,186 L790,158 L900,192 L1010,172 L1130,206 L1250,188 L1360,208 L1440,198 L1440,400 Z"/>
+      </svg>
+      <!-- ③ 手前の丘 -->
+      <svg class="yt-layer yt-l3" data-speed="48" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <path d="M0,400 L0,176 Q120,147 240,167 T480,173 T720,157 T960,177 T1200,163 T1440,179 L1440,400 Z"/>
+      </svg>
+      <!-- ④ 前景: 八ヶ岳の樹林帯 -->
+      <svg class="yt-layer yt-l4" data-speed="68" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <path d="M0,400 L0,178 L40,142 L80,178 L120,128 L160,178 L200,152 L240,178 L290,120 L340,178 L380,156 L420,178 L470,130 L520,178 L560,150 L600,178 L650,124 L700,178 L740,160 L780,178 L830,134 L880,178 L920,154 L960,178 L1010,128 L1060,178 L1100,156 L1140,178 L1190,138 L1240,178 L1280,152 L1320,178 L1370,126 L1420,178 L1440,168 L1440,400 Z"/>
+      </svg>
+    </div>
     <div class="statement-inner">
       <p class="statement-en">CORAZON GRANDE</p>
       <p class="statement-ja">感動するサッカーの追求</p>
@@ -185,6 +208,36 @@
         <div class="stat"><span class="stat-num" data-count="3">0</span><span class="stat-label">カテゴリー</span></div>
       </div>
       <a href="club.html" class="statement-btn">クラブを知る →</a>
+    </div>
+  </section>
+
+  <!-- グランデ食堂(公開サマリー) ※個人名・金額は会員ページのみ -->
+  <section class="shokudo-sec">
+    <div class="container">
+      <div class="sk-wrap">
+        <div class="sk-photo" style="background-image:url('../assets/torikumi/shokudo-1.jpg')">
+          <span class="sk-photo-badge">SHOKUIKU</span>
+          <span class="sk-photo-tag">毎週月曜、練習のあとはみんなで同じ釜の飯を。</span>
+        </div>
+        <div class="sk-body">
+          <span class="sk-en">SHOKUDO PROJECT</span>
+          <h2 class="sk-ja">グランデ食堂</h2>
+          <p class="sk-lead">食べることも、トレーニング。<br>白州米と地元野菜を使い、栄養士監修のもとで成長期のカラダをつくります。</p>
+
+          <div class="sk-data" id="sk-data">
+            <div class="sk-stats">
+              <div class="sk-stat"><span class="sk-num" id="sk-total">0<small>食</small></span><span class="sk-label">累計提供食数</span></div>
+              <div class="sk-stat"><span class="sk-num" id="sk-level">Lv.0</span><span class="sk-label">スタジアム建設</span></div>
+              <div class="sk-stat"><span class="sk-num" id="sk-days">0<small>日</small></span><span class="sk-label">開催日数</span></div>
+            </div>
+            <div class="sk-bar"><span id="sk-bar-fill"></span></div>
+            <p class="sk-next" id="sk-next">読み込み中…</p>
+            <p class="sk-note">みんなが食べた合計食数で「グランデスタジアム」が育っていきます。※選手個人の記録・費用はクラブ員専用ページでご覧いただけます。</p>
+          </div>
+
+          <a href="shokudo.html" class="sk-btn">グランデ食堂を見る →</a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -333,9 +386,10 @@
     </div>
   </div>
 
-  <script src="js/config-loader.js?v=20260720a"></script>
-  <script src="js/match-planner-connector.js?v=20260720a"></script>
-  <script src="js/mobile-experience.js?v=20260720b"></script>
+  <script src="js/config-loader.js?v=20260805a"></script>
+  <script src="js/match-planner-connector.js?v=20260805a"></script>
+  <script src="js/shokudo-summary.js?v=20260805a"></script>
+  <script src="js/mobile-experience.js?v=20260805a"></script>
   <script>
     // 年号
     document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -436,6 +490,13 @@
       });
     }, { passive: true });
 
+    // クラブデータ(Firebase)の共有取得 — ニュース・食堂など複数セクションで使い回す
+    var clubDataPromise = ConfigLoader.load().then(function(c){
+      var fbUrl = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+      var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
+      return fetch(fbUrl + '/clubs/' + clubId + '.json');
+    }).then(function(r){ return r.json(); }).then(function(d){ return d || {}; });
+
     // 新着ニュースをプロモスライダーに写真つきで追加（体験練習カードは固定で先頭）
     (function(){
       var FALLBACK_PHOTOS = [
@@ -473,11 +534,7 @@
 
       function toTime(s){ var d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime(); }
 
-      ConfigLoader.load().then(function(c){
-        var fbUrl = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
-        var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
-        return fetch(fbUrl + '/clubs/' + clubId + '.json');
-      }).then(function(r){ return r.json(); }).then(function(data){
+      clubDataPromise.then(function(data){
         var items = (data && (data.news || data.posts)) || [];
         promoNews = items
           .filter(function(n){ return n && n.title; })
@@ -539,23 +596,38 @@
       inner.innerHTML = new Array(copies + 1).join(unit);
     })();
 
-    // ── パララックス(ステートメント背景) + PC のみ・reduce-motion 尊重 ──
+    // ── 八ヶ岳パララックス(ステートメント) — 季節で配色が変わる多層シルエット ──
     (function(){
-      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduce) return;
-      var bg = document.querySelector('.statement-bg');
-      if (!bg) return;
+      var sec = document.getElementById('statement');
+      if (!sec) return;
+
+      // 季節判定。?season=winter のように付ければ手動で確認できる
+      var forced = (location.search.match(/[?&]season=(spring|summer|autumn|winter)/) || [])[1];
+      var m = new Date().getMonth() + 1;
+      var season = forced ||
+        (m >= 3 && m <= 5 ? 'spring' : m >= 6 && m <= 8 ? 'summer' : m >= 9 && m <= 11 ? 'autumn' : 'winter');
+      sec.setAttribute('data-season', season);
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      var layers = [].slice.call(sec.querySelectorAll('.yt-layer'));
+      var bg = sec.querySelector('.statement-bg');
       var ticking = false;
       function update(){
         ticking = false;
-        var rect = bg.parentElement.getBoundingClientRect();
-        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
-        var progress = (rect.top + rect.height / 2 - window.innerHeight / 2) / window.innerHeight;
-        bg.style.transform = 'translateY(' + (progress * -40).toFixed(1) + 'px) scale(1.15)';
+        var rect = sec.getBoundingClientRect();
+        if (rect.bottom < -120 || rect.top > window.innerHeight + 120) return;
+        // セクション中心が画面中心に来たとき 0。上に抜けるとマイナス
+        var p = (rect.top + rect.height / 2 - window.innerHeight / 2) / window.innerHeight;
+        layers.forEach(function(el){
+          var sp = parseFloat(el.getAttribute('data-speed')) || 0;
+          el.style.transform = 'translate3d(0,' + (p * sp).toFixed(1) + 'px,0)';
+        });
+        if (bg) bg.style.transform = 'translate3d(0,' + (p * -34).toFixed(1) + 'px,0) scale(1.14)';
       }
-      window.addEventListener('scroll', function(){
-        if (!ticking) { ticking = true; requestAnimationFrame(update); }
-      }, { passive: true });
+      function onScroll(){ if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
       update();
     })();
 
@@ -589,6 +661,35 @@
         });
       }, { threshold: 0.4 });
       io.observe(row);
+    })();
+
+    // ── グランデ食堂サマリー（匿名の集計値のみ。個人名・金額は会員ページ） ──
+    (function(){
+      var dataEl = document.getElementById('sk-data');
+      if (!dataEl || !window.ShokudoSummary) return;
+
+      clubDataPromise.then(function(data){
+        var s = ShokudoSummary.compute(data);
+
+        // まだ記録が無いときは数字を出さず、案内文だけ残す
+        if (s.total === 0) {
+          dataEl.classList.add('is-hidden');
+          return;
+        }
+
+        ShokudoSummary.countUp(document.getElementById('sk-total'), s.total, '食');
+        ShokudoSummary.countUp(document.getElementById('sk-days'), s.days, '日');
+        document.getElementById('sk-level').textContent = 'Lv.' + s.level;
+        document.getElementById('sk-next').textContent =
+          '🏟 ' + s.stage.name + '　—　' +
+          (s.next ? 'あと' + s.toNext + '食で「' + s.next.name + '」へ！' : 'スタジアム完成！');
+
+        var fill = document.getElementById('sk-bar-fill');
+        setTimeout(function(){ fill.style.width = s.pct + '%'; }, 200);
+      }).catch(function(e){
+        console.error('[shokudo-summary]', e);
+        dataEl.classList.add('is-hidden'); // 取得失敗時は数字を消して紹介文のみ表示
+      });
     })();
   </script>
 </body>
