@@ -1720,3 +1720,14 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
   height: env(safe-area-inset-top, 0px);
   background: #0e3a1c;
 }
+
+/* ── 戻るボタン（ホーム画面から起動したPWAのみ / js/theme.js が差し込む） ── */
+.gh-back {
+  flex: none; width: 44px; margin-left: -10px; margin-right: 2px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; color: var(--ink); cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.gh-back svg { width: 24px; height: 24px; display: block; }
+.gh-back:active { opacity: .5; }
+.gh-back:focus-visible { outline: 2px solid var(--main-color); outline-offset: -4px; border-radius: 8px; }

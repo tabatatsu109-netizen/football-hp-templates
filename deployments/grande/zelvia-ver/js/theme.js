@@ -1,11 +1,16 @@
 /* ============================================================
-   ナイトゲームモード
+   ヘッダー共通UI（全ページで <head> から読み込む）
    ------------------------------------------------------------
-   ・18:00〜翌4:59 は自動でナイト、それ以外はデイ
-   ・ヘッダーの ☀/🌙 ボタンで手動切替。以降は手動設定を優先（localStorage）
-   ・<head> で読み込むこと。描画前に data-theme を付けてチラつきを防ぐ
+   1. ナイトゲームモード
+      ・18:00〜翌4:59 は自動でナイト、それ以外はデイ
+      ・ヘッダーの ☀/🌙 ボタンで手動切替。以降は手動設定を優先（localStorage）
+      ・<head> で読み込むこと。描画前に data-theme を付けてチラつきを防ぐ
+      ・配色は css/style.css の :root[data-theme="night"] にまとまっている
 
-   ※ 配色は css/style.css の :root[data-theme="night"] にまとまっている
+   2. 戻るボタン
+      ・ホーム画面から起動したPWAにはブラウザの戻るが無いため、ヘッダーに出す
+      ・通常のブラウザには戻るボタンがあるので表示しない
+      ・トップページでは出さない
    ============================================================ */
 (function () {
   'use strict';
@@ -69,6 +74,59 @@
     host.insertBefore(btn, cta || host.firstChild);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
-  else mount();
+  /* ── 戻るボタン ───────────────────────────────── */
+
+  // ホーム画面から起動した状態か（iOS は navigator.standalone）
+  function isStandalone() {
+    try {
+      if (window.navigator.standalone === true) return true;
+      return window.matchMedia('(display-mode: standalone)').matches ||
+             window.matchMedia('(display-mode: fullscreen)').matches ||
+             window.matchMedia('(display-mode: minimal-ui)').matches;
+    } catch (e) { return false; }
+  }
+
+  function isTopPage() {
+    var p = location.pathname;
+    return /(^|\/)(index\.html)?$/.test(p);
+  }
+
+  // 同一サイト内から来たか（戻り先があるか）
+  function cameFromSameSite() {
+    if (!document.referrer) return false;
+    try { return new URL(document.referrer).origin === location.origin; }
+    catch (e) { return false; }
+  }
+
+  function mountBack() {
+    var inner = document.querySelector('.gh-inner');
+    if (!inner || document.getElementById('gh-back')) return;
+
+    // 通常のブラウザには戻るボタンがあるので出さない。?back=1 で強制表示（確認用）
+    var force = /[?&]back=1/.test(location.search);
+    if (!force && (!isStandalone() || isTopPage())) return;
+
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.id = 'gh-back';
+    b.className = 'gh-back';
+    b.title = '前のページに戻る';
+    b.setAttribute('aria-label', '前のページに戻る');
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+                  '<path d="M15.5 4.5 8 12l7.5 7.5" fill="none" stroke="currentColor" ' +
+                  'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    b.addEventListener('click', function () {
+      // 同一サイト内から来ていれば履歴を戻る。直接開かれた場合はトップへ
+      if (cameFromSameSite() && history.length > 1) history.back();
+      else location.href = 'index.html';
+    });
+
+    inner.insertBefore(b, inner.firstChild);
+  }
+
+  function init() { mount(); mountBack(); }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
