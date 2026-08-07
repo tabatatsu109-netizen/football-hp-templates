@@ -16,8 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260807a">
-  <script src="js/theme.js?v=20260807a"></script>
+  <link rel="stylesheet" href="css/style.css?v=20260807b">
+  <script src="js/theme.js?v=20260807b"></script>
 </head>
 <body>
 
@@ -200,6 +200,11 @@
     </div>
     <div class="yt-haze" aria-hidden="true"></div>
     <div class="yt-weather" aria-hidden="true"></div>
+    <div class="yt-now" id="yt-now" hidden>
+      <span class="yt-now-cond"><span class="yt-now-dot" aria-hidden="true"></span><span id="yt-now-text"></span></span>
+      <span class="yt-now-view" id="yt-now-view"></span>
+      <a class="yt-now-src" href="https://open-meteo.com/" target="_blank" rel="noopener">WEATHER BY OPEN-METEO</a>
+    </div>
     <div class="statement-inner">
       <p class="statement-en">CORAZON GRANDE</p>
       <p class="statement-ja">感動するサッカーの追求</p>
@@ -389,10 +394,10 @@
     </div>
   </div>
 
-  <script src="js/config-loader.js?v=20260807a"></script>
-  <script src="js/match-planner-connector.js?v=20260807a"></script>
-  <script src="js/shokudo-summary.js?v=20260807a"></script>
-  <script src="js/mobile-experience.js?v=20260807a"></script>
+  <script src="js/config-loader.js?v=20260807b"></script>
+  <script src="js/match-planner-connector.js?v=20260807b"></script>
+  <script src="js/shokudo-summary.js?v=20260807b"></script>
+  <script src="js/mobile-experience.js?v=20260807b"></script>
   <script>
     // 年号
     document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -636,6 +641,7 @@
     })();
 
     // ── 八ヶ岳パララックスを実際の天気に連動させる（Open-Meteo / APIキー不要） ──
+    //    背景を今の天気にしつつ、右上に「いまの白州」を小さく出す
     (function(){
       var sec = document.getElementById('statement');
       if (!sec) return;
@@ -655,35 +661,90 @@
         return 'clear';
       }
 
-      function paint(st) {
-        sec.setAttribute('data-weather', st);
-        if (st === 'clear') sec.removeAttribute('data-sky');
+      // WMO の天気コード → 日本語
+      var LABEL = {
+        0:'快晴', 1:'晴れ', 2:'晴れ時々くもり', 3:'くもり',
+        45:'霧', 48:'霧', 51:'霧雨', 53:'霧雨', 55:'霧雨', 56:'霧雨', 57:'霧雨',
+        61:'小雨', 63:'雨', 65:'強い雨', 66:'雨', 67:'雨',
+        71:'小雪', 73:'雪', 75:'大雪', 77:'霧雪',
+        80:'にわか雨', 81:'にわか雨', 82:'激しいにわか雨', 85:'にわか雪', 86:'にわか雪',
+        95:'雷雨', 96:'雷雨', 99:'雷雨'
+      };
+
+      // 八ヶ岳（白州から約20km北東）が見えるかを、視程と雲量から見立てる
+      function viewOf(vis, cloud, isDay, st) {
+        if (!isDay) {
+          if (cloud < 30 && (st === 'clear' || st === 'cloudy')) return '星がよく見えます';
+          if (cloud < 70) return 'ときどき星が見えます';
+          return '雲がかかっています';
+        }
+        if (st === 'fog') return '八ヶ岳 雲の中です';
+        if (st === 'rain' || st === 'snow' || st === 'storm') {
+          return (vis != null && vis >= 12000) ? '八ヶ岳 うっすら見えます' : '八ヶ岳 雲の中です';
+        }
+        if (vis == null) {   // 視程が取れないときは雲量だけで控えめに判断
+          return cloud < 40 ? '八ヶ岳 見えています' : '八ヶ岳 うっすら見えます';
+        }
+        if (vis >= 20000 && cloud < 50) return '八ヶ岳 よく見えます';
+        if (vis >= 12000 && cloud < 80) return '八ヶ岳 見えています';
+        if (vis >= 6000) return '八ヶ岳 うっすら見えます';
+        return '八ヶ岳 雲の中です';
+      }
+
+      function paint(d) {
+        sec.setAttribute('data-weather', d.st);
+        if (d.st === 'clear') sec.removeAttribute('data-sky');
         else sec.setAttribute('data-sky', 'covered');   // 夜は星・月を隠す
+
+        if (d.text) {
+          document.getElementById('yt-now-text').textContent = d.text;
+          document.getElementById('yt-now-view').textContent = d.view || '';
+          document.getElementById('yt-now').hidden = false;
+        }
       }
 
       // 手動確認用: ?weather=rain などで見た目を試せる
       var forced = (location.search.match(/[?&]weather=(clear|cloudy|overcast|fog|rain|snow|storm)/) || [])[1];
-      if (forced) { paint(forced); return; }
+      if (forced) { paint({ st: forced }); return; }
 
       try {
         var raw = sessionStorage.getItem(CACHE_KEY);
         if (raw) {
           var o = JSON.parse(raw);
-          if (Date.now() - o.t < CACHE_MS) { paint(o.s); return; }
+          if (Date.now() - o.t < CACHE_MS) { paint(o.d); return; }
         }
       } catch (e) {}
 
       clubConfigPromise.then(function(cfg){
         var w = (cfg && cfg.weather) || {};
         if (w.lat == null || w.lng == null) return;   // 座標未設定なら何もしない
-        return fetch('https://api.open-meteo.com/v1/forecast?latitude=' + w.lat +
-                     '&longitude=' + w.lng + '&current=weather_code,cloud_cover&timezone=Asia%2FTokyo')
+        var place = w.shortLabel || '白州';
+        return fetch('https://api.open-meteo.com/v1/forecast?latitude=' + w.lat + '&longitude=' + w.lng +
+                     '&current=weather_code,cloud_cover,temperature_2m,is_day' +
+                     '&hourly=visibility&timezone=Asia%2FTokyo&forecast_days=1')
           .then(function(r){ return r.json(); })
-          .then(function(d){
-            if (!d || !d.current) return;
-            var st = stateOf(+d.current.weather_code, +d.current.cloud_cover);
-            paint(st);
-            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), s: st })); } catch (e) {}
+          .then(function(j){
+            if (!j || !j.current) return;
+            var c = j.current;
+            var code = +c.weather_code, cloud = +c.cloud_cover, isDay = c.is_day === 1;
+            var st = stateOf(code, cloud);
+
+            // current の時刻に対応する視程を hourly から取る
+            var vis = null;
+            try {
+              var key = String(c.time).slice(0, 13);
+              for (var i = 0; i < j.hourly.time.length; i++) {
+                if (String(j.hourly.time[i]).slice(0, 13) === key) { vis = j.hourly.visibility[i]; break; }
+              }
+            } catch (e) {}
+
+            var d = {
+              st: st,
+              text: place + ' ' + (LABEL[code] || '') + ' ' + Math.round(c.temperature_2m) + '℃',
+              view: viewOf(vis, cloud, isDay, st)
+            };
+            paint(d);
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
           });
       }).catch(function(e){
         // 取得できなくても季節だけの表示で成立するので、何もしない

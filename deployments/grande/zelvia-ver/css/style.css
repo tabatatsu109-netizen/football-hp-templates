@@ -1460,7 +1460,8 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
 /* モバイルは3層に減らして描画負荷を下げる */
 @media (max-width: 767px) {
   .yt-l3 { display: none; }
-  .statement-inner { padding: 62px 18px 215px; }
+  /* 右上の「いまの白州」と本文が重ならないように上を空ける */
+  .statement-inner { padding: 96px 18px 235px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1817,3 +1818,32 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
   .statement[data-weather="rain"] .yt-weather,
   .statement[data-weather="storm"] .yt-weather { opacity: 0.32; }
 }
+
+/* ── v3.7 いまの白州（背景の天気の答え合わせ／Open-Meteo の出典もここに置く） ── */
+.yt-now {
+  position: absolute; z-index: 3; top: 16px; right: 16px;
+  text-align: right; color: #fff; line-height: 1.5;
+  text-shadow: 0 1px 8px rgba(4, 14, 22, 0.7);
+}
+.yt-now[hidden] { display: none; }
+.yt-now-cond { display: block; font-size: 12.5px; font-weight: 700; letter-spacing: 0.5px; }
+.yt-now-dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: #86e096; margin-right: 6px; vertical-align: 1px;
+  box-shadow: 0 0 6px rgba(134, 224, 150, 0.9);
+  animation: ytNowPulse 2.6s ease-in-out infinite;
+}
+@keyframes ytNowPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.yt-now-view { display: block; font-size: 11.5px; font-weight: 500; color: rgba(255,255,255,0.86); margin-top: 2px; }
+.yt-now-src {
+  display: inline-block; font-family: 'Oswald', sans-serif; font-size: 9px; letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.5); margin-top: 7px;
+}
+.yt-now-src:hover { color: rgba(255,255,255,0.85); text-decoration: underline; }
+
+@media (min-width: 768px) {
+  .yt-now { top: 22px; right: 24px; }
+  .yt-now-cond { font-size: 13.5px; }
+  .yt-now-view { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .yt-now-dot { animation: none; } }
