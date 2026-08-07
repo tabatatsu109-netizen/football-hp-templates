@@ -16,8 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260805g">
-  <script src="js/theme.js?v=20260805g"></script>
+  <link rel="stylesheet" href="css/style.css?v=20260807a">
+  <script src="js/theme.js?v=20260807a"></script>
 </head>
 <body>
 
@@ -198,6 +198,8 @@
         <path d="M0,400 L0,178 L40,142 L80,178 L120,128 L160,178 L200,152 L240,178 L290,120 L340,178 L380,156 L420,178 L470,130 L520,178 L560,150 L600,178 L650,124 L700,178 L740,160 L780,178 L830,134 L880,178 L920,154 L960,178 L1010,128 L1060,178 L1100,156 L1140,178 L1190,138 L1240,178 L1280,152 L1320,178 L1370,126 L1420,178 L1440,168 L1440,400 Z"/>
       </svg>
     </div>
+    <div class="yt-haze" aria-hidden="true"></div>
+    <div class="yt-weather" aria-hidden="true"></div>
     <div class="statement-inner">
       <p class="statement-en">CORAZON GRANDE</p>
       <p class="statement-ja">感動するサッカーの追求</p>
@@ -387,10 +389,10 @@
     </div>
   </div>
 
-  <script src="js/config-loader.js?v=20260805g"></script>
-  <script src="js/match-planner-connector.js?v=20260805g"></script>
-  <script src="js/shokudo-summary.js?v=20260805g"></script>
-  <script src="js/mobile-experience.js?v=20260805g"></script>
+  <script src="js/config-loader.js?v=20260807a"></script>
+  <script src="js/match-planner-connector.js?v=20260807a"></script>
+  <script src="js/shokudo-summary.js?v=20260807a"></script>
+  <script src="js/mobile-experience.js?v=20260807a"></script>
   <script>
     // 年号
     document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -492,7 +494,8 @@
     }, { passive: true });
 
     // クラブデータ(Firebase)の共有取得 — ニュース・食堂など複数セクションで使い回す
-    var clubDataPromise = ConfigLoader.load().then(function(c){
+    var clubConfigPromise = ConfigLoader.load();
+    var clubDataPromise = clubConfigPromise.then(function(c){
       var fbUrl = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
       var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
       return fetch(fbUrl + '/clubs/' + clubId + '.json');
@@ -630,6 +633,62 @@
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll, { passive: true });
       update();
+    })();
+
+    // ── 八ヶ岳パララックスを実際の天気に連動させる（Open-Meteo / APIキー不要） ──
+    (function(){
+      var sec = document.getElementById('statement');
+      if (!sec) return;
+
+      var CACHE_KEY = 'gv-weather';
+      var CACHE_MS  = 30 * 60 * 1000;   // 30分は同じ結果を使い回す
+
+      // WMO の天気コード → 背景の状態
+      function stateOf(code, cloud) {
+        if (code >= 95) return 'storm';                                  // 雷雨・ひょう
+        if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'snow';
+        if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'rain';
+        if (code === 45 || code === 48) return 'fog';
+        if (code === 3) return 'overcast';
+        if (code === 2) return 'cloudy';
+        if (code === 1) return (cloud >= 40) ? 'cloudy' : 'clear';
+        return 'clear';
+      }
+
+      function paint(st) {
+        sec.setAttribute('data-weather', st);
+        if (st === 'clear') sec.removeAttribute('data-sky');
+        else sec.setAttribute('data-sky', 'covered');   // 夜は星・月を隠す
+      }
+
+      // 手動確認用: ?weather=rain などで見た目を試せる
+      var forced = (location.search.match(/[?&]weather=(clear|cloudy|overcast|fog|rain|snow|storm)/) || [])[1];
+      if (forced) { paint(forced); return; }
+
+      try {
+        var raw = sessionStorage.getItem(CACHE_KEY);
+        if (raw) {
+          var o = JSON.parse(raw);
+          if (Date.now() - o.t < CACHE_MS) { paint(o.s); return; }
+        }
+      } catch (e) {}
+
+      clubConfigPromise.then(function(cfg){
+        var w = (cfg && cfg.weather) || {};
+        if (w.lat == null || w.lng == null) return;   // 座標未設定なら何もしない
+        return fetch('https://api.open-meteo.com/v1/forecast?latitude=' + w.lat +
+                     '&longitude=' + w.lng + '&current=weather_code,cloud_cover&timezone=Asia%2FTokyo')
+          .then(function(r){ return r.json(); })
+          .then(function(d){
+            if (!d || !d.current) return;
+            var st = stateOf(+d.current.weather_code, +d.current.cloud_cover);
+            paint(st);
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), s: st })); } catch (e) {}
+          });
+      }).catch(function(e){
+        // 取得できなくても季節だけの表示で成立するので、何もしない
+        console.error('[weather]', e);
+      });
     })();
 
     // ── 数字カウントアップ(ステートメント表示時) ──
