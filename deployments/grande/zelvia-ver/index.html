@@ -16,8 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260807b">
-  <script src="js/theme.js?v=20260807b"></script>
+  <link rel="stylesheet" href="css/style.css?v=20260807c">
+  <script src="js/theme.js?v=20260807c"></script>
 </head>
 <body>
 
@@ -394,10 +394,10 @@
     </div>
   </div>
 
-  <script src="js/config-loader.js?v=20260807b"></script>
-  <script src="js/match-planner-connector.js?v=20260807b"></script>
-  <script src="js/shokudo-summary.js?v=20260807b"></script>
-  <script src="js/mobile-experience.js?v=20260807b"></script>
+  <script src="js/config-loader.js?v=20260807c"></script>
+  <script src="js/match-planner-connector.js?v=20260807c"></script>
+  <script src="js/shokudo-summary.js?v=20260807c"></script>
+  <script src="js/mobile-experience.js?v=20260807c"></script>
   <script>
     // 年号
     document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -517,6 +517,23 @@
       var promoNews = [];
 
       function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+      // 試合結果の記事から スコア・対戦相手・勝敗 を取り出す。
+      // score は Planner が入れた値を正とし、対戦相手はタイトルから拾う。
+      // 取り出せなければ null を返し、呼び出し側は写真にフォールバックする。
+      function matchInfo(n){
+        if (!n) return null;
+        var m = String(n.score || '').match(/^\s*(\d+)\s*[-\u2013]\s*(\d+)\s*$/);
+        if (!m) return null;
+        var a = +m[1], b = +m[2];
+        var om = String(n.title || '').match(/vs\s*(.+?)\s+\d+\s*[-\u2013]\s*\d+/);
+        return {
+          a: a, b: b,
+          opp: om ? om[1].trim() : '',
+          res: a > b ? 'win' : (a < b ? 'lose' : 'draw'),
+          label: a > b ? '\u52dd\u5229' : (a < b ? '\u6557\u6226' : '\u5f15\u304d\u5206\u3051')
+        };
+      }
+
       function formatDate(s){ return String(s||'').replace(/-/g,'.'); }
 
       window.openPromoNews = function(idx){
@@ -553,9 +570,14 @@
 
         var track = document.getElementById('promo-track');
         var html = promoNews.map(function(n, i){
-          var photo = n.image || FALLBACK_PHOTOS[i % FALLBACK_PHOTOS.length];
           var cat = n.cat || n.category || n.type || 'お知らせ';
-          return '<a href="news.html" class="promo-card promo-card--news" style="background-image:url(\'' + esc(photo) + '\')" onclick="openPromoNews(' + i + '); return false;">' +
+          // 写真が無い試合結果は、写真の代わりにスコアを大きく敷く
+          var mi = n.image ? null : matchInfo(n);
+          var attrs = mi
+            ? 'class="promo-card promo-card--news promo-card--score" data-result="' + mi.res + '" data-score="' + mi.a + '-' + mi.b + '"'
+            : 'class="promo-card promo-card--news" style="background-image:url(\'' +
+              esc(n.image || FALLBACK_PHOTOS[i % FALLBACK_PHOTOS.length]) + '\')"';
+          return '<a href="news.html" ' + attrs + ' onclick="openPromoNews(' + i + '); return false;">' +
             '<div class="promo-body">' +
               '<span class="promo-tag">NEWS ／ ' + esc(cat) + '</span>' +
               '<span class="promo-title promo-title--news">' + esc(n.title) + '</span>' +
