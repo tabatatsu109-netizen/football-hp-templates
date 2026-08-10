@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260807c">
+  <link rel="stylesheet" href="css/style.css?v=20260810d">
   <script src="js/theme.js?v=20260807c"></script>
 </head>
 <body>
@@ -82,6 +82,13 @@
         <span class="sec-ja">今後の試合</span>
       </div>
       <div class="upcoming-grid" id="upcoming-grid"><p class="no-data">読み込み中...</p></div>
+
+      <!-- 得点ランキング -->
+      <div class="sec-head">
+        <span class="sec-en" style="font-size:26px;">TOP SCORER</span>
+        <span class="sec-ja">得点ランキング</span>
+      </div>
+      <div class="scorer-grid" id="scorer-grid"><p class="no-data">読み込み中...</p></div>
 
       <!-- 日程・結果一覧 -->
       <div class="sec-head">
@@ -180,6 +187,46 @@
       if(name.includes('u-13') || name.includes('u13')) return 'U-13';
       if(name.includes('u-12') || name.includes('u12')) return 'U-12';
       return null;
+    }
+
+    // カテゴリータブ（U-15/U-12）ごとの得点者トップ1名を集計
+    // 得点者は selectors.result.goals[].scorer（選手名の文字列）を積み上げるだけ。
+    // 同点の場合は最初に得点した選手を採用する（複数名を並べる仕様にはしていない）。
+    function computeTopScorer(tabCat){
+      var counts = {}, order = [];
+      state.allMatches.forEach(function(m){
+        if(!m.result || m.result.publish === false) return;
+        if(!matchesTab(getMatchCategory(m), tabCat)) return;
+        var goals = m.result.goals;
+        if(!Array.isArray(goals)) return;
+        goals.forEach(function(g){
+          var name = (g.scorer || '').trim();
+          if(!name) return;
+          if(counts[name] == null){ counts[name] = 0; order.push(name); }
+          counts[name] += 1;
+        });
+      });
+      var top = null;
+      order.forEach(function(name){
+        if(!top || counts[name] > counts[top]) top = name;
+      });
+      return top ? { name: top, goals: counts[top] } : null;
+    }
+
+    function renderScorers(){
+      var el = document.getElementById('scorer-grid');
+      var cats = state.categories.length ? state.categories : ['U-15', 'U-12'];
+      var cards = cats.map(function(cat){
+        var top = computeTopScorer(cat);
+        return '<div class="scorer-card">' +
+          '<div class="scorer-cat">' + esc(cat) + '</div>' +
+          (top
+            ? '<div class="scorer-name">' + esc(top.name) + '</div>' +
+              '<div class="scorer-goals"><span class="scorer-num">' + top.goals + '</span><span class="scorer-unit">得点</span></div>'
+            : '<div class="scorer-empty">まだ得点記録がありません</div>') +
+          '</div>';
+      }).join('');
+      el.innerHTML = cards || '<p class="no-data">表示できるカテゴリーがありません</p>';
     }
 
     function catMatches(){
@@ -307,9 +354,9 @@
           .then(function(data){
             state.allMatches = Array.isArray(data && data.matches) ? data.matches : [];
             state.allSchedules = Array.isArray(data && data.schedules) ? data.schedules : [];
-            renderUpcoming(); renderGroups();
+            renderUpcoming(); renderGroups(); renderScorers();
           })
-          .catch(function(){ renderUpcoming(); renderGroups(); });
+          .catch(function(){ renderUpcoming(); renderGroups(); renderScorers(); });
       }
     });
   </script>

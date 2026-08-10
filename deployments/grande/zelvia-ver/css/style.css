@@ -515,6 +515,28 @@ img { max-width: 100%; display: block; }
 .up-badge { display: inline-block; margin-top: 4px; background: var(--main-light); color: var(--main-color); font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 3px 10px; border-radius: 2px; }
 @media (min-width: 900px) { .upcoming-grid { grid-template-columns: repeat(3, 1fr); } }
 
+/* 得点ランキング（カテゴリーごとのトップ得点者1名） */
+.scorer-grid { display: grid; gap: 14px; margin-bottom: 40px; grid-template-columns: repeat(2, 1fr); }
+.scorer-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  padding: 22px 18px; text-align: center; position: relative; overflow: hidden;
+}
+.scorer-card::before {
+  content: '⚽'; position: absolute; top: -14px; right: -10px; font-size: 64px;
+  opacity: .06; transform: rotate(-12deg);
+}
+.scorer-cat {
+  display: inline-block; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 12px;
+  letter-spacing: 1.5px; color: var(--main-color); background: var(--main-light);
+  padding: 3px 12px; border-radius: 2px; margin-bottom: 12px;
+}
+.scorer-name { font-size: 17px; font-weight: 900; }
+.scorer-goals { margin-top: 6px; display: flex; align-items: baseline; justify-content: center; gap: 4px; }
+.scorer-num { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: clamp(34px, 6vw, 46px); color: var(--main-color); line-height: 1; }
+.scorer-unit { font-size: 12px; color: var(--ink-sub); font-weight: 700; }
+.scorer-empty { color: var(--ink-sub); font-size: 12.5px; margin-top: 8px; }
+@media (max-width: 480px) { .scorer-grid { grid-template-columns: 1fr; } }
+
 .sched-group { margin-bottom: 36px; }
 .sched-comp-title { font-size: 15px; font-weight: 900; letter-spacing: 1px; padding-left: 12px; border-left: 4px solid var(--main-color); margin-bottom: 14px; }
 .sched-list { background: var(--card); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
