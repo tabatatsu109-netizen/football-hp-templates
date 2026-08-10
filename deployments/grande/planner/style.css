@@ -553,6 +553,25 @@ img { max-width: 100%; display: block; }
 .player-stat-lbl { font-size: 10px; color: var(--c-muted); }
 
 /* ===== Opponents ===== */
+/* クラブスタッツ（大会別/カテゴリー別サマリー・得点ランキング） */
+.stat-summary-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+.stat-summary-card { background:var(--c-surface); border:1px solid var(--c-border); border-radius:10px; padding:14px; }
+.stat-summary-name { font-size:13px; font-weight:700; color:var(--c-text); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.stat-summary-rate { font-family:'Oswald', sans-serif; font-weight:700; font-size:30px; line-height:1; color:var(--c-green); }
+.stat-summary-rate-unit { font-size:14px; margin-left:2px; }
+.stat-summary-wdl { display:flex; gap:8px; margin-top:8px; font-size:12px; font-weight:700; }
+.stat-summary-wdl .stat-w { color:var(--c-green); }
+.stat-summary-wdl .stat-d { color:var(--c-muted); }
+.stat-summary-wdl .stat-l { color:var(--c-red); }
+.stat-summary-sub { margin-top:6px; font-size:11px; color:var(--c-muted); }
+
+.rank-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+.rank-table th { text-align:left; font-size:11px; color:var(--c-muted); font-weight:700; padding:6px 8px; border-bottom:1px solid var(--c-border); }
+.rank-table td { padding:9px 8px; border-bottom:1px solid var(--c-border); }
+.rank-table .rank-medal { width:32px; font-size:16px; text-align:center; }
+.rank-table .rank-num { font-weight:700; text-align:right; }
+.rank-row-top td { background:rgba(234,179,8,.06); }
+
 .opp-card { display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--c-border); background:var(--c-surface); }
 .opp-card:last-child { border-bottom:none; }
 .opp-card-emblem { flex-shrink:0; width:44px; display:flex; align-items:center; justify-content:center; }

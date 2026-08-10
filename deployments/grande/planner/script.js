@@ -161,6 +161,9 @@ let editingOpponentIdx = null;
 let oppImportPreviewRows = [];
 let oppPickerTarget = null;
 let oppSearchQuery = '';
+let competitions = [];
+let editingCompetitionIdx = null;
+let statsTab = 'competition';
 let surveys = [];
 let editingSurveyIdx = null;
 let surveyQuestions = [];
@@ -229,6 +232,7 @@ function loadLocal() {
   schedules = JSON.parse(localStorage.getItem(`${p}schedules`) || '[]');
   posts     = JSON.parse(localStorage.getItem(`${p}posts`)     || '[]');
   opponents = JSON.parse(localStorage.getItem(`${p}opponents`) || '[]');
+  competitions = JSON.parse(localStorage.getItem(`${p}competitions`) || '[]');
   surveys   = JSON.parse(localStorage.getItem(`${p}surveys`)   || '[]');
   shokudoSessions = JSON.parse(localStorage.getItem(`${p}shokudoSessions`) || '[]');
   shokudoBmi      = JSON.parse(localStorage.getItem(`${p}shokudoBmi`)      || '[]');
@@ -249,6 +253,7 @@ function saveLocal() {
   localStorage.setItem(`${p}schedules`, JSON.stringify(schedules));
   localStorage.setItem(`${p}posts`,     JSON.stringify(posts));
   localStorage.setItem(`${p}opponents`, JSON.stringify(opponents));
+  localStorage.setItem(`${p}competitions`, JSON.stringify(competitions));
   localStorage.setItem(`${p}surveys`,   JSON.stringify(surveys));
   localStorage.setItem(`${p}shokudoSessions`, JSON.stringify(shokudoSessions));
   localStorage.setItem(`${p}shokudoBmi`,      JSON.stringify(shokudoBmi));
@@ -266,7 +271,7 @@ function scheduleCloudSave() {
       const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
+        body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSyncIcon('☁️');
@@ -295,6 +300,7 @@ function applyCloudData(r) {
 
   if (r.players)   players   = r.players;
   if (r.opponents) opponents = r.opponents;
+  if (r.competitions) competitions = r.competitions;
   if (r.surveys)   surveys   = r.surveys;
   if (r.shokudoSessions) shokudoSessions = r.shokudoSessions;
   if (r.shokudoBmi)      shokudoBmi      = r.shokudoBmi;
@@ -342,7 +348,7 @@ async function saveToCloud() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -409,6 +415,8 @@ function showPage(pageId, opts = {}) {
   if (pageId === 'page-matches')      renderMatches();
   if (pageId === 'page-players')      renderPlayers();
   if (pageId === 'page-opponents')    renderOpponents();
+  if (pageId === 'page-competitions') renderCompetitions();
+  if (pageId === 'page-stats')        renderStatsPage();
   if (pageId === 'page-survey')       renderSurveyList();
   if (pageId === 'page-survey-results') renderSurveyResults();
   if (pageId === 'page-sns')          renderSnsPage();
@@ -726,6 +734,7 @@ function saveScheduleForm() {
   } else {
     schedules.push(sc);
   }
+  findOrCreateCompetition(sc.competition);
   saveLocal();
   closeModal('modal-schedule');
   showToast(editingSchedId ? '更新しました' : '追加しました', 'success');
@@ -820,6 +829,7 @@ function createMatch() {
     result: null,
   };
   matches.unshift(m);
+  findOrCreateCompetition(m.competition);
   // スケジュールから来た場合は紐付けておく（二重表示を防ぐ）
   if (resultFromSchedId) {
     const sc = schedules.find(s => s.id === resultFromSchedId);
@@ -1452,7 +1462,7 @@ async function publishToHP() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -1482,7 +1492,7 @@ async function unpublish() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -1515,7 +1525,7 @@ function deleteCurrentMatch() {
         const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+          body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         setSyncIcon('☁️');
@@ -2480,6 +2490,119 @@ function deleteOpponent(idx) {
   });
 }
 
+// ----- 大会マスター -----
+// 試合/予定の「大会・リーグ名」は自由入力のまま（datalist候補として提示するだけ）。
+// マスター側で名前を変更（リネーム）すると、紐づく matches/schedules の表記も一括で
+// 書き換える。これにより「表記ゆれを後から統合する」操作がリネームだけで完結する。
+function renderCompetitionDatalist() {
+  const el = document.getElementById('competition-datalist');
+  if (!el) return;
+  const sorted = [...competitions].sort((a, b) => (a.name || '') < (b.name || '') ? -1 : 1);
+  el.innerHTML = sorted.map(c => `<option value="${String(c.name || '').replace(/"/g, '&quot;')}">`).join('');
+}
+
+// 試合/告知の保存時に呼ぶ。未登録の大会名なら自動でマスターへ追加する
+function findOrCreateCompetition(name) {
+  const n = (name || '').trim();
+  if (!n) return;
+  if (!competitions.some(c => c.name === n)) {
+    competitions.push({ id: String(Date.now()) + Math.random().toString(36).slice(2, 6), name: n });
+    renderCompetitionDatalist();
+  }
+}
+
+function renderCompetitions() {
+  const el = document.getElementById('competition-list-body');
+  if (!el) return;
+  if (competitions.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-title">大会が登録されていません</div><div class="empty-desc">「+追加」で登録するか、試合作成時に大会名を入力すると自動的に登録されます</div></div>`;
+    return;
+  }
+  const sorted = [...competitions].sort((a, b) => (a.name || '') < (b.name || '') ? -1 : 1);
+  el.innerHTML = sorted.map(c => {
+    const realIdx = competitions.indexOf(c);
+    const count = matches.filter(m => m.competition === c.name).length;
+    return `
+      <div class="opp-card">
+        <div class="opp-card-info">
+          <div class="opp-card-name">${c.name}</div>
+          <div class="opp-card-meta"><span>${count}試合</span></div>
+        </div>
+        <div class="opp-card-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openCompetitionModal(${realIdx})">編集</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--c-red);font-size:12px" onclick="deleteCompetition(${realIdx})">削除</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openCompetitionModal(idx = null) {
+  editingCompetitionIdx = idx;
+  const title = document.getElementById('modal-competition-title');
+  const renameNote = document.getElementById('cf-rename-note');
+  if (idx !== null && competitions[idx]) {
+    title.textContent = '大会名を編集';
+    document.getElementById('cf-name').value = competitions[idx].name || '';
+    renameNote.style.display = '';
+  } else {
+    title.textContent = '大会を追加';
+    document.getElementById('cf-name').value = '';
+    renameNote.style.display = 'none';
+  }
+  openModal('modal-competition');
+}
+
+function saveCompetitionForm() {
+  const name = document.getElementById('cf-name').value.trim();
+  if (!name) { showToast('大会名を入力してください', 'error'); return; }
+
+  if (editingCompetitionIdx !== null && competitions[editingCompetitionIdx]) {
+    const target = competitions[editingCompetitionIdx];
+    const oldName = target.name;
+    const dup = competitions.some((c, i) => i !== editingCompetitionIdx && c.name === name);
+    if (dup) { showToast('同じ名前の大会が既に登録されています', 'error'); return; }
+    if (oldName !== name) {
+      // リネーム：紐づく全試合・全予定の表記を一括で新しい名前に更新（表記ゆれの統合）
+      let updated = 0;
+      matches.forEach(m => { if (m.competition === oldName) { m.competition = name; updated++; } });
+      schedules.forEach(s => { if (s.competition === oldName) { s.competition = name; updated++; } });
+      target.name = name;
+      saveLocal();
+      closeModal('modal-competition');
+      showToast(updated > 0 ? `更新しました（${updated}件の試合・予定に反映）` : '更新しました', 'success');
+      renderCompetitions();
+      renderCompetitionDatalist();
+      editingCompetitionIdx = null;
+      return;
+    }
+  } else {
+    if (competitions.some(c => c.name === name)) { showToast('同じ名前の大会が既に登録されています', 'error'); return; }
+    competitions.push({ id: String(Date.now()), name });
+  }
+  saveLocal();
+  closeModal('modal-competition');
+  showToast(editingCompetitionIdx !== null ? '更新しました' : '追加しました', 'success');
+  renderCompetitions();
+  renderCompetitionDatalist();
+  editingCompetitionIdx = null;
+}
+
+function deleteCompetition(idx) {
+  const c = competitions[idx];
+  const count = matches.filter(m => m.competition === c.name).length;
+  const msg = count > 0
+    ? `「${c.name}」を削除しますか？既存の${count}件の試合に付いている大会名の表記はそのまま残ります。`
+    : `「${c.name}」を削除しますか？`;
+  showConfirm('大会を削除', msg, '削除する', () => {
+    competitions.splice(idx, 1);
+    saveLocal();
+    renderCompetitions();
+    renderCompetitionDatalist();
+    showToast('削除しました');
+  });
+}
+
 // ----- PICKER -----
 function openOpponentPicker(target) {
   oppPickerTarget = target;
@@ -2847,7 +2970,7 @@ async function sendPost() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -2881,7 +3004,7 @@ async function deletePost(id) {
         await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+          body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
         });
       } catch(e) { /* silent */ }
     }
@@ -3087,7 +3210,7 @@ async function postAnnouncement() {
     const res = await fetch(`${getFirebaseUrl(sconf)}.json?auth=${sconf.firebaseSecret}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, surveys, resetStamp: getResetStamp() }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
@@ -3893,6 +4016,18 @@ function bindEvents() {
     oppSearchQuery = e.target.value;
     renderOpponents();
   });
+
+  // Competitions (大会マスター)
+  document.getElementById('btn-add-competition')?.addEventListener('click', () => openCompetitionModal());
+  document.getElementById('btn-competition-save')?.addEventListener('click', saveCompetitionForm);
+  document.getElementById('btn-competition-cancel')?.addEventListener('click', () => closeModal('modal-competition'));
+  document.getElementById('btn-close-competition-modal')?.addEventListener('click', () => closeModal('modal-competition'));
+
+  // Club Stats
+  document.querySelectorAll('#stats-tab-bar .tab-btn').forEach(b => {
+    b.addEventListener('click', () => setStatsTab(b.dataset.sttab));
+  });
+  document.getElementById('btn-stats-csv')?.addEventListener('click', exportStatsCsv);
 
   // Survey
   document.getElementById('btn-add-survey')?.addEventListener('click', () => openSurveyModal());
@@ -4754,6 +4889,14 @@ function shokudoCfg() {
   return cfg.shokudo || null;
 }
 function isShokudoEnabled() { return !!shokudoCfg(); }
+
+// ===== クラブスタッツ・大会マスター（プレミアムプラン限定） =====
+// mp-config.js に stats: { enabled: true } を設定したクラブだけ有効になる
+function statsCfg() {
+  const cfg = (typeof MP_CONFIG !== 'undefined') ? MP_CONFIG : {};
+  return cfg.stats || null;
+}
+function isStatsEnabled() { return !!(statsCfg() && statsCfg().enabled); }
 function shokudoName()  { return (shokudoCfg() || {}).name  || '食堂管理'; }
 function shokudoPrice() { return (shokudoCfg() || {}).price || 900; }
 function shokudoCats()  { return (shokudoCfg() || {}).categories || ['U15', 'U14', 'U13']; }
@@ -5049,6 +5192,182 @@ function deleteShokudoBmi(id) {
 }
 
 // ===== INIT =====
+// ----- CSV共通ヘルパー -----
+// BOM付きUTF-8のCSVをダウンロードする（選手/対戦相手テンプレDL・アンケート結果CSVと同じ生成方式を共通化）
+function downloadCsv(filename, rows) {
+  const csv = rows.map(row => row.map(c => `"${String(c == null ? '' : c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ----- クラブスタッツ：集計 -----
+// 非公開試合（result.publish===false）は除外する。HP側の得点ランキング（matches.html）と同じ扱い
+function statsTargetMatches() {
+  return matches.filter(m => m.result && m.result.publish !== false && m.result.myScore != null && m.result.oppScore != null);
+}
+
+function summarizeGroup(list) {
+  let win = 0, draw = 0, lose = 0, gf = 0, ga = 0;
+  list.forEach(m => {
+    const my = m.result.myScore, op = m.result.oppScore;
+    gf += my; ga += op;
+    if (my > op) win++; else if (my < op) lose++; else draw++;
+  });
+  const played = list.length;
+  const rate = played ? Math.round((win / played) * 100) : 0;
+  return { played, win, draw, lose, gf, ga, diff: gf - ga, rate };
+}
+
+// 大会別サマリー：大会マスターに登録が無い試合は「未登録」としてまとめる
+function computeCompetitionStats() {
+  const list = statsTargetMatches();
+  const groups = {};
+  list.forEach(m => {
+    const key = (m.competition || '').trim() || '（大会名未登録）';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(m);
+  });
+  return Object.keys(groups)
+    .map(name => ({ name, ...summarizeGroup(groups[name]) }))
+    .sort((a, b) => b.played - a.played);
+}
+
+function computeCategoryStats() {
+  const list = statsTargetMatches();
+  const groups = {};
+  list.forEach(m => {
+    const key = m.category || '（カテゴリー未設定）';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(m);
+  });
+  const order = ['U15','U14','U13','U12','U11','U10','U9','U8'];
+  return Object.keys(groups)
+    .map(name => ({ name, ...summarizeGroup(groups[name]) }))
+    .sort((a, b) => {
+      const ia = order.indexOf(a.name), ib = order.indexOf(b.name);
+      if (ia === -1 && ib === -1) return 0;
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
+}
+
+// 得点・アシストランキング：全選手を集計（HP側は各カテゴリー1名のみだが、Planner側はコーチ専用なので全員出す）
+function computeScorerStats() {
+  const list = statsTargetMatches();
+  const goals = {}, assists = {};
+  list.forEach(m => {
+    const arr = m.result.goals;
+    if (!Array.isArray(arr)) return;
+    arr.forEach(g => {
+      const scorer = (g.scorer || '').trim();
+      if (scorer) goals[scorer] = (goals[scorer] || 0) + 1;
+      const assist = (g.assist || '').trim();
+      if (assist) assists[assist] = (assists[assist] || 0) + 1;
+    });
+  });
+  const names = new Set([...Object.keys(goals), ...Object.keys(assists)]);
+  return [...names]
+    .map(name => ({ name, goals: goals[name] || 0, assists: assists[name] || 0 }))
+    .sort((a, b) => (b.goals - a.goals) || (b.assists - a.assists));
+}
+
+// ----- クラブスタッツ：描画 -----
+function renderStatsPage() {
+  document.querySelectorAll('#stats-tab-bar .tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sttab === statsTab);
+  });
+  ['competition', 'category', 'scorer'].forEach(t => {
+    const pane = document.getElementById(`stats-pane-${t}`);
+    if (pane) pane.style.display = (t === statsTab) ? '' : 'none';
+  });
+  if (statsTab === 'competition') renderStatsCompetitionPane();
+  if (statsTab === 'category')    renderStatsCategoryPane();
+  if (statsTab === 'scorer')      renderStatsScorerPane();
+}
+function setStatsTab(tab) {
+  statsTab = tab;
+  renderStatsPage();
+}
+
+function statSummaryCardsHtml(rows) {
+  if (rows.length === 0) {
+    return `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">まだ結果が登録されている試合がありません</div></div>`;
+  }
+  return `<div class="stat-summary-grid">` + rows.map(r => `
+    <div class="stat-summary-card">
+      <div class="stat-summary-name">${r.name}</div>
+      <div class="stat-summary-rate">${r.rate}<span class="stat-summary-rate-unit">%</span></div>
+      <div class="stat-summary-wdl">
+        <span class="stat-w">${r.win}勝</span><span class="stat-d">${r.draw}分</span><span class="stat-l">${r.lose}敗</span>
+      </div>
+      <div class="stat-summary-sub">${r.played}試合 / 得失点 ${r.gf}-${r.ga}（${r.diff >= 0 ? '+' : ''}${r.diff}）</div>
+    </div>
+  `).join('') + `</div>`;
+}
+
+function renderStatsCompetitionPane() {
+  const el = document.getElementById('stats-pane-competition');
+  if (!el) return;
+  el.innerHTML = statSummaryCardsHtml(computeCompetitionStats());
+}
+function renderStatsCategoryPane() {
+  const el = document.getElementById('stats-pane-category');
+  if (!el) return;
+  el.innerHTML = statSummaryCardsHtml(computeCategoryStats());
+}
+function renderStatsScorerPane() {
+  const el = document.getElementById('stats-pane-scorer');
+  if (!el) return;
+  const rows = computeScorerStats();
+  if (rows.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚽</div><div class="empty-title">まだ得点記録がありません</div></div>`;
+    return;
+  }
+  const medal = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+  el.innerHTML = `
+    <table class="rank-table">
+      <thead><tr><th></th><th>選手名</th><th>得点</th><th>アシスト</th></tr></thead>
+      <tbody>
+        ${rows.map((r, i) => `
+          <tr class="${i < 3 ? 'rank-row-top' : ''}">
+            <td class="rank-medal">${medal(i)}</td>
+            <td>${r.name}</td>
+            <td class="rank-num">${r.goals}</td>
+            <td class="rank-num">${r.assists}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function exportStatsCsv() {
+  if (statsTab === 'competition') {
+    const rows = computeCompetitionStats();
+    downloadCsv('大会別サマリー.csv', [
+      ['大会名', '試合数', '勝', '分', '敗', '勝率(%)', '得点', '失点', '得失点差'],
+      ...rows.map(r => [r.name, r.played, r.win, r.draw, r.lose, r.rate, r.gf, r.ga, r.diff]),
+    ]);
+  } else if (statsTab === 'category') {
+    const rows = computeCategoryStats();
+    downloadCsv('カテゴリー別サマリー.csv', [
+      ['カテゴリー', '試合数', '勝', '分', '敗', '勝率(%)', '得点', '失点', '得失点差'],
+      ...rows.map(r => [r.name, r.played, r.win, r.draw, r.lose, r.rate, r.gf, r.ga, r.diff]),
+    ]);
+  } else {
+    const rows = computeScorerStats();
+    downloadCsv('得点・アシストランキング.csv', [
+      ['順位', '選手名', '得点', 'アシスト'],
+      ...rows.map((r, i) => [i + 1, r.name, r.goals, r.assists]),
+    ]);
+  }
+}
+
 function initApp() {
   loadLocal();
   bindEvents();
@@ -5068,6 +5387,12 @@ function initApp() {
   } else {
     document.querySelectorAll('[data-nav="page-shokudo"]').forEach(el => { el.style.display = 'none'; });
   }
+
+  // クラブスタッツ・大会マスター：mp-config に stats: { enabled: true } があるクラブ（プレミアム）だけ表示
+  if (!isStatsEnabled()) {
+    document.querySelectorAll('[data-nav="page-stats"], [data-nav="page-competitions"]').forEach(el => { el.style.display = 'none'; });
+  }
+  renderCompetitionDatalist();
 
   // 試合管理を使わないクラブ向け（mp-config: hideMatchManagement: true）
   // メニューから隠すだけで機能・データは残す。結果登録はスケジュール起点でできる

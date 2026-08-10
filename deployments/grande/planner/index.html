@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Match Planner — クラブ運営管理</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260720b">
+  <link rel="stylesheet" href="style.css?v=20260810e">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -53,6 +53,9 @@
       <div class="nav-item" data-nav="page-shokudo">
         <span class="nav-item-icon">🍜</span> <span class="shokudo-nav-label">食堂管理</span>
       </div>
+      <div class="nav-item" data-nav="page-stats">
+        <span class="nav-item-icon">📊</span> クラブスタッツ
+      </div>
       <div class="nav-item" data-nav="page-emergency">
         <span class="nav-item-icon">🚨</span> 緊急連絡
       </div>
@@ -69,6 +72,9 @@
       </div>
       <div class="nav-item" data-nav="page-opponents">
         <span class="nav-item-icon">🆚</span> 対戦相手マスター
+      </div>
+      <div class="nav-item" data-nav="page-competitions">
+        <span class="nav-item-icon">🏆</span> 大会マスター
       </div>
       <div class="nav-item" data-nav="page-survey">
         <span class="nav-item-icon">🗳️</span> アンケート
@@ -503,6 +509,30 @@
       </div>
     </div><!-- /page-opponents -->
 
+    <!-- ========== Page: Competitions (大会マスター) ========== -->
+    <div class="page" id="page-competitions">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">🏆 大会マスター</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btn-add-competition">+ 追加</button>
+      </div>
+      <div class="page-inner" style="padding-top:10px">
+        <div class="import-toolbar" style="margin-bottom:12px">
+          <span style="font-size:12.5px;color:var(--c-text2);line-height:1.6">
+            試合作成時の「大会・リーグ名」欄はここに登録した候補から選べます。名前を編集すると、紐づく全ての試合・予定の表記も一括で更新されます（表記ゆれの統合に使えます）。
+          </span>
+        </div>
+        <div id="competition-list-body">
+          <div class="empty-state">
+            <div class="empty-icon">🏆</div>
+            <div class="empty-title">大会が登録されていません</div>
+            <div class="empty-desc">「+追加」で登録するか、試合作成時に大会名を入力すると自動的に登録されます</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-competitions -->
+
     <!-- ========== Page: Survey ========== -->
     <div class="page" id="page-survey">
       <div class="page-hdr">
@@ -687,6 +717,26 @@
         <div id="shokudo-pane-bmi" style="display:none"></div>
       </div>
     </div><!-- /page-shokudo -->
+
+    <!-- ========== Page: Club Stats (プレミアム限定) ========== -->
+    <div class="page" id="page-stats">
+      <div class="page-hdr">
+        <div class="page-hdr-left">
+          <div class="page-title">📊 クラブスタッツ</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-stats-csv">📥 CSV出力</button>
+      </div>
+      <div class="page-inner" style="padding-top:12px">
+        <div class="tab-bar" style="margin:-14px -14px 14px;border-radius:0" id="stats-tab-bar">
+          <button class="tab-btn active" data-sttab="competition">🏆 大会別</button>
+          <button class="tab-btn" data-sttab="category">📁 カテゴリー別</button>
+          <button class="tab-btn" data-sttab="scorer">⚽ 得点・アシスト</button>
+        </div>
+        <div id="stats-pane-competition"></div>
+        <div id="stats-pane-category" style="display:none"></div>
+        <div id="stats-pane-scorer" style="display:none"></div>
+      </div>
+    </div><!-- /page-stats -->
 
     <!-- ========== Page: News ========== -->
     <div class="page" id="page-news">
@@ -1127,7 +1177,7 @@
           </div>
           <div class="form-group sf-match-only">
             <label class="form-label">大会名</label>
-            <input class="form-input" type="text" id="sf-competition" placeholder="大会・リーグ名">
+            <input class="form-input" type="text" id="sf-competition" list="competition-datalist" placeholder="大会・リーグ名">
           </div>
         </div>
         <div class="form-group">
@@ -1197,7 +1247,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">大会名</label>
-            <input class="form-input" type="text" id="nm-competition" placeholder="大会・リーグ名">
+            <input class="form-input" type="text" id="nm-competition" list="competition-datalist" placeholder="大会・リーグ名">
           </div>
         </div>
         <div class="form-group">
@@ -1407,6 +1457,30 @@
     </div>
   </div>
 
+  <!-- ===== Modal: Competition (大会マスター) ===== -->
+  <div class="modal-overlay" id="modal-competition">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title" id="modal-competition-title">大会を追加</div>
+        <button class="btn-icon btn-icon-sm" id="btn-close-competition-modal">✕</button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-group">
+          <label class="form-label">大会・リーグ名 <span style="color:var(--c-red)">*</span></label>
+          <input class="form-input" type="text" id="cf-name" placeholder="例) 山梨県U15サッカーリーグ">
+        </div>
+        <div class="form-group" id="cf-rename-note" style="display:none">
+          <span style="font-size:12px;color:var(--c-text2);line-height:1.7">名前を変更すると、この大会に紐づく全ての試合・予定の表記も自動的に新しい名前へ更新されます。</span>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button class="btn btn-secondary" style="flex:1" id="btn-competition-cancel">キャンセル</button>
+        <button class="btn btn-primary" style="flex:2" id="btn-competition-save">保存する</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== Modal: Survey ===== -->
   <div class="modal-overlay" id="modal-survey">
     <div class="bottom-sheet" style="max-height:88vh">
@@ -1578,8 +1652,11 @@
   <!-- ===== Toast ===== -->
   <div class="toast" id="toast"></div>
 
+  <!-- 大会名の入力候補（大会マスターから動的に生成） -->
+  <datalist id="competition-datalist"></datalist>
+
 </div><!-- /#app -->
-<script src="mp-config.js?v=20260719a"></script>
-<script src="script.js?v=20260721d"></script>
+<script src="mp-config.js?v=20260810e"></script>
+<script src="script.js?v=20260810e"></script>
 </body>
 </html>
