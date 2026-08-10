@@ -3184,8 +3184,9 @@ function renderSurveyList() {
       if (s.deadline && s.deadline < today) { statusLabel = '締切'; statusClass = 'badge-match'; }
       else { statusLabel = '公開中'; statusClass = 'badge-official'; }
     }
+    const shareUrl = s.published ? buildSurveyShareUrl(s.id) : '';
     return `
-      <div class="opp-card">
+      <div class="opp-card" style="flex-wrap:wrap">
         <div class="opp-card-info">
           <div class="opp-card-name">${s.title} <span class="sched-badge ${statusClass}" style="margin-left:6px">${statusLabel}</span></div>
           <div class="opp-card-meta">
@@ -3193,12 +3194,21 @@ function renderSurveyList() {
             ${s.deadline ? `<span>期限: ${fmtDate(s.deadline)}</span>` : ''}
             ${s.identifyRespondent ? '<span>👤 選手名で識別</span>' : ''}
           </div>
+          ${shareUrl ? `<div class="survey-url-row"><span class="survey-url-text">${shareUrl}</span></div>` : ''}
         </div>
         <div class="opp-card-actions">
           <button class="btn btn-primary btn-sm" onclick="openSurveyResults('${s.id}')">結果を見る</button>
           <button class="btn btn-secondary btn-sm" onclick="openSurveyModal(${idx})">編集</button>
           <button class="btn btn-ghost btn-sm" style="color:var(--c-red);font-size:12px" onclick="deleteSurvey(${idx})">削除</button>
         </div>
+        ${shareUrl ? `
+        <div class="opp-card-actions" style="flex-direction:row;width:100%">
+          <button class="btn btn-secondary btn-sm" onclick="copySurveyLink('${s.id}')">🔗 URLをコピー</button>
+          <button class="btn btn-secondary btn-sm" onclick="shareSurveyLink('${s.id}')">📤 送る</button>
+        </div>` : `
+        <div class="opp-card-actions" style="flex-direction:row;width:100%">
+          <span style="font-size:12px;color:var(--c-muted)">公開すると回答用のURLを共有できます</span>
+        </div>`}
       </div>
     `;
   }).join('');
@@ -3446,6 +3456,17 @@ function copySurveyLink(id) {
   }).catch(() => {
     showToast(url, 'info');
   });
+}
+function shareSurveyLink(id) {
+  const survey = surveys.find(s => s.id === id);
+  const title = (survey && survey.title) || 'アンケート';
+  const url = buildSurveyShareUrl(id);
+  if (navigator.share) {
+    navigator.share({ title, text: `「${title}」にご回答ください`, url })
+      .catch(() => {}); // ユーザーがキャンセルした場合は何もしない
+  } else {
+    copySurveyLink(id);
+  }
 }
 
 // ----- 結果ページ -----
