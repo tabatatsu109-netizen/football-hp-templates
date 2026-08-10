@@ -8,7 +8,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
 :root{
-  --c-primary:#1a5c2a; --c-accent:#c9a227; --c-bg:#f5f3ee; --c-card:#ffffff;
+  --c-primary:#1a5c2a; --c-accent:#c9a227; --c-danger:#c0392b; --c-bg:#f5f3ee; --c-card:#ffffff;
   --c-text:#1a1a1a; --c-text2:#555555; --c-muted:#999999; --c-border:#e2ddd6;
   --radius:10px; --shadow:0 2px 12px rgba(0,0,0,.07);
 }
@@ -16,39 +16,66 @@
 html,body{background:var(--c-bg);color:var(--c-text);font-family:'Noto Sans JP',sans-serif;line-height:1.7}
 button{cursor:pointer;font-family:inherit;border:none;background:none;color:inherit;font-size:inherit;outline:none}
 input,select,textarea{font-family:inherit;font-size:15px}
-.wrap{max-width:640px;margin:0 auto;padding:28px 16px 60px}
-.hdr{display:flex;align-items:center;gap:10px;margin-bottom:22px}
-.hdr-badge{width:38px;height:38px;border-radius:50%;background:var(--c-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0}
-.hdr-name{font-size:12px;color:var(--c-text2);font-weight:700;letter-spacing:.05em}
-.card{background:var(--c-card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 18px;margin-bottom:16px}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 60px}
+
+/* ヒーロー：クラブカラーのグロー＋2段見出し */
+.hero{position:relative;overflow:hidden;margin:0 -16px 20px;padding:26px 16px 22px}
+.hero-glow{position:absolute;top:-140px;left:50%;transform:translateX(-50%);width:420px;height:420px;background:radial-gradient(circle, var(--c-primary) 0%, transparent 70%);opacity:.14;filter:blur(6px);pointer-events:none;z-index:0}
+.hdr{position:relative;z-index:1;display:flex;align-items:center;gap:12px}
+.hdr-badge{width:44px;height:44px;border-radius:50%;background:var(--c-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;flex-shrink:0}
+.hdr-logo{width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#fff;box-shadow:0 0 0 1px var(--c-border)}
+.hdr-en{font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;color:var(--c-primary)}
+.hdr-ja{font-size:14px;color:var(--c-text2);font-weight:700;letter-spacing:.03em;margin-top:1px}
+
+/* 進捗バー */
+.progress-wrap{position:sticky;top:0;z-index:50;background:var(--c-bg);padding:10px 16px 9px;margin:0 -16px 6px;box-shadow:0 4px 10px -6px rgba(0,0,0,.15)}
+.progress-bar{height:6px;border-radius:999px;background:var(--c-border);overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--c-primary),var(--c-accent));border-radius:999px;transition:width .3s ease}
+.progress-label{font-size:11px;color:var(--c-muted);margin-top:5px;text-align:right;font-weight:700}
+
+.card{background:var(--c-card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 18px;margin-bottom:16px;transition:box-shadow .2s}
+.card.flash{animation:cardFlash 1.1s ease}
+@keyframes cardFlash{0%,100%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 3px var(--c-danger)}}
 .title{font-size:clamp(20px,5vw,26px);font-weight:900;margin-bottom:8px;line-height:1.4}
 .desc{font-size:13.5px;color:var(--c-text2);white-space:pre-wrap;margin-bottom:4px}
 .meta{font-size:12px;color:var(--c-muted);margin-top:10px}
+.q-num{font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--c-primary);display:block;margin-bottom:3px}
 .q-label{font-size:14.5px;font-weight:700;margin-bottom:10px}
-.q-required{color:#dc2626;margin-left:2px}
+.q-required{color:var(--c-danger);margin-left:2px}
 .q-group{display:flex;flex-direction:column;gap:8px}
-.choice{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1.5px solid var(--c-border);border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s}
+.choice{position:relative;display:flex;align-items:center;gap:10px;padding:11px 44px 11px 14px;border:1.5px solid var(--c-border);border-radius:8px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s}
 .choice:hover{border-color:var(--c-primary)}
+.choice:active{transform:scale(.98)}
 .choice.active{border-color:var(--c-primary);background:rgba(26,92,42,.06)}
 .choice input{accent-color:var(--c-primary);width:17px;height:17px;flex-shrink:0}
+.choice::after{content:'';position:absolute;right:14px;top:50%;width:20px;height:20px;border-radius:50%;background:var(--c-primary);transform:translateY(-50%) scale(0);transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+.choice::before{content:'';position:absolute;right:22px;top:50%;width:7px;height:3.5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:translateY(-75%) rotate(-45deg) scale(0);transition:transform .18s .05s cubic-bezier(.34,1.56,.64,1);z-index:1}
+.choice.active::after{transform:translateY(-50%) scale(1)}
+.choice.active::before{transform:translateY(-75%) rotate(-45deg) scale(1)}
 textarea.f-input,input.f-input,select.f-input{width:100%;padding:11px 13px;border:1.5px solid var(--c-border);border-radius:8px;outline:none;background:#fff}
 textarea.f-input:focus,input.f-input:focus,select.f-input:focus{border-color:var(--c-primary)}
 textarea.f-input{min-height:80px;resize:vertical}
-.sch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 4px;border-bottom:1px solid var(--c-border)}
+.sch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--c-border)}
 .sch-row:last-child{border-bottom:none}
 .sch-date{font-size:13.5px;font-weight:600}
-.sch-btns{display:flex;gap:6px}
-.sch-btn{width:38px;height:38px;border-radius:8px;border:1.5px solid var(--c-border);font-weight:900;font-size:15px;color:var(--c-muted)}
-.sch-btn.active.ok{background:#dcfce7;border-color:#16a34a;color:#15803d}
-.sch-btn.active.maybe{background:#ffedd5;border-color:#ea580c;color:#c2410c}
-.sch-btn.active.ng{background:#fee2e2;border-color:#dc2626;color:#dc2626}
+.sch-btns{display:flex;gap:8px}
+.sch-btn{width:48px;height:48px;border-radius:10px;border:2px solid var(--c-border);font-weight:900;font-size:19px;color:var(--c-muted);transition:transform .15s,background .15s,border-color .15s,color .15s}
+.sch-btn:active{transform:scale(.9)}
+.sch-btn.active.ok{background:var(--c-primary);border-color:var(--c-primary);color:#fff;transform:scale(1.06)}
+.sch-btn.active.maybe{background:var(--c-accent);border-color:var(--c-accent);color:#fff;transform:scale(1.06)}
+.sch-btn.active.ng{background:var(--c-danger);border-color:var(--c-danger);color:#fff;transform:scale(1.06)}
+.submit-bar{position:sticky;bottom:0;background:linear-gradient(to top, var(--c-bg) 65%, transparent);padding:16px 0 max(16px, env(safe-area-inset-bottom));margin-top:4px}
 .btn{display:block;width:100%;padding:15px;border-radius:8px;font-weight:900;font-size:15px;text-align:center}
 .btn-primary{background:var(--c-primary);color:#fff}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .notice{background:#fff8e1;border:1px solid #e8d491;border-radius:8px;padding:12px 14px;font-size:12.5px;color:#6b5715;line-height:1.8;margin-bottom:16px}
 .center{text-align:center}
-.big-icon{font-size:44px;margin-bottom:12px}
+.state-icon{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 14px;background:var(--c-card);border:2px solid var(--c-border)}
 .footer-note{font-size:11px;color:var(--c-muted);text-align:center;margin-top:24px}
+
+/* 送信完了の紙吹雪（食堂レベルアップ演出と同じ実装） */
+.confetti{position:absolute;top:-14px;width:10px;height:16px;z-index:9001;animation:confFall linear forwards;pointer-events:none}
+@keyframes confFall{to{transform:translateY(110vh) rotate(720deg)}}
 </style>
 </head>
 <body>
@@ -65,10 +92,12 @@ var SURVEY_ID = params.get('id') || '';
 
 var CFG = {
   clubName: '',
+  clubNameFull: '',
   firebaseUrl: 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app',
   clubId: 'grande',
   primaryColor: '#1a5c2a',
   accentColor: '#c9a227',
+  logoUrl: '',
 };
 var CLUB_BASE = '';
 var RESP_KEY = '';
@@ -100,13 +129,73 @@ function applyBrand(){
   document.title = (CFG.clubName ? CFG.clubName + ' ' : '') + 'アンケート';
 }
 
+// このページは deployments/grande から1階層下（survey/）にあるため、
+// club-config.json の logo のような root 相対パスはそのままでは壊れる。 ../ を補う。
+function resolveAsset(p){
+  if (!p) return '';
+  if (/^(https?:)?\/\//.test(p) || p.charAt(0) === '/') return p;
+  return '../' + p.replace(/^\.\//, '');
+}
+
 function headerHtml(){
+  var logo = resolveAsset(CFG.logoUrl);
+  var badge = logo
+    ? '<img class="hdr-logo" src="'+esc(logo)+'" alt="">'
+    : '<div class="hdr-badge">'+esc((CFG.clubName||'?').charAt(0))+'</div>';
   return (
-    '<div class="hdr">'+
-      '<div class="hdr-badge">'+esc((CFG.clubName||'?').charAt(0))+'</div>'+
-      '<div class="hdr-name">'+esc(CFG.clubName || '')+'</div>'+
+    '<div class="hero">'+
+      '<div class="hero-glow" aria-hidden="true"></div>'+
+      '<div class="hdr">'+
+        badge+
+        '<div>'+
+          '<div class="hdr-en">SURVEY</div>'+
+          '<div class="hdr-ja">'+esc(CFG.clubNameFull || CFG.clubName || '')+'</div>'+
+        '</div>'+
+      '</div>'+
     '</div>'
   );
+}
+
+// 質問の回答有無を判定（進捗バー・スクロール先の特定に使う）
+function isAnswered(q){
+  var v = S.answers[q.id];
+  if (q.type === 'multi') return Array.isArray(v) && v.length > 0;
+  if (q.type === 'schedule') return !!v && q.dates.every(function(d){ return v[d]; });
+  return v != null && String(v).trim() !== '';
+}
+
+function progressHtml(survey){
+  var total = survey.questions.length + 1; // +1 は名前欄
+  var done = (survey.identifyRespondent ? !!S.selectedPlayerId : !!S.respondentName.trim()) ? 1 : 0;
+  survey.questions.forEach(function(q){ if (isAnswered(q)) done++; });
+  var pct = Math.round(done / total * 100);
+  return (
+    '<div class="progress-wrap">'+
+      '<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="progress-label">'+done+' / '+total+' 回答済み</div>'+
+    '</div>'
+  );
+}
+
+function launchConfetti(){
+  var colors = [
+    getComputedStyle(document.documentElement).getPropertyValue('--c-primary').trim() || '#1a5c2a',
+    getComputedStyle(document.documentElement).getPropertyValue('--c-accent').trim() || '#c9a227',
+    '#ffffff', '#5aa9ff', '#ff9ff3', '#4dd08a'
+  ];
+  for (var i = 0; i < 70; i++) {
+    var c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (2.2 + Math.random() * 2.5) + 's';
+    c.style.animationDelay = (Math.random() * 1.4) + 's';
+    c.style.width = (7 + Math.random() * 7) + 'px';
+    c.style.height = (12 + Math.random() * 8) + 'px';
+    c.style.borderRadius = Math.random() < 0.4 ? '50%' : '2px';
+    document.body.appendChild(c);
+    c.addEventListener('animationend', function(){ this.remove(); });
+  }
 }
 
 function render(){
@@ -117,11 +206,11 @@ function render(){
     return;
   }
   if (S.error) {
-    app.innerHTML = headerHtml() + '<div class="card center"><div class="big-icon">⚠️</div><div class="title" style="font-size:17px">'+esc(S.error)+'</div></div>';
+    app.innerHTML = headerHtml() + '<div class="card center"><div class="state-icon">⚠️</div><div class="title" style="font-size:17px">'+esc(S.error)+'</div></div>';
     return;
   }
   if (S.submitted) {
-    app.innerHTML = headerHtml() + '<div class="card center"><div class="big-icon">✅</div><div class="title" style="font-size:19px">回答ありがとうございました！</div><p class="desc" style="text-align:center">送信が完了しました。</p></div>';
+    app.innerHTML = headerHtml() + '<div class="card center"><div class="state-icon">✅</div><div class="title" style="font-size:19px">回答ありがとうございました！</div><p class="desc" style="text-align:center">送信が完了しました。</p></div>';
     return;
   }
 
@@ -137,18 +226,20 @@ function render(){
     '</div>';
 
   if (alreadyAnswered) {
-    body += '<div class="card center"><div class="big-icon">🙆</div><div class="title" style="font-size:17px">この端末では回答済みです</div><p class="desc" style="text-align:center">ご協力ありがとうございました。</p></div>';
+    body += '<div class="card center"><div class="state-icon">🙆</div><div class="title" style="font-size:17px">この端末では回答済みです</div><p class="desc" style="text-align:center">ご協力ありがとうございました。</p></div>';
     app.innerHTML = body;
     return;
   }
   if (isClosed) {
-    body += '<div class="card center"><div class="big-icon">🔒</div><div class="title" style="font-size:17px">受付は終了しました</div></div>';
+    body += '<div class="card center"><div class="state-icon">🔒</div><div class="title" style="font-size:17px">受付は終了しました</div></div>';
     app.innerHTML = body;
     return;
   }
 
+  body += progressHtml(survey);
+
   // 回答者identify
-  body += '<div class="card">';
+  body += '<div class="card" data-qid="__name">';
   if (survey.identifyRespondent) {
     body += '<div class="q-label">お名前（選手） <span class="q-required">*</span></div>' +
       '<select class="f-input" id="f-player">' +
@@ -162,14 +253,15 @@ function render(){
   body += '</div>';
 
   // 質問
-  survey.questions.forEach(function(q){
-    body += '<div class="card">';
+  survey.questions.forEach(function(q, qi){
+    body += '<div class="card" data-qid="'+esc(q.id)+'">';
+    body += '<span class="q-num">Q'+(qi+1)+'</span>';
     body += '<div class="q-label">'+esc(q.label)+(q.required?'<span class="q-required">*</span>':'')+'</div>';
 
     if (q.type === 'single') {
       body += '<div class="q-group">' + q.options.map(function(opt){
         var checked = S.answers[q.id] === opt;
-        return '<label class="choice '+(checked?'active':'')+'"><input type="radio" name="q_'+q.id+'" value="'+esc(opt)+'" '+(checked?'checked':'')+' onchange="App.setAnswer(\''+q.id+'\', this.value)"> '+esc(opt)+'</label>';
+        return '<label class="choice '+(checked?'active':'')+'"><input type="radio" name="q_'+q.id+'" value="'+esc(opt)+'" '+(checked?'checked':'')+' onchange="App.selectChoice(\''+q.id+'\', this.value)"> '+esc(opt)+'</label>';
       }).join('') + '</div>';
     } else if (q.type === 'multi') {
       var sel = Array.isArray(S.answers[q.id]) ? S.answers[q.id] : [];
@@ -194,23 +286,30 @@ function render(){
     body += '</div>';
   });
 
+  body += '<div class="submit-bar">';
   body += '<button class="btn btn-primary" id="btn-submit" '+(S.submitting?'disabled':'')+'>'+(S.submitting?'送信中...':'回答を送信する')+'</button>';
   body += '<p class="footer-note">送信内容はこのクラブの運営者にのみ共有されます</p>';
+  body += '</div>';
 
   app.innerHTML = body;
 
-  document.getElementById('f-player')?.addEventListener('change', function(e){ S.selectedPlayerId = e.target.value; });
-  document.getElementById('f-name')?.addEventListener('input', function(e){ S.respondentName = e.target.value; });
+  document.getElementById('f-player')?.addEventListener('change', function(e){ S.selectedPlayerId = e.target.value; App.refreshProgress(); });
+  document.getElementById('f-name')?.addEventListener('input', function(e){ S.respondentName = e.target.value; App.refreshProgress(); });
   document.getElementById('btn-submit')?.addEventListener('click', submit);
 }
 
 var App = {
-  setAnswer: function(qid, value){ S.answers[qid] = value; },
+  // text/number/名前欄用：入力中に全体再描画するとフォーカスが飛ぶため、
+  // 値の保存＋進捗バーの数値だけ軽量に更新する
+  setAnswer: function(qid, value){ S.answers[qid] = value; App.refreshProgress(); },
+  // 単一選択：クリック単発なので全体再描画してチェックマークの演出を出す
+  selectChoice: function(qid, value){ S.answers[qid] = value; render(); },
   toggleMulti: function(qid, value, checked){
     var arr = Array.isArray(S.answers[qid]) ? S.answers[qid].slice() : [];
     if (checked) { if (arr.indexOf(value) < 0) arr.push(value); }
     else { arr = arr.filter(function(v){ return v !== value; }); }
     S.answers[qid] = arr;
+    render();
   },
   setScheduleAnswer: function(qid, date, mark){
     var obj = Object.assign({}, S.answers[qid] || {});
@@ -218,26 +317,46 @@ var App = {
     S.answers[qid] = obj;
     render();
   },
+  refreshProgress: function(){
+    var survey = S.survey;
+    var bar = document.querySelector('.progress-fill');
+    var label = document.querySelector('.progress-label');
+    if (!survey || !bar || !label) return;
+    var total = survey.questions.length + 1;
+    var done = (survey.identifyRespondent ? !!S.selectedPlayerId : !!S.respondentName.trim()) ? 1 : 0;
+    survey.questions.forEach(function(q){ if (isAnswered(q)) done++; });
+    bar.style.width = Math.round(done / total * 100) + '%';
+    label.textContent = done + ' / ' + total + ' 回答済み';
+  },
 };
 window.App = App;
+
+function scrollToQid(qid){
+  var el = document.querySelector('[data-qid="'+qid+'"]');
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('flash');
+  void el.offsetWidth; // reflow でアニメーションを再トリガー
+  el.classList.add('flash');
+}
 
 function validate(){
   var survey = S.survey;
   if (survey.identifyRespondent) {
-    if (!S.selectedPlayerId) { alert('お名前を選択してください'); return false; }
+    if (!S.selectedPlayerId) { scrollToQid('__name'); alert('お名前を選択してください'); return false; }
   } else {
-    if (!S.respondentName.trim()) { alert('お名前を入力してください'); return false; }
+    if (!S.respondentName.trim()) { scrollToQid('__name'); alert('お名前を入力してください'); return false; }
   }
   for (var i=0; i<survey.questions.length; i++) {
     var q = survey.questions[i];
     if (!q.required) continue;
     var v = S.answers[q.id];
-    if (q.type === 'multi') { if (!Array.isArray(v) || v.length===0) { alert('「'+q.label+'」に回答してください'); return false; } }
+    if (q.type === 'multi') { if (!Array.isArray(v) || v.length===0) { scrollToQid(q.id); alert('「'+q.label+'」に回答してください'); return false; } }
     else if (q.type === 'schedule') {
       var ok = q.dates.every(function(d){ return v && v[d]; });
-      if (!ok) { alert('「'+q.label+'」の全ての候補日に回答してください'); return false; }
+      if (!ok) { scrollToQid(q.id); alert('「'+q.label+'」の全ての候補日に回答してください'); return false; }
     }
-    else { if (v==null || String(v).trim()==='') { alert('「'+q.label+'」に回答してください'); return false; } }
+    else { if (v==null || String(v).trim()==='') { scrollToQid(q.id); alert('「'+q.label+'」に回答してください'); return false; } }
   }
   return true;
 }
@@ -269,6 +388,7 @@ function submit(){
     S.submitting = false;
     S.submitted = true;
     render();
+    launchConfetti();
   }).catch(function(e){
     console.error('survey submit failed:', e);
     S.submitting = false;
@@ -316,10 +436,12 @@ function init(){
     .then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.json(); })
     .then(function(c){
       CFG.clubName     = (c.club && (c.club.shortName || c.club.name)) || CFG.clubName;
+      CFG.clubNameFull = (c.club && c.club.name) || CFG.clubNameFull;
       CFG.firebaseUrl  = (c.integration && c.integration.firebaseUrl) || CFG.firebaseUrl;
       CFG.clubId       = (c.integration && c.integration.firebaseClubId) || CFG.clubId;
       CFG.primaryColor = (c.design && c.design.mainColor) || CFG.primaryColor;
       CFG.accentColor  = (c.design && c.design.accentColor) || CFG.accentColor;
+      CFG.logoUrl      = (c.design && c.design.logo) || CFG.logoUrl;
     })
     .catch(function(){ /* club-config.json が読めなくてもデフォルト値で続行 */ })
     .then(function(){
