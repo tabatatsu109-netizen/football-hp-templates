@@ -131,6 +131,16 @@ function updateOrderStatusCloud(fbKey, status){
   });
 }
 
+// 注文削除：管理者のみ
+function deleteOrderCloud(fbKey){
+  return fetch(FB_ORDERS_URL + "/" + fbKey + ".json?auth=" + encodeURIComponent(getSecret()), {
+    method: "DELETE"
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
+
 function esc(s){
   return String(s==null?"":s).replace(/[&<>"']/g, function(c){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
@@ -151,6 +161,7 @@ var S = {
   placing:false,
   loadingAdmin:false,
   statusUpdating:null,
+  deletingOid:null,
   ordersLoaded:false
 };
 
@@ -649,6 +660,7 @@ function orderCardHtml(o){
       return '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid #eee"><span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span><span>'+fmt(it.price*it.qty)+'</span></div>';
     }).join("");
     var updating = S.statusUpdating === o.id;
+    var deleting = S.deletingOid === o.id;
     var statusBtns = STS.map(function(s,si){
       var active = o.status===s;
       return '<button onclick="App.setOrderStatus(\''+o.id+'\',\''+s+'\')" '+(updating?"disabled":"")+' style="padding:5px 9px;border-radius:6px;font-size:11px;font-weight:700;background:'+(active?ST_COLORS[si]:"#f0f0f0")+';color:'+(active?"#fff":"#555")+';'+(updating?"opacity:.5;cursor:not-allowed":"")+'">'+esc(s)+'</button>';
@@ -662,7 +674,10 @@ function orderCardHtml(o){
         '</div>'+
         '<div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px">ステータス変更:'+(updating?' <span style="color:#888;font-weight:400">（更新中…）</span>':'')+'</div>'+
         '<div class="sc-btns">'+statusBtns+'</div>'+
-        '<button onclick="App.printInvoice(\''+o.id+'\')" style="margin-top:10px;padding:8px 14px;background:'+G.g3+';color:#fff;border-radius:8px;font-size:12px;font-weight:700">🖨️ 請求書を印刷する</button>'+
+        '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
+          '<button onclick="App.printInvoice(\''+o.id+'\')" style="padding:8px 14px;background:'+G.g3+';color:#fff;border-radius:8px;font-size:12px;font-weight:700">🖨️ 請求書を印刷する</button>'+
+          '<button onclick="App.deleteOrder(\''+o.id+'\')" '+(deleting?"disabled":"")+' style="padding:8px 14px;background:#fff;color:#c0392b;border:1.5px solid #e0b4b0;border-radius:8px;font-size:12px;font-weight:700;'+(deleting?"opacity:.5;cursor:not-allowed":"")+'">'+(deleting?"削除中…":"🗑️ 注文を削除")+'</button>'+
+        '</div>'+
       '</div>'
     );
   }
@@ -884,6 +899,26 @@ window.App = {
       console.error(err);
       S.statusUpdating = null;
       showError("ステータスの更新に失敗しました。もう一度お試しください。");
+    });
+  },
+  deleteOrder: function(oid){
+    if(S.statusUpdating || S.deletingOid) return;
+    var target = S.orders.filter(function(o){ return o.id===oid; })[0];
+    if(!target || !target.fbKey){ showError("この注文はクラウド未同期のため削除できません。🔄 最新を取得してください。"); return; }
+    if(!confirm("この注文を削除します。よろしいですか？\n（"+target.pName+" / "+target.sName+"・"+fmt(target.total)+"）\n\n※この操作は取り消せません")) return;
+    S.deletingOid = oid;
+    render();
+    deleteOrderCloud(target.fbKey).then(function(){
+      S.orders = S.orders.filter(function(o){ return o.id!==oid; });
+      S.selOid = null;
+      S.deletingOid = null;
+      showToast("注文を削除しました");
+      render();
+    }).catch(function(err){
+      console.error(err);
+      S.deletingOid = null;
+      showError("削除に失敗しました。もう一度お試しください。");
+      render();
     });
   },
   refreshOrders: function(){
