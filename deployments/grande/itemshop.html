@@ -79,6 +79,21 @@ var PRODS = [
   {id:35,name:"NOF 旅Tシャツ（グランデ限定カラー）",brand:"NOF",desc:"",price:3000,cat:"トップス",sizes:["S","M","L","O"],reqJ:false,reqJU:false}
 ];
 
+// 実物写真（コードに同梱。Firebase側に管理画面から写真を登録した商品はそちらが優先される）
+var DEFAULT_PRODUCT_IMAGES = {
+  1:  "assets/items/uniform-green.jpg",
+  2:  "assets/items/uniform-white.jpg",
+  4:  "assets/items/game-pants-white.jpg",
+  8:  "assets/items/bibs-reversible.jpg",
+  23: "assets/items/gk-pants-red.jpg",
+  24: "assets/items/gk-pants-yellow.jpg",
+  25: "assets/items/socks-yellow.jpg",
+  30: "assets/items/hoodie-supporter.jpg",
+  31: "assets/items/tshirt-supporter.jpg",
+  32: "assets/items/gloves.jpg",
+  34: "assets/items/towel-muffler.jpg"
+};
+
 var CATS = ["すべて","ユニフォーム","トップス","ボトムス","ソックス","バッグ","セットアップ","アウター","その他"];
 var TEAMS = ["ジュニア（U-12）","ジュニアユース（U-15）","スクール"];
 var PAYS = ["現金払い","銀行振込","PayPay"];
@@ -147,7 +162,7 @@ function loadPublicCatalog(){
   ]).then(function(results){
     var images = results[0], cat = results[1];
     var changed = false;
-    if(images){ S.productImages = images; changed = true; }
+    if(images){ S.productImages = Object.assign({}, S.productImages, images); changed = true; }
     if(cat){
       if(cat.productOrder && cat.productOrder.length){ S.productOrder = cat.productOrder; changed = true; }
       if(Array.isArray(cat.customProds) && cat.customProds.length){ S.customProds = cat.customProds; changed = true; }
@@ -436,7 +451,7 @@ var S = {
   statusUpdating:null,
   deletingOid:null,
   ordersLoaded:false,
-  productImages:{},
+  productImages:Object.assign({}, DEFAULT_PRODUCT_IMAGES),
   imgbbKey:"",
   photoUploading:null,
   productOrder:[],
