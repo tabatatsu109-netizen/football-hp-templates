@@ -270,6 +270,13 @@ function fetchOrdersByEmailPublic(email){
   });
 }
 
+// 旧仕様（注文ID単位のミラー）の一括削除：一度だけ実行すればよい後片付け
+function cleanupLegacyOrderStatus(){
+  return fetch(FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopOrderStatus.json?auth=" + encodeURIComponent(getSecret()), {
+    method: "DELETE"
+  }).catch(function(){});
+}
+
 // 商品データ（写真・カスタム商品・並び順・上書き・ImgBBキー）の保存：管理者のみ
 function saveProductData(){
   var auth = "?auth=" + encodeURIComponent(getSecret());
@@ -1384,6 +1391,7 @@ window.App = {
     }).then(function(){
       S.page="admin"; S.loadingAdmin=false; S.adminAuthed=true; render();
       Promise.all(S.orders.map(syncOrderStatusPublic)).catch(function(){});
+      cleanupLegacyOrderStatus();
     }).catch(function(e){
       S.loadingAdmin=false;
       S.pwErr="認証に失敗しました。管理者キーをご確認ください。";
