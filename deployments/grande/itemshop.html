@@ -424,7 +424,8 @@ var S = {
   statusLookupId:"",
   statusLookupResult:null,
   statusLookupErr:"",
-  statusLookupLoading:false
+  statusLookupLoading:false,
+  adminAuthed:false
 };
 
 function selFor(p){
@@ -931,7 +932,9 @@ function statusPageHtml(){
           '<button onclick="App.checkOrderStatus()" '+(S.statusLookupLoading?"disabled":"")+' style="width:100%;padding:12px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:14px;'+(S.statusLookupLoading?"opacity:.6;cursor:not-allowed":"")+'">'+(S.statusLookupLoading?"確認中...":"確認する")+'</button>'+
           resultHtml+
         '</div>'+
-        '<button onclick="App.goShop()" style="width:100%;padding:13px;background:transparent;color:#888;font-weight:700;font-size:13px;margin-top:14px">← ショップに戻る</button>'+
+        (S.adminAuthed ?
+          '<button onclick="App.backToAdmin()" style="width:100%;padding:13px;background:transparent;color:#888;font-weight:700;font-size:13px;margin-top:14px">← 管理画面に戻る</button>' :
+          '<button onclick="App.goShop()" style="width:100%;padding:13px;background:transparent;color:#888;font-weight:700;font-size:13px;margin-top:14px">← ショップに戻る</button>')+
       '</div>'+
     '</div>'
   );
@@ -1023,6 +1026,7 @@ function orderCardHtml(o){
     }).join("");
     detail = (
       '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0" onclick="event.stopPropagation()">'+
+        '<div style="font-size:13px;margin-bottom:4px"><a href="javascript:void(0)" onclick="App.goStatusLookup(\''+esc(o.id)+'\')" style="color:'+G.g1+';font-weight:700;text-decoration:underline">📦 '+esc(o.id)+'（保護者に見える画面を確認）</a></div>'+
         '<div style="font-size:13px;color:#555;margin-bottom:6px">📧 '+esc(o.email)+(o.note?(' · 備考: '+esc(o.note)):'')+'</div>'+
         '<div style="background:#f8faf8;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #dde8dd">'+
           '<div style="font-size:11px;font-weight:700;color:#888;margin-bottom:6px">注文明細</div>'+itemsDetail+
@@ -1353,7 +1357,7 @@ window.App = {
       S.orders=o;
       return fetchAdminConfig();
     }).then(function(){
-      S.page="admin"; S.loadingAdmin=false; render();
+      S.page="admin"; S.loadingAdmin=false; S.adminAuthed=true; render();
       Promise.all(S.orders.map(syncOrderStatusPublic)).catch(function(){});
     }).catch(function(e){
       S.loadingAdmin=false;
@@ -1362,7 +1366,8 @@ window.App = {
     });
   },
   goShop:function(){ S.page="shop"; S.pwErr=""; render(); },
-  logout:function(){ S.page="shop"; render(); },
+  logout:function(){ S.page="shop"; S.adminAuthed=false; render(); },
+  backToAdmin:function(){ S.page="admin"; render(); },
   setAdminTab:function(t){ S.adminTab=t; render(); },
   toggleOrder:function(oid){ S.selOid = S.selOid===oid ? null : oid; render(); },
   setOrderStatus:function(oid, st){
@@ -1429,8 +1434,9 @@ window.App = {
       Promise.all(S.orders.map(syncOrderStatusPublic)).catch(function(){});
     }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
   },
-  goStatusLookup:function(){
-    S.page="status"; S.statusLookupId=""; S.statusLookupResult=null; S.statusLookupErr=""; render();
+  goStatusLookup:function(prefillId){
+    S.page="status"; S.statusLookupId=prefillId||""; S.statusLookupResult=null; S.statusLookupErr=""; render();
+    if(prefillId) App.checkOrderStatus();
   },
   checkOrderStatus:function(){
     var idInput = document.getElementById("statusLookupInput");
