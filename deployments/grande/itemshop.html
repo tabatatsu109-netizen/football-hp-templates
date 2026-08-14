@@ -124,6 +124,9 @@ var FB_ADMIN_URL = FB_URL + "/shops/" + SHOP_CLUB_ID + "/admin";
 var FB_IMAGES_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopImages";
 // カスタム商品・並び順・価格上書き設定（同上：公開読み取り可・書き込みは管理者キー必須）
 var FB_CATALOG_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopCatalog";
+// 注文状況の公開ミラー（氏名等の個人情報は含まない。注文IDが分かる本人のみ閲覧可能。
+// 同上：公開読み取り可・書き込みは管理者キー必須）
+var FB_STATUS_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopOrderStatus";
 
 var SECRET_KEY = "shop_secret_" + SHOP_CLUB_ID;
 function getSecret(){ return localStorage.getItem(SECRET_KEY) || ""; }
@@ -199,6 +202,50 @@ function deleteOrderCloud(fbKey){
   return fetch(FB_ORDERS_URL + "/" + fbKey + ".json?auth=" + encodeURIComponent(getSecret()), {
     method: "DELETE"
   }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
+
+// 商品受け渡し状況の更新：管理者のみ
+function setItemDeliveredCloud(fbKey, itemIdx, delivered){
+  return fetch(FB_ORDERS_URL + "/" + fbKey + "/items/" + itemIdx + "/delivered.json?auth=" + encodeURIComponent(getSecret()), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(delivered)
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
+
+// 注文状況の公開ミラーを更新：管理者のみ（氏名・メール等は含めない）
+function syncOrderStatusPublic(order){
+  var payload = {
+    status: order.status,
+    items: order.items.map(function(it){ return { pname: it.pname, size: it.size, qty: it.qty, delivered: !!it.delivered }; }),
+    updatedAt: new Date().toISOString()
+  };
+  return fetch(FB_STATUS_URL + "/" + encodeURIComponent(order.id) + ".json?auth=" + encodeURIComponent(getSecret()), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
+
+// 注文状況の公開ミラーを削除：管理者のみ
+function deleteOrderStatusPublic(orderId){
+  return fetch(FB_STATUS_URL + "/" + encodeURIComponent(orderId) + ".json?auth=" + encodeURIComponent(getSecret()), {
+    method: "DELETE"
+  }).catch(function(){});
+}
+
+// 注文状況の照会：認証不要（注文IDを知っている本人のみ）
+function fetchOrderStatusPublic(orderId){
+  return fetch(FB_STATUS_URL + "/" + encodeURIComponent(orderId) + ".json").then(function(res){
     if(!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   });
@@ -372,7 +419,12 @@ var S = {
   editProd:null,
   brandFilter:"すべて",
   adminBrandFilter:"すべて",
-  selectedProds:{}
+  selectedProds:{},
+  itemDeliverUpdating:null,
+  statusLookupId:"",
+  statusLookupResult:null,
+  statusLookupErr:"",
+  statusLookupLoading:false
 };
 
 function selFor(p){
@@ -586,10 +638,13 @@ function shopHeaderHtml(){
             '<div style="color:'+G.gold+';font-size:10px;letter-spacing:2px">OFFICIAL SHOP</div>'+
           '</div>'+
         '</div>'+
-        '<button onclick="App.openCart()" style="font-size:26px;color:#fff;position:relative;padding:6px">'+
-          '🛒'+
-          (cc>0 ? '<span style="position:absolute;top:0;right:0;background:#e53935;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">'+cc+'</span>' : '')+
-        '</button>'+
+        '<div style="display:flex;align-items:center;gap:4px">'+
+          '<button onclick="App.goStatusLookup()" style="font-size:22px;color:#fff;padding:6px" title="受け渡し状況を確認">📦</button>'+
+          '<button onclick="App.openCart()" style="font-size:26px;color:#fff;position:relative;padding:6px">'+
+            '🛒'+
+            (cc>0 ? '<span style="position:absolute;top:0;right:0;background:#e53935;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">'+cc+'</span>' : '')+
+          '</button>'+
+        '</div>'+
       '</div>'+
     '</div>'
   );
@@ -796,12 +851,13 @@ function step3Html(){
     '<div style="width:68px;height:68px;background:'+G.g1+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;color:#fff">✓</div>'+
     '<div style="font-weight:900;font-size:22px;text-align:center;margin-bottom:6px">注文完了！</div>'+
     '<div style="text-align:center;color:#888;font-size:13px;margin-bottom:16px">ご注文ありがとうございます</div>'+
-    '<div style="background:#f0faf0;border:1px solid #b2d8b2;border-radius:8px;padding:12px;text-align:center;margin-bottom:14px;font-size:13px">注文IDをメモしてください<br><span style="font-size:20px;font-weight:900;color:'+G.g1+';letter-spacing:2px">'+esc(o.id)+'</span></div>'+
+    '<div style="background:#f0faf0;border:1px solid #b2d8b2;border-radius:8px;padding:12px;text-align:center;margin-bottom:14px;font-size:13px">注文IDをメモしてください<br><span style="font-size:20px;font-weight:900;color:'+G.g1+';letter-spacing:2px">'+esc(o.id)+'</span><br><span style="font-size:11.5px;color:#789">この注文IDで、あとから商品ごとの受け渡し状況を確認できます</span></div>'+
     '<div style="background:#f8faf8;border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid #dde8dd">'+
       '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px;margin-bottom:8px">注文内容</div>'+rows+
       '<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-weight:900;font-size:16px"><span>合計</span><span style="color:'+G.g1+'">'+fmt(o.total)+'</span></div>'+
     '</div>'+
-    '<button onclick="App.closeOrderDone()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">ショップに戻る</button>'
+    '<button onclick="App.closeOrderDone()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px;margin-bottom:8px">ショップに戻る</button>'+
+    '<button onclick="App.closeOrderDone();App.goStatusLookup()" style="width:100%;padding:12px;background:#fff;color:'+G.g1+';border:1.5px solid '+G.g1+';border-radius:8px;font-weight:700;font-size:14px">📦 受け渡し状況を確認する</button>'
   );
 }
 function orderModalHtml(){
@@ -833,6 +889,49 @@ function loginPageHtml(){
         (S.pwErr ? '<div style="color:#f88;font-size:13px;text-align:center;margin-bottom:8px">'+esc(S.pwErr)+'</div>' : '')+
         '<button onclick="App.doLogin()" style="width:100%;padding:13px;background:'+G.gold+';color:'+G.g3+';border-radius:8px;font-weight:900;font-size:15px;margin-top:8px;margin-bottom:8px">ログイン</button>'+
         '<button onclick="App.goShop()" style="width:100%;padding:13px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-weight:700;font-size:14px">← ショップに戻る</button>'+
+      '</div>'+
+    '</div>'
+  );
+}
+
+/* ───────── ORDER STATUS LOOKUP (保護者向け・認証不要) ───────── */
+function statusPageHtml(){
+  var resultHtml = "";
+  if(S.statusLookupResult){
+    var r = S.statusLookupResult;
+    var itemsHtml = r.items.map(function(it){
+      return (
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #eee;font-size:14px">'+
+          '<span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span>'+
+          '<span style="padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap;background:'+(it.delivered?"#e6f4ea":"#f5f5f5")+';color:'+(it.delivered?"#1a6b2f":"#888")+'">'+(it.delivered?"✅ 渡し済み":"⏳ 未渡し")+'</span>'+
+        '</div>'
+      );
+    }).join("");
+    resultHtml = (
+      '<div style="background:#f8faf8;border-radius:10px;padding:16px;margin-top:16px;border:1px solid #dde8dd">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+          '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px">注文全体のステータス</div>'+
+          statusBadge(r.status)+
+        '</div>'+
+        '<div>'+itemsHtml+'</div>'+
+        '<div style="font-size:11px;color:#999;margin-top:10px">最終更新: '+fmtD(r.updatedAt)+'</div>'+
+      '</div>'
+    );
+  } else if(S.statusLookupErr){
+    resultHtml = '<div style="color:#c0392b;font-size:13px;text-align:center;margin-top:14px">'+esc(S.statusLookupErr)+'</div>';
+  }
+  return (
+    '<div style="background:'+G.lt+';min-height:100vh;padding:60px 16px">'+
+      '<div style="max-width:420px;margin:0 auto">'+
+        '<div style="text-align:center;font-size:36px;margin-bottom:10px">📦</div>'+
+        '<div style="font-weight:900;font-size:24px;text-align:center;margin-bottom:6px;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:2px">受け渡し状況を確認</div>'+
+        '<div style="text-align:center;color:#888;font-size:13px;margin-bottom:22px">注文完了時に表示された注文IDを入力してください</div>'+
+        '<div style="background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'+
+          '<input id="statusLookupInput" value="'+esc(S.statusLookupId)+'" onkeydown="if(event.key===\'Enter\')App.checkOrderStatus()" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa;margin-bottom:10px" placeholder="例: ORD-XXXXXXXX">'+
+          '<button onclick="App.checkOrderStatus()" '+(S.statusLookupLoading?"disabled":"")+' style="width:100%;padding:12px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:14px;'+(S.statusLookupLoading?"opacity:.6;cursor:not-allowed":"")+'">'+(S.statusLookupLoading?"確認中...":"確認する")+'</button>'+
+          resultHtml+
+        '</div>'+
+        '<button onclick="App.goShop()" style="width:100%;padding:13px;background:transparent;color:#888;font-weight:700;font-size:13px;margin-top:14px">← ショップに戻る</button>'+
       '</div>'+
     '</div>'
   );
@@ -902,8 +1001,19 @@ function orderCardHtml(o){
   var itemsLine = o.items.map(function(i){ return esc(i.pname)+'（'+esc(i.size)+'）×'+i.qty; }).join("　");
   var detail = "";
   if(expanded){
-    var itemsDetail = o.items.map(function(it){
-      return '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid #eee"><span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span><span>'+fmt(it.price*it.qty)+'</span></div>';
+    var itemsDetail = o.items.map(function(it, idx){
+      var deliverKey = o.id+"-"+idx;
+      var deliverBusy = S.itemDeliverUpdating === deliverKey;
+      var delivered = !!it.delivered;
+      return (
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px solid #eee">'+
+          '<span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span>'+
+          '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+
+            '<span>'+fmt(it.price*it.qty)+'</span>'+
+            '<button onclick="App.toggleItemDelivered(\''+o.id+'\','+idx+')" '+(deliverBusy?"disabled":"")+' style="padding:4px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+(delivered?"#e6f4ea":"#f5f5f5")+';color:'+(delivered?"#1a6b2f":"#888")+';border:1px solid '+(delivered?"#b7dfc4":"#ddd")+';'+(deliverBusy?"opacity:.5;cursor:not-allowed":"")+'">'+(deliverBusy?"…":(delivered?"✅ 渡し済み":"⏳ 未渡し"))+'</button>'+
+          '</div>'+
+        '</div>'
+      );
     }).join("");
     var updating = S.statusUpdating === o.id;
     var deleting = S.deletingOid === o.id;
@@ -1208,6 +1318,7 @@ function render(){
   if(S.page==="shop") html = shopPageHtml();
   else if(S.page==="login") html = loginPageHtml();
   else if(S.page==="admin") html = adminPageHtml();
+  else if(S.page==="status") html = statusPageHtml();
   html += cartDrawerHtml();
   html += orderModalHtml();
   html += editProdModalHtml();
@@ -1243,6 +1354,7 @@ window.App = {
       return fetchAdminConfig();
     }).then(function(){
       S.page="admin"; S.loadingAdmin=false; render();
+      Promise.all(S.orders.map(syncOrderStatusPublic)).catch(function(){});
     }).catch(function(e){
       S.loadingAdmin=false;
       S.pwErr="認証に失敗しました。管理者キーをご確認ください。";
@@ -1262,7 +1374,28 @@ window.App = {
     updateOrderStatusCloud(o.fbKey, st).then(function(){
       o.status = st;
       S.statusUpdating=null; showToast("ステータスを更新しました"); render();
+      syncOrderStatusPublic(o).catch(function(){});
     }).catch(function(e){ S.statusUpdating=null; showError("更新に失敗しました"); render(); });
+  },
+  toggleItemDelivered:function(oid, itemIdx){
+    if(S.itemDeliverUpdating) return;
+    var o = S.orders.filter(function(x){return x.id===oid;})[0];
+    if(!o || !o.fbKey){ showError("この注文はクラウド未同期のため更新できません。🔄 最新を取得してください。"); return; }
+    var it = o.items[itemIdx];
+    if(!it) return;
+    var newVal = !it.delivered;
+    S.itemDeliverUpdating = oid+"-"+itemIdx;
+    render();
+    setItemDeliveredCloud(o.fbKey, itemIdx, newVal).then(function(){
+      it.delivered = newVal;
+      S.itemDeliverUpdating = null;
+      render();
+      syncOrderStatusPublic(o).catch(function(){});
+    }).catch(function(e){
+      S.itemDeliverUpdating = null;
+      showError("更新に失敗しました");
+      render();
+    });
   },
   deleteOrder:function(oid){
     if(S.statusUpdating || S.deletingOid) return;
@@ -1277,6 +1410,7 @@ window.App = {
       S.deletingOid = null;
       showToast("注文を削除しました");
       render();
+      deleteOrderStatusPublic(oid);
     }).catch(function(e){
       S.deletingOid = null;
       showError("削除に失敗しました");
@@ -1290,7 +1424,33 @@ window.App = {
   refreshOrders:function(){
     S.loadingAdmin=true;
     render();
-    fetchOrdersFromCloud().then(function(o){ S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render(); }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
+    fetchOrdersFromCloud().then(function(o){
+      S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render();
+      Promise.all(S.orders.map(syncOrderStatusPublic)).catch(function(){});
+    }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
+  },
+  goStatusLookup:function(){
+    S.page="status"; S.statusLookupId=""; S.statusLookupResult=null; S.statusLookupErr=""; render();
+  },
+  checkOrderStatus:function(){
+    var idInput = document.getElementById("statusLookupInput");
+    var id = (idInput ? idInput.value : S.statusLookupId).trim();
+    if(!id){ S.statusLookupErr="注文IDを入力してください"; render(); return; }
+    S.statusLookupId = id;
+    S.statusLookupLoading = true;
+    S.statusLookupErr = "";
+    S.statusLookupResult = null;
+    render();
+    fetchOrderStatusPublic(id).then(function(data){
+      S.statusLookupLoading = false;
+      if(!data){ S.statusLookupErr = "該当する注文が見つかりませんでした。注文IDをご確認ください。"; }
+      else { S.statusLookupResult = data; }
+      render();
+    }).catch(function(e){
+      S.statusLookupLoading = false;
+      S.statusLookupErr = "確認できませんでした。通信環境をご確認のうえ、もう一度お試しください。";
+      render();
+    });
   },
   saveCfg:function(){ showToast("設定を保存しました（デモ）"); },
   moveProduct:function(pid, dir){ moveProduct(pid, dir); },
