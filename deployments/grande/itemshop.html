@@ -84,7 +84,6 @@ var TEAMS = ["ジュニア（U-12）","ジュニアユース（U-15）","スク�
 var PAYS = ["現金払い","銀行振込","PayPay"];
 var STS = ["未確認","確認済み","発注済み","入荷済み","受け渡し完了"];
 var ST_COLORS = ["#F59E0B","#3B82F6","#8B5CF6","#10B981","#9CA3AF"];
-var ADM_PW = "2001";
 
 function fmt(n){ return "¥" + n.toLocaleString(); }
 function fmtD(d){ return new Date(d).toLocaleDateString("ja-JP",{year:"numeric",month:"2-digit",day:"2-digit"}); }
@@ -114,47 +113,114 @@ var HERO_IMG = (function(){
   return "assets/toprandom/" + encodeURIComponent(f);
 })();
 
-/* ───────── JSONBin CONFIG ───────── */
-var JSONBIN_BIN_ID = "6a34e735da38895dfedbccd2";
-var JSONBIN_MASTER_KEY = "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq";
-var JSONBIN_URL = "https://api.jsonbin.io/v3/b/" + JSONBIN_BIN_ID;
+/* ───────── FIREBASE CONFIG ───────── */
+var FB_URL = "https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app";
+var SHOP_CLUB_ID = "grande";
+// 注文データ保存先（作成のみ認証不要／閲覧・更新・削除は管理者キー必須）
+var FB_ORDERS_URL = FB_URL + "/shops/" + SHOP_CLUB_ID + "/orders";
+// 管理用設定（imgbbキー等。公開読み取り不可）
+var FB_ADMIN_URL = FB_URL + "/shops/" + SHOP_CLUB_ID + "/admin";
+// 商品写真URL置き場（/clubs/ 配下＝公開読み取り可・書き込みは管理者キー必須）
+var FB_IMAGES_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopImages";
+// カスタム商品・並び順・価格上書き設定（同上：公開読み取り可・書き込みは管理者キー必須）
+var FB_CATALOG_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopCatalog";
 
-function fetchFromBin(){
-  return fetch(JSONBIN_URL + "/latest", {
-    method: "GET",
-    headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
-  }).then(function(res){
+var SECRET_KEY = "shop_secret_" + SHOP_CLUB_ID;
+function getSecret(){ return localStorage.getItem(SECRET_KEY) || ""; }
+function setSecret(v){ localStorage.setItem(SECRET_KEY, v); }
+
+// 商品写真・カスタム商品設定の読み込み：認証不要（ショップ画面表示用）
+function loadPublicCatalog(){
+  return Promise.all([
+    fetch(FB_IMAGES_URL + ".json").then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; }),
+    fetch(FB_CATALOG_URL + ".json").then(function(r){ return r.ok ? r.json() : null; }).catch(function(){ return null; })
+  ]).then(function(results){
+    var images = results[0], cat = results[1];
+    var changed = false;
+    if(images){ S.productImages = images; changed = true; }
+    if(cat){
+      if(cat.productOrder && cat.productOrder.length){ S.productOrder = cat.productOrder; changed = true; }
+      if(Array.isArray(cat.customProds) && cat.customProds.length){ S.customProds = cat.customProds; changed = true; }
+      if(cat.prodOverrides && typeof cat.prodOverrides==="object" && Object.keys(cat.prodOverrides).length){ S.prodOverrides = cat.prodOverrides; changed = true; }
+    }
+    return changed;
+  });
+}
+
+// 注文一覧の取得：管理者のみ
+function fetchOrdersFromCloud(){
+  return fetch(FB_ORDERS_URL + ".json?auth=" + encodeURIComponent(getSecret())).then(function(res){
     if(!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   }).then(function(data){
-    var rec = data && data.record;
-    if(rec){
-      if(rec.productImages) S.productImages = rec.productImages;
-      if(rec.imgbbKey) S.imgbbKey = rec.imgbbKey;
-      if(rec.productOrder && rec.productOrder.length) S.productOrder = rec.productOrder;
-      if(Array.isArray(rec.customProds)) S.customProds = rec.customProds;
-      if(rec.prodOverrides && typeof rec.prodOverrides==="object") S.prodOverrides = rec.prodOverrides;
-    }
-    return (rec && Array.isArray(rec.orders)) ? rec.orders : [];
+    if(!data) return [];
+    var list = Object.keys(data).map(function(k){ return Object.assign({fbKey:k}, data[k]); });
+    list.sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+    return list;
   });
 }
-function fetchOrdersFromBin(){ return fetchFromBin(); }
 
-function saveToBin(payload){
-  return fetch(JSONBIN_URL, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_MASTER_KEY },
-    body: JSON.stringify(payload)
+// 管理設定（imgbbキー）の取得：管理者のみ
+function fetchAdminConfig(){
+  return fetch(FB_ADMIN_URL + ".json?auth=" + encodeURIComponent(getSecret())).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  }).then(function(cfg){
+    if(cfg && cfg.imgbbKey) S.imgbbKey = cfg.imgbbKey;
+  });
+}
+
+// 新規注文の送信：管理者キー不要（Firebaseルールで作成のみ許可）
+function pushOrderToCloud(order){
+  return fetch(FB_ORDERS_URL + ".json", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(order)
   }).then(function(res){
     if(!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   });
 }
-function saveOrdersToBin(orders){
-  return saveToBin({ orders: orders, productImages: S.productImages, imgbbKey: S.imgbbKey, productOrder: S.productOrder, customProds: S.customProds, prodOverrides: S.prodOverrides });
+
+// ステータス更新：管理者のみ
+function updateOrderStatusCloud(fbKey, status){
+  return fetch(FB_ORDERS_URL + "/" + fbKey + "/status.json?auth=" + encodeURIComponent(getSecret()), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(status)
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
 }
+
+// 注文削除：管理者のみ
+function deleteOrderCloud(fbKey){
+  return fetch(FB_ORDERS_URL + "/" + fbKey + ".json?auth=" + encodeURIComponent(getSecret()), {
+    method: "DELETE"
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
+
+// 商品データ（写真・カスタム商品・並び順・上書き・ImgBBキー）の保存：管理者のみ
 function saveProductData(){
-  return saveToBin({ orders: S.orders, productImages: S.productImages, imgbbKey: S.imgbbKey, productOrder: S.productOrder, customProds: S.customProds, prodOverrides: S.prodOverrides });
+  var auth = "?auth=" + encodeURIComponent(getSecret());
+  return Promise.all([
+    fetch(FB_IMAGES_URL + ".json" + auth, {
+      method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(S.productImages)
+    }),
+    fetch(FB_CATALOG_URL + ".json" + auth, {
+      method: "PUT", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ productOrder: S.productOrder, customProds: S.customProds, prodOverrides: S.prodOverrides })
+    }),
+    fetch(FB_ADMIN_URL + ".json" + auth, {
+      method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ imgbbKey: S.imgbbKey })
+    })
+  ]).then(function(results){
+    results.forEach(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); });
+  });
 }
 
 /* ───────── PRODUCTS (built-in + custom) ─────────
@@ -370,13 +436,7 @@ function placeOrder(){
   S.placing = true;
   render();
 
-  // 保存前に最新の注文一覧を取得してから追加する（他の人の注文を消さないため）
-  var newOrders;
-  fetchFromBin().then(function(latestOrders){
-    newOrders = [order].concat(latestOrders);
-    return saveOrdersToBin(newOrders);
-  }).then(function(){
-    S.orders = newOrders;
+  pushOrderToCloud(order).then(function(){
     S.lastOrder = order;
     S.cart = [];
     S.form = {pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""};
@@ -769,7 +829,7 @@ function loginPageHtml(){
       '<div style="background:rgba(255,255,255,.06);border-radius:16px;padding:32px;width:100%;max-width:360px;border:1px solid rgba(200,169,74,.3)">'+
         '<div style="text-align:center;font-size:36px;margin-bottom:12px">🔐</div>'+
         '<div style="color:#fff;font-weight:900;font-size:26px;letter-spacing:3px;text-align:center;margin-bottom:20px;font-family:\'Barlow Condensed\',sans-serif">ADMIN</div>'+
-        '<input type="password" id="loginPw" onkeydown="if(event.key===\'Enter\')App.doLogin()" style="width:100%;padding:11px 13px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.08);color:#fff;outline:none;margin-bottom:6px" placeholder="パスワードを入力">'+
+        '<input type="password" id="loginPw" value="'+esc(getSecret())+'" onkeydown="if(event.key===\'Enter\')App.doLogin()" style="width:100%;padding:11px 13px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-size:14px;background:rgba(255,255,255,.08);color:#fff;outline:none;margin-bottom:6px" placeholder="管理者キーを入力">'+
         (S.pwErr ? '<div style="color:#f88;font-size:13px;text-align:center;margin-bottom:8px">'+esc(S.pwErr)+'</div>' : '')+
         '<button onclick="App.doLogin()" style="width:100%;padding:13px;background:'+G.gold+';color:'+G.g3+';border-radius:8px;font-weight:900;font-size:15px;margin-top:8px;margin-bottom:8px">ログイン</button>'+
         '<button onclick="App.goShop()" style="width:100%;padding:13px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-weight:700;font-size:14px">← ショップに戻る</button>'+
@@ -1174,31 +1234,45 @@ window.App = {
   placeOrder:placeOrder,
   goLogin:function(){ S.page="login"; render(); },
   doLogin:function(){
-    var pw = document.getElementById("loginPw").value;
-    if(pw === ADM_PW){ S.page="admin"; S.pwErr=""; S.loadingAdmin=true; render(); fetchOrdersFromBin().then(function(o){ S.orders=o; S.loadingAdmin=false; render(); }).catch(function(e){ S.loadingAdmin=false; showError("データ取得に失敗しました"); }); }
-    else { S.pwErr="パスワードが正しくありません"; render(); }
+    var pw = document.getElementById("loginPw").value.trim();
+    if(!pw){ S.pwErr="管理者キーを入力してください"; render(); return; }
+    setSecret(pw);
+    S.pwErr=""; S.loadingAdmin=true; render();
+    fetchOrdersFromCloud().then(function(o){
+      S.orders=o;
+      return fetchAdminConfig();
+    }).then(function(){
+      S.page="admin"; S.loadingAdmin=false; render();
+    }).catch(function(e){
+      S.loadingAdmin=false;
+      S.pwErr="認証に失敗しました。管理者キーをご確認ください。";
+      render();
+    });
   },
   goShop:function(){ S.page="shop"; S.pwErr=""; render(); },
   logout:function(){ S.page="shop"; render(); },
   setAdminTab:function(t){ S.adminTab=t; render(); },
   toggleOrder:function(oid){ S.selOid = S.selOid===oid ? null : oid; render(); },
   setOrderStatus:function(oid, st){
+    if(S.statusUpdating) return;
+    var o = S.orders.filter(function(x){return x.id===oid;})[0];
+    if(!o || !o.fbKey){ showError("この注文はクラウド未同期のため更新できません。🔄 最新を取得してください。"); return; }
     S.statusUpdating = oid;
     render();
-    var o = S.orders.filter(function(x){return x.id===oid;})[0];
-    if(o) o.status = st;
-    saveOrdersToBin(S.orders).then(function(){ S.statusUpdating=null; showToast("ステータスを更新しました"); render(); }).catch(function(e){ S.statusUpdating=null; showError("更新に失敗しました"); });
+    updateOrderStatusCloud(o.fbKey, st).then(function(){
+      o.status = st;
+      S.statusUpdating=null; showToast("ステータスを更新しました"); render();
+    }).catch(function(e){ S.statusUpdating=null; showError("更新に失敗しました"); render(); });
   },
   deleteOrder:function(oid){
     if(S.statusUpdating || S.deletingOid) return;
     var target = S.orders.filter(function(x){return x.id===oid;})[0];
-    if(!target) return;
+    if(!target || !target.fbKey){ showError("この注文はクラウド未同期のため削除できません。🔄 最新を取得してください。"); return; }
     if(!confirm("この注文を削除します。よろしいですか？\n（"+target.pName+" / "+target.sName+"・"+fmt(target.total)+"）\n\n※この操作は取り消せません")) return;
     S.deletingOid = oid;
     render();
-    var newOrders = S.orders.filter(function(x){return x.id!==oid;});
-    saveOrdersToBin(newOrders).then(function(){
-      S.orders = newOrders;
+    deleteOrderCloud(target.fbKey).then(function(){
+      S.orders = S.orders.filter(function(x){return x.id!==oid;});
       S.selOid = null;
       S.deletingOid = null;
       showToast("注文を削除しました");
@@ -1216,7 +1290,7 @@ window.App = {
   refreshOrders:function(){
     S.loadingAdmin=true;
     render();
-    fetchFromBin().then(function(o){ S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render(); }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
+    fetchOrdersFromCloud().then(function(o){ S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render(); }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
   },
   saveCfg:function(){ showToast("設定を保存しました（デモ）"); },
   moveProduct:function(pid, dir){ moveProduct(pid, dir); },
@@ -1358,22 +1432,8 @@ window.App = {
 
 render();
 
-/* ページ読み込み時に写真URLを取得してショップに反映 */
-fetch(JSONBIN_URL + "/latest", {
-  method: "GET",
-  headers: { "X-Master-Key": JSONBIN_MASTER_KEY }
-}).then(function(res){ return res.json(); })
-.then(function(data){
-  var rec = data && data.record;
-  var changed = false;
-  if(rec && rec.productImages){ S.productImages = rec.productImages; changed = true; }
-  if(rec && rec.imgbbKey){ S.imgbbKey = rec.imgbbKey; }
-  if(rec && rec.productOrder && rec.productOrder.length){ S.productOrder = rec.productOrder; changed = true; }
-  if(rec && Array.isArray(rec.customProds) && rec.customProds.length){ S.customProds = rec.customProds; changed = true; }
-  if(rec && rec.prodOverrides && typeof rec.prodOverrides==="object" && Object.keys(rec.prodOverrides).length){ S.prodOverrides = rec.prodOverrides; changed = true; }
-  if(rec && Array.isArray(rec.orders)){ S.orders = rec.orders; }
-  if(changed) render();
-}).catch(function(){});
+/* ページ読み込み時に写真・カスタム商品設定を取得してショップに反映（認証不要） */
+loadPublicCatalog().then(function(changed){ if(changed) render(); }).catch(function(){});
 
 })();
 </script>
