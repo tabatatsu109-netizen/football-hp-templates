@@ -124,13 +124,20 @@ var FB_ADMIN_URL = FB_URL + "/shops/" + SHOP_CLUB_ID + "/admin";
 var FB_IMAGES_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopImages";
 // カスタム商品・並び順・価格上書き設定（同上：公開読み取り可・書き込みは管理者キー必須）
 var FB_CATALOG_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopCatalog";
-// 注文状況の公開ミラー（氏名等の個人情報は含まない。注文IDが分かる本人のみ閲覧可能。
+// 注文状況の公開ミラー（メールアドレスをキーに、そのメールで注文した全件を保存。
 // 同上：公開読み取り可・書き込みは管理者キー必須）
-var FB_STATUS_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopOrderStatus";
+var FB_STATUS_BY_EMAIL_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopOrdersByEmail";
 
 var SECRET_KEY = "shop_secret_" + SHOP_CLUB_ID;
 function getSecret(){ return localStorage.getItem(SECRET_KEY) || ""; }
 function setSecret(v){ localStorage.setItem(SECRET_KEY, v); }
+
+// Firebase RTDBのキーに使えない文字（. # $ [ ]）を置換
+function emailToKey(email){
+  return String(email||"").trim().toLowerCase().replace(/[.#$\[\]]/g, function(c){
+    return c==="." ? "," : "_";
+  });
+}
 
 // 商品写真・カスタム商品設定の読み込み：認証不要（ショップ画面表示用）
 function loadPublicCatalog(){
@@ -219,14 +226,18 @@ function setItemDeliveredCloud(fbKey, itemIdx, delivered){
   });
 }
 
-// 注文状況の公開ミラーを更新：管理者のみ（氏名・メール等は含めない）
+// 注文状況の公開ミラーを更新：管理者のみ（メールアドレスをキーに保存）
 function syncOrderStatusPublic(order){
+  var emailKey = emailToKey(order.email);
+  if(!emailKey) return Promise.resolve();
   var payload = {
+    orderId: order.id,
+    date: order.date,
     status: order.status,
     items: order.items.map(function(it){ return { pname: it.pname, size: it.size, qty: it.qty, delivered: !!it.delivered }; }),
     updatedAt: new Date().toISOString()
   };
-  return fetch(FB_STATUS_URL + "/" + encodeURIComponent(order.id) + ".json?auth=" + encodeURIComponent(getSecret()), {
+  return fetch(FB_STATUS_BY_EMAIL_URL + "/" + emailKey + "/" + encodeURIComponent(order.id) + ".json?auth=" + encodeURIComponent(getSecret()), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -237,17 +248,25 @@ function syncOrderStatusPublic(order){
 }
 
 // 注文状況の公開ミラーを削除：管理者のみ
-function deleteOrderStatusPublic(orderId){
-  return fetch(FB_STATUS_URL + "/" + encodeURIComponent(orderId) + ".json?auth=" + encodeURIComponent(getSecret()), {
+function deleteOrderStatusPublic(orderId, email){
+  var emailKey = emailToKey(email);
+  if(!emailKey) return Promise.resolve();
+  return fetch(FB_STATUS_BY_EMAIL_URL + "/" + emailKey + "/" + encodeURIComponent(orderId) + ".json?auth=" + encodeURIComponent(getSecret()), {
     method: "DELETE"
   }).catch(function(){});
 }
 
-// 注文状況の照会：認証不要（注文IDを知っている本人のみ）
-function fetchOrderStatusPublic(orderId){
-  return fetch(FB_STATUS_URL + "/" + encodeURIComponent(orderId) + ".json").then(function(res){
+// メールアドレスでの注文一覧照会：認証不要（メールアドレスを知っている本人のみ）
+function fetchOrdersByEmailPublic(email){
+  var emailKey = emailToKey(email);
+  return fetch(FB_STATUS_BY_EMAIL_URL + "/" + emailKey + ".json").then(function(res){
     if(!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
+  }).then(function(data){
+    if(!data) return [];
+    var list = Object.keys(data).map(function(k){ return data[k]; });
+    list.sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+    return list;
   });
 }
 
@@ -852,7 +871,7 @@ function step3Html(){
     '<div style="width:68px;height:68px;background:'+G.g1+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;color:#fff">✓</div>'+
     '<div style="font-weight:900;font-size:22px;text-align:center;margin-bottom:6px">注文完了！</div>'+
     '<div style="text-align:center;color:#888;font-size:13px;margin-bottom:16px">ご注文ありがとうございます</div>'+
-    '<div style="background:#f0faf0;border:1px solid #b2d8b2;border-radius:8px;padding:12px;text-align:center;margin-bottom:14px;font-size:13px">注文IDをメモしてください<br><span style="font-size:20px;font-weight:900;color:'+G.g1+';letter-spacing:2px">'+esc(o.id)+'</span><br><span style="font-size:11.5px;color:#789">この注文IDで、あとから商品ごとの受け渡し状況を確認できます</span></div>'+
+    '<div style="background:#f0faf0;border:1px solid #b2d8b2;border-radius:8px;padding:12px;text-align:center;margin-bottom:14px;font-size:13px">注文ID<br><span style="font-size:20px;font-weight:900;color:'+G.g1+';letter-spacing:2px">'+esc(o.id)+'</span><br><span style="font-size:11.5px;color:#789">ご入力いただいたメールアドレスで、あとから商品ごとの受け渡し状況をまとめて確認できます</span></div>'+
     '<div style="background:#f8faf8;border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid #dde8dd">'+
       '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px;margin-bottom:8px">注文内容</div>'+rows+
       '<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-weight:900;font-size:16px"><span>合計</span><span style="color:'+G.g1+'">'+fmt(o.total)+'</span></div>'+
@@ -899,23 +918,29 @@ function loginPageHtml(){
 function statusPageHtml(){
   var resultHtml = "";
   if(S.statusLookupResult){
-    var r = S.statusLookupResult;
-    var itemsHtml = r.items.map(function(it){
-      return (
-        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #eee;font-size:14px">'+
-          '<span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span>'+
-          '<span style="padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap;background:'+(it.delivered?"#e6f4ea":"#f5f5f5")+';color:'+(it.delivered?"#1a6b2f":"#888")+'">'+(it.delivered?"✅ 渡し済み":"⏳ 未渡し")+'</span>'+
-        '</div>'
-      );
-    }).join("");
+    var orders = S.statusLookupResult;
     resultHtml = (
-      '<div style="background:#f8faf8;border-radius:10px;padding:16px;margin-top:16px;border:1px solid #dde8dd">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
-          '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px">注文全体のステータス</div>'+
-          statusBadge(r.status)+
-        '</div>'+
-        '<div>'+itemsHtml+'</div>'+
-        '<div style="font-size:11px;color:#999;margin-top:10px">最終更新: '+fmtD(r.updatedAt)+'</div>'+
+      '<div style="margin-top:16px">'+
+        '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px;margin-bottom:8px">'+orders.length+'件の注文</div>'+
+        orders.map(function(r){
+          var itemsHtml = r.items.map(function(it){
+            return (
+              '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #eee;font-size:13.5px">'+
+                '<span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span>'+
+                '<span style="padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+(it.delivered?"#e6f4ea":"#f5f5f5")+';color:'+(it.delivered?"#1a6b2f":"#888")+'">'+(it.delivered?"✅ 渡し済み":"⏳ 未渡し")+'</span>'+
+              '</div>'
+            );
+          }).join("");
+          return (
+            '<div style="background:#f8faf8;border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid #dde8dd">'+
+              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
+                '<div style="font-size:11.5px;color:#999">'+fmtD(r.date)+' · '+esc(r.orderId)+'</div>'+
+                statusBadge(r.status)+
+              '</div>'+
+              '<div>'+itemsHtml+'</div>'+
+            '</div>'
+          );
+        }).join("")+
       '</div>'
     );
   } else if(S.statusLookupErr){
@@ -926,9 +951,9 @@ function statusPageHtml(){
       '<div style="max-width:420px;margin:0 auto">'+
         '<div style="text-align:center;font-size:36px;margin-bottom:10px">📦</div>'+
         '<div style="font-weight:900;font-size:24px;text-align:center;margin-bottom:6px;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:2px">受け渡し状況を確認</div>'+
-        '<div style="text-align:center;color:#888;font-size:13px;margin-bottom:22px">注文完了時に表示された注文IDを入力してください</div>'+
+        '<div style="text-align:center;color:#888;font-size:13px;margin-bottom:22px">注文時に入力したメールアドレスで、ご自身の注文をまとめて確認できます</div>'+
         '<div style="background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,.06)">'+
-          '<input id="statusLookupInput" value="'+esc(S.statusLookupId)+'" onkeydown="if(event.key===\'Enter\')App.checkOrderStatus()" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa;margin-bottom:10px" placeholder="例: ORD-XXXXXXXX">'+
+          '<input id="statusLookupInput" type="email" value="'+esc(S.statusLookupId)+'" onkeydown="if(event.key===\'Enter\')App.checkOrderStatus()" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa;margin-bottom:10px" placeholder="例: yamada@example.com">'+
           '<button onclick="App.checkOrderStatus()" '+(S.statusLookupLoading?"disabled":"")+' style="width:100%;padding:12px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:14px;'+(S.statusLookupLoading?"opacity:.6;cursor:not-allowed":"")+'">'+(S.statusLookupLoading?"確認中...":"確認する")+'</button>'+
           resultHtml+
         '</div>'+
@@ -1026,7 +1051,7 @@ function orderCardHtml(o){
     }).join("");
     detail = (
       '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0" onclick="event.stopPropagation()">'+
-        '<div style="font-size:13px;margin-bottom:4px"><a href="javascript:void(0)" onclick="App.goStatusLookup(\''+esc(o.id)+'\')" style="color:'+G.g1+';font-weight:700;text-decoration:underline">📦 '+esc(o.id)+'（保護者に見える画面を確認）</a></div>'+
+        '<div style="font-size:13px;margin-bottom:4px"><a href="javascript:void(0)" onclick="App.goStatusLookup(\''+esc(o.email)+'\')" style="color:'+G.g1+';font-weight:700;text-decoration:underline">📦 '+esc(o.id)+'（保護者に見える画面を確認）</a></div>'+
         '<div style="font-size:13px;color:#555;margin-bottom:6px">📧 '+esc(o.email)+(o.note?(' · 備考: '+esc(o.note)):'')+'</div>'+
         '<div style="background:#f8faf8;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #dde8dd">'+
           '<div style="font-size:11px;font-weight:700;color:#888;margin-bottom:6px">注文明細</div>'+itemsDetail+
@@ -1415,7 +1440,7 @@ window.App = {
       S.deletingOid = null;
       showToast("注文を削除しました");
       render();
-      deleteOrderStatusPublic(oid);
+      deleteOrderStatusPublic(oid, target.email);
     }).catch(function(e){
       S.deletingOid = null;
       showError("削除に失敗しました");
@@ -1434,23 +1459,23 @@ window.App = {
       Promise.all(S.orders.map(syncOrderStatusPublic)).catch(function(){});
     }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
   },
-  goStatusLookup:function(prefillId){
-    S.page="status"; S.statusLookupId=prefillId||""; S.statusLookupResult=null; S.statusLookupErr=""; render();
-    if(prefillId) App.checkOrderStatus();
+  goStatusLookup:function(prefillEmail){
+    S.page="status"; S.statusLookupId=prefillEmail||""; S.statusLookupResult=null; S.statusLookupErr=""; render();
+    if(prefillEmail) App.checkOrderStatus();
   },
   checkOrderStatus:function(){
-    var idInput = document.getElementById("statusLookupInput");
-    var id = (idInput ? idInput.value : S.statusLookupId).trim();
-    if(!id){ S.statusLookupErr="注文IDを入力してください"; render(); return; }
-    S.statusLookupId = id;
+    var emailInput = document.getElementById("statusLookupInput");
+    var email = (emailInput ? emailInput.value : S.statusLookupId).trim();
+    if(!email){ S.statusLookupErr="メールアドレスを入力してください"; render(); return; }
+    S.statusLookupId = email;
     S.statusLookupLoading = true;
     S.statusLookupErr = "";
     S.statusLookupResult = null;
     render();
-    fetchOrderStatusPublic(id).then(function(data){
+    fetchOrdersByEmailPublic(email).then(function(list){
       S.statusLookupLoading = false;
-      if(!data){ S.statusLookupErr = "該当する注文が見つかりませんでした。注文IDをご確認ください。"; }
-      else { S.statusLookupResult = data; }
+      if(!list.length){ S.statusLookupErr = "該当する注文が見つかりませんでした。注文時に入力したメールアドレスをご確認ください。"; }
+      else { S.statusLookupResult = list; }
       render();
     }).catch(function(e){
       S.statusLookupLoading = false;
