@@ -91,24 +91,9 @@
     "facebook": "",
     "lineUrl": "https://line.me/R/ti/p/@200sfwtn"
   },
-  "matchPlanner": {
-    "jsonbinBinId": "6a3817c2f5f4af5e291906f9",
-    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
-  },
   "integration": {
     "firebaseUrl": "https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app",
     "firebaseClubId": "grande"
-  },
-  "newsIntegration": {
-    "jsonbinBinId": "6a381e07f5f4af5e29191bec",
-    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
-  },
-  "playerIntegration": {
-    "jsonbinBinId": "6a3a1805da38895dfeef91b0",
-    "jsonbinApiKey": "$2a$10$xopawUKPa.2MV76.BGLZtehG8EauPnBwXLLyCgXqw/H5NfvD.yuOq"
-  },
-  "playerManager": {
-    "password": "tatti109"
   },
   "features": {
     "showNews": true,
