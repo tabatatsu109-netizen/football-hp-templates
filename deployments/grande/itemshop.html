@@ -249,7 +249,7 @@ function syncOrderStatusPublic(order){
     orderId: order.id,
     date: order.date,
     status: order.status,
-    items: order.items.map(function(it){ return { pname: it.pname, size: it.size, qty: it.qty, delivered: !!it.delivered }; }),
+    items: order.items.map(function(it){ return { pname: it.pname, size: it.size, number: it.number||"", qty: it.qty, delivered: !!it.delivered }; }),
     updatedAt: new Date().toISOString()
   };
   return fetch(FB_STATUS_BY_EMAIL_URL + "/" + emailKey + "/" + encodeURIComponent(order.id) + ".json?auth=" + encodeURIComponent(getSecret()), {
@@ -435,6 +435,8 @@ function esc(s){
     return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
   });
 }
+// カート/注文明細で「サイズ（背番号N）」の形式を統一して出すヘルパー
+function sizeLabel(it){ return esc(it.size) + (it.number ? "（背番号" + esc(it.number) + "）" : ""); }
 
 /* ───────── STATE ───────── */
 var S = {
@@ -466,11 +468,13 @@ var S = {
   statusLookupResult:null,
   statusLookupErr:"",
   statusLookupLoading:false,
-  adminAuthed:false
+  adminAuthed:false,
+  /* ── 発注書（ブランド別集計） ── */
+  poBrand:"", poSupplier:"", poNote:""
 };
 
 function selFor(p){
-  if(!S.prodSel[p.id]) S.prodSel[p.id] = {size:p.sizes[0], qty:1, flash:false};
+  if(!S.prodSel[p.id]) S.prodSel[p.id] = {size:p.sizes[0], qty:1, flash:false, number:""};
   return S.prodSel[p.id];
 }
 
@@ -490,12 +494,14 @@ function showError(msg){
 }
 
 /* ───────── CART ───────── */
-function addToCart(pid, size, qty){
+function addToCart(pid, size, qty, number){
   var p = prodById(pid);
+  number = (number||"").trim();
   var idx = -1;
-  S.cart.forEach(function(i,ii){ if(i.pid===pid && i.size===size) idx=ii; });
+  // 背番号違いは別ラインとして扱う（同じ商品・サイズでも背番号が違えば合算しない）
+  S.cart.forEach(function(i,ii){ if(i.pid===pid && i.size===size && (i.number||"")===number) idx=ii; });
   if(idx>=0) S.cart[idx].qty += qty;
-  else S.cart.push({pid:p.id, pname:p.name, size:size, qty:qty, price:p.price});
+  else S.cart.push({pid:p.id, pname:p.name, size:size, qty:qty, price:p.price, number:number});
   var sel = selFor(p);
   sel.flash = true;
   render();
@@ -585,6 +591,54 @@ function adminStatsCalc(){
 function totalSales(){ return S.orders.reduce(function(s,o){ return s+o.total; },0); }
 function bySt(s){ return S.orders.filter(function(o){ return o.status===s; }).length; }
 
+/* ───────── 発注書（ブランド別集計） ───────── */
+function productBrands(){
+  var seen = {}, list = [];
+  allProds().forEach(function(p){
+    var b = (p.brand||"").trim();
+    if(b && !seen[b]){ seen[b]=true; list.push(b); }
+  });
+  return list;
+}
+function purchaseOrderStatsCalc(brand){
+  return allProds().filter(function(p){ return (p.brand||"").trim()===brand; }).map(function(p){
+    var sc = {};
+    (p.sizes||[]).forEach(function(s){ sc[s]=0; });
+    S.orders.forEach(function(o){ o.items.forEach(function(i){ if(i.pid===p.id) sc[i.size]=(sc[i.size]||0)+i.qty; }); });
+    var total = Object.keys(sc).reduce(function(a,k){ return a+sc[k]; },0);
+    return Object.assign({}, p, {sc:sc, total:total});
+  }).filter(function(p){ return p.total>0; });
+}
+// メーカー・代理店に渡す発注書：金額ではなく「品目×サイズ×数量」が主目的なので単価・金額は載せない
+function printPurchaseOrder(brand){
+  var stats = purchaseOrderStatsCalc(brand);
+  var el = document.getElementById("inv");
+  var rows = stats.map(function(p){
+    return Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
+      return "<tr><td>"+esc(p.name)+"</td><td>"+esc(s)+"</td><td style=\"text-align:right\">"+p.sc[s]+" 点</td></tr>";
+    }).join("");
+  }).join("");
+  var grandQty = stats.reduce(function(sum,p){ return sum + p.total; }, 0);
+  var supplier = (S.poSupplier||"").trim();
+  var note = (S.poNote||"").trim();
+  el.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;border-bottom:3px solid #1a6b2f;padding-bottom:14px">'+
+      '<div><div style="font-size:20px;font-weight:900;color:#1a6b2f">⚽ 八ヶ岳グランデFC</div><div style="font-size:12px;color:#666;margin-top:4px">発注元</div></div>'+
+      '<div style="font-size:28px;font-weight:900;letter-spacing:4px">発 注 書</div>'+
+    '</div>'+
+    (supplier ? '<div style="font-size:16px;font-weight:700;margin-bottom:14px;border-bottom:1px solid #ddd;padding-bottom:8px">'+esc(supplier)+' 御中</div>' : '')+
+    '<table class="meta" style="margin-bottom:20px">'+
+      '<tr><td>発注日</td><td>'+fmtD(new Date().toISOString())+'</td></tr>'+
+      '<tr><td>ブランド</td><td>'+esc(brand)+'</td></tr>'+
+      '<tr><td>合計数量</td><td>'+grandQty+' 点</td></tr>'+
+      (note ? '<tr><td>備考</td><td>'+esc(note)+'</td></tr>' : '')+
+    '</table>'+
+    '<table><thead><tr><th>商品名</th><th>サイズ</th><th style="text-align:right">数量</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+    '<div style="text-align:right;font-size:16px;font-weight:900;margin-top:14px">合計数量：<span style="color:#1a6b2f;font-size:22px">'+grandQty+' 点</span></div>';
+  window.print();
+}
+
 function downloadCsv(hdr, rows, filename){
   var csv = [hdr].concat(rows).map(function(r){
     return r.map(function(v){
@@ -600,15 +654,15 @@ function downloadCsv(hdr, rows, filename){
 function downloadOrderListCsv(){
   var hdr=["注文ID","注文日","保護者氏名","選手氏名","チーム","メール","支払方法","合計","ステータス","備考","商品サマリー"];
   var rows = S.orders.map(function(o){
-    return [o.id,fmtD(o.date),o.pName,o.sName,o.cat,o.email,o.pay,o.total,o.status,o.note||"",o.items.map(function(i){return i.pname+"("+i.size+")×"+i.qty;}).join(" / ")];
+    return [o.id,fmtD(o.date),o.pName,o.sName,o.cat,o.email,o.pay,o.total,o.status,o.note||"",o.items.map(function(i){return i.pname+"("+i.size+(i.number?"・背番号"+i.number:"")+")×"+i.qty;}).join(" / ")];
   });
   downloadCsv(hdr, rows, "注文一覧.csv");
   showToast("注文一覧CSVをダウンロードしました");
 }
 function downloadOrderDetailCsv(){
-  var hdr=["注文ID","注文日","保護者氏名","選手氏名","チーム","メール","支払方法","ステータス","商品名","サイズ","数量","単価","小計","備考"];
+  var hdr=["注文ID","注文日","保護者氏名","選手氏名","チーム","メール","支払方法","ステータス","商品名","サイズ","背番号","数量","単価","小計","備考"];
   var rows=[];
-  S.orders.forEach(function(o){ o.items.forEach(function(it){ rows.push([o.id,fmtD(o.date),o.pName,o.sName,o.cat,o.email,o.pay,o.status,it.pname,it.size,it.qty,it.price,it.price*it.qty,o.note||""]); }); });
+  S.orders.forEach(function(o){ o.items.forEach(function(it){ rows.push([o.id,fmtD(o.date),o.pName,o.sName,o.cat,o.email,o.pay,o.status,it.pname,it.size,it.number||"",it.qty,it.price,it.price*it.qty,o.note||""]); }); });
   downloadCsv(hdr, rows, "注文明細.csv");
   showToast("注文明細CSVをダウンロードしました");
 }
@@ -654,6 +708,10 @@ function productCardHtml(p){
         '<div style="font-size:24px;font-weight:900;color:'+G.g1+';margin-bottom:12px">'+fmt(p.price)+'<span style="font-size:12px;color:#bbb;font-weight:400"> /点</span></div>'+
         '<div style="font-size:10px;font-weight:700;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">SIZE</div>'+
         '<div class="size-wrap" style="margin-bottom:10px">'+sizesHtml+'</div>'+
+        (p.cat==="ユニフォーム" ?
+          '<div style="margin-bottom:10px"><label style="display:block;font-size:10px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">背番号（任意・不明なら空欄でOK）</label>'+
+          '<input data-bind="prodSel.'+p.id+'.number" placeholder="例）10" style="width:100%;padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px"></div>'
+          : '')+
         '<div style="display:flex;gap:8px;align-items:center">'+
           '<div style="display:flex;align-items:center;border:1.5px solid #ddd;border-radius:8px;overflow:hidden">'+
             '<button onclick="App.changeProdQty('+p.id+',-1)" style="width:34px;height:38px;background:#f5f5f5;font-size:16px;color:#333">−</button>'+
@@ -789,7 +847,7 @@ function cartDrawerHtml(){
         var idx = S.cart.indexOf(it);
         return (
           '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">'+
-            '<div style="font-size:13px;color:#555">サイズ: <strong>'+esc(it.size)+'</strong></div>'+
+            '<div style="font-size:13px;color:#555">サイズ: <strong>'+sizeLabel(it)+'</strong></div>'+
             '<div style="display:flex;align-items:center;gap:6px">'+
               '<button onclick="App.changeCartQty('+idx+',-1)" style="width:22px;height:22px;border:1px solid #ddd;border-radius:4px;background:#f5f5f5;font-size:12px">−</button>'+
               '<span style="font-weight:700;font-size:13px;width:22px;text-align:center">'+it.qty+'</span>'+
@@ -864,7 +922,7 @@ function step1Html(){
 function step2Html(){
   var f = S.form;
   var rows = S.cart.map(function(it){
-    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee;font-size:14px"><span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'</span><span>'+fmt(it.price*it.qty)+'</span></div>';
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee;font-size:14px"><span>'+esc(it.pname)+'（'+sizeLabel(it)+'）× '+it.qty+'</span><span>'+fmt(it.price*it.qty)+'</span></div>';
   }).join("");
   var infoRows = [["保護者氏名",f.pName],["選手氏名",f.sName],["チーム",f.cat],["メールアドレス",f.email],["支払方法",f.pay]];
   if(f.note) infoRows.push(["備考",f.note]);
@@ -887,7 +945,7 @@ function step3Html(){
   var o = S.lastOrder;
   if(!o) return "";
   var rows = o.items.map(function(it){
-    return '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;border-bottom:1px solid #eee"><span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span><span>'+fmt(it.price*it.qty)+'</span></div>';
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;border-bottom:1px solid #eee"><span>'+esc(it.pname)+'（'+sizeLabel(it)+'）× '+it.qty+'点</span><span>'+fmt(it.price*it.qty)+'</span></div>';
   }).join("");
   return (
     '<div style="width:68px;height:68px;background:'+G.g1+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;color:#fff">✓</div>'+
@@ -948,7 +1006,7 @@ function statusPageHtml(){
           var itemsHtml = r.items.map(function(it){
             return (
               '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #eee;font-size:13.5px">'+
-                '<span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span>'+
+                '<span>'+esc(it.pname)+'（'+sizeLabel(it)+'）× '+it.qty+'点</span>'+
                 '<span style="padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+(it.delivered?"#e6f4ea":"#f5f5f5")+';color:'+(it.delivered?"#1a6b2f":"#888")+'">'+(it.delivered?"✅ 渡し済み":"⏳ 未渡し")+'</span>'+
               '</div>'
             );
@@ -989,7 +1047,7 @@ function statusPageHtml(){
 
 /* ───────── ADMIN PAGE ───────── */
 function adminHeaderHtml(){
-  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["photos","🛍 商品管理"],["cfg","⚙️ 設定"]];
+  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["photos","🛍 商品管理"],["po","📑 発注書"],["cfg","⚙️ 設定"]];
   var tabsHtml = tabs.map(function(pair){
     var t=pair[0], l=pair[1];
     var active = S.adminTab===t;
@@ -1048,7 +1106,7 @@ function dashboardHtml(){
 }
 function orderCardHtml(o){
   var expanded = S.selOid===o.id;
-  var itemsLine = o.items.map(function(i){ return esc(i.pname)+'（'+esc(i.size)+'）×'+i.qty; }).join("　");
+  var itemsLine = o.items.map(function(i){ return esc(i.pname)+'（'+sizeLabel(i)+'）×'+i.qty; }).join("　");
   var detail = "";
   if(expanded){
     var itemsDetail = o.items.map(function(it, idx){
@@ -1057,7 +1115,7 @@ function orderCardHtml(o){
       var delivered = !!it.delivered;
       return (
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px solid #eee">'+
-          '<span>'+esc(it.pname)+'（'+esc(it.size)+'）× '+it.qty+'点</span>'+
+          '<span>'+esc(it.pname)+'（'+sizeLabel(it)+'）× '+it.qty+'点</span>'+
           '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+
             '<span>'+fmt(it.price*it.qty)+'</span>'+
             '<button onclick="App.toggleItemDelivered(\''+o.id+'\','+idx+')" '+(deliverBusy?"disabled":"")+' style="padding:4px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+(delivered?"#e6f4ea":"#f5f5f5")+';color:'+(delivered?"#1a6b2f":"#888")+';border:1px solid '+(delivered?"#b7dfc4":"#ddd")+';'+(deliverBusy?"opacity:.5;cursor:not-allowed":"")+'">'+(deliverBusy?"…":(delivered?"✅ 渡し済み":"⏳ 未渡し"))+'</button>'+
@@ -1286,6 +1344,47 @@ function editProdModalHtml(){
   );
 }
 
+function poTabHtml(){
+  var brands = productBrands();
+  if(!S.poBrand && brands.length) S.poBrand = brands[0];
+  if(!brands.length){
+    return (
+      '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">発注書</div>'+
+      '<div style="color:#888;font-size:13px">商品にブランドが設定されていません。商品管理タブで各商品の「ブランド」欄を入力すると、ブランドごとに発注書をまとめて作成できます。</div>'
+    );
+  }
+  var brandOptions = brands.map(function(b){
+    return '<option value="'+esc(b)+'"'+(S.poBrand===b?' selected':'')+'>'+esc(b)+'</option>';
+  }).join("");
+  var stats = purchaseOrderStatsCalc(S.poBrand);
+  var preview = stats.length ? stats.map(function(p){
+    var szs = Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
+      return '<div style="background:#f8faf8;border-radius:8px;padding:8px 12px;text-align:center;min-width:52px"><div style="font-size:9px;color:#888;margin-bottom:2px">'+esc(s)+'</div><div style="font-size:18px;font-weight:900;color:'+G.g1+'">'+p.sc[s]+'</div><div style="font-size:9px;color:#bbb">点</div></div>';
+    }).join("");
+    return (
+      '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);margin-bottom:10px">'+
+        '<div style="font-weight:700;font-size:14px;margin-bottom:8px">'+esc(p.name)+'（合計 '+p.total+'点）</div>'+
+        '<div class="st-szs">'+szs+'</div>'+
+      '</div>'
+    );
+  }).join("") : '<div style="color:#aaa">このブランドで受注済みの商品がありません</div>';
+  return (
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">発注書</div>'+
+    '<div style="color:#888;font-size:13px;margin-bottom:16px">ブランドを選んで、そのブランドの商品だけをまとめてサイズ別に集計→印刷用の発注書を作成します（金額は載せず、数量のみの発注書です）。</div>'+
+    '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'+
+      '<select onchange="App.setPoBrand(this.value)" style="padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:13px">'+brandOptions+'</select>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px" class="frow">'+
+      '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;margin-bottom:4px">発注先（メーカー・代理店名。任意）</label>'+
+        '<input data-bind="poSupplier" placeholder="例）〇〇商事株式会社" style="width:100%;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:13px"></div>'+
+      '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;margin-bottom:4px">備考（納期希望など・任意）</label>'+
+        '<input data-bind="poNote" placeholder="例）9月中旬までにご発送ください" style="width:100%;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:13px"></div>'+
+    '</div>'+
+    '<button onclick="App.printPurchaseOrder()" style="padding:9px 16px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:13px;margin-bottom:16px">🖨️ 発注書を作成する</button>'+
+    preview
+  );
+}
+
 function cfgTabHtml(){
   var sections = [
     {t:"🔑 基本設定",fields:[{l:"Public Key",p:"user_xxxxxxxxx"},{l:"Service ID",p:"service_xxxxxxx"}]},
@@ -1321,7 +1420,7 @@ function cfgTabHtml(){
   );
 }
 function adminPageHtml(){
-  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():S.adminTab==="photos"?photosTabHtml():cfgTabHtml();
+  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():S.adminTab==="photos"?photosTabHtml():S.adminTab==="po"?poTabHtml():cfgTabHtml();
   return (
     '<div style="background:'+G.lt+';min-height:100vh">'+
       adminHeaderHtml()+
@@ -1383,7 +1482,7 @@ window.App = {
   openCart:function(){ S.cartOpen=true; render(); },
   closeCart:function(){ S.cartOpen=false; render(); },
   setView:function(v){ S.view=v; render(); },
-  addProdToCart:function(pid){ var p=prodById(pid); if(p){ var sel=selFor(p); addToCart(pid, sel.size, sel.qty); } },
+  addProdToCart:function(pid){ var p=prodById(pid); if(p){ var sel=selFor(p); addToCart(pid, sel.size, sel.qty, sel.number); sel.number=""; } },
   setProdSize:function(pid,sz){ var p=prodById(pid); if(p){ selFor(p).size=sz; render(); } },
   changeProdQty:function(pid,d){ var p=prodById(pid); if(p){ var s=selFor(p); s.qty=Math.max(1,s.qty+d); render(); } },
   changeCartQty:function(idx,d){ changeCartQty(idx,d); },
@@ -1474,6 +1573,8 @@ window.App = {
   downloadOrderListCsv:downloadOrderListCsv,
   downloadOrderDetailCsv:downloadOrderDetailCsv,
   printInvoice:printInvoice,
+  setPoBrand: function(b){ S.poBrand = b; render(); },
+  printPurchaseOrder: function(){ if(S.poBrand) printPurchaseOrder(S.poBrand); },
   refreshOrders:function(){
     S.loadingAdmin=true;
     render();
