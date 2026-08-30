@@ -1252,6 +1252,7 @@ function renderResult() {
   document.getElementById('result-opp-score').value = r?.oppScore ?? (pre ? pre.opp : 0);
   document.getElementById('result-format').value = r?.format || '40分×2';
   document.getElementById('result-image').value = r?.imageUrl || '';
+  updatePhotoPreview('result');
 
   goalRows = r?.goals ? [...r.goals] : (pre && pre.goals.length ? [...pre.goals] : []);
   concedeRows = r?.concedes ? [...r.concedes] : [];
@@ -1945,6 +1946,9 @@ function pickPhoto(idx) {
   } else if (photoPickTarget === 'ann') {
     annCardImage = url;
     updatePhotoPreview('ann');
+  } else if (photoPickTarget === 'result') {
+    document.getElementById('result-image').value = url;
+    updatePhotoPreview('result');
   }
   showToast('写真を選びました ✓', 'success');
 }
@@ -1961,12 +1965,19 @@ function updatePhotoPreview(target) {
     const clr = document.getElementById('ann-image-clear');
     if (annCardImage) { img.src = annCardImage; img.style.display = 'block'; if (clr) clr.style.display = ''; }
     else { img.style.display = 'none'; if (clr) clr.style.display = 'none'; }
+  } else if (target === 'result') {
+    const url = document.getElementById('result-image').value.trim();
+    const img = document.getElementById('result-image-preview');
+    const clr = document.getElementById('result-image-clear');
+    if (url) { img.src = url; img.style.display = 'block'; if (clr) clr.style.display = ''; }
+    else { img.style.display = 'none'; if (clr) clr.style.display = 'none'; }
   }
 }
 
 function clearPickedPhoto(target) {
   if (target === 'post') { document.getElementById('post-image').value = ''; }
   else if (target === 'ann') { annCardImage = null; }
+  else if (target === 'result') { document.getElementById('result-image').value = ''; }
   updatePhotoPreview(target);
 }
 
@@ -2016,6 +2027,9 @@ function uploadPickerPhoto(input) {
           } else if (photoPickTarget === 'ann') {
             annCardImage = url;
             updatePhotoPreview('ann');
+          } else if (photoPickTarget === 'result') {
+            document.getElementById('result-image').value = url;
+            updatePhotoPreview('result');
           }
           showToast('写真をアップロードしました ✓', 'success');
         })

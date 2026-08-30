@@ -396,8 +396,14 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">画像URL（任意）</label>
-              <input class="form-input" type="url" id="result-image" placeholder="https://...">
+              <label class="form-label">試合の写真（任意）</label>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+                <button class="btn btn-secondary btn-sm" type="button" onclick="openPhotoPicker('result')">📷 写真を選ぶ</button>
+                <button class="btn btn-ghost btn-sm" type="button" id="result-image-clear" style="display:none" onclick="clearPickedPhoto('result')">✕ 解除</button>
+              </div>
+              <img id="result-image-preview" style="display:none;width:100%;max-height:140px;object-fit:cover;border-radius:10px;margin-bottom:6px" alt="">
+              <input class="form-input" type="url" id="result-image" placeholder="または画像URLを貼り付け https://..." oninput="updatePhotoPreview('result')">
+              <div style="font-size:11.5px;color:var(--c-muted);margin-top:4px">その場で撮った写真をスマホから選べます。ニュース記事・トップページのサムネイルに使われます</div>
             </div>
           </div>
 
@@ -1657,6 +1663,6 @@
 
 </div><!-- /#app -->
 <script src="mp-config.js?v=20260810e"></script>
-<script src="script.js?v=20260810e"></script>
+<script src="script.js?v=20260829a"></script>
 </body>
 </html>
