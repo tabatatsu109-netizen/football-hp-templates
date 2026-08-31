@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>事故報告 一覧(スタッフ専用) | 八ヶ岳グランデFC</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js?v=20260807c"></script>
+  <style>
+    body { background: var(--bg-gray); }
+    .adm-wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+    .adm-head { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+    .adm-head img { width: 40px; height: 40px; object-fit: contain; }
+    .adm-title { font-weight: 900; font-size: 19px; }
+    .adm-sub { font-size: 12px; color: var(--ink-sub); }
+
+    .login-card { max-width: 360px; margin: 60px auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; }
+    .login-card p { font-size: 13px; color: var(--ink-sub); margin-bottom: 14px; line-height: 1.8; }
+
+    .adm-list-item { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; cursor: pointer; transition: border-color .2s; }
+    .adm-list-item:hover { border-color: var(--main-color); }
+    .adm-list-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .adm-list-name { font-weight: 900; font-size: 15px; }
+    .adm-list-meta { font-size: 12px; color: var(--ink-sub); margin-top: 3px; }
+    .adm-badge { flex: none; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .adm-badge--new { background: #fdecea; color: #c0392b; }
+    .adm-badge--done { background: #e8f5e9; color: #2e7d32; }
+    .adm-empty { text-align: center; color: var(--ink-sub); padding: 60px 0; font-size: 14px; }
+
+    .adm-detail-back { display: inline-block; margin-bottom: 16px; font-size: 13px; font-weight: 700; color: var(--main-color); cursor: pointer; }
+    .adm-detail-actions { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+    .adm-btn { border: 2px solid var(--main-color); background: var(--main-color); color: var(--on-main); font-weight: 900; font-size: 13px; padding: 10px 20px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+
+    .detail-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; }
+    .detail-row { display: flex; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { flex: none; width: 130px; color: var(--ink-sub); font-weight: 700; }
+    .detail-value { flex: 1; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+
+  <div class="adm-wrap" id="app">読み込み中...</div>
+
+  <script>
+    var FB_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+    var FB_PATH = FB_URL + '/intake';
+    var SECRET_KEY = 'nyukai_secret_grande';
+    var app = document.getElementById('app');
+    var records = [];
+    var view = 'login';
+    var detailId = null;
+
+    function getSecret(){ return localStorage.getItem(SECRET_KEY) || localStorage.getItem('shop_secret_grande') || ''; }
+    function setSecret(pw){ localStorage.setItem(SECRET_KEY, pw); }
+    function esc(s){ return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+    function render(){
+      if (view === 'login') { app.innerHTML = loginHtml(); return; }
+      if (view === 'list') { app.innerHTML = listHtml(); return; }
+      if (view === 'detail') { app.innerHTML = detailHtml(records.find(function(r){ return r.id === detailId; })); return; }
+    }
+
+    function loginHtml(){
+      return '' +
+        '<div class="adm-head"><img src="../assets/logo.png" alt=""><div><div class="adm-title">事故報告 一覧</div><div class="adm-sub">スタッフ専用</div></div></div>' +
+        '<div class="login-card">' +
+          '<p>アイテムショップ管理画面・Match Plannerと共通の管理者キーを入力してください。</p>' +
+          '<input class="jform-input" type="password" id="loginPw" value="' + esc(getSecret()) + '" placeholder="管理者キー" style="margin-bottom:10px;" onkeydown="if(event.key===\'Enter\')doLogin()">' +
+          '<p id="loginErr" style="display:none;color:#c0392b;font-size:12.5px;margin-bottom:10px;">キーが正しくないか、まだ報告がありません。</p>' +
+          '<button class="jform-submit" onclick="doLogin()">ログイン</button>' +
+        '</div>';
+    }
+
+    function doLogin(){
+      var pw = document.getElementById('loginPw').value.trim();
+      if (!pw) return;
+      setSecret(pw);
+      fetch(FB_PATH + '.json?auth=' + encodeURIComponent(pw)).then(function(res){
+        if (!res.ok) throw new Error('auth');
+        return res.json();
+      }).then(function(data){
+        applyRecords(data);
+        view = 'list';
+        render();
+      }).catch(function(){
+        document.getElementById('loginErr').style.display = 'block';
+      });
+    }
+
+    function applyRecords(data){
+      records = Object.keys(data || {}).map(function(id){ return Object.assign({ id: id }, data[id]); })
+        .filter(function(r){ return r.clubId === 'grande' && r.type === 'accident'; });
+      records.sort(function(a,b){ return (b.submittedAt||'').localeCompare(a.submittedAt||''); });
+    }
+
+    var FIELD_ORDER = ['選手のお名前','ふりがな','学年','カテゴリー','保護者のお名前','電話番号','住所','事故発生日','発生時刻','発生時の状況','場所','事故の詳細状況','怪我の部位','症状の程度','通院','入院','連絡がつきやすい時間帯','備考'];
+
+    function listHtml(){
+      var rows = records.map(function(r){
+        var badge = r.status === '対応済み' ? '<span class="adm-badge adm-badge--done">対応済み</span>' : '<span class="adm-badge adm-badge--new">未対応</span>';
+        var when = r.submittedAt ? new Date(r.submittedAt).toLocaleString('ja-JP', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+        return '<div class="adm-list-item" onclick="openDetail(\'' + r.id + '\')">' +
+          '<div class="adm-list-row">' +
+            '<div><div class="adm-list-name">' + esc(r['選手のお名前']) + '<span style="font-weight:400;font-size:12px;color:var(--ink-sub);"> (' + esc(r['カテゴリー']) + ')</span></div>' +
+            '<div class="adm-list-meta">事故発生日: ' + esc(r['事故発生日']) + '・報告受付: ' + esc(when) + '</div></div>' +
+            badge +
+          '</div>' +
+        '</div>';
+      }).join('');
+      return '' +
+        '<div class="adm-head"><img src="../assets/logo.png" alt=""><div><div class="adm-title">事故報告 一覧</div><div class="adm-sub">全' + records.length + '件</div></div></div>' +
+        (records.length ? rows : '<div class="adm-empty">まだ報告はありません</div>');
+    }
+
+    function openDetail(id){ detailId = id; view = 'detail'; render(); }
+    function backToList(){ view = 'list'; render(); }
+
+    function detailHtml(d){
+      if (!d) return '<div class="adm-empty">データが見つかりません</div>';
+      var nextStatus = d.status === '対応済み' ? '未対応' : '対応済み';
+      var rows = FIELD_ORDER.filter(function(k){ return d[k]; }).map(function(k){
+        return '<div class="detail-row"><div class="detail-label">' + esc(k) + '</div><div class="detail-value">' + esc(d[k]) + '</div></div>';
+      }).join('');
+      return '' +
+        '<span class="adm-detail-back" onclick="backToList()">← 一覧へ戻る</span>' +
+        '<div class="adm-detail-actions">' +
+          '<button class="adm-btn" onclick="toggleStatus(\'' + d.id + '\')">' + esc(nextStatus) + 'にする</button>' +
+        '</div>' +
+        '<div class="detail-card">' + rows + '</div>';
+    }
+
+    function toggleStatus(id){
+      var r = records.find(function(x){ return x.id === id; });
+      if (!r) return;
+      var next = r.status === '対応済み' ? '未対応' : '対応済み';
+      fetch(FB_PATH + '/' + id + '/status.json?auth=' + encodeURIComponent(getSecret()), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(next)
+      }).then(function(){ r.status = next; render(); });
+    }
+
+    render();
+  </script>
+</body>
+</html>

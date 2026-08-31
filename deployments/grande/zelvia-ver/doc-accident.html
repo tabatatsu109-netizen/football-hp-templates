@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>事故報告(スポーツ安全保険) | 八ヶ岳グランデFC</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .jform-msg { display: none; font-weight: 700; font-size: 13.5px; margin-top: 14px; }
+    .jform-msg.error { display: block; color: #c0392b; }
+    .jform-msg.success { display: block; color: var(--main-color); }
+  </style>
+  <script src="js/theme.js?v=20260807c"></script>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="gh">
+    <div class="gh-inner">
+      <a href="index.html" class="gh-logo">
+        <img id="club-logo" src="../assets/logo.png" alt="八ヶ岳グランデFC ロゴ">
+        <span class="gh-logo-fallback" id="logo-abbr">G</span>
+        <span class="gh-logo-text">
+          <span class="gh-logo-sub">YATSUGATAKE</span>
+          <span class="gh-logo-name">GRANDE FC</span>
+        </span>
+      </a>
+      <nav class="gh-nav">
+        <a href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+        <a href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+        <a href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+        <a href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+        <a href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+        <a href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+        <a href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">取り組み</span></a>
+        <a href="message.html" class="nav-thanks"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+      </nav>
+      <div class="gh-actions">
+        <a href="members-dashboard.html" class="gh-login">会員ページへ戻る</a>
+        <a href="../itemshop.html" class="gh-cta gh-cta--trial">ショップ<small>STORE</small></a>
+        <button class="gh-burger" id="hamburger-btn" aria-label="メニューを開く"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- モバイルメニュー -->
+  <nav class="m-nav" id="mobile-nav">
+    <button class="m-nav-close" id="mobile-nav-close" aria-label="メニューを閉じる">✕</button>
+    <a class="m-link" href="news.html"><span class="n-en">NEWS</span><span class="n-ja">お知らせ</span></a>
+    <a class="m-link" href="matches.html"><span class="n-en">MATCH</span><span class="n-ja">試合情報</span></a>
+    <a class="m-link" href="team.html"><span class="n-en">TEAM</span><span class="n-ja">選手・スタッフ</span></a>
+    <a class="m-link" href="club.html"><span class="n-en">CLUB</span><span class="n-ja">クラブを知る</span></a>
+    <a class="m-link" href="initiatives.html"><span class="n-en">PROJECTS</span><span class="n-ja">クラブの取り組み</span></a>
+    <a class="m-link" href="join.html"><span class="n-en">JOIN US</span><span class="n-ja">入会・体験</span></a>
+    <a class="m-link" href="partners.html"><span class="n-en">PARTNER</span><span class="n-ja">パートナー</span></a>
+    <a class="m-link nav-thanks" href="message.html"><span class="n-en">お父さん・お母さん</span><span class="n-ja">いつもありがとう ♡</span></a>
+    <a class="m-link" href="members-dashboard.html"><span class="n-en">MEMBERS</span><span class="n-ja">会員ページへ戻る</span></a>
+    <div class="m-nav-ctas">
+      <a href="../itemshop.html" class="m-cta-trial">アイテムショップ</a>
+    </div>
+  </nav>
+
+  <!-- ページヒーロー -->
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <div class="ph-en">ACCIDENT REPORT</div>
+      <div class="ph-ja">事故報告(スポーツ安全保険)</div>
+    </div>
+  </section>
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="index.html">TOP</a><span>›</span><a href="members-dashboard.html">クラブ員専用</a><span>›</span><a href="documents.html">クラブ資料室</a><span>›</span><span>事故報告</span></div></div>
+
+  <main class="page-body">
+    <div class="container doc-article">
+
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">ABOUT</span><span class="c-ja">事故報告の流れ</span></div>
+        <p class="doc-para">
+          練習・試合など、クラブ活動中に怪我をされた場合は、このフォームからご報告ください。内容をもとに、コーチから保険会社(スポーツ安全保険)へ事故通知を行います。
+        </p>
+        <ol class="doc-list">
+          <li>下記フォームに、怪我の状況を分かる範囲でご記入のうえ送信してください。</li>
+          <li>コーチが内容を確認し、保険会社へ事故通知を行います。</li>
+          <li>その後、保険会社から保護者様宛てに保険金請求に必要な書類一式が直接郵送されます。届いた書類にご記入のうえ返送してください。</li>
+        </ol>
+        <p class="doc-note">※ 事故発生から日数が経つと保険金が減額・不支給になる場合があります。分かる範囲で構いませんので、なるべく早めにご報告ください。</p>
+      </section>
+
+      <section class="club-sec">
+        <div class="club-sec-title"><span class="c-en">FORM</span><span class="c-ja">事故報告フォーム</span></div>
+        <form class="jform" id="accidentForm">
+          <div class="jform-row">
+            <div class="jform-group">
+              <label class="jform-label">選手のお名前 <span class="req">必須</span></label>
+              <input class="jform-input" type="text" name="選手のお名前" required>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">ふりがな <span class="req">必須</span></label>
+              <input class="jform-input" type="text" name="ふりがな" required>
+            </div>
+          </div>
+          <div class="jform-row">
+            <div class="jform-group">
+              <label class="jform-label">学年 <span class="req">必須</span></label>
+              <select class="jform-input" name="学年" required>
+                <option value="" disabled selected>選択してください</option>
+                <option>年少・年中・年長</option>
+                <option>小学1年生</option>
+                <option>小学2年生</option>
+                <option>小学3年生</option>
+                <option>小学4年生</option>
+                <option>小学5年生</option>
+                <option>小学6年生</option>
+                <option>中学1年生</option>
+                <option>中学2年生</option>
+                <option>中学3年生</option>
+              </select>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">カテゴリー <span class="req">必須</span></label>
+              <div class="jform-radios">
+                <label><input type="radio" name="カテゴリー" value="ジュニアユース(U-15)" required> ジュニアユース</label>
+                <label><input type="radio" name="カテゴリー" value="ジュニア(U-12)"> ジュニア</label>
+                <label><input type="radio" name="カテゴリー" value="スクール"> スクール</label>
+                <label><input type="radio" name="カテゴリー" value="メセタ(川上村・野辺山)"> メセタ</label>
+              </div>
+            </div>
+          </div>
+          <div class="jform-row">
+            <div class="jform-group">
+              <label class="jform-label">保護者のお名前 <span class="req">必須</span></label>
+              <input class="jform-input" type="text" name="保護者のお名前" required>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">電話番号 <span class="req">必須</span></label>
+              <input class="jform-input" type="tel" name="電話番号" required>
+            </div>
+          </div>
+          <div class="jform-group">
+            <label class="jform-label">住所 <span class="req">必須</span></label>
+            <input class="jform-input" type="text" name="住所" placeholder="〒000-0000 山梨県北杜市..." required>
+          </div>
+          <div class="jform-row">
+            <div class="jform-group">
+              <label class="jform-label">事故発生日 <span class="req">必須</span></label>
+              <input class="jform-input" type="date" name="事故発生日" required>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">発生時刻(分かれば)</label>
+              <input class="jform-input" type="time" name="発生時刻">
+            </div>
+          </div>
+          <div class="jform-group">
+            <label class="jform-label">発生時の状況 <span class="req">必須</span></label>
+            <div class="jform-radios">
+              <label><input type="radio" name="発生時の状況" value="練習中" required> 練習中</label>
+              <label><input type="radio" name="発生時の状況" value="試合中"> 試合中</label>
+              <label><input type="radio" name="発生時の状況" value="移動中"> 移動中</label>
+              <label><input type="radio" name="発生時の状況" value="その他"> その他</label>
+            </div>
+          </div>
+          <div class="jform-group">
+            <label class="jform-label">場所 <span class="req">必須</span></label>
+            <input class="jform-input" type="text" name="場所" placeholder="例)白州総合運動場 グラウンド" required>
+          </div>
+          <div class="jform-group">
+            <label class="jform-label">事故の詳細状況 <span class="req">必須</span></label>
+            <textarea class="jform-input jform-textarea" name="事故の詳細状況" placeholder="どのような場面で、どのように怪我をしたか、分かる範囲でご記入ください" required></textarea>
+          </div>
+          <div class="jform-row">
+            <div class="jform-group">
+              <label class="jform-label">怪我の部位 <span class="req">必須</span></label>
+              <input class="jform-input" type="text" name="怪我の部位" placeholder="例)右足首">
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">症状の程度</label>
+              <input class="jform-input" type="text" name="症状の程度" placeholder="例)腫れ・打撲、骨折の疑い など">
+            </div>
+          </div>
+          <div class="jform-row">
+            <div class="jform-group">
+              <label class="jform-label">通院</label>
+              <div class="jform-radios">
+                <label><input type="radio" name="通院" value="あり"> あり</label>
+                <label><input type="radio" name="通院" value="なし"> なし</label>
+                <label><input type="radio" name="通院" value="未定"> 未定</label>
+              </div>
+            </div>
+            <div class="jform-group">
+              <label class="jform-label">入院</label>
+              <div class="jform-radios">
+                <label><input type="radio" name="入院" value="あり"> あり</label>
+                <label><input type="radio" name="入院" value="なし"> なし</label>
+                <label><input type="radio" name="入院" value="未定"> 未定</label>
+              </div>
+            </div>
+          </div>
+          <div class="jform-group">
+            <label class="jform-label">連絡がつきやすい時間帯</label>
+            <input class="jform-input" type="text" name="連絡がつきやすい時間帯" placeholder="例)平日18時以降">
+          </div>
+          <div class="jform-group">
+            <label class="jform-label">備考</label>
+            <textarea class="jform-input jform-textarea" name="備考"></textarea>
+          </div>
+          <p class="jform-msg" id="accidentMsg"></p>
+          <button type="submit" class="jform-submit" id="accidentSubmitBtn">この内容で報告する →</button>
+        </form>
+      </section>
+
+      <div class="doc-nav">
+        <a href="documents.html" class="doc-btn">← 資料室に戻る</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- フッター -->
+  <footer class="gf">
+    <div class="gf-top">
+      <div class="gf-top-inner">
+        <div class="gf-brand">
+          <img src="../assets/logo.png" alt="八ヶ岳グランデFC">
+          <div>
+            <div class="gf-brand-name" id="footer-club-name">八ヶ岳グランデFC</div>
+            <div class="gf-brand-sub" id="footer-address">山梨県北杜市小淵沢町上笹尾3332-1555</div>
+          </div>
+        </div>
+        <nav class="gf-nav">
+          <a href="news.html">お知らせ</a>
+          <a href="matches.html">試合情報</a>
+          <a href="team.html">選手・スタッフ</a>
+          <a href="club.html">クラブを知る</a>
+          <a href="initiatives.html">クラブの取り組み</a>
+          <a href="join.html">入会・体験</a>
+          <a href="partners.html">パートナー</a>
+          <a href="supporters.html">サポーター店</a>
+          <a href="members.html">クラブ員専用</a>
+          <a href="contact.html">お問い合わせ</a>
+        </nav>
+        <div class="gf-sns">
+          <a href="https://www.instagram.com/yatsugatake.grande/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.9.1-3.2 0-3.6 0-4.8-.1-3.3-.1-4.8-1.7-4.9-4.9-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8C2.4 4 4 2.4 7.2 2.3c1.2-.1 1.6-.1 4.8-.1zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg></a>
+          <a href="https://www.youtube.com/@corazon-grande9642" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8zM9.6 15.6V8.4L15.9 12z"/></svg></a>
+          <a href="https://line.me/R/ti/p/@200sfwtn" target="_blank" rel="noopener" aria-label="LINE"><svg viewBox="0 0 24 24"><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.8 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c0 .3-.2 1.2 1 .6 1.3-.5 6.9-4.1 9.4-7 1.8-1.9 2.7-3.8 2.7-5.9z"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <div class="gf-bottom">
+      <div class="gf-bottom-inner">
+        <div class="gf-legal">
+          <a href="club.html">クラブ概要</a>
+          <a href="contact.html">お問い合わせ</a>
+          <a href="members.html">クラブ員専用</a>
+        </div>
+        <span>© <span id="footer-year"></span> <span id="footer-club-name-copy">八ヶ岳グランデFC</span>. ALL RIGHTS RESERVED.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/config-loader.js"></script>
+  <script src="js/mobile-experience.js?v=20260807c"></script>
+  <script>
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+    var mobileNav = document.getElementById('mobile-nav');
+    document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
+    document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
+    if (!localStorage.getItem('memberLoggedIn')) {
+      window.location.href = 'members.html';
+    }
+
+    document.getElementById('accidentForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var form = e.target;
+      var msg = document.getElementById('accidentMsg');
+      var btn = document.getElementById('accidentSubmitBtn');
+      var fd = new FormData(form);
+      var name = fd.get('選手のお名前') || '';
+      var lines = [];
+      fd.forEach(function(v, k){ if (v) lines.push(k + ': ' + v); });
+      var record = {};
+      fd.forEach(function(v, k){ if (v) record[k] = v; });
+      msg.className = 'jform-msg';
+      btn.disabled = true; btn.textContent = '送信中...';
+
+      fetch('https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app/intake.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({}, record, { clubId: 'grande', type: 'accident', submittedAt: new Date().toISOString(), status: '未対応' }))
+      }).catch(function(){});
+
+      fetch('https://formspree.io/f/mqejrbge', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new URLSearchParams({
+          _subject: '【事故報告】' + name,
+          message: lines.join('\n')
+        })
+      }).then(function(res){
+        if (!res.ok) throw new Error('bad status');
+        form.style.display = 'none';
+        msg.className = 'jform-msg success';
+        msg.textContent = 'ご報告ありがとうございます。内容を確認し、コーチから保険会社へ連絡いたします。';
+      }).catch(function(){
+        btn.disabled = false; btn.textContent = 'この内容で報告する →';
+        msg.className = 'jform-msg error';
+        msg.textContent = '送信に失敗しました。時間をおいて再度お試しいただくか、担当コーチへ直接ご連絡ください。';
+      });
+    });
+
+    ConfigLoader.apply({ pageTitle: '事故報告' });
+  </script>
+</body>
+</html>
