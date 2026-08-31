@@ -558,6 +558,16 @@
         }
         overlay.classList.add('open');
       };
+      window.closeNewsDetail = function(){
+        var overlay = document.getElementById('news-detail-overlay');
+        if(overlay) overlay.classList.remove('open');
+      };
+      var ndCloseBtn = document.getElementById('news-detail-close');
+      if(ndCloseBtn) ndCloseBtn.addEventListener('click', closeNewsDetail);
+      var ndOverlayEl = document.getElementById('news-detail-overlay');
+      if(ndOverlayEl) ndOverlayEl.addEventListener('click', function(e){
+        if(e.target === e.currentTarget) closeNewsDetail();
+      });
 
       function toTime(s){ var d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime(); }
 

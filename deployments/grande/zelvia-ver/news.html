@@ -147,6 +147,20 @@
     <a href="join.html#apply" class="fb-trial">体験申込</a>
   </div>
 
+  <!-- ニュース / 試合結果 詳細モーダル -->
+  <div class="nd-overlay" id="news-detail-overlay">
+    <div class="nd-box">
+      <button class="nd-close" id="news-detail-close" aria-label="閉じる">✕</button>
+      <div class="nd-meta">
+        <span class="nd-tag" id="news-detail-tag"></span>
+        <span class="nd-date" id="news-detail-date"></span>
+      </div>
+      <h3 class="nd-title" id="news-detail-title"></h3>
+      <img class="nd-image" id="news-detail-image" alt="">
+      <p class="nd-body" id="news-detail-body"></p>
+    </div>
+  </div>
+
   <script src="js/config-loader.js"></script>
   <script src="js/mobile-experience.js?v=20260807c"></script>
   <script>
@@ -168,6 +182,37 @@
     var allNews = [];
     var activeCat = 'all';
     var shown = 10;
+
+    // ニュース詳細モーダル
+    function openNewsDetail(id){
+      var n = allNews.filter(function(x){ return x.id === id; })[0];
+      if(!n) return;
+      var overlay = document.getElementById('news-detail-overlay');
+      if(!overlay) return;
+      var cat = n.cat || n.category || n.type || 'お知らせ';
+      var tagEl = document.getElementById('news-detail-tag');
+      if(tagEl) tagEl.textContent = cat;
+      var dateEl = document.getElementById('news-detail-date');
+      if(dateEl) dateEl.textContent = String(n.date||'').replace(/-/g,'/');
+      var titleEl = document.getElementById('news-detail-title');
+      if(titleEl) titleEl.textContent = n.title || '';
+      var bodyEl = document.getElementById('news-detail-body');
+      if(bodyEl) bodyEl.textContent = n.body || '';
+      var imgEl = document.getElementById('news-detail-image');
+      if(imgEl){
+        if(n.image){ imgEl.src = n.image; imgEl.classList.add('show'); }
+        else { imgEl.removeAttribute('src'); imgEl.classList.remove('show'); }
+      }
+      overlay.classList.add('open');
+    }
+    function closeNewsDetail(){
+      var overlay = document.getElementById('news-detail-overlay');
+      if(overlay) overlay.classList.remove('open');
+    }
+    document.getElementById('news-detail-close').addEventListener('click', closeNewsDetail);
+    document.getElementById('news-detail-overlay').addEventListener('click', function(e){
+      if(e.target === e.currentTarget) closeNewsDetail();
+    });
     var PICKUP_PHOTOS = [
       '../assets/toprandom/LINE_ALBUM_U12リーグ最終節_260627_2.jpg',
       '../assets/toprandom/LINE_ALBUM_ジュニア20251124_260627_21.jpg',
@@ -230,7 +275,7 @@
       box.innerHTML = picks.map(function(n, i){
         var cat = n.cat || n.category || n.type || 'お知らせ';
         var cc = catColor(cat);
-        return '<a class="pn-card" href="#news-list">' +
+        return '<a class="pn-card" href="#" onclick="openNewsDetail(\'' + esc(n.id) + '\'); return false;">' +
           thumbOf(n, i) +
           '<div class="pn-body">' +
             '<div class="pn-meta"><span class="pn-date">' + esc(formatDate(n.date)) + '</span>' +
@@ -248,7 +293,7 @@
       el.innerHTML = list.slice(0, shown).map(function(n){
         var cat = n.cat || n.category || n.type || 'お知らせ';
         var cc = catColor(cat);
-        return '<div class="news-row">' +
+        return '<div class="news-row" onclick="openNewsDetail(\'' + esc(n.id) + '\')" style="cursor:pointer">' +
           '<span class="news-date">' + esc(formatDate(n.date)) + '</span>' +
           '<span class="news-tag" style="color:' + cc + ';border-color:' + cc + ';justify-self:start;">' + esc(cat) + '</span>' +
           '<span class="news-title">' + esc(n.title) + '</span>' +
