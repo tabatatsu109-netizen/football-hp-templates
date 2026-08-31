@@ -787,10 +787,12 @@
         '会則承諾': '承諾済み',
         email: d.mailParent
       };
+      var params = new URLSearchParams();
+      Object.keys(payload).forEach(function(k){ params.append(k, payload[k]); });
       fetch('https://formspree.io/f/mqejrbge', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: { 'Accept': 'application/json' },
+        body: params
       }).then(function(res){
         if (res.ok) { show(5); }
         else { throw new Error('bad status'); }
