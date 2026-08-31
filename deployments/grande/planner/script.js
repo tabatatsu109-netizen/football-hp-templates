@@ -666,6 +666,7 @@ function renderSchedCard(sc, today) {
           ${!isPast && isMatchLike && sc.live ? `<button class="btn btn-sm" style="background:#e53935;color:#fff;font-weight:700" onclick="event.stopPropagation();openLivePage('${sc.id}')">🔴 ライブ速報</button>` : ''}
           ${!isPast && isMatchLike ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();startAnnouncement('${sc.id}')">📢 告知</button><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openSnsFromSchedId('${sc.id}')">📸 SNS画像</button>` : ''}
           ${isPast && isMatchLike && !resultPosted ? `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();continueResultFromSchedule('${sc.id}')">🏆 結果を登録</button>` : ''}
+          ${isPast && isMatchLike && resultPosted ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();continueResultFromSchedule('${sc.id}')">✏️ 結果を編集</button>` : ''}
           <button class="btn btn-ghost btn-sm" style="color:var(--c-red);font-size:12px" onclick="event.stopPropagation();deleteSchedule('${sc.id}')">削除</button>
         </div>
       </div>
@@ -858,7 +859,7 @@ function startResultFromSchedule(schedId) {
   openMatchCreateModal({
     opponent: sc.opponent || '',
     date: sc.date || '',
-    type: sc.type === '大会' ? 'フェスティバル' : '公式戦',
+    type: '公式戦',
     category: sc.category || '',
     competition: sc.competition || '',
     venue: sc.venue || '',
@@ -1248,6 +1249,7 @@ function renderResult() {
   // ライブ速報からの引き継ぎ（結果未入力のときだけ）
   const pre = (!r && window._livePrefill) ? window._livePrefill : null;
   if (pre) window._livePrefill = null;
+  document.getElementById('result-type').value = currentMatch.type || '公式戦';
   document.getElementById('result-my-score').value = r?.myScore ?? (pre ? pre.my : 0);
   document.getElementById('result-opp-score').value = r?.oppScore ?? (pre ? pre.opp : 0);
   document.getElementById('result-format').value = r?.format || '40分×2';
@@ -1308,6 +1310,8 @@ function saveResult() {
   const format = document.getElementById('result-format').value;
   const imageUrl = document.getElementById('result-image').value;
   const resultStr = my > opp ? '勝利' : my < opp ? '敗戦' : '引き分け';
+
+  currentMatch.type = document.getElementById('result-type').value;
 
   currentMatch.result = {
     myScore: my,

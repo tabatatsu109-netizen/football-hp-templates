@@ -186,7 +186,7 @@
 
     function getMatchCategory(m){
       if(m.category) return m.category;
-      var name = (m.competitionName || '').toLowerCase();
+      var name = (m.competition || m.competitionName || '').toLowerCase();
       if(name.includes('u-15') || name.includes('u15')) return 'U-15';
       if(name.includes('u-13') || name.includes('u13')) return 'U-13';
       if(name.includes('u-12') || name.includes('u12')) return 'U-12';
@@ -291,7 +291,7 @@
       el.innerHTML = upcoming.map(function(m, i){
         var dateDisp = m.date ? m.date.replace(/-/g,'.') : '';
         return '<div class="up-card">' +
-          '<div class="up-comp">' + esc(m.competitionName || m.type || '') + '</div>' +
+          '<div class="up-comp">' + esc(m.competition || m.competitionName || m.type || '') + '</div>' +
           '<div class="up-date">' + esc(dateDisp) + '<small>' + esc(dayLabel(m.date)) + '</small></div>' +
           '<div class="up-vs">vs ' + esc(m.opponent || '未定') + '</div>' +
           '<div class="up-meta">KICK OFF ' + esc(m.time || m.kickoff || '未定') + '<br>' + esc(m.venue || '会場未定') + '</div>' +
@@ -309,7 +309,7 @@
       // 大会名ごとにグループ化
       var groups = {}, order = [];
       matches.forEach(function(m){
-        var key = m.competitionName || m.type || 'その他の試合';
+        var key = m.competition || m.competitionName || m.type || 'その他の試合';
         if(!groups[key]){ groups[key] = []; order.push(key); }
         groups[key].push(m);
       });
