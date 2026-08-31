@@ -1425,10 +1425,9 @@ function buildNewsPost(m) {
     else acc.push({ name: g.scorer, goals: 1 });
     return acc;
   }, []);
-  const dateTag = m.date.replace(/-/g,'');
-  const compTag = (m.competition||m.type).replace(/[^a-zA-Z0-9ぁ-ん亜-熙]/g,'').slice(0,6);
   return {
-    id: `match_${dateTag}_${compTag}`,
+    // 試合自身のidを使う（同じ日・同じ大会名の試合が複数あってもIDが衝突しないように）
+    id: `match_${m.id}`,
     title: `${fmtDateFull(m.date)} vs ${m.opponent} ${r.myScore}-${r.oppScore} ${resultStr}`,
     category: m.category || 'クラブニュース',
     type: '試合結果',
