@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>入会申込書 一覧(スタッフ専用) | 八ヶ岳グランデFC</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js?v=20260807c"></script>
+  <style>
+    :root { --tk: var(--main-color); }
+    body { background: var(--bg-gray); }
+    .adm-wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+    .adm-head { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+    .adm-head img { width: 40px; height: 40px; object-fit: contain; }
+    .adm-title { font-weight: 900; font-size: 19px; }
+    .adm-sub { font-size: 12px; color: var(--ink-sub); }
+
+    .login-card { max-width: 360px; margin: 60px auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; }
+    .login-card p { font-size: 13px; color: var(--ink-sub); margin-bottom: 14px; line-height: 1.8; }
+
+    .adm-list-item { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; cursor: pointer; transition: border-color .2s; }
+    .adm-list-item:hover { border-color: var(--main-color); }
+    .adm-list-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .adm-list-name { font-weight: 900; font-size: 15px; }
+    .adm-list-meta { font-size: 12px; color: var(--ink-sub); margin-top: 3px; }
+    .adm-badge { flex: none; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .adm-badge--new { background: #fdecea; color: #c0392b; }
+    .adm-badge--done { background: #e8f5e9; color: #2e7d32; }
+    .adm-empty { text-align: center; color: var(--ink-sub); padding: 60px 0; font-size: 14px; }
+    .adm-loading { text-align: center; color: var(--ink-sub); padding: 60px 0; font-size: 14px; }
+
+    .adm-detail-back { display: inline-block; margin-bottom: 16px; font-size: 13px; font-weight: 700; color: var(--main-color); cursor: pointer; }
+    .adm-detail-actions { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+    .adm-btn { border: 2px solid var(--main-color); background: var(--main-color); color: var(--on-main); font-weight: 900; font-size: 13px; padding: 10px 20px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+    .adm-btn--ghost { background: var(--card); color: var(--main-color); }
+
+    /* ── A4申込書(nyukai.htmlと同一) ── */
+    .sheet-scroll { overflow-x: auto; background: var(--bg-gray); border-radius: 10px; padding: clamp(10px, 3vw, 30px); }
+    .sheet { width: 210mm; min-height: 290mm; margin: 0 auto; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.18); padding: 12mm 11mm; box-sizing: border-box; color: #111; font-family: 'Noto Sans JP', sans-serif; position: relative; }
+    .sh-head { display: grid; grid-template-columns: 34mm 1fr 34mm; align-items: start; gap: 4mm; margin-bottom: 5mm; }
+    .sh-emblem { width: 30mm; height: auto; }
+    .sh-titles { text-align: center; }
+    .sh-year { font-size: 15px; font-weight: 700; letter-spacing: 4px; }
+    .sh-club { font-size: 17px; font-weight: 900; color: var(--main-color); margin-top: 2mm; letter-spacing: 1px; }
+    .sh-cat { font-size: 15px; font-weight: 900; color: var(--main-color); margin-top: 1mm; }
+    .sh-photo { width: 28mm; height: 36mm; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #666; text-align: center; line-height: 1.8; overflow: hidden; justify-self: end; }
+    table.sh { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    table.sh th, table.sh td { border: 1.2px solid #333; padding: 1.6mm 2mm; font-size: 10.5px; vertical-align: top; word-break: break-all; }
+    table.sh th { background: var(--bg-gray); font-weight: 700; text-align: left; white-space: nowrap; }
+    .sh-val { font-size: 12px; font-weight: 700; min-height: 4.6mm; display: block; }
+    .sh-small th, .sh-small td { font-size: 9.5px; padding: 1.2mm 1.6mm; }
+    .sh-sec { margin-top: 3mm; }
+    .sh-free { min-height: 14mm; }
+    .sh-agree { margin-top: 5mm; font-size: 11px; line-height: 2; }
+    .sh-agree .line { display: inline-block; border-bottom: 1px solid #333; min-width: 60mm; font-weight: 700; font-size: 13px; padding: 0 2mm; }
+    .sh-foot-logo { position: absolute; right: 11mm; bottom: 12mm; width: 30mm; opacity: .9; }
+    .sh-in { font-size: 10px; border: 1.5px solid #999; border-radius: 50%; width: 8mm; height: 8mm; display: inline-flex; align-items: center; justify-content: center; color: #999; margin-left: 2mm; vertical-align: middle; }
+
+    @media print {
+      @page { size: A4; margin: 0; }
+      html, body { height: 296mm !important; overflow: hidden !important; background:#fff !important; }
+      body * { visibility: hidden !important; }
+      .sheet, .sheet * { visibility: visible !important; }
+      .sheet { position: fixed; inset: 0; width: 210mm; min-height: 0; margin: 0; box-shadow: none; padding: 10mm 11mm; }
+    }
+    @media (max-width: 860px) {
+      .sheet-scroll { margin-left: -20px; margin-right: -20px; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="adm-wrap" id="app">読み込み中...</div>
+
+  <script>
+    var FB_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+    var FB_PATH = FB_URL + '/inquiries/grande/nyukai';
+    var SECRET_KEY = 'nyukai_secret_grande';
+    var app = document.getElementById('app');
+    var records = [];
+    var view = 'login'; // login | list | detail
+    var detailId = null;
+
+    function getSecret(){ return localStorage.getItem(SECRET_KEY) || localStorage.getItem('shop_secret_grande') || ''; }
+    function setSecret(pw){ localStorage.setItem(SECRET_KEY, pw); }
+    function esc(s){ return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    function jpDate(iso) {
+      if (!iso) return '';
+      if (iso.indexOf('T') > -1) iso = iso.split('T')[0];
+      var p = iso.split('-');
+      return parseInt(p[0]) + '年' + parseInt(p[1]) + '月' + parseInt(p[2]) + '日';
+    }
+
+    function render(){
+      if (view === 'login') { app.innerHTML = loginHtml(); return; }
+      if (view === 'list') { app.innerHTML = listHtml(); return; }
+      if (view === 'detail') { app.innerHTML = detailHtml(records.find(function(r){ return r.id === detailId; })); return; }
+    }
+
+    function loginHtml(){
+      return '' +
+        '<div class="adm-head"><img src="../assets/logo.png" alt=""><div><div class="adm-title">入会申込書 一覧</div><div class="adm-sub">スタッフ専用</div></div></div>' +
+        '<div class="login-card">' +
+          '<p>アイテムショップ管理画面・Match Plannerと共通の管理者キーを入力してください。</p>' +
+          '<input class="jform-input" type="password" id="loginPw" value="' + esc(getSecret()) + '" placeholder="管理者キー" style="margin-bottom:10px;" onkeydown="if(event.key===\'Enter\')doLogin()">' +
+          '<p id="loginErr" style="display:none;color:#c0392b;font-size:12.5px;margin-bottom:10px;">キーが正しくないか、まだ申込がありません。</p>' +
+          '<button class="jform-submit" onclick="doLogin()">ログイン</button>' +
+        '</div>';
+    }
+
+    function doLogin(){
+      var pw = document.getElementById('loginPw').value.trim();
+      if (!pw) return;
+      setSecret(pw);
+      fetch(FB_PATH + '.json?auth=' + encodeURIComponent(pw)).then(function(res){
+        if (!res.ok) throw new Error('auth');
+        return res.json();
+      }).then(function(data){
+        records = Object.keys(data || {}).map(function(id){ return Object.assign({ id: id }, data[id]); });
+        records.sort(function(a,b){ return (b.submittedAt||'').localeCompare(a.submittedAt||''); });
+        view = 'list';
+        render();
+      }).catch(function(){
+        document.getElementById('loginErr').style.display = 'block';
+      });
+    }
+
+    function reload(){
+      return fetch(FB_PATH + '.json?auth=' + encodeURIComponent(getSecret())).then(function(res){ return res.json(); }).then(function(data){
+        records = Object.keys(data || {}).map(function(id){ return Object.assign({ id: id }, data[id]); });
+        records.sort(function(a,b){ return (b.submittedAt||'').localeCompare(a.submittedAt||''); });
+      });
+    }
+
+    function listHtml(){
+      var rows = records.map(function(r){
+        var badge = r.status === '確認済み' ? '<span class="adm-badge adm-badge--done">確認済み</span>' : '<span class="adm-badge adm-badge--new">未確認</span>';
+        var when = r.submittedAt ? new Date(r.submittedAt).toLocaleString('ja-JP', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+        return '<div class="adm-list-item" onclick="openDetail(\'' + r.id + '\')">' +
+          '<div class="adm-list-row">' +
+            '<div><div class="adm-list-name">' + esc(r.name) + '<span style="font-weight:400;font-size:12px;color:var(--ink-sub);"> (' + esc(r.category) + ')</span></div>' +
+            '<div class="adm-list-meta">送信: ' + esc(when) + '</div></div>' +
+            badge +
+          '</div>' +
+        '</div>';
+      }).join('');
+      return '' +
+        '<div class="adm-head"><img src="../assets/logo.png" alt=""><div><div class="adm-title">入会申込書 一覧</div><div class="adm-sub">全' + records.length + '件</div></div></div>' +
+        (records.length ? rows : '<div class="adm-empty">まだ申込はありません</div>');
+    }
+
+    function openDetail(id){ detailId = id; view = 'detail'; render(); }
+    function backToList(){ view = 'list'; render(); }
+
+    function sheetHtml(d){
+      var age = d.age != null ? d.age : '';
+      return '' +
+        '<div class="sheet-scroll"><div class="sheet" id="printSheet">' +
+          '<div class="sh-head">' +
+            '<img class="sh-emblem" src="../assets/logo.png" alt="八ヶ岳グランデFC">' +
+            '<div class="sh-titles"><div class="sh-year">' + esc(d.year) + ' 入会申込書</div><div class="sh-club">八ヶ岳グランデフットボールクラブ</div><div class="sh-cat">' + esc(d.category) + '</div></div>' +
+            '<div class="sh-photo">顔写真</div>' +
+          '</div>' +
+          '<table class="sh"><tr><th style="width:18mm;">ふりがな</th><td colspan="2"><span class="sh-val" style="font-size:10px;">' + esc(d.kana) + '</span></td><th style="width:24mm;">サッカー競技歴</th><td style="width:30mm;"><span class="sh-val">' + (d.career ? esc(d.career) + '年' : '') + '</span></td></tr>' +
+          '<tr><th>氏 名</th><td colspan="2"><span class="sh-val" style="font-size:15px;">' + esc(d.name) + '</span></td><th>経験ポジション</th><td><span class="sh-val">' + esc(d.pos) + '</span></td></tr>' +
+          '<tr><th>生年月日</th><td colspan="2"><span class="sh-val">' + (d.birth ? jpDate(d.birth) + ' 生まれ(' + esc(age) + '歳)' : '') + '</span></td><th>卒団チーム名</th><td><span class="sh-val">' + esc(d.prevteam) + '</span></td></tr>' +
+          '<tr><th>血液型</th><td style="width:26mm;"><span class="sh-val">' + (d.blood ? esc(d.blood) + '型' : '') + '</span></td><td><span class="sh-val"></span></td><th>選手証番号</th><td><span class="sh-val">' + esc(d.pid) + '</span></td></tr>' +
+          '<tr><th>身長・体重</th><td colspan="2"><span class="sh-val">' + esc((d.height ? d.height + 'cm' : '') + (d.weight ? ' / ' + d.weight + 'kg' : '')) + '</span></td><th>進学予定</th><td><span class="sh-val">' + esc((d.school || '') + (d.grade ? ' ' + d.grade : '')) + '</span></td></tr></table>' +
+          '<table class="sh sh-sec"><tr><th style="width:18mm;">住 所</th><td colspan="3"><span class="sh-val">' + esc((d.zip ? '〒' + d.zip + ' ' : '') + (d.addr||'')) + '</span></td></tr>' +
+          '<tr><th>自宅電話</th><td style="width:40mm;"><span class="sh-val">' + esc(d.telHome) + '</span></td><th style="width:24mm;">携帯(保護者)</th><td><span class="sh-val">' + esc(d.telParent) + '</span></td></tr>' +
+          '<tr><th>携帯(本人)</th><td><span class="sh-val">' + esc(d.telPlayer) + '</span></td><th>メール(保護者)</th><td><span class="sh-val">' + esc(d.mailParent) + '</span></td></tr>' +
+          '<tr><th>メール(本人)</th><td><span class="sh-val">' + esc(d.mailPlayer) + '</span></td><th>緊急時連絡先</th><td><span class="sh-val">' + esc([d.emg1, d.emg2].filter(Boolean).join(' / ')) + '</span></td></tr>' +
+          '<tr><th>保護者名</th><td><span class="sh-val">' + esc(d.parent) + '</span></td><th>保護者様職業</th><td><span class="sh-val">' + esc(d.job) + '</span></td></tr></table>' +
+          '<table class="sh sh-sec sh-small"><tr><th style="width:18mm;">家族構成</th><td colspan="3">' + esc((d.family||[]).join('  ')) + '</td></tr>' +
+          '<tr><th style="font-size:8.5px;">特記事項</th><td colspan="3" class="sh-free"><span class="sh-val" style="font-size:10px;font-weight:400;">' + esc(d.notes) + '</span></td></tr>' +
+          '<tr><th style="font-size:8.5px;">入会の目的・希望</th><td colspan="3" class="sh-free"><span class="sh-val" style="font-size:10px;font-weight:400;">' + esc(d.hope) + '</span></td></tr></table>' +
+          '<div class="sh-agree">八ヶ岳グランデフットボールクラブ 代表 田畑雅宏 殿<br>当クラブ会則を承諾の上、入会申し込みいたします。<br>' +
+            '申込日:<span class="line" style="min-width:36mm;">' + esc(jpDate(d.date)) + '</span><br>' +
+            '入会者氏名:<span class="line">' + esc(d.name) + '</span><br>' +
+            '保護者氏名:<span class="line">' + esc(d.sign) + '</span><span class="sh-in">印</span>' +
+          '</div>' +
+          '<img class="sh-foot-logo" src="../assets/logo2.png" alt="">' +
+        '</div></div>';
+    }
+
+    function detailHtml(d){
+      if (!d) return '<div class="adm-empty">データが見つかりません</div>';
+      var nextStatus = d.status === '確認済み' ? '未確認' : '確認済み';
+      return '' +
+        '<span class="adm-detail-back" onclick="backToList()">← 一覧へ戻る</span>' +
+        '<div class="adm-detail-actions">' +
+          '<button class="adm-btn" onclick="toggleStatus(\'' + d.id + '\')">' + esc(nextStatus) + 'にする</button>' +
+          '<button class="adm-btn adm-btn--ghost" onclick="window.print()">🖨 印刷・PDF保存</button>' +
+        '</div>' +
+        sheetHtml(d);
+    }
+
+    function toggleStatus(id){
+      var r = records.find(function(x){ return x.id === id; });
+      if (!r) return;
+      var next = r.status === '確認済み' ? '未確認' : '確認済み';
+      fetch(FB_PATH + '/' + id + '/status.json?auth=' + encodeURIComponent(getSecret()), {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(next)
+      }).then(function(){ r.status = next; render(); });
+    }
+
+    render();
+  </script>
+</body>
+</html>
