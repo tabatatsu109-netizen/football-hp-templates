@@ -2567,10 +2567,56 @@ function deleteOrphanMatch(id) {
     showToast('試合を削除しました', 'success');
   });
 }
+let orphanLiveChecked = false;
+let orphanLiveRecord = null;
+function checkOrphanLive() {
+  if (orphanLiveChecked) return;
+  orphanLiveChecked = true;
+  const s = getSettings();
+  if (!isCloudConfigured(s)) return;
+  fetch(`${s.firebaseUrl}/clubs/${s.clubId}-live.json?auth=${s.firebaseSecret}`)
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      if (d && !schedules.some(sc => sc.id === d.schedId)) {
+        orphanLiveRecord = d;
+        renderCompetitions();
+      }
+    })
+    .catch(() => {});
+}
+function orphanLiveHtml() {
+  if (!orphanLiveRecord) return '';
+  const d = orphanLiveRecord;
+  const statusLabel = d.status === 'ft' ? '試合終了' : d.status === 'live' ? 'LIVE中' : d.status === 'ht' ? 'ハーフタイム' : '試合前';
+  return `
+    <div class="form-group">
+      <div class="form-label" style="color:var(--c-red)">⚠️ スケジュール未連携のライブ速報データ</div>
+      <div style="font-size:12px;color:var(--c-muted);margin-bottom:8px">元になったスケジュールが削除されているため、ホームページのトップに古い速報バナーが残ったままになっています。</div>
+      <div class="opp-card">
+        <div class="opp-card-info">
+          <div class="opp-card-name">${fmtDate(d.date)} vs ${d.opponent || '(相手未設定)'}</div>
+          <div class="opp-card-meta"><span>${d.myScore}-${d.oppScore}・${statusLabel}</span></div>
+        </div>
+        <div class="opp-card-actions">
+          <button class="btn btn-ghost btn-sm" style="color:var(--c-red);font-size:12px" onclick="deleteOrphanLive()">🗑 削除</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function deleteOrphanLive() {
+  showConfirm('ライブ速報を削除', 'ホームページに残っている速報バナーを削除します。よろしいですか？', '削除する', () => {
+    const s = getSettings();
+    fetch(`${s.firebaseUrl}/clubs/${s.clubId}-live.json?auth=${s.firebaseSecret}`, { method: 'DELETE' })
+      .then(() => { orphanLiveRecord = null; renderCompetitions(); showToast('削除しました', 'success'); })
+      .catch(e => showToast('削除失敗: ' + e.message, 'error'));
+  });
+}
 function renderCompetitions() {
   const el = document.getElementById('competition-list-body');
   if (!el) return;
-  const orphanHtml = orphanMatchesHtml();
+  checkOrphanLive();
+  const orphanHtml = orphanMatchesHtml() + orphanLiveHtml();
   if (competitions.length === 0) {
     el.innerHTML = orphanHtml + `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-title">大会が登録されていません</div><div class="empty-desc">「+追加」で登録するか、試合作成時に大会名を入力すると自動的に登録されます</div></div>`;
     return;
