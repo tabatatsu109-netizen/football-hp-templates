@@ -926,6 +926,7 @@ function renderBoard() {
   document.getElementById('formation-label').textContent = f;
 
   const posEl = document.getElementById('pitch-positions');
+  if (!currentMatch.lineup) currentMatch.lineup = {};
   posEl.innerHTML = positions.map(pos => {
     const player = currentMatch.lineup[pos.id];
     const isFilled = !!player;
