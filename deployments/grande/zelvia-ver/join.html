@@ -17,6 +17,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=20260810d">
   <script src="js/theme.js?v=20260807c"></script>
+  <style>
+    .jform-msg { display: none; font-weight: 700; font-size: 13.5px; margin-top: 14px; }
+    .jform-msg.error { display: block; color: #c0392b; }
+    .jform-msg.success { display: block; color: var(--main-color); }
+  </style>
 </head>
 <body>
 
@@ -169,7 +174,7 @@
           体験練習会は無料です。何度でもご参加いただけます。<br>
           お気軽にお申し込みください。折り返しご連絡いたします。
         </p>
-        <form class="jform" id="applyForm" action="https://formspree.io/f/mqejrbge" method="POST">
+        <form class="jform" id="applyForm">
           <div class="jform-row">
             <div class="jform-group">
               <label class="jform-label">お子様のお名前 <span class="req">必須</span></label>
@@ -236,7 +241,8 @@
             <label class="jform-label">ご希望の体験日・ご質問など</label>
             <textarea class="jform-input jform-textarea" name="ご希望の体験日・ご質問など"></textarea>
           </div>
-          <button type="submit" class="jform-submit">体験練習会に申し込む →</button>
+          <p class="jform-msg" id="applyMsg"></p>
+          <button type="submit" class="jform-submit" id="applySubmitBtn">体験練習会に申し込む →</button>
         </form>
       </section>
 
@@ -312,6 +318,38 @@
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
     mobileNav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ mobileNav.classList.remove('open'); }); });
     ConfigLoader.apply({ pageTitle: '入会・体験' });
+
+    document.getElementById('applyForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var form = e.target;
+      var msg = document.getElementById('applyMsg');
+      var btn = document.getElementById('applySubmitBtn');
+      var fd = new FormData(form);
+      var name = fd.get('お子様のお名前') || '';
+      var email = fd.get('メールアドレス') || '';
+      var lines = [];
+      fd.forEach(function(v, k){ if (v) lines.push(k + ': ' + v); });
+      msg.className = 'jform-msg';
+      btn.disabled = true; btn.textContent = '送信中...';
+      fetch('https://formspree.io/f/mqejrbge', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new URLSearchParams({
+          _subject: '【体験申込】' + name,
+          email: email,
+          message: lines.join('\n')
+        })
+      }).then(function(res){
+        if (!res.ok) throw new Error('bad status');
+        form.style.display = 'none';
+        msg.className = 'jform-msg success';
+        msg.textContent = 'お申し込みを受け付けました。折り返しご連絡いたします。';
+      }).catch(function(){
+        btn.disabled = false; btn.textContent = '体験練習会に申し込む →';
+        msg.className = 'jform-msg error';
+        msg.textContent = '送信に失敗しました。時間をおいて再度お試しいただくか、公式LINEまたはお問い合わせフォームからご連絡ください。';
+      });
+    });
   </script>
 </body>
 </html>

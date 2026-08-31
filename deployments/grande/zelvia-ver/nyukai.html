@@ -766,29 +766,30 @@
       var d = collect();
       var btn = document.getElementById('sendBtn');
       btn.disabled = true; btn.textContent = '送信中...';
-      var payload = {
+      var lines = [
+        '種別: WEB入会申込書',
+        '申込カテゴリー: ' + d.category,
+        '入会年度: ' + d.year,
+        '氏名: ' + d.name, 'ふりがな: ' + d.kana,
+        '生年月日: ' + jpDate(d.birth) + '(' + d.age + '歳)', '血液型: ' + d.blood,
+        '身長: ' + d.height, '体重: ' + d.weight, '選手証番号: ' + d.pid,
+        '進学予定: ' + d.school + ' ' + d.grade,
+        'サッカー競技歴: ' + (d.career ? d.career + '年' : ''), '経験ポジション: ' + d.pos, '卒団チーム名: ' + d.prevteam,
+        '住所: ' + (d.zip ? '〒' + d.zip + ' ' : '') + d.addr,
+        '自宅電話: ' + d.telHome, '携帯(保護者): ' + d.telParent, '携帯(本人): ' + d.telPlayer,
+        'メール(保護者): ' + d.mailParent, 'メール(本人): ' + d.mailPlayer,
+        '緊急時連絡先1: ' + d.emg1, '緊急時連絡先2: ' + d.emg2,
+        '保護者名: ' + d.parent, '保護者職業: ' + d.job,
+        '家族構成: ' + d.family.join(' / '),
+        '特記事項: ' + d.notes, '入会の目的・希望: ' + d.hope,
+        '申込日: ' + jpDate(d.date), '署名(保護者氏名): ' + d.sign,
+        '会則承諾: 承諾済み'
+      ];
+      var params = new URLSearchParams({
         _subject: '【入会申込書】' + d.name + '(' + d.category + ')',
-        '種別': 'WEB入会申込書',
-        '申込カテゴリー': d.category,
-        '入会年度': d.year,
-        '氏名': d.name, 'ふりがな': d.kana,
-        '生年月日': jpDate(d.birth) + '(' + d.age + '歳)', '血液型': d.blood,
-        '身長': d.height, '体重': d.weight, '選手証番号': d.pid,
-        '進学予定': d.school + ' ' + d.grade,
-        'サッカー競技歴': d.career ? d.career + '年' : '', '経験ポジション': d.pos, '卒団チーム名': d.prevteam,
-        '住所': (d.zip ? '〒' + d.zip + ' ' : '') + d.addr,
-        '自宅電話': d.telHome, '携帯_保護者': d.telParent, '携帯_本人': d.telPlayer,
-        'メール_保護者': d.mailParent, 'メール_本人': d.mailPlayer,
-        '緊急時連絡先1': d.emg1, '緊急時連絡先2': d.emg2,
-        '保護者名': d.parent, '保護者職業': d.job,
-        '家族構成': d.family.join(' / '),
-        '特記事項': d.notes, '入会の目的・希望': d.hope,
-        '申込日': jpDate(d.date), '署名_保護者氏名': d.sign,
-        '会則承諾': '承諾済み',
-        email: d.mailParent
-      };
-      var params = new URLSearchParams();
-      Object.keys(payload).forEach(function(k){ params.append(k, payload[k]); });
+        email: d.mailParent,
+        message: lines.join('\n')
+      });
       fetch('https://formspree.io/f/mqejrbge', {
         method: 'POST',
         headers: { 'Accept': 'application/json' },
