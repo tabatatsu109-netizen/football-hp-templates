@@ -78,7 +78,7 @@
 
   <script>
     var FB_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
-    var FB_PATH = FB_URL + '/inquiries/grande/nyukai';
+    var FB_PATH = FB_URL + '/intake';
     var SECRET_KEY = 'nyukai_secret_grande';
     var app = document.getElementById('app');
     var records = [];
@@ -120,7 +120,8 @@
         if (!res.ok) throw new Error('auth');
         return res.json();
       }).then(function(data){
-        records = Object.keys(data || {}).map(function(id){ return Object.assign({ id: id }, data[id]); });
+        records = Object.keys(data || {}).map(function(id){ return Object.assign({ id: id }, data[id]); })
+          .filter(function(r){ return r.clubId === 'grande' && r.type === 'nyukai'; });
         records.sort(function(a,b){ return (b.submittedAt||'').localeCompare(a.submittedAt||''); });
         view = 'list';
         render();
@@ -131,7 +132,8 @@
 
     function reload(){
       return fetch(FB_PATH + '.json?auth=' + encodeURIComponent(getSecret())).then(function(res){ return res.json(); }).then(function(data){
-        records = Object.keys(data || {}).map(function(id){ return Object.assign({ id: id }, data[id]); });
+        records = Object.keys(data || {}).map(function(id){ return Object.assign({ id: id }, data[id]); })
+          .filter(function(r){ return r.clubId === 'grande' && r.type === 'nyukai'; });
         records.sort(function(a,b){ return (b.submittedAt||'').localeCompare(a.submittedAt||''); });
       });
     }

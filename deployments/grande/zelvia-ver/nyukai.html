@@ -819,11 +819,11 @@
         email: d.mailParent,
         message: lines.join('\n')
       });
-      // クラブ側で申込書を閲覧できるよう、通知メールとは別にFirebaseにも保存(送信失敗の判定には使わない)
-      fetch('https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app/inquiries/grande/nyukai.json', {
+      // クラブ側で申込書を閲覧できるよう、通知メールとは別にFirebaseの汎用受付先(intake)にも保存(送信失敗の判定には使わない)
+      fetch('https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app/intake.json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({}, d, { submittedAt: new Date().toISOString(), status: '未確認' }))
+        body: JSON.stringify(Object.assign({}, d, { clubId: 'grande', type: 'nyukai', submittedAt: new Date().toISOString(), status: '未確認' }))
       }).catch(function(){});
       fetch('https://formspree.io/f/mqejrbge', {
         method: 'POST',
