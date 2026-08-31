@@ -2530,15 +2530,54 @@ function findOrCreateCompetition(name) {
   }
 }
 
+// スケジュールに紐づいていない試合（重複登録・手動インポート等で発生）
+function orphanMatches() {
+  return matches.filter(m => !schedules.some(s => s.matchId === m.id));
+}
+function orphanMatchesHtml() {
+  const orphans = orphanMatches();
+  if (orphans.length === 0) return '';
+  const rows = orphans.map(m => `
+    <div class="opp-card">
+      <div class="opp-card-info">
+        <div class="opp-card-name">${fmtDate(m.date)} vs ${m.opponent || '(相手未設定)'}</div>
+        <div class="opp-card-meta"><span>${m.competition || m.type || ''}${m.result ? `・${m.result.myScore}-${m.result.oppScore}` : ''}</span></div>
+      </div>
+      <div class="opp-card-actions">
+        <button class="btn btn-ghost btn-sm" style="color:var(--c-red);font-size:12px" onclick="deleteOrphanMatch('${m.id}')">🗑 削除</button>
+      </div>
+    </div>
+  `).join('');
+  return `
+    <div class="form-group">
+      <div class="form-label" style="color:var(--c-red)">⚠️ スケジュール未連携の試合（${orphans.length}件）</div>
+      <div style="font-size:12px;color:var(--c-muted);margin-bottom:8px">重複登録やデータ移行などでスケジュールと紐づいていない試合です。誤って残っている場合はここから削除できます。</div>
+      ${rows}
+    </div>
+  `;
+}
+function deleteOrphanMatch(id) {
+  const m = matches.find(x => x.id === id);
+  if (!m) return;
+  const label = m.opponent ? `vs ${m.opponent}（${fmtDate(m.date)}）` : fmtDate(m.date);
+  showConfirm('試合を削除', `${label} の試合記録を削除します。\nホームページの表示もすべて消えます。\nよろしいですか？`, '削除する', () => {
+    if (m.result?.grandeNewsId) posts = posts.filter(p => p.id !== m.result.grandeNewsId);
+    matches = matches.filter(x => x.id !== id);
+    saveLocal();
+    renderCompetitions();
+    showToast('試合を削除しました', 'success');
+  });
+}
 function renderCompetitions() {
   const el = document.getElementById('competition-list-body');
   if (!el) return;
+  const orphanHtml = orphanMatchesHtml();
   if (competitions.length === 0) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-title">大会が登録されていません</div><div class="empty-desc">「+追加」で登録するか、試合作成時に大会名を入力すると自動的に登録されます</div></div>`;
+    el.innerHTML = orphanHtml + `<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-title">大会が登録されていません</div><div class="empty-desc">「+追加」で登録するか、試合作成時に大会名を入力すると自動的に登録されます</div></div>`;
     return;
   }
   const sorted = [...competitions].sort((a, b) => (a.name || '') < (b.name || '') ? -1 : 1);
-  el.innerHTML = sorted.map(c => {
+  el.innerHTML = orphanHtml + sorted.map(c => {
     const realIdx = competitions.indexOf(c);
     const count = matches.filter(m => m.competition === c.name).length;
     return `
