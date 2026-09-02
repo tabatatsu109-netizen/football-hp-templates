@@ -853,7 +853,16 @@
   <style>
     .hero.tilt-on .hero-bg, .hero.tilt-on .hero-inner, .hero.tilt-on .hero-emblem { will-change: translate, rotate; }
     .hero.tilt-on .hero-inner { transform-style: preserve-3d; }
+    .hero-tilt-btn {
+      position: absolute; left: 20px; top: 16px; z-index: 5;
+      background: rgba(6,16,9,0.62); color: #fff; border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 999px; padding: 9px 14px; font-size: 12.5px; font-weight: 700; letter-spacing: .5px;
+      font-family: inherit; cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      max-width: calc(100% - 40px); text-align: left; line-height: 1.5;
+    }
+    .hero-tilt-btn:disabled { opacity: .7; }
     @media (prefers-reduced-motion: reduce) {
+      .hero-tilt-btn { display: none; }
       .hero .hero-bg, .hero .hero-inner, .hero .hero-emblem { translate: none !important; rotate: none !important; }
     }
   </style>
@@ -902,14 +911,35 @@
       function startGyro(){ window.addEventListener('deviceorientation', onOrient); }
       if (window.DeviceOrientationEvent) {
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-          /* iOS 13+: ユーザー操作の中でしか許可を求められないので最初のタップで1回だけ */
-          var ask = function(){
-            document.removeEventListener('touchend', ask);
-            document.removeEventListener('click', ask);
-            DeviceOrientationEvent.requestPermission().then(function(s){ if (s === 'granted') startGyro(); }).catch(function(){});
-          };
-          document.addEventListener('touchend', ask, { passive: true });
-          document.addEventListener('click', ask);
+          /* iOS 13+: ユーザーのタップの中でしか許可を求められない。
+             見えるボタンを置き、許可/拒否の結果もその場で伝える */
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'hero-tilt-btn';
+          btn.textContent = '📱 傾けて動かす';
+          hero.appendChild(btn);
+          var gotEvent = false;
+          window.addEventListener('deviceorientation', function once(e){
+            if (e.gamma == null) return;
+            gotEvent = true; btn.remove(); window.removeEventListener('deviceorientation', once);
+          });
+          btn.addEventListener('click', function(){
+            btn.disabled = true; btn.textContent = '確認中...';
+            DeviceOrientationEvent.requestPermission().then(function(s){
+              if (s === 'granted') {
+                startGyro();
+                btn.textContent = '傾けてみてください';
+                setTimeout(function(){ if (!gotEvent) btn.textContent = '端末の傾きが取得できませんでした'; }, 2500);
+                setTimeout(function(){ btn.remove(); }, 6000);
+              } else {
+                btn.disabled = false;
+                btn.textContent = '許可されませんでした（設定 › Safari › モーションと画面の向きのアクセス をオン）';
+              }
+            }).catch(function(err){
+              btn.disabled = false;
+              btn.textContent = '許可の確認に失敗: ' + (err && err.message ? err.message : err);
+            });
+          });
         } else {
           startGyro();
         }
