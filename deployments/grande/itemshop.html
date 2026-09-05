@@ -20,6 +20,11 @@ input,select,textarea{font-family:inherit}
 .st-szs{display:flex;gap:6px;flex-wrap:wrap}
 .sf-wrap{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
 .sc-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.sort-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.sort-wrap{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#555}
+.sort-wrap select{min-height:44px;padding:0 32px 0 12px;border:1px solid #cfd8cf;border-radius:8px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23555' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;font-size:14px;font-weight:700;color:#1a3a22;appearance:none;-webkit-appearance:none;cursor:pointer}
+.sort-wrap select:focus{outline:2px solid #1a6b2f;outline-offset:1px}
+.sort-count{font-size:12px;color:#888;white-space:nowrap}
 @media(max-width:600px){.frow{grid-template-columns:1fr!important}}
 @media print{
   body>*{display:none!important}
@@ -466,7 +471,7 @@ var S = {
   lastOrder:null,
   form:{pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""},
   pwErr:"",
-  adminTab:"dash", selOid:null, sfSt:"すべて",
+  adminTab:"dash", selOid:null, sfSt:"すべて", sortKey:"dateDesc",
   toast:null,
   prodSel:{},
   placing:false,
@@ -1182,8 +1187,47 @@ function orderCardHtml(o){
     '</div>'
   );
 }
+/* 注文一覧の並び替え（sortKey は S.sortKey） */
+var SORT_OPTS = [
+  {key:"dateDesc",  label:"注文日：新しい順"},
+  {key:"dateAsc",   label:"注文日：古い順"},
+  {key:"sName",     label:"選手名順"},
+  {key:"pName",     label:"保護者名順"},
+  {key:"cat",       label:"カテゴリー順"},
+  {key:"totalDesc", label:"金額：高い順"},
+  {key:"totalAsc",  label:"金額：安い順"},
+  {key:"status",    label:"ステータス順"}
+];
+function sortOrders(list){
+  var key = S.sortKey || "dateDesc";
+  var ts = function(o){ var t = new Date(o.date).getTime(); return isNaN(t) ? 0 : t; };
+  var jp = function(a,b){ return String(a||"").localeCompare(String(b||""), "ja"); };
+  var arr = list.slice();
+  arr.sort(function(a,b){
+    switch(key){
+      case "dateAsc":   return ts(a)-ts(b);
+      case "sName":     return jp(a.sName,b.sName) || jp(a.pName,b.pName) || ts(b)-ts(a);
+      case "pName":     return jp(a.pName,b.pName) || jp(a.sName,b.sName) || ts(b)-ts(a);
+      case "cat":       return jp(a.cat,b.cat) || jp(a.sName,b.sName) || ts(b)-ts(a);
+      case "totalDesc": return (b.total||0)-(a.total||0) || ts(b)-ts(a);
+      case "totalAsc":  return (a.total||0)-(b.total||0) || ts(b)-ts(a);
+      case "status":    return STS.indexOf(a.status)-STS.indexOf(b.status) || ts(b)-ts(a);
+      default:          return ts(b)-ts(a);
+    }
+  });
+  return arr;
+}
 function ordersTabHtml(){
   var filtered = S.sfSt==="すべて" ? S.orders : S.orders.filter(function(o){ return o.status===S.sfSt; });
+  filtered = sortOrders(filtered);
+  var sortSel = (
+    '<label class="sort-wrap">'+
+      '<span>並び替え</span>'+
+      '<select onchange="App.setSort(this.value)" aria-label="注文の並び替え">'+
+        SORT_OPTS.map(function(o){ return '<option value="'+o.key+'"'+(S.sortKey===o.key?' selected':'')+'>'+esc(o.label)+'</option>'; }).join("")+
+      '</select>'+
+    '</label>'
+  );
   var sfBtns = ["すべて"].concat(STS).map(function(s){
     var active = S.sfSt===s;
     return '<button onclick=\'App.setSfSt("'+s+'")\' style="padding:5px 11px;border-radius:99px;font-weight:700;font-size:11px;white-space:nowrap;background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#555")+';box-shadow:0 1px 4px rgba(0,0,0,.08)">'+esc(s)+'</button>';
@@ -1196,6 +1240,7 @@ function ordersTabHtml(){
       '<button onclick="App.downloadOrderDetailCsv()" style="padding:8px 14px;background:'+G.g2+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 明細CSV</button>'+
     '</div>'+
     '<div class="sf-wrap">'+sfBtns+'</div>'+
+    '<div class="sort-row">'+sortSel+'<span class="sort-count">'+filtered.length+'件</span></div>'+
     '<div class="olist">'+list+'</div>'
   );
 }
@@ -1591,6 +1636,7 @@ window.App = {
     });
   },
   setSfSt:function(s){ S.sfSt=s; render(); },
+  setSort:function(k){ S.sortKey=k; render(); },
   downloadOrderListCsv:downloadOrderListCsv,
   downloadOrderDetailCsv:downloadOrderDetailCsv,
   printInvoice:printInvoice,
