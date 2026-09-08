@@ -1062,6 +1062,39 @@ function loginPageHtml(){
 }
 
 /* ───────── ORDER STATUS LOOKUP (保護者向け・認証不要) ───────── */
+// 支払方法の表記ゆれ（現金／現金払い、振込／銀行振込 など）を吸収
+function payKind(pay){
+  var p = String(pay||"");
+  if(/口座|引落|振替/.test(p)) return "debit";
+  if(/振込/.test(p)) return "transfer";
+  if(/現金/.test(p)) return "cash";
+  return "other";
+}
+// 保護者向け：支払方法と、その方法ごとのご案内
+function payGuideHtml(pay){
+  var conf = {
+    cash: { ic:"💴", label:"現金", color:"#a86200", bg:"#fff8e9", bd:"#f0dcae",
+      body:'封筒に<b>選手名</b>をご記入のうえ、<b>担当コーチ</b>にお渡しください。' },
+    transfer: { ic:"🏦", label:"振込", color:"#1a5fb4", bg:"#eff4fd", bd:"#ccdcf7",
+      body:'下記口座へお振込ください。'+
+        '<div style="margin:7px 0;padding:9px 11px;background:#fff;border-radius:8px;font-size:13.5px;line-height:1.8">'+
+          '山梨中央銀行　小淵沢支店<br><b>普通預金　497175</b><br>'+
+          '口座名義：ノーフットボール（合同会社nofootball）'+
+        '</div>'+
+        '<span style="color:#777">※ 振込手数料はご負担ください。依頼人名は<b>選手名</b>でお願いします。</span>' },
+    debit: { ic:"🏧", label:"口座引落", color:"#1a6b2f", bg:"#eff7f1", bd:"#cde5d4",
+      body:'<b>翌月の引き落とし</b>になります。商品がすべてお渡し済みでなくても、ご注文分をまとめて翌月に引き落としますので、お手続きは不要です。' },
+    other: { ic:"💳", label:esc(pay||"—"), color:"#555", bg:"#f5f5f5", bd:"#e4e4e4",
+      body:'お支払い方法についてはクラブへお問い合わせください。' }
+  }[payKind(pay)];
+  return (
+    '<div style="margin-top:10px;background:'+conf.bg+';border:1px solid '+conf.bd+';border-radius:10px;padding:12px 13px">'+
+      '<div style="font-size:10.5px;font-weight:700;color:#999;letter-spacing:2px;margin-bottom:2px">お支払い方法</div>'+
+      '<div style="font-size:20px;font-weight:900;color:'+conf.color+';margin-bottom:7px">'+conf.ic+' '+conf.label+'</div>'+
+      '<div style="font-size:12.5px;color:#444;line-height:1.8">'+conf.body+'</div>'+
+    '</div>'
+  );
+}
 function statusPageHtml(){
   var resultHtml = "";
   if(S.statusLookupResult){
@@ -1093,6 +1126,7 @@ function statusPageHtml(){
               '</div>'+
               '<div>'+itemsHtml+'</div>'+
               invoiceHtml+
+              payGuideHtml(r.pay)+
             '</div>'
           );
         }).join("")+
