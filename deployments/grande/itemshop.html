@@ -121,8 +121,8 @@ var DEFAULT_PRODUCT_IMAGES = {
 };
 
 var CATS = ["すべて","ユニフォーム","トップス","ボトムス","ソックス","バッグ","セットアップ","アウター","その他"];
-var TEAMS = ["ジュニア（U-12）","ジュニアユース（U-15）","スクール"];
-var PAYS = ["現金払い","銀行振込","PayPay"];
+var TEAMS = ["ジュニア（U-12）","ジュニアユース（U-15）","スクール","メセタ"];
+var PAYS = ["現金","口座振替","振込"];
 var STS = ["未確認","確認済み","発注済み","入荷済み","受け渡し完了"];
 var ST_COLORS = ["#F59E0B","#3B82F6","#8B5CF6","#10B981","#9CA3AF"];
 
@@ -731,7 +731,7 @@ function downloadCsv(hdr, rows, filename){
   a.click();
 }
 function downloadOrderListCsv(){
-  var hdr=["注文ID","注文日","保護者氏名","選手氏名","チーム","メール","支払方法","合計","ステータス","備考","商品サマリー"];
+  var hdr=["注文ID","注文日","保護者氏名","選手氏名","カテゴリー","メール","支払方法","合計","ステータス","備考","商品サマリー"];
   var rows = S.orders.map(function(o){
     return [o.id,fmtD(o.date),o.pName,o.sName,o.cat,o.email,o.pay,o.total,o.status,o.note||"",o.items.map(function(i){return i.pname+"("+i.size+(i.number?"・背番号"+i.number:"")+")×"+i.qty;}).join(" / ")];
   });
@@ -739,7 +739,7 @@ function downloadOrderListCsv(){
   showToast("注文一覧CSVをダウンロードしました");
 }
 function downloadOrderDetailCsv(){
-  var hdr=["注文ID","注文日","保護者氏名","選手氏名","チーム","メール","支払方法","ステータス","商品名","サイズ","背番号","数量","単価","小計","備考"];
+  var hdr=["注文ID","注文日","保護者氏名","選手氏名","カテゴリー","メール","支払方法","ステータス","商品名","サイズ","背番号","数量","単価","小計","備考"];
   var rows=[];
   S.orders.forEach(function(o){ o.items.forEach(function(it){ rows.push([o.id,fmtD(o.date),o.pName,o.sName,o.cat,o.email,o.pay,o.status,it.pname,it.size,it.number||"",it.qty,it.price,it.price*it.qty,o.note||""]); }); });
   downloadCsv(hdr, rows, "注文明細.csv");
@@ -986,7 +986,7 @@ function step1Html(){
         '<input data-bind="form.sName" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="山田 一郎"></div>'+
     '</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" class="frow">'+
-      '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">チーム</label>'+
+      '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">カテゴリー</label>'+
         '<select data-bind="form.cat" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa">'+TEAMS.map(function(t){return '<option>'+esc(t)+'</option>';}).join("")+'</select></div>'+
       '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">支払方法</label>'+
         '<select data-bind="form.pay" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa">'+PAYS.map(function(p){return '<option>'+esc(p)+'</option>';}).join("")+'</select></div>'+
@@ -1003,7 +1003,7 @@ function step2Html(){
   var rows = S.cart.map(function(it){
     return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee;font-size:14px"><span>'+esc(it.pname)+'（'+sizeLabel(it)+'）× '+it.qty+'</span><span>'+fmt(it.price*it.qty)+'</span></div>';
   }).join("");
-  var infoRows = [["保護者氏名",f.pName],["選手氏名",f.sName],["チーム",f.cat],["メールアドレス",f.email],["支払方法",f.pay]];
+  var infoRows = [["保護者氏名",f.pName],["選手氏名",f.sName],["カテゴリー",f.cat],["メールアドレス",f.email],["支払方法",f.pay]];
   if(f.note) infoRows.push(["備考",f.note]);
   var info = infoRows.map(function(pair){
     return '<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid #eee"><span style="color:#888">'+esc(pair[0])+'</span><span style="font-weight:700">'+esc(pair[1])+'</span></div>';
