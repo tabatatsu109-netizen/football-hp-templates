@@ -289,7 +289,13 @@ function syncOrderStatusPublic(order){
     orderId: order.id,
     date: order.date,
     status: order.status,
-    items: order.items.map(function(it){ return { pname: it.pname, size: it.size, number: it.number||"", qty: it.qty, delivered: !!it.delivered }; }),
+    pName: order.pName||"",
+    sName: order.sName||"",
+    cat: order.cat||"",
+    pay: order.pay||"",
+    note: order.note||"",
+    total: order.total||0,
+    items: order.items.map(function(it){ return { pname: it.pname, size: it.size, number: it.number||"", qty: it.qty, price: it.price||0, delivered: !!it.delivered }; }),
     updatedAt: new Date().toISOString()
   };
   return Promise.all(keys.map(function(emailKey){
@@ -594,12 +600,14 @@ function placeOrder(){
   });
 }
 
-function printInvoice(oid){
-  var o = S.orders.filter(function(x){ return x.id===oid; })[0];
-  if(!o) return;
+// 請求書の描画：管理画面の注文オブジェクトでも、保護者側の公開ミラーの記録でも使える
+function renderInvoice(o){
+  if(!o) return false;
+  var oid = o.id || o.orderId || "";
+  var total = o.total || o.items.reduce(function(s,i){ return s + (i.price||0)*i.qty; }, 0);
   var el = document.getElementById("inv");
   var itemRows = o.items.map(function(i){
-    return "<tr><td>"+esc(i.pname)+"</td><td>"+esc(i.size)+"</td><td>"+i.qty+"点</td><td>"+fmt(i.price)+"</td><td>"+fmt(i.price*i.qty)+"</td></tr>";
+    return "<tr><td>"+esc(i.pname)+"</td><td>"+esc(i.size)+"</td><td>"+i.qty+"点</td><td>"+fmt(i.price||0)+"</td><td>"+fmt((i.price||0)*i.qty)+"</td></tr>";
   }).join("");
   el.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;border-bottom:3px solid #1a6b2f;padding-bottom:14px">'+
@@ -607,19 +615,34 @@ function printInvoice(oid){
       '<div style="font-size:28px;font-weight:900;letter-spacing:4px">請 求 書</div>'+
     '</div>'+
     '<table class="meta" style="margin-bottom:20px">'+
-      '<tr><td>注文ID</td><td>'+esc(o.id)+'</td></tr>'+
+      '<tr><td>注文ID</td><td>'+esc(oid)+'</td></tr>'+
       '<tr><td>発行日</td><td>'+fmtD(new Date().toISOString())+'</td></tr>'+
       '<tr><td>注文日</td><td>'+fmtD(o.date)+'</td></tr>'+
-      '<tr><td>保護者氏名</td><td>'+esc(o.pName)+' 様</td></tr>'+
-      '<tr><td>選手氏名</td><td>'+esc(o.sName)+'（'+esc(o.cat)+'）</td></tr>'+
-      '<tr><td>支払方法</td><td>'+esc(o.pay)+'</td></tr>'+
+      (o.pName ? '<tr><td>保護者氏名</td><td>'+esc(o.pName)+' 様</td></tr>' : '')+
+      (o.sName ? '<tr><td>選手氏名</td><td>'+esc(o.sName)+(o.cat?('（'+esc(o.cat)+'）'):'')+'</td></tr>' : '')+
+      (o.pay ? '<tr><td>支払方法</td><td>'+esc(o.pay)+'</td></tr>' : '')+
       (o.note ? '<tr><td>備考</td><td>'+esc(o.note)+'</td></tr>' : '')+
     '</table>'+
     '<table><thead><tr><th>商品名</th><th>サイズ</th><th>数量</th><th>単価</th><th>小計</th></tr></thead>'+
     '<tbody>'+itemRows+'</tbody></table>'+
-    '<div style="text-align:right;font-size:18px;font-weight:900;margin-top:10px">合計金額：<span style="color:#1a6b2f;font-size:24px">'+fmt(o.total)+'</span></div>'+
-    '<div style="margin-top:18px;padding:10px;background:#f5f5f5;font-size:12px;color:#555;border-radius:6px">※ お支払いは「'+esc(o.pay)+'」でお願いします。ご不明点は八ヶ岳グランデFCまでお問い合わせください。</div>';
-  window.print();
+    '<div style="text-align:right;font-size:18px;font-weight:900;margin-top:10px">合計金額：<span style="color:#1a6b2f;font-size:24px">'+fmt(total)+'</span></div>'+
+    '<div style="margin-top:18px;padding:10px;background:#f5f5f5;font-size:12px;color:#555;border-radius:6px">※ お支払いは「'+esc(o.pay||"")+'」でお願いします。ご不明点は八ヶ岳グランデFCまでお問い合わせください。</div>';
+  return true;
+}
+function printInvoice(oid){
+  var o = S.orders.filter(function(x){ return x.id===oid; })[0];
+  if(renderInvoice(o)) window.print();
+}
+// 保護者側：公開ミラーの記録から請求書を印刷
+function printInvoicePublic(orderId){
+  var list = S.statusLookupResult || [];
+  var r = list.filter(function(x){ return x.orderId===orderId; })[0];
+  if(!r){ showError("請求書を表示できませんでした"); return; }
+  if(!r.total && !(r.items||[]).some(function(i){ return i.price; })){
+    showError("この注文はまだ請求書に対応していません。クラブへお問い合わせください。");
+    return;
+  }
+  if(renderInvoice(r)) window.print();
 }
 
 /* ───────── ADMIN HELPERS ───────── */
@@ -1055,6 +1078,13 @@ function statusPageHtml(){
               '</div>'
             );
           }).join("");
+          var rTotal = r.total || (r.items||[]).reduce(function(s,i){ return s + (i.price||0)*i.qty; }, 0);
+          var invoiceHtml = rTotal ? (
+            '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:10px;margin-top:2px">'+
+              '<div style="font-size:13px;font-weight:900">合計 <span style="color:'+G.g1+';font-size:16px">'+fmt(rTotal)+'</span></div>'+
+              '<button onclick="App.printInvoicePublic(\''+esc(r.orderId)+'\')" style="padding:7px 13px;background:#fff;color:'+G.g1+';border:1.5px solid '+G.g1+';border-radius:8px;font-weight:700;font-size:12px;white-space:nowrap">🖨️ 請求書</button>'+
+            '</div>'
+          ) : '';
           return (
             '<div style="background:#f8faf8;border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid #dde8dd">'+
               '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
@@ -1062,6 +1092,7 @@ function statusPageHtml(){
                 statusBadge(r.status)+
               '</div>'+
               '<div>'+itemsHtml+'</div>'+
+              invoiceHtml+
             '</div>'
           );
         }).join("")+
@@ -1658,6 +1689,7 @@ window.App = {
   downloadOrderListCsv:downloadOrderListCsv,
   downloadOrderDetailCsv:downloadOrderDetailCsv,
   printInvoice:printInvoice,
+  printInvoicePublic:printInvoicePublic,
   setPoBrand: function(b){ S.poBrand = b; render(); },
   printPurchaseOrder: function(){ if(S.poBrand) printPurchaseOrder(S.poBrand); },
   refreshOrders:function(){
