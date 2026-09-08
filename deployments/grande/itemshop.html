@@ -267,10 +267,24 @@ function setItemDeliveredCloud(fbKey, itemIdx, delivered){
   });
 }
 
+// 注文に紐づくメールアドレスのキー一覧
+// ご家庭で複数アドレスを使い分けている場合、order.altEmails に予備アドレスを入れておくと
+// どちらのアドレスで照会しても同じ注文が表示される
+function orderEmailKeys(order){
+  if(typeof order === "string") order = { email: order };
+  var list = [(order&&order.email)||""].concat((order&&order.altEmails)||[]);
+  var seen = {}, keys = [];
+  list.forEach(function(e){
+    var k = emailToKey(e);
+    if(k && !seen[k]){ seen[k] = true; keys.push(k); }
+  });
+  return keys;
+}
+
 // 注文状況の公開ミラーを更新：管理者のみ（メールアドレスをキーに保存）
 function syncOrderStatusPublic(order){
-  var emailKey = emailToKey(order.email);
-  if(!emailKey) return Promise.resolve();
+  var keys = orderEmailKeys(order);
+  if(!keys.length) return Promise.resolve();
   var payload = {
     orderId: order.id,
     date: order.date,
@@ -278,23 +292,27 @@ function syncOrderStatusPublic(order){
     items: order.items.map(function(it){ return { pname: it.pname, size: it.size, number: it.number||"", qty: it.qty, delivered: !!it.delivered }; }),
     updatedAt: new Date().toISOString()
   };
-  return fetch(FB_STATUS_BY_EMAIL_URL + "/" + emailKey + "/" + encodeURIComponent(order.id) + ".json?auth=" + encodeURIComponent(getSecret()), {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  }).then(function(res){
-    if(!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-  });
+  return Promise.all(keys.map(function(emailKey){
+    return fetch(FB_STATUS_BY_EMAIL_URL + "/" + emailKey + "/" + encodeURIComponent(order.id) + ".json?auth=" + encodeURIComponent(getSecret()), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    });
+  }));
 }
 
-// 注文状況の公開ミラーを削除：管理者のみ
-function deleteOrderStatusPublic(orderId, email){
-  var emailKey = emailToKey(email);
-  if(!emailKey) return Promise.resolve();
-  return fetch(FB_STATUS_BY_EMAIL_URL + "/" + emailKey + "/" + encodeURIComponent(orderId) + ".json?auth=" + encodeURIComponent(getSecret()), {
-    method: "DELETE"
-  }).catch(function(){});
+// 注文状況の公開ミラーを削除：管理者のみ（第2引数は注文オブジェクトまたはメールアドレス）
+function deleteOrderStatusPublic(orderId, order){
+  var keys = orderEmailKeys(order);
+  if(!keys.length) return Promise.resolve();
+  return Promise.all(keys.map(function(emailKey){
+    return fetch(FB_STATUS_BY_EMAIL_URL + "/" + emailKey + "/" + encodeURIComponent(orderId) + ".json?auth=" + encodeURIComponent(getSecret()), {
+      method: "DELETE"
+    }).catch(function(){});
+  }));
 }
 
 // メールアドレスでの注文一覧照会：認証不要（メールアドレスを知っている本人のみ）
@@ -1158,7 +1176,7 @@ function orderCardHtml(o){
     detail = (
       '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0" onclick="event.stopPropagation()">'+
         '<div style="font-size:13px;margin-bottom:4px"><a href="javascript:void(0)" onclick="App.goStatusLookup(\''+esc(o.email)+'\')" style="color:'+G.g1+';font-weight:700;text-decoration:underline">📦 '+esc(o.id)+'（保護者に見える画面を確認）</a></div>'+
-        '<div style="font-size:13px;color:#555;margin-bottom:6px">📧 '+esc(o.email)+(o.note?(' · 備考: '+esc(o.note)):'')+'</div>'+
+        '<div style="font-size:13px;color:#555;margin-bottom:6px">📧 '+esc(o.email)+((o.altEmails&&o.altEmails.length)?(' ／ '+o.altEmails.map(esc).join(' ／ ')):'')+(o.note?(' · 備考: '+esc(o.note)):'')+'</div>'+
         '<div style="background:#f8faf8;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #dde8dd">'+
           '<div style="font-size:11px;font-weight:700;color:#888;margin-bottom:6px">注文明細</div>'+itemsDetail+
           '<div style="display:flex;justify-content:space-between;padding:8px 0 0;font-weight:900;font-size:15px"><span>合計</span><span style="color:'+G.g1+'">'+fmt(o.total)+'</span></div>'+
@@ -1628,7 +1646,7 @@ window.App = {
       S.deletingOid = null;
       showToast("注文を削除しました");
       render();
-      deleteOrderStatusPublic(oid, target.email);
+      deleteOrderStatusPublic(oid, target);
     }).catch(function(e){
       S.deletingOid = null;
       showError("削除に失敗しました");
