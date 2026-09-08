@@ -626,8 +626,17 @@ function renderInvoice(o){
     '<table><thead><tr><th>商品名</th><th>サイズ</th><th>数量</th><th>単価</th><th>小計</th></tr></thead>'+
     '<tbody>'+itemRows+'</tbody></table>'+
     '<div style="text-align:right;font-size:18px;font-weight:900;margin-top:10px">合計金額：<span style="color:#1a6b2f;font-size:24px">'+fmt(total)+'</span></div>'+
-    '<div style="margin-top:18px;padding:10px;background:#f5f5f5;font-size:12px;color:#555;border-radius:6px">※ お支払いは「'+esc(o.pay||"")+'」でお願いします。ご不明点は八ヶ岳グランデFCまでお問い合わせください。</div>';
+    '<div style="margin-top:18px;padding:10px;background:#f5f5f5;font-size:12px;color:#555;border-radius:6px;line-height:1.85">'+payNoteForInvoice(o.pay)+'ご不明点は八ヶ岳グランデFCまでお問い合わせください。</div>';
   return true;
+}
+// 請求書に載せる支払方法のご案内（印刷向けなので装飾なし）
+function payNoteForInvoice(pay){
+  var head = '※ お支払いは「'+esc(pay||"")+'」でお願いします。';
+  var k = payKind(pay);
+  if(k==="transfer") return head+'<br>【振込先】山梨中央銀行　小淵沢支店　普通預金 497175　口座名義：ノーフットボール（合同会社nofootball）<br>※ 振込手数料はご負担ください。依頼人名は選手名でお願いします。<br>';
+  if(k==="debit") return head+'翌月の引き落としとなります（商品がすべてお渡し済みでなくても、ご注文分をまとめて翌月に引き落とします）。<br>';
+  if(k==="cash") return head+'封筒に選手名をご記入のうえ、担当コーチにお渡しください。<br>';
+  return head;
 }
 function printInvoice(oid){
   var o = S.orders.filter(function(x){ return x.id===oid; })[0];
