@@ -20,6 +20,18 @@ input,select,textarea{font-family:inherit}
 .st-szs{display:flex;gap:6px;flex-wrap:wrap}
 .sf-wrap{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
 .sc-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+/* ショップヘッダー右上のボタン（スマホ：アイコン＋ラベル縦積み／PC：横並びピル） */
+.hbtn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:56px;min-height:44px;padding:4px 8px;border-radius:9px;color:#fff;font-size:10px;font-weight:700;line-height:1.1;white-space:nowrap;letter-spacing:.5px}
+.hbtn .ic{font-size:19px;line-height:1}
+.hbtn-status{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.06)}
+.hbtn-cart{background:#c8a94a;color:#0d3b1e}
+.hbtn .badge{position:absolute;top:-6px;right:-6px;background:#e53935;color:#fff;border-radius:99px;min-width:19px;height:19px;padding:0 5px;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;border:2px solid #0d3b1e;box-sizing:border-box}
+@media(min-width:768px){
+  .hbtn{flex-direction:row;gap:7px;font-size:13px;padding:0 16px;min-height:40px;border-radius:99px}
+  .hbtn .ic{font-size:18px}
+  .hbtn-status:hover{background:rgba(255,255,255,.14)}
+  .hbtn-cart:hover{filter:brightness(1.08)}
+}
 .sort-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
 .sort-wrap{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#555}
 .sort-wrap select{min-height:44px;padding:0 32px 0 12px;border:1px solid #cfd8cf;border-radius:8px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23555' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;font-size:14px;font-weight:700;color:#1a3a22;appearance:none;-webkit-appearance:none;cursor:pointer}
@@ -817,11 +829,11 @@ function shopHeaderHtml(){
             '<div style="color:'+G.gold+';font-size:10px;letter-spacing:2px">OFFICIAL SHOP</div>'+
           '</div>'+
         '</div>'+
-        '<div style="display:flex;align-items:center;gap:4px">'+
-          '<button onclick="App.goStatusLookup()" style="font-size:22px;color:#fff;padding:6px" title="受け渡し状況を確認">📦</button>'+
-          '<button onclick="App.openCart()" style="font-size:26px;color:#fff;position:relative;padding:6px">'+
-            '🛒'+
-            (cc>0 ? '<span style="position:absolute;top:0;right:0;background:#e53935;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">'+cc+'</span>' : '')+
+        '<div style="display:flex;align-items:center;gap:8px">'+
+          '<button class="hbtn hbtn-status" onclick="App.goStatusLookup()" title="受け渡し状況を確認" aria-label="受け渡し状況を確認"><span class="ic">📦</span><span class="lb">受け渡し状況</span></button>'+
+          '<button class="hbtn hbtn-cart" onclick="App.openCart()" aria-label="カートを開く'+(cc>0?'（'+cc+'点）':'')+'">'+
+            '<span class="ic">🛒</span><span class="lb">カート</span>'+
+            (cc>0 ? '<span class="badge">'+cc+'</span>' : '')+
           '</button>'+
         '</div>'+
       '</div>'+
