@@ -185,6 +185,37 @@ var SECRET_KEY = "shop_secret_" + SHOP_CLUB_ID;
 function getSecret(){ return localStorage.getItem(SECRET_KEY) || ""; }
 function setSecret(v){ localStorage.setItem(SECRET_KEY, v); }
 
+/* ───────── この端末に前回の注文者情報を記憶（保護者の入力を省くため。クラウドには保存しない） ───────── */
+var PROFILE_KEY = "shop_profile_" + SHOP_CLUB_ID;
+function loadProfile(){
+  try{ var v = JSON.parse(localStorage.getItem(PROFILE_KEY) || "null"); return (v && typeof v==="object") ? v : null; }catch(e){ return null; }
+}
+function saveProfileFromOrder(o){
+  try{
+    var prof = loadProfile() || {players:[]};
+    prof.pName = o.pName || prof.pName || "";
+    prof.email = o.email || prof.email || "";
+    prof.pay = o.pay || prof.pay || "";
+    var players = (prof.players || []).filter(function(pl){ return pl && pl.sName && pl.sName!==o.sName; });
+    if(o.sName) players.unshift({sName:o.sName, cat:o.cat||""});
+    prof.players = players.slice(0, 5);
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(prof));
+  }catch(e){}
+}
+function clearProfile(){ try{ localStorage.removeItem(PROFILE_KEY); }catch(e){} }
+function formIsBlank(){ return !S.form.pName && !S.form.sName && !S.form.email; }
+function prefillFormFromProfile(){
+  var prof = loadProfile();
+  if(!prof || !formIsBlank()) return false;
+  var pl = (prof.players && prof.players[0]) || null;
+  S.form.pName = prof.pName || "";
+  S.form.email = prof.email || "";
+  if(prof.pay && PAYS.indexOf(prof.pay)>=0) S.form.pay = prof.pay;
+  if(pl){ S.form.sName = pl.sName || ""; if(pl.cat && TEAMS.indexOf(pl.cat)>=0) S.form.cat = pl.cat; }
+  S.prefilled = !!(S.form.pName || S.form.sName || S.form.email);
+  return S.prefilled;
+}
+
 // Firebase RTDBのキーに使えない文字（. # $ [ ]）を置換
 function emailToKey(email){
   return String(email||"").trim().toLowerCase().replace(/[.#$\[\]]/g, function(c){
@@ -508,6 +539,7 @@ var S = {
   form:{pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""},
   pwErr:"",
   adminTab:"dash", selOid:null, sfSt:"すべて", sortKey:"dateDesc",
+  prefilled:false,
   toast:null,
   prodSel:{},
   placing:false,
@@ -599,6 +631,7 @@ function placeOrder(){
   render();
 
   pushOrderToCloud(order).then(function(){
+    saveProfileFromOrder(order);
     S.lastOrder = order;
     S.cart = [];
     S.form = {pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""};
@@ -990,11 +1023,29 @@ function stepsIndicatorHtml(){
   }).join("")+'</div>';
 }
 function step1Html(){
+  var prof = loadProfile();
+  var players = (prof && prof.players) || [];
+  var banner = S.prefilled ? (
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f0faf0;border:1px solid #b2d8b2;border-radius:8px;padding:8px 10px;margin-bottom:12px;font-size:12px;color:#2c5a38">'+
+      '<span>✅ 前回の内容を入力しました（変更できます）</span>'+
+      '<button onclick="App.clearPrefill()" style="flex-shrink:0;padding:6px 10px;border:1px solid #9cc9a5;border-radius:6px;background:#fff;color:#1a6b2f;font-size:11px;font-weight:700;min-height:32px">入力をクリア</button>'+
+    '</div>'
+  ) : "";
+  var chips = players.length>=2 ? (
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">'+
+      players.map(function(pl, i){
+        var active = S.form.sName===pl.sName;
+        return '<button type="button" onclick="App.pickPlayer('+i+')" style="padding:6px 11px;border-radius:99px;font-size:12px;font-weight:700;min-height:32px;background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#444")+';border:1px solid '+(active?G.g1:"#ccc")+'">'+esc(pl.sName)+'</button>';
+      }).join("")+
+    '</div>'
+  ) : "";
   return (
+    banner+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" class="frow">'+
       '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">保護者氏名 *</label>'+
         '<input data-bind="form.pName" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="山田 花子"></div>'+
       '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">選手氏名 *</label>'+
+        chips+
         '<input data-bind="form.sName" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="山田 一郎"></div>'+
     '</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px" class="frow">'+
@@ -1007,7 +1058,8 @@ function step1Html(){
       '<input type="email" data-bind="form.email" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa" placeholder="yamada@example.com"></div>'+
     '<div style="margin-bottom:14px"><label style="display:block;font-size:11px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">備考・ご要望</label>'+
       '<textarea data-bind="form.note" style="width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;background:#fafafa;height:70px;resize:vertical" placeholder="名前印刷希望など"></textarea></div>'+
-    '<button onclick="App.confirmStep1()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">注文内容を確認する →</button>'
+    '<button onclick="App.confirmStep1()" style="width:100%;padding:13px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:15px">注文内容を確認する →</button>'+
+    (prof ? '<div style="text-align:center;margin-top:10px"><button onclick="App.forgetProfile()" style="font-size:11px;color:#999;text-decoration:underline;padding:6px;min-height:32px">この端末に保存した入力内容を削除する</button></div>' : '')
   );
 }
 function step2Html(){
@@ -1679,7 +1731,10 @@ window.App = {
   changeProdQty:function(pid,d){ var p=prodById(pid); if(p){ var s=selFor(p); s.qty=Math.max(1,s.qty+d); render(); } },
   changeCartQty:function(idx,d){ changeCartQty(idx,d); },
   removeCartItem:function(idx){ removeCartItem(idx); },
-  goCheckout:function(){ S.step=1; render(); },
+  goCheckout:function(){ prefillFormFromProfile(); S.step=1; render(); },
+  clearPrefill:function(){ S.form = {pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""}; S.prefilled=false; render(); },
+  forgetProfile:function(){ clearProfile(); S.form = {pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""}; S.prefilled=false; showToast("この端末に保存した入力内容を削除しました"); render(); },
+  pickPlayer:function(i){ var prof=loadProfile(); var pl=prof&&prof.players&&prof.players[i]; if(!pl) return; S.form.sName=pl.sName||""; if(pl.cat && TEAMS.indexOf(pl.cat)>=0) S.form.cat=pl.cat; render(); },
   confirmStep1:function(){ if(S.form.pName && S.form.sName && S.form.email){ S.step=2; render(); } else showError("必須項目を入力してください"); },
   backToStep1:function(){ S.step=1; render(); },
   closeOrderModal:function(){ S.step=0; render(); },
@@ -1778,8 +1833,10 @@ window.App = {
     }).catch(function(e){ S.loadingAdmin=false; showError("更新に失敗しました"); });
   },
   goStatusLookup:function(prefillEmail){
-    S.page="status"; S.statusLookupId=prefillEmail||""; S.statusLookupResult=null; S.statusLookupErr=""; render();
-    if(prefillEmail) App.checkOrderStatus();
+    var prof = loadProfile();
+    var email = prefillEmail || (prof && prof.email) || "";
+    S.page="status"; S.statusLookupId=email; S.statusLookupResult=null; S.statusLookupErr=""; render();
+    if(email) App.checkOrderStatus();
   },
   checkOrderStatus:function(){
     var emailInput = document.getElementById("statusLookupInput");
