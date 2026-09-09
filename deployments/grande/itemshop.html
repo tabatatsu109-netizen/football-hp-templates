@@ -20,6 +20,50 @@ input,select,textarea{font-family:inherit}
 .st-szs{display:flex;gap:6px;flex-wrap:wrap}
 .sf-wrap{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
 .sc-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+/* ───── HERO（トップ）───── */
+.hero{position:relative;overflow:hidden;background:#0d3b1e;border-bottom:3px solid #c8a94a;min-height:440px;display:flex;align-items:center}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 30%;opacity:.32;transform:scale(1.06);animation:heroZoom 16s ease-out forwards}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(100deg,#0d3b1e 34%,rgba(13,59,30,.78) 60%,rgba(13,59,30,.45) 100%)}
+.hero-shade::after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(to top,#0d3b1e,transparent)}
+.hero-stripes{position:absolute;inset:0;background:repeating-linear-gradient(-55deg,transparent 0 26px,rgba(200,169,74,.04) 26px 28px);pointer-events:none}
+.hero-in{position:relative;max-width:1200px;margin:0 auto;padding:36px 20px 56px;width:100%;display:grid;grid-template-columns:1fr;gap:18px;align-items:center}
+.hero-txt{animation:heroUp .8s ease-out both}
+.hero-kicker{display:flex;align-items:center;gap:8px;color:#c8a94a;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:2.5px;margin-bottom:12px;white-space:nowrap}
+.hero-kicker::before{content:"";width:26px;height:2px;background:#c8a94a;flex-shrink:0}
+.hero-kicker .dot{color:#d64541;font-size:10px;margin:0 2px}
+.hero-ttl{margin:0;display:flex;flex-direction:column;font-family:'Barlow Condensed',sans-serif;font-weight:900;line-height:.9;font-size:clamp(58px,11vw,108px);color:#fff;text-shadow:0 8px 32px rgba(0,0,0,.4);letter-spacing:.5px}
+.hero-ttl .gold{background:linear-gradient(180deg,#f0d878 0%,#c8a94a 55%,#a5852e 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 8px 24px rgba(0,0,0,.4))}
+.hero-lead{color:rgba(255,255,255,.74);font-size:14.5px;line-height:2;margin:18px 0 24px;max-width:460px}
+.hero-cta{display:flex;flex-wrap:wrap;gap:10px}
+.hero-btn-main{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(180deg,#dcc061,#c8a94a);color:#0d3b1e;padding:0 32px;min-height:50px;font-weight:900;font-size:15px;letter-spacing:2px;border-radius:8px;box-shadow:0 10px 26px rgba(200,169,74,.35);transition:transform .15s,box-shadow .15s}
+.hero-btn-main .arr{display:inline-block;animation:heroArrow 1.6s ease-in-out infinite}
+.hero-btn-main:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(200,169,74,.48)}
+.hero-btn-sub{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);color:#fff;border:1.5px solid rgba(255,255,255,.42);padding:0 24px;min-height:50px;font-weight:700;font-size:14px;border-radius:8px;backdrop-filter:blur(4px);transition:background .15s}
+.hero-btn-sub:hover{background:rgba(255,255,255,.16)}
+.hero-btn-sub .cnt{background:#e53935;color:#fff;border-radius:99px;min-width:20px;height:20px;padding:0 6px;font-size:11px;font-weight:900;display:inline-flex;align-items:center;justify-content:center}
+.hero-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.hero-chips span{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.82);background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:6px 12px;white-space:nowrap}
+.hero-emblem{position:relative;display:flex;justify-content:center;align-items:center;order:-1;padding:6px 0 0}
+.hero-emblem img{position:relative;width:140px;height:140px;filter:drop-shadow(0 16px 36px rgba(0,0,0,.6));animation:heroFloat 6s ease-in-out infinite}
+.hero-ring{position:absolute;width:176px;height:176px;border-radius:50%;border:1px solid rgba(200,169,74,.4);box-shadow:0 0 0 14px rgba(200,169,74,.06),inset 0 0 70px rgba(200,169,74,.16)}
+.hero-ring::after{content:"";position:absolute;inset:-22px;border-radius:50%;border:1px dashed rgba(200,169,74,.22);animation:heroSpin 70s linear infinite}
+.hero-water{position:absolute;right:-12px;bottom:-24px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:min(280px,30vw);color:rgba(200,169,74,.05);line-height:1;pointer-events:none;user-select:none}
+@media(min-width:768px){
+  .hero{min-height:520px}
+  .hero-in{grid-template-columns:1.15fr .85fr;gap:24px;padding:72px 24px 88px}
+  .hero-emblem{order:0;padding:0}
+  .hero-emblem img{width:min(320px,34vw);height:auto}
+  .hero-ring{width:min(400px,42vw);height:min(400px,42vw)}
+  .hero-ring::after{inset:-34px}
+  .hero-lead{font-size:15px}
+  .hero-kicker{font-size:13px;letter-spacing:3.5px;gap:10px}
+}
+@keyframes heroZoom{to{transform:scale(1)}}
+@keyframes heroUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes heroSpin{to{transform:rotate(360deg)}}
+@keyframes heroArrow{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@media(prefers-reduced-motion:reduce){.hero-bg,.hero-txt,.hero-emblem img,.hero-ring::after,.hero-btn-main .arr{animation:none}}
 /* ショップヘッダー右上のボタン（スマホ：アイコン＋ラベル縦積み／PC：横並びピル） */
 .hbtn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:56px;min-height:44px;padding:4px 8px;border-radius:9px;color:#fff;font-size:10px;font-weight:700;line-height:1.1;white-space:nowrap;letter-spacing:.5px}
 .hbtn .ic{font-size:19px;line-height:1}
@@ -855,8 +899,8 @@ function shopHeaderHtml(){
   return (
     '<div style="position:sticky;top:0;z-index:100;background:'+G.g3+';border-bottom:3px solid '+G.gold+'">'+
       '<div style="max-width:1200px;margin:0 auto;padding:0 16px;height:60px;display:flex;align-items:center;justify-content:space-between">'+
-        '<div style="display:flex;align-items:center;gap:10px">'+
-          '<div style="width:38px;height:38px;background:'+G.gold+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:'+G.g3+';font-size:18px">G</div>'+
+        '<div onclick="App.goShop()" style="display:flex;align-items:center;gap:10px;cursor:pointer">'+
+          '<img src="assets/logo-shop-96.png" alt="八ヶ岳グランデFC" width="44" height="44" style="width:44px;height:44px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45))">'+
           '<div>'+
             '<div style="color:#fff;font-weight:900;font-size:16px;letter-spacing:2px;font-family:\'Barlow Condensed\',sans-serif">GRANDE FC</div>'+
             '<div style="color:'+G.gold+';font-size:10px;letter-spacing:2px">OFFICIAL SHOP</div>'+
@@ -874,24 +918,30 @@ function shopHeaderHtml(){
   );
 }
 function heroHtml(){
+  var cc = cartCount();
   return (
-    '<div style="background:'+G.g3+';min-height:440px;display:flex;align-items:center;position:relative;overflow:hidden;border-bottom:3px solid '+G.gold+'">'+
-      '<div style="position:absolute;inset:0;background-image:url(\''+HERO_IMG+'\');background-size:cover;background-position:center 30%;opacity:.35"></div>'+
-      '<div style="position:absolute;inset:0;background:linear-gradient(105deg,'+G.g3+' 42%,rgba(10,35,18,0.55) 100%)"></div>'+
-      '<div style="position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,'+G.g3+',transparent)"></div>'+
-      '<div style="position:absolute;top:0;bottom:0;left:46%;width:1px;background:linear-gradient(to bottom,transparent,rgba(200,169,74,.25),transparent)"></div>'+
-      '<div style="position:absolute;top:0;bottom:0;right:18%;width:1px;background:linear-gradient(to bottom,transparent,rgba(200,169,74,.12),transparent)"></div>'+
-      '<div style="position:relative;max-width:1200px;margin:0 auto;padding:72px 24px 80px;width:100%">'+
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:900;line-height:0.9;letter-spacing:0px">'+
-          '<div style="color:#fff;font-size:clamp(56px,10vw,96px)">OFFICIAL</div>'+
-          '<div style="color:'+G.gold+';font-size:clamp(56px,10vw,96px)">ITEM SHOP</div>'+
+    '<section class="hero">'+
+      '<div class="hero-bg" style="background-image:url(\''+HERO_IMG+'\')"></div>'+
+      '<div class="hero-shade"></div>'+
+      '<div class="hero-stripes"></div>'+
+      '<div class="hero-in">'+
+        '<div class="hero-txt">'+
+          '<div class="hero-kicker">YATSUGATAKE GRANDE FC<span class="dot">★</span>SINCE 2001</div>'+
+          '<h1 class="hero-ttl"><span>OFFICIAL</span><span class="gold">ITEM SHOP</span></h1>'+
+          '<p class="hero-lead">公式クラブウェア・グッズの注文はこちらから。<br>ご入会時の必要アイテムもこちらからご注文いただけます。</p>'+
+          '<div class="hero-cta">'+
+            '<button class="hero-btn-main" onclick="App.scrollToProducts()">商品を見る<span class="arr">↓</span></button>'+
+            '<button class="hero-btn-sub" onclick="App.openCart()">🛒 カートを見る'+(cc>0?'<span class="cnt">'+cc+'</span>':'')+'</button>'+
+          '</div>'+
+          '<div class="hero-chips"><span>🟡 ジュニア必需品</span><span>🔴 ジュニアユース必需品</span><span>💴 現金・口座振替・振込</span></div>'+
         '</div>'+
-        '<div style="width:52px;height:3px;background:'+G.gold+';margin:22px 0"></div>'+
-        '<div style="color:rgba(255,255,255,.5);font-size:14px;line-height:2;margin-bottom:36px;max-width:440px">公式クラブウェア・グッズの注文はこちらから。<br>ご入会時の必要アイテムもこちらからご注文いただけます。</div>'+
-        '<button onclick="App.openCart()" style="background:'+G.gold+';color:'+G.g3+';padding:15px 38px;font-weight:900;font-size:15px;letter-spacing:2px;display:inline-flex;align-items:center;gap:10px">カートを見る <span>🛒</span></button>'+
+        '<div class="hero-emblem" aria-hidden="true">'+
+          '<div class="hero-ring"></div>'+
+          '<img src="assets/logo-shop.png" alt="">'+
+        '</div>'+
       '</div>'+
-      '<div style="position:absolute;right:-12px;bottom:-20px;font-family:\'Barlow Condensed\',sans-serif;font-weight:900;font-size:min(260px,28vw);color:rgba(200,169,74,.04);line-height:1;pointer-events:none;user-select:none">SHOP</div>'+
-    '</div>'
+      '<div class="hero-water">SHOP</div>'+
+    '</section>'
   );
 }
 function productsSectionHtml(){
@@ -933,7 +983,7 @@ function productsSectionHtml(){
 
   var prodsHtml = list.map(productCardHtml).join("") || '<div style="color:#aaa;padding:40px 0;text-align:center">商品がありません</div>';
   return (
-    '<div style="max-width:1200px;margin:0 auto;padding:36px 16px 60px">'+
+    '<div id="products" style="max-width:1200px;margin:0 auto;padding:36px 16px 60px;scroll-margin-top:70px">'+
       '<div style="font-size:11px;font-weight:700;color:'+G.g1+';letter-spacing:4px;text-transform:uppercase;margin-bottom:6px">ITEMS</div>'+
       '<div style="font-size:clamp(24px,5vw,36px);font-weight:900;letter-spacing:2px;margin-bottom:20px">商品一覧</div>'+
       '<div class="flt-wrap" style="margin-bottom:10px">'+tabsHtml+'</div>'+
@@ -1760,6 +1810,7 @@ window.App = {
     });
   },
   goShop:function(){ S.page="shop"; S.pwErr=""; render(); },
+  scrollToProducts:function(){ var el=document.getElementById("products"); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}); },
   logout:function(){ S.page="shop"; S.adminAuthed=false; render(); },
   backToAdmin:function(){ S.page="admin"; render(); },
   setAdminTab:function(t){ S.adminTab=t; render(); },
