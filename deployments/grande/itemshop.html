@@ -85,6 +85,21 @@ input,select,textarea{font-family:inherit}
 .sort-wrap select{min-height:44px;padding:0 32px 0 12px;border:1px solid #cfd8cf;border-radius:8px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23555' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;font-size:14px;font-weight:700;color:#1a3a22;appearance:none;-webkit-appearance:none;cursor:pointer}
 .sort-wrap select:focus{outline:2px solid #1a6b2f;outline-offset:1px}
 .sort-count{font-size:12px;color:#888;white-space:nowrap}
+/* 在庫タブ */
+.stock-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;position:sticky;top:0;z-index:5;background:#f2f5f2;padding:8px 0}
+.stock-bar .lg{display:inline-block;padding:2px 8px;border-radius:99px;margin-left:4px;border:1px solid #e0e0e0;color:#555}
+.stock-list{display:flex;flex-direction:column;gap:10px}
+.stock-row{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:grid;grid-template-columns:1fr;gap:10px}
+.stock-fill{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.stock-fill input{width:84px;padding:6px 8px;border:1px solid #ccc;border-radius:6px;font-size:13px;min-height:32px}
+.stock-fill button{padding:0 10px;min-height:32px;border-radius:6px;background:#1a6b2f;color:#fff;font-size:11.5px;font-weight:700}
+.stock-fill button.ghost{background:#fff;color:#777;border:1px solid #ccc}
+.stock-cells{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.stock-cell{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 6px 5px;border:1px solid #e3e6e3;border-radius:8px;min-width:64px}
+.stock-cell span{font-size:10.5px;font-weight:700;color:#666;white-space:nowrap}
+.stock-cell input{width:60px;padding:6px 4px;border:1px solid #ccc;border-radius:6px;font-size:15px;font-weight:700;text-align:center;background:#fff;min-height:36px}
+.stock-cell input:focus{outline:2px solid #1a6b2f;outline-offset:1px}
+@media(min-width:768px){.stock-row{grid-template-columns:260px 1fr}}
 @media(max-width:600px){.frow{grid-template-columns:1fr!important}}
 @media print{
   body>*{display:none!important}
@@ -228,6 +243,9 @@ var FB_CATALOG_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopCatalog";
 // 注文状況の公開ミラー（メールアドレスをキーに、そのメールで注文した全件を保存。
 // 同上：公開読み取り可・書き込みは管理者キー必須）
 var FB_STATUS_BY_EMAIL_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopOrdersByEmail";
+// サイズ別在庫（公開読み取り可。管理者は自由に書き込み可／保護者の端末は「減らす方向のみ」ルールで許可）
+var FB_STOCK_URL = FB_URL + "/clubs/" + SHOP_CLUB_ID + "/shopStock";
+var LOW_STOCK = 3; // これ以下は「残りわずか」
 
 var SECRET_KEY = "shop_secret_" + SHOP_CLUB_ID;
 function getSecret(){ return localStorage.getItem(SECRET_KEY) || ""; }
@@ -579,6 +597,111 @@ function esc(s){
 // カート/注文明細で「サイズ（背番号N）」の形式を統一して出すヘルパー
 function sizeLabel(it){ return esc(it.size) + (it.number ? "（背番号" + esc(it.number) + "）" : ""); }
 
+/* ───────── 在庫（サイズ別） ─────────
+   S.stock = { [pid]: { [sizeKey]: 数 } }。未設定のサイズは「在庫管理しない」＝表示も減算もしない。
+   0以下は「お取り寄せ」（注文は受け付ける。マイナス値＝取り寄せ待ちの数） */
+function stockKey(size){ return String(size==null?"":size).replace(/[.$#\[\]\/]/g, "_"); }
+function stockOf(pid, size){
+  var row = S.stock && S.stock[pid];
+  if(!row) return null;
+  var v = row[stockKey(size)];
+  return (typeof v === "number") ? v : null;
+}
+function stockLevel(q){ if(q==null) return null; if(q<=0) return "backorder"; if(q<=LOW_STOCK) return "low"; return "ok"; }
+function stockBadgeHtml(pid, size){
+  var lv = stockLevel(stockOf(pid, size));
+  if(!lv) return "";
+  var c = {
+    ok:        {bg:"#e8f5ea", fg:"#1a6b2f", bd:"#bfe0c6", t:"✔ 在庫あり"},
+    low:       {bg:"#fff4e5", fg:"#b45309", bd:"#f5cf8e", t:"⚠ 残りわずか"},
+    backorder: {bg:"#f3f4f6", fg:"#555",    bd:"#ddd",    t:"📦 お取り寄せ"}
+  }[lv];
+  return (
+    '<div style="display:flex;align-items:center;gap:8px;margin:-2px 0 10px;flex-wrap:wrap">'+
+      '<span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;background:'+c.bg+';color:'+c.fg+';border:1px solid '+c.bd+'">'+c.t+'</span>'+
+      (lv==="backorder" ? '<span style="font-size:10.5px;color:#888">ご注文いただけます。お渡しまでお時間をいただきます</span>' : '')+
+    '</div>'
+  );
+}
+function loadPublicStock(){
+  return fetch(FB_STOCK_URL + ".json").then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+    if(d && typeof d === "object"){ S.stock = d; return true; }
+    return false;
+  }).catch(function(){ return false; });
+}
+// 1セル読み取り（ETag付き：同時注文でも取りこぼさないため）
+function readStockCell(pid, size, auth){
+  var url = FB_STOCK_URL + "/" + pid + "/" + encodeURIComponent(stockKey(size)) + ".json" + (auth ? "?auth=" + encodeURIComponent(getSecret()) : "");
+  return fetch(url, { headers: { "X-Firebase-ETag": "true" } }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    var etag = res.headers.get("ETag");
+    return res.json().then(function(v){ return { etag: etag, val: (typeof v === "number") ? v : null }; });
+  });
+}
+// 1セルに差分を適用（在庫管理していないセルは何もしない）。競合したら最大4回やり直す
+function applyStockDelta(pid, size, delta, auth){
+  var url = FB_STOCK_URL + "/" + pid + "/" + encodeURIComponent(stockKey(size)) + ".json" + (auth ? "?auth=" + encodeURIComponent(getSecret()) : "");
+  var attempt = 0;
+  function tryOnce(){
+    attempt++;
+    return readStockCell(pid, size, auth).then(function(cur){
+      if(cur.val == null) return null;
+      var next = cur.val + delta;
+      var headers = { "Content-Type": "application/json" };
+      if(cur.etag) headers["if-match"] = cur.etag;
+      return fetch(url, { method: "PUT", headers: headers, body: JSON.stringify(next) }).then(function(res){
+        if(res.status === 412 && attempt < 4) return tryOnce();
+        if(!res.ok) throw new Error("HTTP " + res.status);
+        if(!S.stock[pid]) S.stock[pid] = {};
+        S.stock[pid][stockKey(size)] = next;
+        return next;
+      });
+    });
+  }
+  return tryOnce();
+}
+// 注文確定後：注文した数だけ在庫を減らす（保護者の端末から。失敗しても注文自体は成立させる）
+function decrementStockForItems(items){
+  var changed = false;
+  return items.reduce(function(chain, it){
+    return chain.then(function(){
+      if(stockOf(it.pid, it.size) == null) return;
+      return applyStockDelta(it.pid, it.size, -it.qty, false).then(function(){ changed = true; }).catch(function(e){ console.warn("stock decrement failed", it.pid, it.size, e); });
+    });
+  }, Promise.resolve()).then(function(){ return changed; });
+}
+// 管理者が注文を削除したとき：減らした分を戻す（在庫連動後の注文のみ）
+function restoreStockForOrder(order){
+  var items = (order.items || []).filter(function(it){ return it.stockAtOrder != null; });
+  return items.reduce(function(chain, it){
+    return chain.then(function(){
+      return applyStockDelta(it.pid, it.size, +it.qty, true).catch(function(e){ console.warn("stock restore failed", e); });
+    });
+  }, Promise.resolve()).then(function(){ if(items.length) render(); });
+}
+// 管理画面の保存：セルごとに PUT（空欄は削除＝在庫管理しない）
+function saveStockCell(pid, size, val){
+  var url = FB_STOCK_URL + "/" + pid + "/" + encodeURIComponent(stockKey(size)) + ".json?auth=" + encodeURIComponent(getSecret());
+  var opts = (val == null) ? { method: "DELETE" } : { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(val) };
+  return fetch(url, opts).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    if(!S.stock[pid]) S.stock[pid] = {};
+    if(val == null){ delete S.stock[pid][stockKey(size)]; if(!Object.keys(S.stock[pid]).length) delete S.stock[pid]; }
+    else S.stock[pid][stockKey(size)] = val;
+  });
+}
+function lowStockList(){
+  var out = [];
+  allProds().forEach(function(p){
+    p.sizes.forEach(function(sz){
+      var q = stockOf(p.id, sz);
+      if(q != null && q <= LOW_STOCK) out.push({p:p, size:sz, q:q});
+    });
+  });
+  out.sort(function(a,b){ return a.q - b.q; });
+  return out;
+}
+
 /* ───────── STATE ───────── */
 var S = {
   page:"shop", view:"all", cart:[], cartOpen:false, step:0,
@@ -588,6 +711,7 @@ var S = {
   pwErr:"",
   adminTab:"dash", selOid:null, sfSt:"すべて", sortKey:"dateDesc",
   prefilled:false,
+  stock:{}, stockDraft:{}, stockSaving:false,
   toast:null,
   prodSel:{},
   placing:false,
@@ -674,12 +798,14 @@ function placeOrder(){
   if(S.placing) return;
   var oid = genId();
   var order = Object.assign({}, S.form, {id:oid, date:new Date().toISOString(), items:S.cart.map(function(i){return Object.assign({},i);}), total:cartTotal(), status:"未確認"});
+  order.items.forEach(function(it){ var q = stockOf(it.pid, it.size); if(q != null) it.stockAtOrder = q; });
 
   S.placing = true;
   render();
 
   pushOrderToCloud(order).then(function(){
     saveProfileFromOrder(order);
+    decrementStockForItems(order.items).then(function(changed){ if(changed) render(); });
     S.lastOrder = order;
     S.cart = [];
     S.form = {pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""};
@@ -880,6 +1006,7 @@ function productCardHtml(p){
         '<div style="font-size:24px;font-weight:900;color:'+G.g1+';margin-bottom:12px">'+fmt(p.price)+'<span style="font-size:12px;color:#bbb;font-weight:400"> /点</span></div>'+
         '<div style="font-size:10px;font-weight:700;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">SIZE</div>'+
         '<div class="size-wrap" style="margin-bottom:10px">'+sizesHtml+'</div>'+
+        stockBadgeHtml(p.id, sel.size)+
         (p.cat==="ユニフォーム" ?
           '<div style="margin-bottom:10px"><label style="display:block;font-size:10px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">背番号（任意・不明なら空欄でOK）</label>'+
           '<input data-bind="prodSel.'+p.id+'.number" placeholder="例）10" style="width:100%;padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px"></div>'
@@ -1025,7 +1152,7 @@ function cartDrawerHtml(){
         var idx = S.cart.indexOf(it);
         return (
           '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">'+
-            '<div style="font-size:13px;color:#555">サイズ: <strong>'+sizeLabel(it)+'</strong></div>'+
+            '<div style="font-size:13px;color:#555">サイズ: <strong>'+sizeLabel(it)+'</strong>'+(stockLevel(stockOf(it.pid,it.size))==="backorder" ? ' <span style="font-size:10px;font-weight:700;color:#666;background:#f0f0f0;border-radius:99px;padding:2px 7px">お取り寄せ</span>' : '')+'</div>'+
             '<div style="display:flex;align-items:center;gap:6px">'+
               '<button onclick="App.changeCartQty('+idx+',-1)" style="width:22px;height:22px;border:1px solid #ddd;border-radius:4px;background:#f5f5f5;font-size:12px">−</button>'+
               '<span style="font-weight:700;font-size:13px;width:22px;text-align:center">'+it.qty+'</span>'+
@@ -1305,7 +1432,7 @@ function statusPageHtml(){
 
 /* ───────── ADMIN PAGE ───────── */
 function adminHeaderHtml(){
-  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["photos","🛍 商品管理"],["po","📑 発注書"],["cfg","⚙️ 設定"]];
+  var tabs = [["dash","📊 ダッシュボード"],["orders","📋 注文一覧"],["stats","📈 商品別集計"],["photos","🛍 商品管理"],["stock","📦 在庫"],["po","📑 発注書"],["cfg","⚙️ 設定"]];
   var tabsHtml = tabs.map(function(pair){
     var t=pair[0], l=pair[1];
     var active = S.adminTab===t;
@@ -1326,7 +1453,61 @@ function adminHeaderHtml(){
     '<div style="background:#145224;border-bottom:1px solid rgba(200,169,74,.2);display:flex;overflow-x:auto">'+tabsHtml+'</div>'
   );
 }
+function stockTabHtml(){
+  var prods = getOrderedProds();
+  var dirty = Object.keys(S.stockDraft).length;
+  var rows = prods.map(function(p){
+    var cells = p.sizes.map(function(sz){
+      var key = p.id + "|" + stockKey(sz);
+      var cur = stockOf(p.id, sz);
+      var v = (key in S.stockDraft) ? S.stockDraft[key] : (cur == null ? "" : String(cur));
+      var lv = stockLevel(v === "" ? null : Number(v));
+      var bg = lv==="backorder" ? "#f3f4f6" : lv==="low" ? "#fff4e5" : lv==="ok" ? "#e8f5ea" : "#fff";
+      var edited = (key in S.stockDraft);
+      return (
+        '<label class="stock-cell" style="background:'+bg+(edited?';box-shadow:0 0 0 2px '+G.gold:'')+'">'+
+          '<span>'+esc(sz)+'</span>'+
+          '<input type="number" inputmode="numeric" step="1" value="'+esc(v)+'" placeholder="—" data-size="'+esc(sz)+'" onchange="App.stockEdit('+p.id+',this.dataset.size,this.value)">'+
+        '</label>'
+      );
+    }).join("");
+    return (
+      '<div class="stock-row">'+
+        '<div class="stock-name"><div style="font-weight:700;font-size:14px">'+esc(p.name)+'</div><div style="font-size:11px;color:#888">'+esc(brandOf(p))+' · '+fmt(p.price)+'</div>'+
+          '<div class="stock-fill"><input type="number" inputmode="numeric" placeholder="全サイズに" id="stockFill'+p.id+'"><button onclick="App.stockFillRow('+p.id+',document.getElementById(\'stockFill'+p.id+'\').value)">一括入力</button><button onclick="App.stockClearRow('+p.id+')" class="ghost">管理しない</button></div>'+
+        '</div>'+
+        '<div class="stock-cells">'+cells+'</div>'+
+      '</div>'
+    );
+  }).join("");
+  return (
+    '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">STOCK</div>'+
+    '<div style="font-size:12.5px;color:#666;line-height:1.8;margin-bottom:14px">サイズごとの在庫数を入力してください。<b>空欄＝在庫管理しない</b>（ショップに在庫表示は出ず、注文で減りもしません）。'+
+      '注文が入ると自動で減り、<b>0以下は「お取り寄せ」</b>としてショップに表示されます（注文は受け付けます。マイナスの数＝取り寄せ待ちの数）。'+
+      '<b>'+LOW_STOCK+'以下</b>は「残りわずか」表示になります。入荷したら数を増やして保存してください。</div>'+
+    '<div class="stock-bar">'+
+      '<button onclick="App.stockSave()" '+((dirty && !S.stockSaving)?"":"disabled")+' style="padding:10px 18px;background:'+(dirty?G.g1:"#bbb")+';color:#fff;border-radius:8px;font-weight:700;font-size:13px">'+(S.stockSaving?"保存中…":"💾 変更を保存"+(dirty?"（"+dirty+"件）":""))+'</button>'+
+      '<button onclick="App.stockDiscard()" '+(dirty?"":"disabled")+' style="padding:10px 14px;background:#fff;color:#555;border:1px solid #ccc;border-radius:8px;font-weight:700;font-size:12px">変更を取り消す</button>'+
+      '<button onclick="App.stockReload()" style="padding:10px 14px;background:#fff;color:'+G.g1+';border:1px solid '+G.g1+';border-radius:8px;font-weight:700;font-size:12px">🔄 最新を取得</button>'+
+      '<span style="font-size:11px;color:#888;margin-left:auto">色：<span class="lg" style="background:#e8f5ea">在庫あり</span><span class="lg" style="background:#fff4e5">残りわずか</span><span class="lg" style="background:#f3f4f6">お取り寄せ</span></span>'+
+    '</div>'+
+    '<div class="stock-list">'+rows+'</div>'
+  );
+}
 function dashboardHtml(){
+  var low = lowStockList();
+  var lowStockHtml = low.length ? (
+    '<div style="background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 6px rgba(0,0,0,.06);border-left:4px solid #f59e0b;margin-bottom:20px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">'+
+        '<div style="font-weight:700;font-size:14px">📦 在庫アラート <span style="font-size:12px;color:#888;font-weight:400">残りわずか・お取り寄せ待ち '+low.length+'件</span></div>'+
+        '<button onclick="App.setAdminTab(\'stock\')" style="padding:6px 12px;background:'+G.g1+';color:#fff;border-radius:6px;font-size:12px;font-weight:700">在庫を編集する →</button>'+
+      '</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px">'+low.slice(0,30).map(function(x){
+        var neg = x.q < 0;
+        return '<span style="font-size:12px;padding:5px 10px;border-radius:99px;background:'+(x.q<=0?"#f3f4f6":"#fff4e5")+';color:'+(x.q<=0?"#444":"#b45309")+';border:1px solid '+(x.q<=0?"#ddd":"#f5cf8e")+'">'+esc(x.p.name)+'（'+esc(x.size)+'）<b>'+(neg?("取寄待ち"+(-x.q)):("残"+x.q))+'</b></span>';
+      }).join("")+(low.length>30?'<span style="font-size:12px;color:#888;padding:5px">…他'+(low.length-30)+'件</span>':'')+'</div>'+
+    '</div>'
+  ) : "";
   var cards = [
     {l:"総売上金額",v:fmt(totalSales()),ic:"💰",c:G.g1},
     {l:"総注文件数",v:S.orders.length+"件",ic:"📦",c:"#3B82F6"},
@@ -1354,6 +1535,7 @@ function dashboardHtml(){
   return (
     '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:16px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">DASHBOARD</div>'+
     '<div class="dc-grid">'+cardsHtml+'</div>'+
+    lowStockHtml+
     '<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">'+
       '<button onclick="App.downloadOrderListCsv()" style="padding:9px 14px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 注文一覧CSV</button>'+
       '<button onclick="App.downloadOrderDetailCsv()" style="padding:9px 14px;background:'+G.g2+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 注文明細CSV</button>'+
@@ -1364,7 +1546,7 @@ function dashboardHtml(){
 }
 function orderCardHtml(o){
   var expanded = S.selOid===o.id;
-  var itemsLine = o.items.map(function(i){ return esc(i.pname)+'（'+sizeLabel(i)+'）×'+i.qty; }).join("　");
+  var itemsLine = o.items.map(function(i){ return esc(i.pname)+'（'+sizeLabel(i)+'）×'+i.qty+((i.stockAtOrder!=null && i.stockAtOrder < i.qty) ? ' <span style="color:#b45309;font-weight:700;font-size:11px">［取寄］</span>' : ''); }).join("　");
   var detail = "";
   if(expanded){
     var itemsDetail = o.items.map(function(it, idx){
@@ -1718,7 +1900,7 @@ function cfgTabHtml(){
   );
 }
 function adminPageHtml(){
-  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():S.adminTab==="photos"?photosTabHtml():S.adminTab==="po"?poTabHtml():cfgTabHtml();
+  var tabContent = S.adminTab==="dash"?dashboardHtml():S.adminTab==="orders"?ordersTabHtml():S.adminTab==="stats"?statsTabHtml():S.adminTab==="photos"?photosTabHtml():S.adminTab==="stock"?stockTabHtml():S.adminTab==="po"?poTabHtml():cfgTabHtml();
   return (
     '<div style="background:'+G.lt+';min-height:100vh">'+
       adminHeaderHtml()+
@@ -1865,6 +2047,7 @@ window.App = {
       showToast("注文を削除しました");
       render();
       deleteOrderStatusPublic(oid, target);
+      restoreStockForOrder(target);
     }).catch(function(e){
       S.deletingOid = null;
       showError("削除に失敗しました");
@@ -1873,6 +2056,46 @@ window.App = {
   },
   setSfSt:function(s){ S.sfSt=s; render(); },
   setSort:function(k){ S.sortKey=k; render(); },
+  stockEdit:function(pid,size,val){
+    var key = pid + "|" + stockKey(size);
+    var v = String(val==null?"":val).trim();
+    var cur = stockOf(pid, size);
+    if(v !== "" && !/^-?\d+$/.test(v)){ showError("整数で入力してください"); render(); return; }
+    var same = (v === "" && cur == null) || (v !== "" && cur != null && Number(v) === cur);
+    if(same) delete S.stockDraft[key]; else S.stockDraft[key] = v;
+    render();
+  },
+  stockFillRow:function(pid,val){
+    var p = prodById(pid); if(!p) return;
+    var v = String(val==null?"":val).trim();
+    if(!/^-?\d+$/.test(v)){ showError("一括入力する数を整数で入力してください"); return; }
+    p.sizes.forEach(function(sz){ App.stockEdit(pid, sz, v); });
+  },
+  stockClearRow:function(pid){
+    var p = prodById(pid); if(!p) return;
+    p.sizes.forEach(function(sz){ App.stockEdit(pid, sz, ""); });
+  },
+  stockDiscard:function(){ S.stockDraft = {}; render(); },
+  stockReload:function(){ loadPublicStock().then(function(){ S.stockDraft = {}; showToast("在庫を最新に更新しました"); render(); }); },
+  stockSave:function(){
+    var keys = Object.keys(S.stockDraft);
+    if(!keys.length || S.stockSaving) return;
+    S.stockSaving = true; render();
+    var failed = 0;
+    keys.reduce(function(chain, key){
+      return chain.then(function(){
+        var parts = key.split("|"); var pid = Number(parts[0]); var sizeKey = parts.slice(1).join("|");
+        var p = prodById(pid); var size = p ? (p.sizes.filter(function(sz){ return stockKey(sz)===sizeKey; })[0] || sizeKey) : sizeKey;
+        var v = S.stockDraft[key];
+        return saveStockCell(pid, size, v === "" ? null : Number(v)).then(function(){ delete S.stockDraft[key]; }).catch(function(e){ failed++; console.warn(e); });
+      });
+    }, Promise.resolve()).then(function(){
+      S.stockSaving = false;
+      if(failed) showError(failed+"件の保存に失敗しました。管理者キーを確認して再度お試しください");
+      else showToast("在庫を保存しました");
+      render();
+    });
+  },
   downloadOrderListCsv:downloadOrderListCsv,
   downloadOrderDetailCsv:downloadOrderDetailCsv,
   printInvoice:printInvoice,
@@ -1881,6 +2104,7 @@ window.App = {
   printPurchaseOrder: function(){ if(S.poBrand) printPurchaseOrder(S.poBrand); },
   refreshOrders:function(){
     S.loadingAdmin=true;
+    loadPublicStock().then(function(c){ if(c) render(); });
     render();
     fetchOrdersFromCloud().then(function(o){
       S.orders=o; S.loadingAdmin=false; showToast("データを最新に更新しました"); render();
@@ -2055,6 +2279,7 @@ render();
 
 /* ページ読み込み時に写真・カスタム商品設定を取得してショップに反映（認証不要） */
 loadPublicCatalog().then(function(changed){ if(changed) render(); }).catch(function(){});
+loadPublicStock().then(function(changed){ if(changed) render(); });
 
 })();
 </script>
