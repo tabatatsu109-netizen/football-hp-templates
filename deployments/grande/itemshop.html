@@ -153,9 +153,9 @@ var PRODS = [
   {id:29,name:"ウィンドビステ上下",brand:"ATHLETA",desc:"※希望者のみ。風を通さず雨水も染みにくいので、練習や試合前のアップに着用できます。",price:15980,cat:"アウター",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
   {id:30,name:"応援パーカー（保護者用）",brand:"ノーブランド",desc:"",price:4500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:false},
   {id:31,name:"応援Tシャツ（保護者用）",brand:"ノーブランド",desc:"ポリエステル素材（プラユニと同様）",price:3000,cat:"トップス",sizes:["120","130","140","150","S","M","L","O","XO"],reqJ:false,reqJU:false},
-  {id:32,name:"手袋",brand:"ノーブランド",desc:"番号も入れられます。備考欄に番号をご入力ください。※保護者の方もご購入いただけます。",price:2200,cat:"その他",sizes:["S","M","L"],reqJ:false,reqJU:false},
-  {id:33,name:"ウェア＆シューズバッグ",brand:"ノーブランド",desc:"サイズ約280×380、ポリエステル",price:800,cat:"バッグ",sizes:["1個","2個","3個"],reqJ:false,reqJU:false},
-  {id:34,name:"タオルマフラー",brand:"ノーブランド",desc:"※フェイスタオルではなく、タオルマフラーになります。応援やタオルとしても使えます。",price:1200,cat:"その他",sizes:["1個","2個","3個"],reqJ:false,reqJU:false},
+  {id:32,name:"手袋",brand:"ノーブランド",desc:"番号も入れられます。下の背番号欄にご入力ください。※保護者の方もご購入いただけます。",price:2200,cat:"その他",sizes:["S","M","L"],reqJ:false,reqJU:false},
+  {id:33,name:"ウェア＆シューズバッグ",brand:"ノーブランド",desc:"サイズ約280×380、ポリエステル",price:800,cat:"バッグ",sizes:["F"],reqJ:false,reqJU:false},
+  {id:34,name:"タオルマフラー",brand:"ノーブランド",desc:"※フェイスタオルではなく、タオルマフラーになります。応援やタオルとしても使えます。",price:1200,cat:"その他",sizes:["F"],reqJ:false,reqJU:false},
   {id:35,name:"NOF 旅Tシャツ（グランデ限定カラー）",brand:"NOF",desc:"",price:3000,cat:"トップス",sizes:["S","M","L","O"],reqJ:false,reqJU:false}
 ];
 
@@ -1007,7 +1007,7 @@ function productCardHtml(p){
         '<div style="font-size:10px;font-weight:700;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">SIZE</div>'+
         '<div class="size-wrap" style="margin-bottom:10px">'+sizesHtml+'</div>'+
         stockBadgeHtml(p.id, sel.size)+
-        (p.cat==="ユニフォーム" ?
+        (p.cat==="ユニフォーム" || p.id===32 ?
           '<div style="margin-bottom:10px"><label style="display:block;font-size:10px;font-weight:700;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">背番号（任意・不明なら空欄でOK）</label>'+
           '<input data-bind="prodSel.'+p.id+'.number" placeholder="例）10" style="width:100%;padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px"></div>'
           : '')+
