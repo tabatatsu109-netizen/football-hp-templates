@@ -119,7 +119,8 @@
       {"name": "トラベッソ", "aliases": ["トラベッソFC", "TRAVESSO", "TRAVESSO FC"], "logo": "../assets/opponents/travesso.png"},
       {"name": "フォルトゥナ", "aliases": ["フォルトゥナSC", "FORTUNA", "FORTUNA SOCCER CLUB"], "logo": "../assets/opponents/fortuna.png"},
       {"name": "FC ZONA", "aliases": ["ZONA", "FCゾナ", "ゾナ"], "logo": "../assets/opponents/fc-zona.png"},
-      {"name": "FC FUEFUKI", "aliases": ["FUEFUKI", "FC笛吹", "笛吹FC"], "logo": "../assets/opponents/fc-fuefuki.png"}
+      {"name": "FC FUEFUKI", "aliases": ["FUEFUKI", "FC笛吹", "笛吹FC"], "logo": "../assets/opponents/fc-fuefuki.png"},
+      {"name": "FC Azul", "aliases": ["Azul", "アズール", "FCアズール", "Football Community Azul"], "logo": "../assets/opponents/fc-azul.png"}
     ]
   },
   "supporters": {
