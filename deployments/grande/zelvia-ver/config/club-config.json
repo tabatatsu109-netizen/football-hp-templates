@@ -117,7 +117,9 @@
       {"name": "ユナイテッド韮崎FC", "aliases": ["ユナイテッド韮崎", "U韮崎", "UNITED NIRASAKI", "UNFC"], "logo": "../assets/opponents/united-nirasaki.png"},
       {"name": "韮崎ＳＣ", "aliases": ["韮崎SC", "NIRASAKI SPORTS CLUB"], "logo": "../assets/opponents/nirasaki-sc.png"},
       {"name": "トラベッソ", "aliases": ["トラベッソFC", "TRAVESSO", "TRAVESSO FC"], "logo": "../assets/opponents/travesso.png"},
-      {"name": "フォルトゥナ", "aliases": ["フォルトゥナSC", "FORTUNA", "FORTUNA SOCCER CLUB"], "logo": "../assets/opponents/fortuna.png"}
+      {"name": "フォルトゥナ", "aliases": ["フォルトゥナSC", "FORTUNA", "FORTUNA SOCCER CLUB"], "logo": "../assets/opponents/fortuna.png"},
+      {"name": "FC ZONA", "aliases": ["ZONA", "FCゾナ", "ゾナ"], "logo": "../assets/opponents/fc-zona.png"},
+      {"name": "FC FUEFUKI", "aliases": ["FUEFUKI", "FC笛吹", "笛吹FC"], "logo": "../assets/opponents/fc-fuefuki.png"}
     ]
   },
   "supporters": {
