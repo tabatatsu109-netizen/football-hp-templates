@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap&text=Never%20Give%20Up%20give%20up%20Football" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260911a">
+  <link rel="stylesheet" href="css/style.css?v=20260911b">
   <script src="js/theme.js?v=20260807c"></script>
 </head>
 <body>
@@ -444,6 +444,50 @@
         Promise.all([minTime, loaded]).then(finish);
         setTimeout(finish, 4000); // 保険
       }
+    })();
+
+    // ── スマホ: 手書き風スローガンをタイプライター表示（1文字ずつ＋点滅カーソル） ──
+    (function(){
+      if (!window.matchMedia || !window.matchMedia('(max-width: 767px)').matches) return;
+      var box = document.querySelector('.hero-script');
+      if (!box) return;
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var chars = [];
+      Array.prototype.forEach.call(box.querySelectorAll('.hs-l1, .hs-l2'), function(line, li){
+        var text = line.textContent;
+        line.textContent = '';
+        Array.prototype.forEach.call(text, function(ch){
+          var s = document.createElement('span');
+          s.className = 'hs-ch';
+          s.textContent = ch;
+          line.appendChild(s);
+          chars.push({ el: s, ch: ch, line: li });
+        });
+      });
+      box.classList.add('hs-typing');
+      if (reduce) { chars.forEach(function(c){ c.el.classList.add('on'); }); box.classList.add('hs-done'); return; }
+
+      var caret = document.createElement('span');
+      caret.className = 'hs-caret';
+      function type(i){
+        if (i >= chars.length) {
+          box.classList.add('hs-done');
+          setTimeout(function(){ caret.classList.add('off'); }, 1600);
+          return;
+        }
+        var c = chars[i];
+        c.el.classList.add('on');
+        c.el.parentNode.insertBefore(caret, c.el.nextSibling);
+        var next = chars[i + 1];
+        var wait = c.ch === ' ' ? 60 : 95 + Math.random() * 50;
+        if (next && next.line !== c.line) wait = 380; // 改行前に少し間をあける
+        setTimeout(function(){ type(i + 1); }, wait);
+      }
+      function start(){ setTimeout(function(){ type(0); }, 2000); }
+      if (document.body.classList.contains('page-in')) start();
+      else new MutationObserver(function(_, obs){
+        if (document.body.classList.contains('page-in')) { obs.disconnect(); start(); }
+      }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
     })();
 
     // ヒーローのロゴ・テキストは body.page-in 付与でCSSアニメーションが発火する

@@ -1988,6 +1988,20 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
   body.page-in .hero-script { opacity: 1; }
   body.page-in .hs-swoosh path { stroke-dashoffset: 0; }
 
+  /* タイプライター表示（JSで .hs-typing を付与。JSが動かない環境は上のフェード表示のまま） */
+  .hero-script.hs-typing { opacity: 1; transition: none; }
+  .hs-typing .hs-ch { opacity: 0; }
+  .hs-typing .hs-ch.on { opacity: 1; }
+  .hero-script.hs-typing:not(.hs-done) .hs-swoosh path { stroke-dashoffset: 320; }
+  .hero-script.hs-typing .hs-swoosh path { transition-delay: .15s; }
+  .hs-caret {
+    display: inline-block; width: 2px; height: 0.62em; margin-left: 0.04em; vertical-align: -0.02em;
+    background: #fff; box-shadow: 0 0 6px rgba(0,0,0,0.45); border-radius: 1px;
+    animation: hsBlink .75s steps(1) infinite;
+  }
+  .hs-caret.off { animation: none; opacity: 0; transition: opacity .4s ease; }
+  @keyframes hsBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
   /* ── 右：縦線＋キャッチ（感動するサッカーの追求） ── */
   .hero-catch {
     position: absolute; z-index: 3; top: 44vw; right: 5vw; left: auto;
