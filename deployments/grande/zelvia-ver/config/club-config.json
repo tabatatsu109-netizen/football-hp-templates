@@ -114,7 +114,10 @@
       {"name": "FUJI INFINITY", "aliases": ["Fuji Infinity SC", "フジインフィニティ"], "logo": "../assets/opponents/fuji-infinity.png"},
       {"name": "AAセグンド", "aliases": ["AA セグンド", "セグンド", "アメージングアカデミー", "アメイジングアカデミー", "Amazing Academy"], "logo": "../assets/opponents/aa-segundo.png"},
       {"name": "エルドラード", "aliases": ["エルドラードFC", "EL DORADO FC", "ELDORADO"], "logo": "../assets/opponents/eldorado.png"},
-      {"name": "ユナイテッド韮崎FC", "aliases": ["ユナイテッド韮崎", "U韮崎", "UNITED NIRASAKI", "UNFC"], "logo": "../assets/opponents/united-nirasaki.png"}
+      {"name": "ユナイテッド韮崎FC", "aliases": ["ユナイテッド韮崎", "U韮崎", "UNITED NIRASAKI", "UNFC"], "logo": "../assets/opponents/united-nirasaki.png"},
+      {"name": "韮崎ＳＣ", "aliases": ["韮崎SC", "NIRASAKI SPORTS CLUB"], "logo": "../assets/opponents/nirasaki-sc.png"},
+      {"name": "トラベッソ", "aliases": ["トラベッソFC", "TRAVESSO", "TRAVESSO FC"], "logo": "../assets/opponents/travesso.png"},
+      {"name": "フォルトゥナ", "aliases": ["フォルトゥナSC", "FORTUNA", "FORTUNA SOCCER CLUB"], "logo": "../assets/opponents/fortuna.png"}
     ]
   },
   "supporters": {
