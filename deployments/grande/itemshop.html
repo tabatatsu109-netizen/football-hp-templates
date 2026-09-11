@@ -611,15 +611,14 @@ function stockLevel(q){ if(q==null) return null; if(q<=0) return "backorder"; if
 function stockBadgeHtml(pid, size){
   var lv = stockLevel(stockOf(pid, size));
   if(!lv) return "";
-  var c = {
-    ok:        {bg:"#e8f5ea", fg:"#1a6b2f", bd:"#bfe0c6", t:"✔ 在庫あり"},
-    low:       {bg:"#fff4e5", fg:"#b45309", bd:"#f5cf8e", t:"⚠ 残りわずか"},
-    backorder: {bg:"#f3f4f6", fg:"#555",    bd:"#ddd",    t:"📦 お取り寄せ"}
-  }[lv];
+  // 保護者には「すぐ渡せる／これから作る」の2段階だけ見せる（残りわずかは管理画面のみ）
+  var c = (lv==="backorder")
+    ? {bg:"#fff4e5", fg:"#b45309", bd:"#f5cf8e", t:"🕒 お取り寄せ", note:"在庫がないため、これから発注します。お渡しまでお時間をいただきます（ご注文は可能です）"}
+    : {bg:"#e8f5ea", fg:"#1a6b2f", bd:"#bfe0c6", t:"✔ 在庫あり", note:"すぐにお渡しできます"};
   return (
-    '<div style="display:flex;align-items:center;gap:8px;margin:-2px 0 10px;flex-wrap:wrap">'+
-      '<span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;background:'+c.bg+';color:'+c.fg+';border:1px solid '+c.bd+'">'+c.t+'</span>'+
-      (lv==="backorder" ? '<span style="font-size:10.5px;color:#888">ご注文いただけます。お渡しまでお時間をいただきます</span>' : '')+
+    '<div style="display:flex;align-items:flex-start;gap:8px;margin:-2px 0 10px;flex-wrap:wrap">'+
+      '<span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:99px;background:'+c.bg+';color:'+c.fg+';border:1px solid '+c.bd+';white-space:nowrap">'+c.t+'</span>'+
+      '<span style="font-size:10.5px;color:#777;line-height:1.5;flex:1;min-width:120px">'+c.note+'</span>'+
     '</div>'
   );
 }
@@ -1483,8 +1482,8 @@ function stockTabHtml(){
   return (
     '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">STOCK</div>'+
     '<div style="font-size:12.5px;color:#666;line-height:1.8;margin-bottom:14px">サイズごとの在庫数を入力してください。<b>空欄＝在庫管理しない</b>（ショップに在庫表示は出ず、注文で減りもしません）。'+
-      '注文が入ると自動で減り、<b>0以下は「お取り寄せ」</b>としてショップに表示されます（注文は受け付けます。マイナスの数＝取り寄せ待ちの数）。'+
-      '<b>'+LOW_STOCK+'以下</b>は「残りわずか」表示になります。入荷したら数を増やして保存してください。</div>'+
+      '注文が入ると自動で減り、<b>0以下は「お取り寄せ（お渡しまで時間がかかる）」</b>としてショップに表示されます（注文は受け付けます。マイナスの数＝取り寄せ待ちの数）。'+
+      '1以上は「在庫あり（すぐ渡せる）」表示です。<b>'+LOW_STOCK+'以下</b>はこの管理画面だけ「残りわずか」として色が付き、発注の目安になります。入荷したら数を増やして保存してください。</div>'+
     '<div class="stock-bar">'+
       '<button onclick="App.stockSave()" '+((dirty && !S.stockSaving)?"":"disabled")+' style="padding:10px 18px;background:'+(dirty?G.g1:"#bbb")+';color:#fff;border-radius:8px;font-weight:700;font-size:13px">'+(S.stockSaving?"保存中…":"💾 変更を保存"+(dirty?"（"+dirty+"件）":""))+'</button>'+
       '<button onclick="App.stockDiscard()" '+(dirty?"":"disabled")+' style="padding:10px 14px;background:#fff;color:#555;border:1px solid #ccc;border-radius:8px;font-weight:700;font-size:12px">変更を取り消す</button>'+

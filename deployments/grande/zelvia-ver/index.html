@@ -456,6 +456,12 @@
         'LINE_ALBUM_20251012石和中_260627_2.jpg'
       ];
       var bg = document.getElementById('hero-bg');
+      // スマホ（767px以下）は縦構図の固定写真（円陣＋八ヶ岳）。PCは従来どおりランダム＆クロスフェード
+      if (window.matchMedia && window.matchMedia('(max-width: 767px)').matches) {
+        bg.style.backgroundImage = "url('../assets/toprandom/hero-mobile-huddle.jpg')";
+        bg.style.backgroundPosition = 'center 35%';
+        return;
+      }
       var i = Math.floor(Math.random() * photos.length);
       function setBg(idx){ bg.style.backgroundImage = "url('../assets/toprandom/" + photos[idx] + "')"; }
       setBg(i);
