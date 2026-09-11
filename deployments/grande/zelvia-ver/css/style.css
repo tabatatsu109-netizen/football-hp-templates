@@ -2064,3 +2064,8 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
     .hs-swoosh path { transition: none; stroke-dashoffset: 0; }
   }
 }
+
+/* ════════ v2026-09-11 対戦相手ロゴ（本物のロゴ／未登録は頭文字エンブレム） ════════ */
+.nm-logo-away.has-img { background: #fff; border: 1px solid var(--line); }
+.nm-logo-away.is-crest { background: transparent; border: 0; border-radius: 0; overflow: visible; }
+.nm-crest { width: 62px; height: 68px; display: block; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.18)); }

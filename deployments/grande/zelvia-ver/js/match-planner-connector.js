@@ -130,7 +130,7 @@ const AuroraConnector = (function () {
   // ── データ取得 ──────────────────────────────────────────
 
   async function loadConfig() {
-    var res = await fetch('config/club-config.json');
+    var res = await fetch('config/club-config.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error('club-config.json 読み込み失敗');
     return res.json();
   }
@@ -233,6 +233,60 @@ const AuroraConnector = (function () {
     return m ? 'U-' + m[1] : String(c || '');
   }
 
+
+  // ── 対戦相手のロゴ（club-config.json の opponents.teams）／未登録なら頭文字エンブレム ──
+  function normTeam(s) {
+    s = String(s || '');
+    try { s = s.normalize('NFKC'); } catch (e) {}
+    return s.replace(/[\s\u3000・.\-_]/g, '').toLowerCase();
+  }
+  function findOpponentLogo(name) {
+    var teams = get(state.config, 'opponents.teams') || [];
+    var n = normTeam(name);
+    if (!n || !teams.length) return null;
+    function keysOf(t) { return [t.name].concat(t.aliases || []).map(normTeam).filter(Boolean); }
+    var i, t, keys;
+    for (i = 0; i < teams.length; i++) {            // 1. 完全一致（表記ゆれ吸収後）
+      t = teams[i];
+      if (t && t.logo && keysOf(t).indexOf(n) >= 0) return t.logo;
+    }
+    for (i = 0; i < teams.length; i++) {            // 2. 片方がもう片方を含む（3文字以上）
+      t = teams[i];
+      if (!t || !t.logo) continue;
+      keys = keysOf(t).filter(function (k) { return k.length >= 3; });
+      if (n.length >= 3 && keys.some(function (k) { return n.indexOf(k) >= 0 || k.indexOf(n) >= 0; })) return t.logo;
+    }
+    return null;
+  }
+  function teamInitial(name) {
+    var s = String(name || '');
+    try { s = s.normalize('NFKC'); } catch (e) {}
+    var core = s
+      .replace(/ジュニアユース|ジュニア|ユース|スポーツ少年団|サッカー少年団|少年団|サッカースクール|サッカークラブ|フットボールクラブ|クラブ|U-?\d{1,2}/gi, ' ')
+      .replace(/(^|[^A-Za-z])(J\.?F\.?C\.?|F\.?C\.?|S\.?C\.?|A\.?C\.?)(?=$|[^A-Za-z])/g, '$1 ')
+      .replace(/\s+/g, ' ').trim();
+    var ch = Array.from(core || s.trim())[0] || '?';
+    return /[a-z]/i.test(ch) ? ch.toUpperCase() : ch;
+  }
+  function teamColor(name) {
+    var n = normTeam(name), h = 0;
+    for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) >>> 0;
+    var pal = ['#185FA5', '#993C1D', '#534AB7', '#993556', '#854F0B', '#3C3489', '#A32D2D', '#0C447C', '#72243E', '#712B13'];
+    return pal[h % pal.length];
+  }
+  function opponentCrestHTML(name) {
+    return '<div class="nm-logo-away is-crest" aria-hidden="true">' +
+      '<svg class="nm-crest" viewBox="0 0 58 64">' +
+        '<path d="M29 2 L54 10 V32 C54 48 42 58 29 62 C16 58 4 48 4 32 V10 Z" fill="' + teamColor(name) + '"/>' +
+        '<path d="M29 7 L49 13.5 V32 C49 45 39.5 53.5 29 57 C18.5 53.5 9 45 9 32 V13.5 Z" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>' +
+        '<text x="29" y="34" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Oswald, \'Noto Sans JP\', sans-serif" font-weight="700" font-size="24">' + escapeHTML(teamInitial(name)) + '</text>' +
+      '</svg></div>';
+  }
+  function opponentBadgeHTML(name) {
+    var logo = findOpponentLogo(name);
+    if (!logo) return opponentCrestHTML(name);
+    return '<div class="nm-logo-away has-img"><img src="' + escapeHTML(logo) + '" alt="' + escapeHTML(name) + ' ロゴ" class="nm-logo-img" data-opp="' + escapeHTML(name) + '"></div>';
+  }
   function renderNextMatch(matches, schedules) {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -308,10 +362,16 @@ const AuroraConnector = (function () {
         '</div>' +
         '<div class="nm-vs">VS</div>' +
         '<div class="nm-team">' +
-          '<div class="nm-logo-away">LOGO</div>' +
+          opponentBadgeHTML(opp) +
           '<div class="nm-team-name">' + escapeHTML(opp) + '</div>' +
         '</div>' +
       '</div>';
+    Array.prototype.forEach.call(container.querySelectorAll('img[data-opp]'), function (img) {
+      img.addEventListener('error', function () {
+        var box = img.parentNode;
+        if (box && box.parentNode) box.outerHTML = opponentCrestHTML(img.getAttribute('data-opp'));
+      });
+    });
   }
 
   function renderResults(matches) {
