@@ -17,7 +17,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260810d">
+  <link href="https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap&text=Never%20Give%20Up%20give%20up%20Football" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=20260911a">
   <script src="js/theme.js?v=20260807c"></script>
 </head>
 <body>
@@ -90,10 +91,22 @@
         <rect x="0" y="0" width="1200" height="700" fill="#0e3a1c" mask="url(#grandeHole)"></rect>
       </svg>
     </div>
+    <!-- スマホ専用: 手書き風スローガン（PCでは非表示） -->
+    <div class="hero-script" lang="en" aria-hidden="true">
+      <span class="hs-l1">Never Give Up</span>
+      <span class="hs-l2">Football</span>
+      <svg class="hs-swoosh" viewBox="0 0 300 40" preserveAspectRatio="none"><path d="M4 36 C 70 30, 150 20, 296 4" /></svg>
+    </div>
+    <svg class="hero-brush" viewBox="0 0 400 70" preserveAspectRatio="none" aria-hidden="true">
+      <path class="hb-1" d="M0 70 L0 46 C 40 44, 70 40, 110 41 C 170 42, 210 30, 260 27 C 310 24, 350 16, 400 8 L400 70 Z" />
+      <path class="hb-2" d="M0 58 C 60 52, 120 50, 190 44 C 250 39, 320 34, 400 22 L400 30 C 330 42, 260 48, 190 53 C 120 58, 60 62, 0 66 Z" />
+    </svg>
     <div class="hero-inner">
+      <span class="hero-kicker-m" aria-hidden="true">YATSUGATAKE</span>
       <img class="hero-emblem" src="../assets/grande-wordmark.png" alt="GRANDE">
       <h1 class="hero-catch" id="hero-subcopy">感動するサッカーの追求</h1>
       <p class="hero-club">八ヶ岳グランデフットボールクラブ</p>
+      <p class="hero-tags" aria-hidden="true">PEOPLE / FOOTBALL / COMMUNITY / YATSUGATAKE</p>
     </div>
     <span class="hero-scroll">SCROLL</span>
   </section>
@@ -459,7 +472,6 @@
       // スマホ（767px以下）は縦構図の固定写真（円陣＋八ヶ岳）。PCは従来どおりランダム＆クロスフェード
       if (window.matchMedia && window.matchMedia('(max-width: 767px)').matches) {
         bg.style.backgroundImage = "url('../assets/toprandom/hero-mobile-huddle.jpg')";
-        bg.style.backgroundPosition = 'center 35%';
         return;
       }
       var i = Math.floor(Math.random() * photos.length);
