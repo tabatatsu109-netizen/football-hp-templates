@@ -111,7 +111,10 @@
       {"name": "アバンソ", "aliases": ["アバンソFC", "avanco", "avanco.fc"], "logo": "../assets/opponents/avanco.png"},
       {"name": "アロンドラFC", "aliases": ["アロンドラ", "ALONDRA", "ALONDRA FOOTBALL CLUB"], "logo": "../assets/opponents/alondra.png"},
       {"name": "ファンタジスタ", "aliases": ["fantasista FC", "fantasista", "ファンタジスタFC"], "logo": "../assets/opponents/fantasista.png"},
-      {"name": "FUJI INFINITY", "aliases": ["Fuji Infinity SC", "フジインフィニティ"], "logo": "../assets/opponents/fuji-infinity.png"}
+      {"name": "FUJI INFINITY", "aliases": ["Fuji Infinity SC", "フジインフィニティ"], "logo": "../assets/opponents/fuji-infinity.png"},
+      {"name": "AAセグンド", "aliases": ["AA セグンド", "セグンド", "アメージングアカデミー", "アメイジングアカデミー", "Amazing Academy"], "logo": "../assets/opponents/aa-segundo.png"},
+      {"name": "エルドラード", "aliases": ["エルドラードFC", "EL DORADO FC", "ELDORADO"], "logo": "../assets/opponents/eldorado.png"},
+      {"name": "ユナイテッド韮崎FC", "aliases": ["ユナイテッド韮崎", "U韮崎", "UNITED NIRASAKI", "UNFC"], "logo": "../assets/opponents/united-nirasaki.png"}
     ]
   },
   "supporters": {
