@@ -106,7 +106,9 @@
   "sponsors": [],
   "opponents": {
     "_readme": "対戦相手のロゴ。teams に {\"name\": Match Planner に入れる対戦相手名, \"logo\": 画像パス（../assets/opponents/ に置く）, \"aliases\": 表記ゆれ（任意）} を追加すると、トップの「次の試合」に本物のロゴが出ます。未登録の相手は頭文字のエンブレムを自動表示。例: {\"name\": \"Uスポーツクラブ\", \"aliases\": [\"Uスポーツ\"], \"logo\": \"../assets/opponents/u-sports.png\"}",
-    "teams": []
+    "teams": [
+      {"name": "Uスポーツクラブ", "aliases": ["Uスポーツ", "U-SPORTS CLUB"], "logo": "../assets/opponents/u-sports.png"}
+    ]
   },
   "supporters": {
     "_readme": "サポーター店の一覧。shops に店舗を追加すると supporters.html に自動で並びます。name=店名 / category=飲食・物販・サービス・その他 / owner=OB・保護者・空 / perk=特典内容（必須・一覧の主役） / conditions=利用条件 / address=住所 / hours=営業時間 / tel=電話 / mapUrl=Googleマップ / url=店のサイトやSNS / photo=写真パス",
