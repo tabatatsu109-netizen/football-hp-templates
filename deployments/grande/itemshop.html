@@ -122,8 +122,8 @@ input,select,textarea{font-family:inherit}
 
 /* ───────── DATA ───────── */
 var PRODS = [
-  {id:1,name:"ユニフォーム（緑）",brand:"ATHLETA",desc:"公式戦の際に必要。1〜3年生はプラユニでも可。",price:8600,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
-  {id:2,name:"ユニフォーム（白）",brand:"ATHLETA",desc:"公式戦の際に必要。1〜3年生はプラユニでも可。",price:8600,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
+  {id:1,name:"ユニフォーム（緑）",brand:"ATHLETA",desc:"公式戦の際に必要。1〜3年生はプラユニでも可。",price:8600,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true,gradeNote:"high"},
+  {id:2,name:"ユニフォーム（白）",brand:"ATHLETA",desc:"公式戦の際に必要。1〜3年生はプラユニでも可。",price:8600,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true,gradeNote:"high"},
   {id:3,name:"プラクティスシャツ（白）",brand:"ATHLETA",desc:"練習時や試合前のアップ時に着用できます。",price:4800,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:true},
   {id:4,name:"ゲームパンツ（白）",brand:"ATHLETA",desc:"公式戦・練習時に使用。",price:5200,cat:"ボトムス",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
   {id:5,name:"ソックス（緑）",brand:"ATHLETA",desc:"",price:1800,cat:"ソックス",sizes:["19-21","22-24","25-27"],reqJ:true,reqJU:true},
@@ -132,16 +132,16 @@ var PRODS = [
   {id:8,name:"リバーシブルビブス",brand:"ATHLETA",desc:"",price:2500,cat:"その他",sizes:["ジュニアサイズ","ジュニアユースサイズ"],reqJ:true,reqJU:true},
   {id:9,name:"バックパック",brand:"ATHLETA",desc:"クラブマーク付き。練習・試合・遠征時に。",price:9500,cat:"バッグ",sizes:["1個"],reqJ:true,reqJU:true},
   {id:10,name:"ポロシャツ（ネイビー）",brand:"ATHLETA",desc:"※ATHLETAではありません。カラー：ネイビー",price:3500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:true},
-  {id:11,name:"プラユニ（緑）",brand:"ノーブランド",desc:"練習試合の際、ユニフォームとして着用できます。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
-  {id:12,name:"プラユニ（白）",brand:"ノーブランド",desc:"練習試合の際、ユニフォームとして着用できます。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
-  {id:13,name:"プラユニ（赤）",brand:"ノーブランド",desc:"練習試合・GK用。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
-  {id:14,name:"プラユニ（黄）",brand:"ノーブランド",desc:"練習試合・GK用。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
+  {id:11,name:"プラユニ（緑）",brand:"ノーブランド",desc:"1〜3年生はATHLETAユニフォームの代わりにこちらでもOK（すぐ大きくなる時期のためおすすめ）。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false,gradeNote:"low"},
+  {id:12,name:"プラユニ（白）",brand:"ノーブランド",desc:"1〜3年生はATHLETAユニフォームの代わりにこちらでもOK（すぐ大きくなる時期のためおすすめ）。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false,gradeNote:"low"},
+  {id:13,name:"プラユニ（赤）",brand:"ノーブランド",desc:"練習試合・GK用。1〜3年生はGKユニフォームの代わりにこちらでもOK。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false,gradeNote:"low"},
+  {id:14,name:"プラユニ（黄）",brand:"ノーブランド",desc:"練習試合・GK用。1〜3年生はGKユニフォームの代わりにこちらでもOK。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false,gradeNote:"low"},
   {id:15,name:"半袖プラクティスシャツ（白）",brand:"ノーブランド",desc:"練習時や着替え等に。※公式戦はATHLETAをご着用ください。",price:3200,cat:"トップス",sizes:["120","130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false},
   {id:16,name:"長袖プラクティスシャツ（白）",brand:"ノーブランド",desc:"練習時や着替え等に。※公式戦はATHLETAをご着用ください。",price:3500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:false},
   {id:17,name:"スウェット上下",brand:"ノーブランド",desc:"体育館練習や遠征先の部屋着等にも着用できます。",price:6500,cat:"セットアップ",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:false},
   {id:18,name:"パーカー（選手用）",brand:"ノーブランド",desc:"合宿の部屋着や練習後の着替え等に着用できます。",price:4500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:false},
-  {id:19,name:"GKユニフォーム（赤）",brand:"ATHLETA",desc:"GKの選手専用。公式戦の際に必要。（1〜3年生はプラユニでも可）",price:8600,cat:"ユニフォーム",sizes:["150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
-  {id:20,name:"GKユニフォーム（黄）",brand:"ATHLETA",desc:"GKの選手専用。公式戦の際に必要。（1〜3年生はプラユニでも可）",price:8600,cat:"ユニフォーム",sizes:["150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
+  {id:19,name:"GKユニフォーム（赤）",brand:"ATHLETA",desc:"GKの選手専用。公式戦の際に必要。（1〜3年生はプラユニでも可）",price:8600,cat:"ユニフォーム",sizes:["150","160","S","M","L","O","XO"],reqJ:true,reqJU:true,gradeNote:"high"},
+  {id:20,name:"GKユニフォーム（黄）",brand:"ATHLETA",desc:"GKの選手専用。公式戦の際に必要。（1〜3年生はプラユニでも可）",price:8600,cat:"ユニフォーム",sizes:["150","160","S","M","L","O","XO"],reqJ:true,reqJU:true,gradeNote:"high"},
   {id:21,name:"プラクティスシャツ（白）130〜160cm",brand:"ATHLETA",desc:"練習時や試合前のアップ時に着用できます。",price:4600,cat:"トップス",sizes:["130","140","150","160"],reqJ:true,reqJU:false},
   {id:22,name:"ゲームパンツ（緑）",brand:"ATHLETA",desc:"公式戦・練習時に使用。",price:5200,cat:"ボトムス",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
   {id:23,name:"ゲームパンツ（赤）",brand:"ATHLETA",desc:"※GKの選手のみ。GKゲームパンツはパット付きとなります。",price:5400,cat:"ボトムス",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:true,reqJU:true},
@@ -983,7 +983,9 @@ function productCardHtml(p){
   var badges = "";
   if(p.reqJ) badges += badge("#f4c430","#333","🟡 ジュニア必需品");
   if(p.reqJU) badges += badge("#e53935","#fff","🔴 ジュニアユース必需品");
-  if(!p.reqJ && !p.reqJU) badges += badge("#888","#fff","任意");
+  if(p.gradeNote==="high") badges += badge("#fdecea","#b23c17","4年生〜必須");
+  if(p.gradeNote==="low") badges += badge("#e3f2fd","#1565c0","💡1〜3年生におすすめ");
+  if(!p.reqJ && !p.reqJU && !p.gradeNote) badges += badge("#888","#fff","任意");
   badges += badge(G.g3,"#fff", esc(p.brand));
   var sizesHtml = p.sizes.map(function(s){
     var active = s===sel.size;
@@ -1099,8 +1101,8 @@ function productsSectionHtml(){
   var list;
   var guideHtml = "";
   if(S.view==="junior"){
-    list = allOrdered.filter(function(p){ return p.reqJ; });
-    guideHtml = '<div style="background:#fffbea;border:1px solid #f4c430;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#5a4a00;line-height:1.8">🟡 <strong>ジュニア（U-12）の選手が入会時に必要なアイテムです。</strong><br>サイズを確認の上ご注文ください。GKの選手は赤・黄のGKユニフォーム・ゲームパンツ・ソックスも必要です。</div>';
+    list = allOrdered.filter(function(p){ return p.reqJ || p.gradeNote==="low"; });
+    guideHtml = '<div style="background:#fffbea;border:1px solid #f4c430;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#5a4a00;line-height:1.8">🟡 <strong>ジュニア（U-12）の選手が入会時に必要なアイテムです。</strong><br>サイズを確認の上ご注文ください。GKの選手は赤・黄のGKユニフォーム・ゲームパンツ・ソックスも必要です。<br>📢 <strong>1〜3年生は公式戦がまだ無く、体もすぐ大きくなるため、ATHLETAユニフォームの代わりに安価な「プラユニ」でも大丈夫です（プラユニがおすすめ。ATHLETAユニでも問題ありません）。4年生から公式戦が始まるため、ATHLETAユニフォームが必要になります。</strong></div>';
   } else if(S.view==="junioryouth"){
     list = allOrdered.filter(function(p){ return p.reqJU; });
     guideHtml = '<div style="background:#fff0f0;border:1px solid #e53935;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#5a0000;line-height:1.8">🔴 <strong>ジュニアユース（U-15）の選手が入会時に必要なアイテムです。</strong><br>サイズを確認の上ご注文ください。GKの選手は赤・黄のGKユニフォーム・ゲームパンツ・ソックスも必要です。</div>';
