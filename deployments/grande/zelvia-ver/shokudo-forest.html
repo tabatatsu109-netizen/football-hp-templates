@@ -193,20 +193,63 @@
   </div>
 
   <script>
-    // ===== パスワードゲート（食堂ページと共通） =====
-    var SK_PASS = 'GS';
-    function skGateUnlock() { var g = document.getElementById('sk-gate'); if (g) g.style.display = 'none'; }
-    function skGateSubmit() {
-      var v = (document.getElementById('sk-gate-pw').value || '').trim();
-      if (v.toUpperCase() === SK_PASS.toUpperCase()) { localStorage.setItem('shokudoAccess', 'ok'); skGateUnlock(); }
-      else { document.getElementById('sk-gate-err').textContent = 'パスワードが違います'; document.getElementById('sk-gate-pw').value = ''; }
-    }
-    document.getElementById('sk-gate-pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') skGateSubmit(); });
-    if (localStorage.getItem('shokudoAccess') === 'ok') skGateUnlock();
-
     // ===== 設定 =====
     var FIREBASE_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
     var CLUB_ID = 'grande';
+    var SK_FIREBASE_API_KEY = 'AIzaSyAZgkCjpPQpjrc25Q-xxXhLRxXpummUKmM';
+    // 保護者・選手には「パスワードだけ」入力してもらう共有アカウント（メールアドレスは内部固定値。shokudo-members.htmlと共通）
+    var SK_EMAIL = 'shokudo-grande@no-football.local';
+    var SK_AUTH_KEY = 'shokudo_auth_grande';
+    var skIdToken = '', skTokenExp = 0;
+
+    // ===== パスワードゲート（食堂ページと共通・Firebase Authenticationで実際に検証する） =====
+    function skGateUnlock() { var g = document.getElementById('sk-gate'); if (g) g.style.display = 'none'; }
+    function skGetAuthState(){ try { return JSON.parse(localStorage.getItem(SK_AUTH_KEY) || 'null'); } catch(e){ return null; } }
+    function skSignIn(password){
+      return fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + SK_FIREBASE_API_KEY, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email: SK_EMAIL, password: password, returnSecureToken: true })
+      }).then(function(res){ return res.json().then(function(d){ return {ok:res.ok, d:d}; }); })
+      .then(function(r){
+        if (!r.ok) throw new Error('パスワードが違います');
+        localStorage.setItem(SK_AUTH_KEY, JSON.stringify({ refreshToken: r.d.refreshToken }));
+        skIdToken = r.d.idToken;
+        skTokenExp = Date.now() + (parseInt(r.d.expiresIn, 10) - 300) * 1000;
+        return skIdToken;
+      });
+    }
+    function skRefreshToken(){
+      var st = skGetAuthState();
+      if (!st || !st.refreshToken) return Promise.resolve('');
+      return fetch('https://securetoken.googleapis.com/v1/token?key=' + SK_FIREBASE_API_KEY, {
+        method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(st.refreshToken)
+      }).then(function(res){ return res.json().then(function(d){ return {ok:res.ok, d:d}; }); })
+      .then(function(r){
+        if (!r.ok) { localStorage.removeItem(SK_AUTH_KEY); return ''; }
+        localStorage.setItem(SK_AUTH_KEY, JSON.stringify({ refreshToken: r.d.refresh_token || st.refreshToken }));
+        skIdToken = r.d.id_token;
+        skTokenExp = Date.now() + (parseInt(r.d.expires_in, 10) - 300) * 1000;
+        return skIdToken;
+      }).catch(function(){ return ''; });
+    }
+    function skAuthParam(){
+      if (skIdToken && Date.now() < skTokenExp) return Promise.resolve(skIdToken);
+      return skRefreshToken();
+    }
+    function skGateSubmit() {
+      var v = (document.getElementById('sk-gate-pw').value || '').trim();
+      if (!v) return;
+      document.getElementById('sk-gate-err').textContent = '';
+      skSignIn(v).then(function(){
+        skGateUnlock();
+        skLoadData();
+      }).catch(function(){
+        document.getElementById('sk-gate-err').textContent = 'パスワードが違います';
+        document.getElementById('sk-gate-pw').value = '';
+      });
+    }
+    document.getElementById('sk-gate-pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') skGateSubmit(); });
     var JY_CATS = ['U15', 'U14', 'U13'];
     // キャリアステージ（10食ごと）。画像ができたら img を追加すると解放される
     var CAREER = [
@@ -400,12 +443,21 @@
       }
     }
 
-    fetch(FIREBASE_URL + '/clubs/' + CLUB_ID + '.json')
-      .then(function(res){ return res.json(); })
-      .then(function(d){ render(d || {}); })
-      .catch(function(){
-        document.getElementById('podium-area').innerHTML = '<div class="sk-loading">読み込みに失敗しました。再読み込みしてください。</div>';
-      });
+    function skLoadData(){
+      skAuthParam().then(function(a){
+        return fetch(FIREBASE_URL + '/clubs/' + CLUB_ID + '.json' + (a ? ('?auth=' + encodeURIComponent(a)) : ''));
+      })
+        .then(function(res){ return res.json(); })
+        .then(function(d){ render(d || {}); })
+        .catch(function(){
+          document.getElementById('podium-area').innerHTML = '<div class="sk-loading">読み込みに失敗しました。再読み込みしてください。</div>';
+        });
+    }
+
+    // 既にログイン済み（キャッシュされたトークンが有効）ならゲートを飛ばしてすぐデータ取得
+    skRefreshToken().then(function(t){
+      if (t) { skGateUnlock(); skLoadData(); }
+    });
   </script>
 </body>
 </html>

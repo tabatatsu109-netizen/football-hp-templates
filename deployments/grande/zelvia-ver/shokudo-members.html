@@ -232,28 +232,66 @@
     document.getElementById('hamburger-btn').addEventListener('click', function(){ mobileNav.classList.add('open'); });
     document.getElementById('mobile-nav-close').addEventListener('click', function(){ mobileNav.classList.remove('open'); });
 
-    // ===== パスワードゲート（ジュニアユース保護者・選手専用） =====
-    var SK_PASS = 'GS';
+    // ===== グランデ食堂データ =====
+    var FIREBASE_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+    var CLUB_ID = 'grande';
+    var SK_FIREBASE_API_KEY = 'AIzaSyAZgkCjpPQpjrc25Q-xxXhLRxXpummUKmM';
+    // 保護者・選手には「パスワードだけ」入力してもらう共有アカウント（メールアドレスは内部固定値）
+    var SK_EMAIL = 'shokudo-grande@no-football.local';
+    var SK_AUTH_KEY = 'shokudo_auth_grande';
+    var skIdToken = '', skTokenExp = 0;
+
+    // ===== パスワードゲート（Firebase Authenticationで実際に検証する） =====
     function skGateUnlock() {
       var g = document.getElementById('sk-gate');
       if (g) g.style.display = 'none';
     }
+    function skGetAuthState(){ try { return JSON.parse(localStorage.getItem(SK_AUTH_KEY) || 'null'); } catch(e){ return null; } }
+    function skSignIn(password){
+      return fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + SK_FIREBASE_API_KEY, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email: SK_EMAIL, password: password, returnSecureToken: true })
+      }).then(function(res){ return res.json().then(function(d){ return {ok:res.ok, d:d}; }); })
+      .then(function(r){
+        if (!r.ok) throw new Error('パスワードが違います');
+        localStorage.setItem(SK_AUTH_KEY, JSON.stringify({ refreshToken: r.d.refreshToken }));
+        skIdToken = r.d.idToken;
+        skTokenExp = Date.now() + (parseInt(r.d.expiresIn, 10) - 300) * 1000;
+        return skIdToken;
+      });
+    }
+    function skRefreshToken(){
+      var st = skGetAuthState();
+      if (!st || !st.refreshToken) return Promise.resolve('');
+      return fetch('https://securetoken.googleapis.com/v1/token?key=' + SK_FIREBASE_API_KEY, {
+        method: 'POST', headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(st.refreshToken)
+      }).then(function(res){ return res.json().then(function(d){ return {ok:res.ok, d:d}; }); })
+      .then(function(r){
+        if (!r.ok) { localStorage.removeItem(SK_AUTH_KEY); return ''; }
+        localStorage.setItem(SK_AUTH_KEY, JSON.stringify({ refreshToken: r.d.refresh_token || st.refreshToken }));
+        skIdToken = r.d.id_token;
+        skTokenExp = Date.now() + (parseInt(r.d.expires_in, 10) - 300) * 1000;
+        return skIdToken;
+      }).catch(function(){ return ''; });
+    }
+    function skAuthParam(){
+      if (skIdToken && Date.now() < skTokenExp) return Promise.resolve(skIdToken);
+      return skRefreshToken();
+    }
     function skGateSubmit() {
       var v = (document.getElementById('sk-gate-pw').value || '').trim();
-      if (v.toUpperCase() === SK_PASS.toUpperCase()) {
-        localStorage.setItem('shokudoAccess', 'ok');
+      if (!v) return;
+      document.getElementById('sk-gate-err').textContent = '';
+      skSignIn(v).then(function(){
         skGateUnlock();
-      } else {
+        skLoadData();
+      }).catch(function(){
         document.getElementById('sk-gate-err').textContent = 'パスワードが違います';
         document.getElementById('sk-gate-pw').value = '';
-      }
+      });
     }
     document.getElementById('sk-gate-pw').addEventListener('keydown', function(e){ if (e.key === 'Enter') skGateSubmit(); });
-    if (localStorage.getItem('shokudoAccess') === 'ok') skGateUnlock();
-
-    // ===== グランデ食堂データ =====
-    var FIREBASE_URL = 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
-    var CLUB_ID = 'grande';
     var PRICE = 900;
     var JY_CATS = ['U15', 'U14', 'U13'];
     var BMI_TARGET    = { U13: 19.5, U14: 20.5, U15: 21.0 };
@@ -389,18 +427,27 @@
       b.addEventListener('click', function(){ skTab = b.dataset.sktab; renderTabs(); });
     });
 
-    fetch(FIREBASE_URL + '/clubs/' + CLUB_ID + '.json')
-      .then(function(res){ return res.json(); })
-      .then(function(d){
-        d = d || {};
-        skData.players  = d.players || [];
-        skData.sessions = d.shokudoSessions || [];
-        skData.bmi      = d.shokudoBmi || [];
-        renderTabs();
+    function skLoadData(){
+      skAuthParam().then(function(a){
+        return fetch(FIREBASE_URL + '/clubs/' + CLUB_ID + '.json' + (a ? ('?auth=' + encodeURIComponent(a)) : ''));
       })
-      .catch(function(){
-        document.getElementById('sk-content').innerHTML = '<div class="sk-empty">データの読み込みに失敗しました。時間をおいて再読み込みしてください。</div>';
-      });
+        .then(function(res){ return res.json(); })
+        .then(function(d){
+          d = d || {};
+          skData.players  = d.players || [];
+          skData.sessions = d.shokudoSessions || [];
+          skData.bmi      = d.shokudoBmi || [];
+          renderTabs();
+        })
+        .catch(function(){
+          document.getElementById('sk-content').innerHTML = '<div class="sk-empty">データの読み込みに失敗しました。時間をおいて再読み込みしてください。</div>';
+        });
+    }
+
+    // 既にログイン済み（キャッシュされたトークンが有効）ならゲートを飛ばしてすぐデータ取得
+    skRefreshToken().then(function(t){
+      if (t) { skGateUnlock(); skLoadData(); }
+    });
 
     if (window.ConfigLoader) ConfigLoader.apply({ pageTitle: 'グランデ食堂（クラブ員専用）' });
   </script>
