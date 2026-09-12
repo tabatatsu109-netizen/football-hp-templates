@@ -492,13 +492,24 @@ function getCatBadgeClass(cat) {
   if (n >= 10) return 'cat-u12';
   return 'cat-u9';
 }
+// PK戦（result.pk = {my, opp}）があれば同点でもPKの点差で勝敗を判定する
+function matchOutcomeCode(result) {
+  if (!result) return null;
+  const my = result.myScore, op = result.oppScore;
+  if (my == null || op == null) return null;
+  if (my !== op) return my > op ? 'WIN' : 'LOSS';
+  if (result.pk && result.pk.my != null && result.pk.opp != null && result.pk.my !== result.pk.opp) {
+    return result.pk.my > result.pk.opp ? 'WIN' : 'LOSS';
+  }
+  return 'DRAW';
+}
+function isPkDecided(result) {
+  return !!(result && result.myScore === result.oppScore && result.pk &&
+    result.pk.my != null && result.pk.opp != null && result.pk.my !== result.pk.opp);
+}
 function getResultStr(m) {
   if (!m.result) return null;
-  const my = m.result.myScore, op = m.result.oppScore;
-  if (my == null) return null;
-  if (my > op) return 'WIN';
-  if (my < op) return 'LOSS';
-  return 'DRAW';
+  return matchOutcomeCode(m.result);
 }
 function getResultBadgeClass(str) {
   if (str === 'WIN') return 'rb-win result-win';
@@ -593,7 +604,7 @@ function renderDashboard() {
             <div class="result-logo logo-home">${(s.clubName||'G')[0]}</div>
             <div class="result-logo logo-away">${(m.opponent||'相')[0]}</div>
           </div>
-          <span class="result-row-score">${m.result.myScore} - ${m.result.oppScore}</span>
+          <span class="result-row-score">${m.result.myScore} - ${m.result.oppScore}${isPkDecided(m.result) ? ` <small style="color:var(--c-muted)">(PK ${m.result.pk.my}-${m.result.pk.opp})</small>` : ''}</span>
           <span class="result-badge ${cls}">${rstr}</span>
         </div>
       `;
@@ -777,7 +788,7 @@ function renderMatches() {
         <div class="match-card-body">
           <span class="match-card-opp">${m.opponent||'---'}</span>
           ${rstr
-            ? `<span class="match-card-score">${m.result.myScore} - ${m.result.oppScore}</span><span class="match-card-result ${rcls}">${rstr}</span>`
+            ? `<span class="match-card-score">${m.result.myScore} - ${m.result.oppScore}${isPkDecided(m.result) ? ` <small>(PK ${m.result.pk.my}-${m.result.pk.opp})</small>` : ''}</span><span class="match-card-result ${rcls}">${rstr}</span>`
             : '<span class="no-result-text">結果未登録</span>'}
         </div>
       </div>
@@ -1257,10 +1268,19 @@ function renderResult() {
   document.getElementById('result-image').value = r?.imageUrl || '';
   updatePhotoPreview('result');
 
+  document.getElementById('result-pk-enabled').checked = !!r?.pk;
+  document.getElementById('result-pk-my').value = r?.pk?.my ?? 0;
+  document.getElementById('result-pk-opp').value = r?.pk?.opp ?? 0;
+  togglePkFields();
+
   goalRows = r?.goals ? [...r.goals] : (pre && pre.goals.length ? [...pre.goals] : []);
   concedeRows = r?.concedes ? [...r.concedes] : [];
   renderGoalRows();
   renderConcedeRows();
+}
+function togglePkFields() {
+  const enabled = document.getElementById('result-pk-enabled').checked;
+  document.getElementById('result-pk-scores').style.display = enabled ? '' : 'none';
 }
 function renderGoalRows() {
   const el = document.getElementById('goals-body');
@@ -1310,7 +1330,13 @@ function saveResult() {
   const opp = parseInt(document.getElementById('result-opp-score').value) || 0;
   const format = document.getElementById('result-format').value;
   const imageUrl = document.getElementById('result-image').value;
-  const resultStr = my > opp ? '勝利' : my < opp ? '敗戦' : '引き分け';
+  const pkEnabled = document.getElementById('result-pk-enabled').checked;
+  const pkMy = parseInt(document.getElementById('result-pk-my').value) || 0;
+  const pkOpp = parseInt(document.getElementById('result-pk-opp').value) || 0;
+  // PKは同点のときだけ意味を持つ（同点でなければ無視する）
+  const pk = (pkEnabled && my === opp) ? { my: pkMy, opp: pkOpp } : null;
+  const outcome = matchOutcomeCode({ myScore: my, oppScore: opp, pk });
+  const resultStr = outcome === 'WIN' ? '勝利' : outcome === 'LOSS' ? '敗戦' : '引き分け';
 
   currentMatch.type = document.getElementById('result-type').value;
 
@@ -1320,6 +1346,7 @@ function saveResult() {
     format,
     imageUrl,
     resultStr,
+    pk,
     goals: [...goalRows.filter(g => g.scorer)],
     concedes: [...concedeRows.filter(c => c.minute)],
     publish: currentMatch.result?.publish ?? true,
@@ -1394,7 +1421,9 @@ function buildNewsArticle(m) {
   article += '\n';
 
   // スコア
-  article += `試合結果：${s.clubName||'自チーム'} ${r.myScore} - ${r.oppScore} ${m.opponent}\n`;
+  article += `試合結果：${s.clubName||'自チーム'} ${r.myScore} - ${r.oppScore} ${m.opponent}`;
+  if (isPkDecided(r)) article += `（PK戦 ${r.pk.my} - ${r.pk.opp}）`;
+  article += '\n';
 
   // 得点者
   if (r.goals && r.goals.length > 0) {
@@ -1417,7 +1446,8 @@ function buildNewsArticle(m) {
 function buildNewsPost(m) {
   const s = getSettings();
   const r = m.result;
-  const resultStr = r.myScore > r.oppScore ? '勝利' : r.myScore < r.oppScore ? '敗戦' : '引き分け';
+  const outcome = matchOutcomeCode(r);
+  const resultStr = outcome === 'WIN' ? '勝利' : outcome === 'LOSS' ? '敗戦' : '引き分け';
   const scorers = (r.goals||[]).reduce((acc, g) => {
     if (!g.scorer) return acc;
     const ex = acc.find(x => x.name === g.scorer);
@@ -1428,7 +1458,7 @@ function buildNewsPost(m) {
   return {
     // 試合自身のidを使う（同じ日・同じ大会名の試合が複数あってもIDが衝突しないように）
     id: `match_${m.id}`,
-    title: `${fmtDateFull(m.date)} vs ${m.opponent} ${r.myScore}-${r.oppScore} ${resultStr}`,
+    title: `${fmtDateFull(m.date)} vs ${m.opponent} ${r.myScore}-${r.oppScore}${isPkDecided(r) ? `(PK${r.pk.my}-${r.pk.opp})` : ''} ${resultStr}`,
     category: m.category || 'クラブニュース',
     type: '試合結果',
     date: m.date,
@@ -5318,7 +5348,9 @@ function summarizeGroup(list) {
   list.forEach(m => {
     const my = m.result.myScore, op = m.result.oppScore;
     gf += my; ga += op;
-    if (my > op) win++; else if (my < op) lose++; else draw++;
+    // PK戦で決着した試合は勝敗としてカウントする（引き分け扱いにしない）
+    const outcome = matchOutcomeCode(m.result);
+    if (outcome === 'WIN') win++; else if (outcome === 'LOSS') lose++; else draw++;
   });
   const played = list.length;
   const rate = played ? Math.round((win / played) * 100) : 0;

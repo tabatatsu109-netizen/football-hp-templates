@@ -391,6 +391,25 @@
             </div>
           </div>
 
+          <!-- PK戦 -->
+          <div class="form-group">
+            <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400">
+              <input type="checkbox" id="result-pk-enabled" onchange="togglePkFields()">
+              PK戦で決着した
+            </label>
+            <div class="score-area" id="result-pk-scores" style="display:none;margin-top:8px">
+              <div>
+                <div class="score-team-label">自チーム(PK)</div>
+                <input class="score-num-input" type="number" id="result-pk-my" min="0" max="99" value="0">
+              </div>
+              <div class="score-sep">-</div>
+              <div>
+                <div class="score-team-label">相手(PK)</div>
+                <input class="score-num-input" type="number" id="result-pk-opp" min="0" max="99" value="0">
+              </div>
+            </div>
+          </div>
+
           <!-- 試合形式 -->
           <div class="form-row-2">
             <div class="form-group">

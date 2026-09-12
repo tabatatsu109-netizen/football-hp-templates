@@ -193,6 +193,7 @@
         <span id="md-op" class="md-score-num"></span>
         <span id="md-opp" class="md-team"></span>
       </div>
+      <div id="md-pk" style="text-align:center;font-size:12px;color:#888;margin-top:2px;display:none"></div>
       <div id="md-info" class="md-info"></div>
       <div id="md-scorers" class="md-scorers" style="display:none"></div>
       <div id="md-body" class="md-body"></div>
@@ -297,6 +298,14 @@
       document.getElementById('md-op').textContent = r.oppScore;
       document.getElementById('md-opp').textContent = m.opponent || '';
 
+      var pkEl = document.getElementById('md-pk');
+      if (r.pk && r.pk.my != null && r.pk.opp != null) {
+        pkEl.textContent = 'PK戦 ' + r.pk.my + ' - ' + r.pk.opp;
+        pkEl.style.display = '';
+      } else {
+        pkEl.style.display = 'none';
+      }
+
       var info = [];
       var comp = m.competition || m.competitionName || m.type || '';
       if (comp) info.push('🏆 ' + esc(comp));
@@ -386,10 +395,12 @@
       rl.innerHTML = results.map(function(m, i){
         var rc=resultClass(m.result.resultStr);
         var rb=resultLetter(m.result.resultStr);
+        var pk=m.result.pk;
+        var pkTag=(pk && pk.my!=null && pk.opp!=null) ? '<span style="font-size:10px;color:#888;margin-left:4px">(PK '+pk.my+'-'+pk.opp+')</span>' : '';
         return '<div class="result-row" onclick="openMatchDetail('+i+')">'+
           '<span class="r-date">'+esc(m.date?m.date.slice(5).replace('-','.'):'')+'</span>'+
           '<span class="r-home">'+esc(clubName)+'</span>'+
-          '<span class="r-score"><span class="r-score-num">'+m.result.myScore+'</span><span class="r-sep">-</span><span class="r-score-num">'+m.result.oppScore+'</span></span>'+
+          '<span class="r-score"><span class="r-score-num">'+m.result.myScore+'</span><span class="r-sep">-</span><span class="r-score-num">'+m.result.oppScore+'</span></span>'+pkTag+
           '<span class="r-opp">'+esc(m.opponent||'')+'</span>'+
           '<span class="r-badge '+rc+'">'+rb+'</span>'+
           '</div>';

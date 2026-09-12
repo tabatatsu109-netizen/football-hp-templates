@@ -309,7 +309,9 @@
       // 大会名ごとにグループ化
       var groups = {}, order = [];
       matches.forEach(function(m){
-        var key = m.competition || m.competitionName || m.type || 'その他の試合';
+        var rawKey = m.competition || m.competitionName || m.type || 'その他の試合';
+        // 前後の空白違いだけで別グループになるのを防ぐ（例: " 北関東大会" と "北関東大会"）
+        var key = (typeof rawKey === 'string' ? rawKey.trim() : rawKey) || 'その他の試合';
         if(!groups[key]){ groups[key] = []; order.push(key); }
         groups[key].push(m);
       });
@@ -320,7 +322,9 @@
           var hasResult = m.result && m.result.publish !== false && m.result.myScore != null && m.result.oppScore != null;
           var right;
           if(hasResult){
-            right = '<span class="sched-score">' + m.result.myScore + ' - ' + m.result.oppScore + '</span>' +
+            var pk = m.result.pk;
+            var pkTag = (pk && pk.my != null && pk.opp != null) ? '<span style="font-size:10px;color:#888;margin:0 4px">PK ' + pk.my + '-' + pk.opp + '</span>' : '';
+            right = '<span class="sched-score">' + m.result.myScore + ' - ' + m.result.oppScore + '</span>' + pkTag +
                     '<span class="sched-res ' + resultClass(m.result.resultStr) + '">' + resultLetter(m.result.resultStr) + '</span>';
           } else {
             right = '<span class="sched-time">' + esc(m.time || m.kickoff || 'KICK OFF 未定') + '</span>';
