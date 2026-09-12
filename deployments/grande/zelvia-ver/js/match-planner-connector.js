@@ -183,7 +183,6 @@ const AuroraConnector = (function () {
         state.activeCategory = this.dataset.cat;
         renderTabs();
         renderMatchSection();
-        renderNextMatch(state.allMatches, state.allSchedules);
       });
     });
   }
@@ -288,13 +287,13 @@ const AuroraConnector = (function () {
     if (!logo) return opponentCrestHTML(name);
     return '<div class="nm-logo-away has-img"><img src="' + escapeHTML(logo) + '" alt="' + escapeHTML(name) + ' ロゴ" class="nm-logo-img" data-opp="' + escapeHTML(name) + '"></div>';
   }
-  function renderNextMatch(matches, schedules) {
+  // 指定カテゴリーの直近の試合（試合管理データ＋未確定の告知）を1件返す
+  function nextMatchForCategory(matches, schedules, cat) {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
-    var cat = state.activeCategory;
 
     // カテゴリー未設定の試合／告知はどのタブでも対象に含める（設定漏れで消えてしまわないように）
-    function inActiveCategory(itemCat) {
+    function inCategory(itemCat) {
       if (!itemCat) return true;
       var tab = tabForCategory(itemCat, state.categories);
       return tab ? normCat(tab) === normCat(cat) : true;
@@ -304,7 +303,7 @@ const AuroraConnector = (function () {
       if (m.result && m.result.myScore != null && m.result.oppScore != null) return false;
       var d = toDate(m.date);
       if (!d || d < today) return false;
-      return inActiveCategory(m.category);
+      return inCategory(m.category);
     });
 
     var matchKeys = {};
@@ -315,30 +314,24 @@ const AuroraConnector = (function () {
         var d = toDate(sc.date);
         if (!d || d < today) return false;
         if (matchKeys[sc.date + '|' + (sc.opponent || '')]) return false;
-        return inActiveCategory(sc.category);
+        return inCategory(sc.category);
       })
       .map(scheduleToMatchShape);
 
-    var upcoming = fromMatches.concat(fromSchedules)
-      .sort(function (a, b) {
-        return (toDate(a.date) || 0) - (toDate(b.date) || 0);
-      });
+    return fromMatches.concat(fromSchedules)
+      .sort(function (a, b) { return (toDate(a.date) || 0) - (toDate(b.date) || 0); })[0] || null;
+  }
 
-    var next = upcoming[0];
-    var container = document.getElementById('match-next-inner');
-    if (!container) return;
-
-    var panel = container.parentElement;
-    var section = panel && panel.closest('.next-match-section');
-
+  function nextMatchCardHTML(cat, next) {
+    var catLabel = dispCat(cat);
     if (!next) {
-      if (panel) panel.style.display = 'none';
-      if (section) section.style.display = 'none';
-      return;
+      return '<div class="match-next-panel"><div class="nm-inner">' +
+        '<div class="nm-left">' +
+          '<div class="nm-badge-row"><div class="nm-badge">NEXT MATCH</div><span class="nm-cat">' + escapeHTML(catLabel) + '</span></div>' +
+          '<div class="nm-comp">予定されている試合はありません</div>' +
+        '</div>' +
+      '</div></div>';
     }
-
-    if (panel) panel.style.display = '';
-    if (section) section.style.display = '';
 
     var dateDisp = next.date ? next.date.replace(/-/g, '.') : '';
     var day = dayLabel(next.date);
@@ -351,13 +344,11 @@ const AuroraConnector = (function () {
       : '';
     var logoSrc = get(state.config, 'design.logo');
 
-    var cat = dispCat(next.category);
-
-    container.innerHTML =
+    return '<div class="match-next-panel"><div class="nm-inner">' +
       '<div class="nm-left">' +
         '<div class="nm-badge-row">' +
           '<div class="nm-badge">NEXT MATCH</div>' +
-          (cat ? '<span class="nm-cat">' + escapeHTML(cat) + '</span>' : '') +
+          '<span class="nm-cat">' + escapeHTML(catLabel) + '</span>' +
         '</div>' +
         '<div class="nm-comp">' + escapeHTML(comp) + '</div>' +
         '<div class="nm-date-row">' +
@@ -376,7 +367,33 @@ const AuroraConnector = (function () {
           opponentBadgeHTML(opp) +
           '<div class="nm-team-name">' + escapeHTML(opp) + '</div>' +
         '</div>' +
-      '</div>';
+      '</div>' +
+    '</div>' +
+    '<div class="nm-actions"><a href="matches.html" class="nm-btn nm-btn-dark">試合詳細</a></div>' +
+    '</div>';
+  }
+
+  // カテゴリータブに関係なく、各カテゴリーの次の試合を横並びで表示する
+  function renderNextMatch(matches, schedules) {
+    var container = document.getElementById('next-match-grid');
+    if (!container) return;
+    var section = container.closest('.next-match-section');
+
+    var results = state.categories.map(function (cat) {
+      return { cat: cat, next: nextMatchForCategory(matches, schedules, cat) };
+    });
+    var anyFound = results.some(function (r) { return !!r.next; });
+
+    if (!anyFound) {
+      container.style.display = 'none';
+      if (section) section.style.display = 'none';
+      return;
+    }
+    container.style.display = '';
+    if (section) section.style.display = '';
+
+    container.innerHTML = results.map(function (r) { return nextMatchCardHTML(r.cat, r.next); }).join('');
+
     Array.prototype.forEach.call(container.querySelectorAll('img[data-opp]'), function (img) {
       img.addEventListener('error', function () {
         var box = img.parentNode;

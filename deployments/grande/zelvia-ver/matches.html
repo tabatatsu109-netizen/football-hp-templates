@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260911c">
+  <link rel="stylesheet" href="css/style.css?v=20260912a">
   <script src="js/theme.js?v=20260807c"></script>
 </head>
 <body>
@@ -262,42 +262,49 @@
       });
     }
 
+    // カテゴリータブに関係なく、各カテゴリーの次の試合を横並びで表示する
     function renderUpcoming(){
       var today = new Date(); today.setHours(0,0,0,0);
-      var cat = state.activeCategory;
 
-      var fromMatches = catMatches().filter(function(m){
-        if(m.result && m.result.myScore != null && m.result.oppScore != null) return false;
-        var d = toDate(m.date);
-        return d && d >= today;
-      });
-      var matchKeys = {};
-      fromMatches.forEach(function(m){ matchKeys[m.date + '|' + (m.opponent||'')] = true; });
+      function nextForCategory(cat){
+        var fromMatches = state.allMatches.filter(function(m){
+          if(!matchesTab(getMatchCategory(m), cat)) return false;
+          if(m.result && m.result.myScore != null && m.result.oppScore != null) return false;
+          var d = toDate(m.date);
+          return d && d >= today;
+        });
+        var matchKeys = {};
+        fromMatches.forEach(function(m){ matchKeys[m.date + '|' + (m.opponent||'')] = true; });
 
-      var fromSchedules = state.allSchedules
-        .filter(function(sc){
-          var d = toDate(sc.date);
-          if(!d || d < today) return false;
-          if(!matchesTab(sc.category, cat)) return false;
-          return !matchKeys[sc.date + '|' + (sc.opponent||'')];
-        })
-        .map(scheduleToMatchShape);
+        var fromSchedules = state.allSchedules
+          .filter(function(sc){
+            var d = toDate(sc.date);
+            if(!d || d < today) return false;
+            if(!matchesTab(sc.category, cat)) return false;
+            return !matchKeys[sc.date + '|' + (sc.opponent||'')];
+          })
+          .map(scheduleToMatchShape);
 
-      var upcoming = fromMatches.concat(fromSchedules)
-        .sort(function(a,b){ return (toDate(a.date)||0) - (toDate(b.date)||0); })
-        .slice(0, 3);
+        return fromMatches.concat(fromSchedules)
+          .sort(function(a,b){ return (toDate(a.date)||0) - (toDate(b.date)||0); })[0] || null;
+      }
+
       var el = document.getElementById('upcoming-grid');
-      if(upcoming.length === 0){ el.innerHTML = '<p class="no-data">現在予定されている試合はありません</p>'; return; }
-      el.innerHTML = upcoming.map(function(m, i){
+      var cards = state.categories.map(function(cat){
+        var m = nextForCategory(cat);
+        if(!m){
+          return '<div class="up-card"><span class="up-badge">' + esc(cat) + '</span><p class="no-data" style="margin-top:10px">予定されている試合はありません</p></div>';
+        }
         var dateDisp = m.date ? m.date.replace(/-/g,'.') : '';
         return '<div class="up-card">' +
-          '<div class="up-comp">' + esc(m.competition || m.competitionName || m.type || '') + '</div>' +
+          '<span class="up-badge">' + esc(cat) + ' NEXT MATCH</span>' +
+          '<div class="up-comp" style="margin-top:8px">' + esc(m.competition || m.competitionName || m.type || '') + '</div>' +
           '<div class="up-date">' + esc(dateDisp) + '<small>' + esc(dayLabel(m.date)) + '</small></div>' +
           '<div class="up-vs">vs ' + esc(m.opponent || '未定') + '</div>' +
           '<div class="up-meta">KICK OFF ' + esc(m.time || m.kickoff || '未定') + '<br>' + esc(m.venue || '会場未定') + '</div>' +
-          (i === 0 ? '<span class="up-badge">NEXT MATCH</span>' : '') +
           '</div>';
-      }).join('');
+      });
+      el.innerHTML = cards.join('');
     }
 
     function renderGroups(){
