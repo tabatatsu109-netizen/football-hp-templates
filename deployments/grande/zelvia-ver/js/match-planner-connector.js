@@ -183,6 +183,7 @@ const AuroraConnector = (function () {
         state.activeCategory = this.dataset.cat;
         renderTabs();
         renderMatchSection();
+        renderNextMatch(state.allMatches, state.allSchedules);
       });
     });
   }
@@ -290,11 +291,20 @@ const AuroraConnector = (function () {
   function renderNextMatch(matches, schedules) {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
+    var cat = state.activeCategory;
+
+    // カテゴリー未設定の試合／告知はどのタブでも対象に含める（設定漏れで消えてしまわないように）
+    function inActiveCategory(itemCat) {
+      if (!itemCat) return true;
+      var tab = tabForCategory(itemCat, state.categories);
+      return tab ? normCat(tab) === normCat(cat) : true;
+    }
 
     var fromMatches = matches.filter(function (m) {
       if (m.result && m.result.myScore != null && m.result.oppScore != null) return false;
       var d = toDate(m.date);
-      return d && d >= today;
+      if (!d || d < today) return false;
+      return inActiveCategory(m.category);
     });
 
     var matchKeys = {};
@@ -304,7 +314,8 @@ const AuroraConnector = (function () {
       .filter(function (sc) {
         var d = toDate(sc.date);
         if (!d || d < today) return false;
-        return !matchKeys[sc.date + '|' + (sc.opponent || '')];
+        if (matchKeys[sc.date + '|' + (sc.opponent || '')]) return false;
+        return inActiveCategory(sc.category);
       })
       .map(scheduleToMatchShape);
 
@@ -608,8 +619,7 @@ const AuroraConnector = (function () {
         }
       }
     }
-    // ネクストマッチはヒーロー直下の独立セクションで、カテゴリータブとは連動しないため
-    // 全カテゴリー横断で一番近い試合を表示する
+    // ネクストマッチは選択中のカテゴリータブに連動する（タブ切替時にも再描画される）
     renderNextMatch(state.allMatches, state.allSchedules);
     renderMatchSection();
 
