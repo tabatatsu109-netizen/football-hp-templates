@@ -1262,6 +1262,7 @@ function renderResult() {
   const pre = (!r && window._livePrefill) ? window._livePrefill : null;
   if (pre) window._livePrefill = null;
   document.getElementById('result-type').value = currentMatch.type || '公式戦';
+  document.getElementById('result-category').value = currentMatch.category || '';
   document.getElementById('result-my-score').value = r?.myScore ?? (pre ? pre.my : 0);
   document.getElementById('result-opp-score').value = r?.oppScore ?? (pre ? pre.opp : 0);
   document.getElementById('result-format').value = r?.format || '40分×2';
@@ -1339,6 +1340,7 @@ function saveResult() {
   const resultStr = outcome === 'WIN' ? '勝利' : outcome === 'LOSS' ? '敗戦' : '引き分け';
 
   currentMatch.type = document.getElementById('result-type').value;
+  currentMatch.category = document.getElementById('result-category').value;
 
   currentMatch.result = {
     myScore: my,
