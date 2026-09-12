@@ -263,7 +263,7 @@ img { max-width: 100%; display: block; }
    トップ: NEXT MATCH パネル + タブ + 結果
    ============================================================ */
 .match-sec { padding: 58px 0 30px; }
-.tab-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.tab-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .tab-btn {
   font-family: 'Oswald', sans-serif; font-size: 14px; letter-spacing: 2px;
   padding: 9px 20px; border-radius: 999px; cursor: pointer;

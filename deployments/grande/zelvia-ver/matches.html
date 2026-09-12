@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Yomogi&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=20260912a">
+  <link rel="stylesheet" href="css/style.css?v=20260912b">
   <script src="js/theme.js?v=20260807c"></script>
 </head>
 <body>
@@ -77,28 +77,26 @@
   <main class="page-body">
     <div class="container">
 
-      <!-- カテゴリタブ -->
-      <div class="filter-bar" id="tab-buttons"></div>
-
-      <!-- 今後の試合 -->
+      <!-- 今後の試合（カテゴリー横断で表示） -->
       <div class="sec-head">
         <span class="sec-en" style="font-size:26px;">UPCOMING</span>
         <span class="sec-ja">今後の試合</span>
       </div>
       <div class="upcoming-grid" id="upcoming-grid"><p class="no-data">読み込み中...</p></div>
 
-      <!-- 得点ランキング -->
+      <!-- 得点ランキング（カテゴリー横断で表示） -->
       <div class="sec-head">
         <span class="sec-en" style="font-size:26px;">TOP SCORER</span>
         <span class="sec-ja">得点ランキング</span>
       </div>
       <div class="scorer-grid" id="scorer-grid"><p class="no-data">読み込み中...</p></div>
 
-      <!-- 日程・結果一覧 -->
+      <!-- 日程・結果一覧（カテゴリータブで絞り込み） -->
       <div class="sec-head">
         <span class="sec-en" style="font-size:26px;">SCHEDULE &amp; RESULTS</span>
         <span class="sec-ja">日程・結果一覧</span>
       </div>
+      <div class="filter-bar" id="tab-buttons"></div>
       <div id="sched-groups"><p class="no-data">読み込み中...</p></div>
 
     </div>
