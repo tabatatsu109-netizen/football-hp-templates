@@ -793,6 +793,37 @@ function removeCartItem(idx){
 }
 
 /* ───────── ORDER ───────── */
+// 注文が入ったらクラブ宛にメール通知する（join.htmlの体験申込フォームと同じFormspree経由）。
+// 通知が失敗しても注文自体（Firebase保存）には影響させない。
+function notifyOrderByEmail(order){
+  var itemLines = order.items.map(function(it){
+    return '・' + it.pname + '（' + it.size + '）' + (it.number ? ' 背番号' + it.number : '') + ' × ' + it.qty + ' ＝ ' + fmt(it.price * it.qty);
+  }).join('\n');
+  var body = [
+    '注文ID: ' + order.id,
+    '保護者氏名: ' + order.pName,
+    '選手氏名: ' + order.sName,
+    'チーム: ' + order.cat,
+    'メールアドレス: ' + order.email,
+    '支払方法: ' + order.pay,
+    '備考: ' + (order.note || '（なし）'),
+    '',
+    '【注文内容】',
+    itemLines,
+    '',
+    '合計金額: ' + fmt(order.total)
+  ].join('\n');
+  fetch('https://formspree.io/f/mqejrbge', {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' },
+    body: new URLSearchParams({
+      _subject: '【アイテムショップ】新しい注文 - ' + order.sName,
+      email: order.email,
+      message: body
+    })
+  }).catch(function(){ /* 通知メールの失敗はここでは無視する（注文自体は既に保存済み） */ });
+}
+
 function placeOrder(){
   if(S.placing) return;
   var oid = genId();
@@ -805,6 +836,7 @@ function placeOrder(){
   pushOrderToCloud(order).then(function(){
     saveProfileFromOrder(order);
     decrementStockForItems(order.items).then(function(changed){ if(changed) render(); });
+    notifyOrderByEmail(order);
     S.lastOrder = order;
     S.cart = [];
     S.form = {pName:"",sName:"",cat:TEAMS[0],email:"",pay:PAYS[0],note:""};
