@@ -2110,7 +2110,8 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
 .mv-ch-headline { color: #fff; font-weight: 900; font-size: clamp(19px, 3.2vw, 27px); line-height: 1.7; margin-top: 18px; max-width: 460px; }
 .mv-chapter--r .mv-ch-headline { margin-left: auto; }
 .mv-play-link {
-  display: inline-flex; align-items: center; gap: 10px; margin-top: 20px;
+  -webkit-appearance: none; appearance: none; background: none; border: none; padding: 0; margin: 0;
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; cursor: pointer;
   color: #fff; font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px;
 }
 .mv-chapter--r .mv-play-link { flex-direction: row-reverse; }
