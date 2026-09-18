@@ -2079,25 +2079,6 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
    ・クラブ員専用ページにあった動画セクションを一般公開向けに独立させたもの
    ・年表形式（チャプター）で1本ずつ大きく見せ、再生ボタンでモーダル再生する
    ============================================================ */
-.mv-layout { display: flex; flex-direction: column; }
-.mv-main { flex: 1; min-width: 0; }
-
-/* 年ジャンプナビ：モバイルはヘッダー直下の横スクロールバー、デスクトップは左サイドバー */
-.mv-side {
-  position: sticky; top: 60px; z-index: 40; background: var(--main-dark);
-  display: flex; align-items: center; gap: 8px; overflow-x: auto;
-  padding: 10px 16px; scrollbar-width: none;
-}
-.mv-side::-webkit-scrollbar { display: none; }
-.mv-side-title, .mv-side-note { display: none; }
-.mv-side-years { display: flex; gap: 8px; }
-.mv-side-year {
-  flex-shrink: 0; font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 1px;
-  color: rgba(255,255,255,0.55); padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18);
-  transition: all .15s;
-}
-.mv-side-year.on { color: #fff; background: var(--main-color); border-color: var(--main-color); font-weight: 700; }
-
 /* ヒーロー（アーカイブ扉） */
 .mv-hero2 { position: relative; min-height: 78vh; display: flex; align-items: flex-end; overflow: hidden; background: #06100a; }
 .mv-hero2-bg { position: absolute; inset: 0; background-size: cover; background-position: center 30%; }
@@ -2125,12 +2106,9 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
 .mv-chapter-inner { position: relative; z-index: 2; width: 100%; max-width: 1280px; margin: 0 auto; padding: 40px 20px; }
 .mv-chapter--r .mv-chapter-inner { text-align: right; margin-left: auto; }
 .mv-chapter--l .mv-chapter-inner { text-align: left; }
-.mv-ch-eyebrow { color: #9fd3ae; font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 4px; }
-.mv-ch-year { color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-style: italic; font-size: clamp(40px, 8vw, 62px); line-height: 1; margin-top: 6px; }
-.mv-ch-comp { display: inline-block; margin-top: 10px; background: var(--main-color); color: #fff; font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 2px; padding: 5px 12px; border-radius: 999px; }
-.mv-ch-headline { color: #fff; font-weight: 900; font-size: clamp(19px, 3.2vw, 27px); line-height: 1.6; margin-top: 18px; }
-.mv-ch-body { color: rgba(255,255,255,0.72); font-size: 13px; line-height: 1.9; margin-top: 10px; max-width: 420px; }
-.mv-chapter--r .mv-ch-body { margin-left: auto; }
+.mv-ch-year { color: #fff; font-family: 'Oswald', sans-serif; font-weight: 700; font-style: italic; font-size: clamp(40px, 8vw, 62px); line-height: 1; }
+.mv-ch-headline { color: #fff; font-weight: 900; font-size: clamp(19px, 3.2vw, 27px); line-height: 1.7; margin-top: 18px; max-width: 460px; }
+.mv-chapter--r .mv-ch-headline { margin-left: auto; }
 .mv-play-link {
   display: inline-flex; align-items: center; gap: 10px; margin-top: 20px;
   color: #fff; font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px;
@@ -2153,18 +2131,6 @@ body.page-in .hero-catch, body.page-in .hero-club { opacity: 1; transform: none;
 .mv-close-sign { color: #9fd3ae; font-family: 'Oswald', sans-serif; font-style: italic; font-size: 13px; letter-spacing: 1px; margin-top: 22px; }
 
 @media (min-width: 1024px) {
-  .mv-layout { flex-direction: row; align-items: flex-start; }
-  .mv-side {
-    position: sticky; top: 88px; z-index: 5; background: transparent;
-    flex: 0 0 200px; flex-direction: column; align-items: flex-start; gap: 0;
-    padding: 40px 24px; overflow: visible;
-  }
-  .mv-side-title, .mv-side-note { display: block; }
-  .mv-side-title { color: var(--ink-strong); font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 3px; line-height: 1.5; margin-bottom: 26px; }
-  .mv-side-years { flex-direction: column; gap: 4px; align-items: flex-start; border-left: 2px solid var(--line); }
-  .mv-side-year { border: none; border-radius: 0; padding: 8px 0 8px 18px; margin-left: -2px; border-left: 2px solid transparent; color: var(--ink-sub); }
-  .mv-side-year.on { background: transparent; color: var(--main-color); border-left: 2px solid var(--main-color); }
-  .mv-side-note { color: var(--ink-sub); font-size: 12px; line-height: 2; margin-top: 30px; }
   .mv-chapter-inner { padding: 40px 60px; }
 }
 
