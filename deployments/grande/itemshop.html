@@ -945,6 +945,8 @@ function productBrands(){
 }
 // まだ「発注済み」の印が付いていない商品だけを集計する（前回発注書に載せた分は自動で除外される）。
 // scopeIds を渡すと、その注文IDだけを対象にする（注文一覧でチェックして絞り込んだ場合）。
+// 背番号が指定された商品はサイズだけの合算に埋もれさせず、サイズ×背番号ごとに別行として残す
+// （プリント発注時にどのサイズに何番を入れるか分かるようにするため）。
 // pending には印付け対象（fbKey・items配列のインデックス）を持たせ、印刷後にまとめて発注済みにできるようにする
 function purchaseOrderStatsCalc(brand, scopeIds){
   var prods = allProds().filter(function(p){ return (p.brand||"").trim()===brand; });
@@ -952,22 +954,35 @@ function purchaseOrderStatsCalc(brand, scopeIds){
   prods.forEach(function(p){
     var sc = {};
     (p.sizes||[]).forEach(function(s){ sc[s]=0; });
-    byId[p.id] = sc;
+    byId[p.id] = { sc: sc, numberedMap: {} };
   });
   var pending = [];
   var orders = scopeIds ? S.orders.filter(function(o){ return scopeIds.indexOf(o.id)>=0; }) : S.orders;
   orders.forEach(function(o){
     o.items.forEach(function(i, idx){
-      var sc = byId[i.pid];
-      if(!sc || i.ordered) return;
-      sc[i.size] = (sc[i.size]||0) + i.qty;
+      var entry = byId[i.pid];
+      if(!entry || i.ordered) return;
+      var num = String(i.number||"").trim();
+      if(num){
+        var key = i.size + "|" + num;
+        if(!entry.numberedMap[key]) entry.numberedMap[key] = { size: i.size, number: num, qty: 0 };
+        entry.numberedMap[key].qty += i.qty;
+      } else {
+        entry.sc[i.size] = (entry.sc[i.size]||0) + i.qty;
+      }
       if(o.fbKey) pending.push({fbKey:o.fbKey, itemIdx:idx});
     });
   });
   var stats = prods.map(function(p){
-    var sc = byId[p.id];
-    var total = Object.keys(sc).reduce(function(a,k){ return a+sc[k]; },0);
-    return Object.assign({}, p, {sc:sc, total:total});
+    var entry = byId[p.id];
+    var numberedRows = Object.keys(entry.numberedMap).map(function(k){ return entry.numberedMap[k]; })
+      .sort(function(a,b){
+        if(a.size !== b.size) return String(a.size).localeCompare(String(b.size), "ja", {numeric:true});
+        return a.number.localeCompare(b.number, "ja", {numeric:true});
+      });
+    var blankTotal = Object.keys(entry.sc).reduce(function(a,k){ return a+entry.sc[k]; },0);
+    var numberedTotal = numberedRows.reduce(function(a,r){ return a+r.qty; },0);
+    return Object.assign({}, p, {sc:entry.sc, numberedRows:numberedRows, total: blankTotal + numberedTotal});
   }).filter(function(p){ return p.total>0; });
   return { stats: stats, pending: pending };
 }
@@ -979,10 +994,15 @@ function productBrandOf(pid){
 function printPurchaseOrder(brand, scopeIds){
   var stats = purchaseOrderStatsCalc(brand, scopeIds).stats;
   var el = document.getElementById("inv");
+  var hasNumbers = stats.some(function(p){ return p.numberedRows.length>0; });
   var rows = stats.map(function(p){
-    return Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
-      return "<tr><td>"+esc(p.name)+"</td><td>"+esc(s)+"</td><td style=\"text-align:right\">"+p.sc[s]+" 点</td></tr>";
+    var blankRows = Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
+      return "<tr><td>"+esc(p.name)+"</td><td>"+esc(s)+"</td>"+(hasNumbers?"<td>-</td>":"")+"<td style=\"text-align:right\">"+p.sc[s]+" 点</td></tr>";
     }).join("");
+    var numberedRows = p.numberedRows.map(function(r){
+      return "<tr><td>"+esc(p.name)+"</td><td>"+esc(r.size)+"</td><td style=\"font-weight:700\">背番号 "+esc(r.number)+"</td><td style=\"text-align:right\">"+r.qty+" 点</td></tr>";
+    }).join("");
+    return blankRows + numberedRows;
   }).join("");
   var grandQty = stats.reduce(function(sum,p){ return sum + p.total; }, 0);
   var supplier = (S.poSupplier||"").trim();
@@ -1000,7 +1020,7 @@ function printPurchaseOrder(brand, scopeIds){
       (scopeIds ? '<tr><td>対象注文</td><td>選択した'+scopeIds.length+'件の注文分</td></tr>' : '')+
       (note ? '<tr><td>備考</td><td>'+esc(note)+'</td></tr>' : '')+
     '</table>'+
-    '<table><thead><tr><th>商品名</th><th>サイズ</th><th style="text-align:right">数量</th></tr></thead>'+
+    '<table><thead><tr><th>商品名</th><th>サイズ</th>'+(hasNumbers?"<th>背番号</th>":"")+'<th style="text-align:right">数量</th></tr></thead>'+
     '<tbody>'+rows+'</tbody></table>'+
     '<div style="text-align:right;font-size:16px;font-weight:900;margin-top:14px">合計数量：<span style="color:#1a6b2f;font-size:22px">'+grandQty+' 点</span></div>';
   window.print();
@@ -1940,10 +1960,21 @@ function poTabHtml(){
     var szs = Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
       return '<div style="background:#f8faf8;border-radius:8px;padding:8px 12px;text-align:center;min-width:52px"><div style="font-size:9px;color:#888;margin-bottom:2px">'+esc(s)+'</div><div style="font-size:18px;font-weight:900;color:'+G.g1+'">'+p.sc[s]+'</div><div style="font-size:9px;color:#bbb">点</div></div>';
     }).join("");
+    var numHtml = p.numberedRows.length ? (
+      '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed #ddd">'+
+        '<div style="font-size:10px;font-weight:700;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">背番号指定あり</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+          p.numberedRows.map(function(r){
+            return '<span style="background:#fff3e0;color:#b45309;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;white-space:nowrap">'+esc(r.size)+' ・ 背番号'+esc(r.number)+(r.qty>1?' × '+r.qty:'')+'</span>';
+          }).join("")+
+        '</div>'+
+      '</div>'
+    ) : '';
     return (
       '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);margin-bottom:10px">'+
         '<div style="font-weight:700;font-size:14px;margin-bottom:8px">'+esc(p.name)+'（合計 '+p.total+'点）</div>'+
         '<div class="st-szs">'+szs+'</div>'+
+        numHtml+
       '</div>'
     );
   }).join("") : '<div style="color:#aaa">未発注の商品はありません（すべて発注済みです）</div>';
