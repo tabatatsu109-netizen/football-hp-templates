@@ -376,6 +376,18 @@ function setItemDeliveredCloud(fbKey, itemIdx, delivered){
   });
 }
 
+// 商品の発注状況の更新：管理者のみ（発注書で「発注済みにする」を押した時に使用）
+function setItemOrderedCloud(fbKey, itemIdx, ordered){
+  return fetch(FB_ORDERS_URL + "/" + fbKey + "/items/" + itemIdx + "/ordered.json?auth=" + encodeURIComponent(getSecret()), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(ordered)
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
+
 // 注文に紐づくメールアドレスのキー一覧
 // ご家庭で複数アドレスを使い分けている場合、order.altEmails に予備アドレスを入れておくと
 // どちらのアドレスで照会しても同じ注文が表示される
@@ -735,7 +747,7 @@ var S = {
   statusLookupLoading:false,
   adminAuthed:false,
   /* ── 発注書（ブランド別集計） ── */
-  poBrand:"", poSupplier:"", poNote:""
+  poBrand:"", poSupplier:"", poNote:"", poPending:[], poMarking:false
 };
 
 function selFor(p){
@@ -929,18 +941,39 @@ function productBrands(){
   });
   return list;
 }
+// まだ「発注済み」の印が付いていない商品だけを集計する（前回発注書に載せた分は自動で除外される）。
+// pending には印付け対象（fbKey・items配列のインデックス）を持たせ、印刷後にまとめて発注済みにできるようにする
 function purchaseOrderStatsCalc(brand){
-  return allProds().filter(function(p){ return (p.brand||"").trim()===brand; }).map(function(p){
+  var prods = allProds().filter(function(p){ return (p.brand||"").trim()===brand; });
+  var byId = {};
+  prods.forEach(function(p){
     var sc = {};
     (p.sizes||[]).forEach(function(s){ sc[s]=0; });
-    S.orders.forEach(function(o){ o.items.forEach(function(i){ if(i.pid===p.id) sc[i.size]=(sc[i.size]||0)+i.qty; }); });
+    byId[p.id] = sc;
+  });
+  var pending = [];
+  S.orders.forEach(function(o){
+    o.items.forEach(function(i, idx){
+      var sc = byId[i.pid];
+      if(!sc || i.ordered) return;
+      sc[i.size] = (sc[i.size]||0) + i.qty;
+      if(o.fbKey) pending.push({fbKey:o.fbKey, itemIdx:idx});
+    });
+  });
+  var stats = prods.map(function(p){
+    var sc = byId[p.id];
     var total = Object.keys(sc).reduce(function(a,k){ return a+sc[k]; },0);
     return Object.assign({}, p, {sc:sc, total:total});
   }).filter(function(p){ return p.total>0; });
+  return { stats: stats, pending: pending };
+}
+function productBrandOf(pid){
+  var p = allProds().filter(function(x){ return x.id===pid; })[0];
+  return p ? (p.brand||"").trim() : "";
 }
 // メーカー・代理店に渡す発注書：金額ではなく「品目×サイズ×数量」が主目的なので単価・金額は載せない
 function printPurchaseOrder(brand){
-  var stats = purchaseOrderStatsCalc(brand);
+  var stats = purchaseOrderStatsCalc(brand).stats;
   var el = document.getElementById("inv");
   var rows = stats.map(function(p){
     return Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
@@ -1586,11 +1619,16 @@ function orderCardHtml(o){
       var deliverKey = o.id+"-"+idx;
       var deliverBusy = S.itemDeliverUpdating === deliverKey;
       var delivered = !!it.delivered;
+      var brand = productBrandOf(it.pid);
+      var orderedBadge = brand
+        ? '<span title="'+esc(brand)+'" style="padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap;background:'+(it.ordered?"#eaf1fc":"#fff7e6")+';color:'+(it.ordered?"#2a6fd6":"#b45309")+'">'+(it.ordered?"📦 発注済":"📦 未発注")+'</span>'
+        : '';
       return (
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px solid #eee">'+
           '<span>'+esc(it.pname)+'（'+sizeLabel(it)+'）× '+it.qty+'点</span>'+
           '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+
             '<span>'+fmt(it.price*it.qty)+'</span>'+
+            orderedBadge+
             '<button onclick="App.toggleItemDelivered(\''+o.id+'\','+idx+')" '+(deliverBusy?"disabled":"")+' style="padding:4px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+(delivered?"#e6f4ea":"#f5f5f5")+';color:'+(delivered?"#1a6b2f":"#888")+';border:1px solid '+(delivered?"#b7dfc4":"#ddd")+';'+(deliverBusy?"opacity:.5;cursor:not-allowed":"")+'">'+(deliverBusy?"…":(delivered?"✅ 渡し済み":"⏳ 未渡し"))+'</button>'+
           '</div>'+
         '</div>'
@@ -1869,7 +1907,9 @@ function poTabHtml(){
   var brandOptions = brands.map(function(b){
     return '<option value="'+esc(b)+'"'+(S.poBrand===b?' selected':'')+'>'+esc(b)+'</option>';
   }).join("");
-  var stats = purchaseOrderStatsCalc(S.poBrand);
+  var result = purchaseOrderStatsCalc(S.poBrand);
+  var stats = result.stats;
+  S.poPending = result.pending;
   var preview = stats.length ? stats.map(function(p){
     var szs = Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
       return '<div style="background:#f8faf8;border-radius:8px;padding:8px 12px;text-align:center;min-width:52px"><div style="font-size:9px;color:#888;margin-bottom:2px">'+esc(s)+'</div><div style="font-size:18px;font-weight:900;color:'+G.g1+'">'+p.sc[s]+'</div><div style="font-size:9px;color:#bbb">点</div></div>';
@@ -1880,10 +1920,14 @@ function poTabHtml(){
         '<div class="st-szs">'+szs+'</div>'+
       '</div>'
     );
-  }).join("") : '<div style="color:#aaa">このブランドで受注済みの商品がありません</div>';
+  }).join("") : '<div style="color:#aaa">未発注の商品はありません（すべて発注済みです）</div>';
+  var marking = S.poMarking;
+  var markBtn = S.poPending.length
+    ? '<button onclick="App.markPurchaseOrderDone()" '+(marking?"disabled":"")+' style="padding:9px 16px;background:'+(marking?"#ccc":G.gold)+';color:'+(marking?"#888":G.g3)+';border-radius:8px;font-weight:700;font-size:13px;margin-bottom:16px;margin-left:8px;'+(marking?"cursor:not-allowed":"")+'">'+(marking?"更新中…":"✅ この内容を発注済みにする")+'</button>'
+    : '';
   return (
     '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">発注書</div>'+
-    '<div style="color:#888;font-size:13px;margin-bottom:16px">ブランドを選んで、そのブランドの商品だけをまとめてサイズ別に集計→印刷用の発注書を作成します（金額は載せず、数量のみの発注書です）。</div>'+
+    '<div style="color:#888;font-size:13px;margin-bottom:16px">ブランドを選んで、そのブランドの<strong>未発注</strong>の商品だけをまとめてサイズ別に集計→印刷用の発注書を作成します（金額は載せず、数量のみの発注書です）。発注し終えたら「発注済みにする」を押すと、次回はここに出てこなくなります。</div>'+
     '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'+
       '<select onchange="App.setPoBrand(this.value)" style="padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:13px">'+brandOptions+'</select>'+
     '</div>'+
@@ -1893,7 +1937,8 @@ function poTabHtml(){
       '<div><label style="display:block;font-size:11px;font-weight:700;color:#555;margin-bottom:4px">備考（納期希望など・任意）</label>'+
         '<input data-bind="poNote" placeholder="例）9月中旬までにご発送ください" style="width:100%;padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:13px"></div>'+
     '</div>'+
-    '<button onclick="App.printPurchaseOrder()" style="padding:9px 16px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:13px;margin-bottom:16px">🖨️ 発注書を作成する</button>'+
+    '<button onclick="App.printPurchaseOrder()" '+(stats.length?"":"disabled")+' style="padding:9px 16px;background:'+(stats.length?G.g1:"#ccc")+';color:#fff;border-radius:8px;font-weight:700;font-size:13px;margin-bottom:16px;'+(stats.length?"":"cursor:not-allowed")+'">🖨️ 発注書を作成する</button>'+
+    markBtn+
     preview
   );
 }
@@ -2135,6 +2180,30 @@ window.App = {
   printInvoicePublic:printInvoicePublic,
   setPoBrand: function(b){ S.poBrand = b; render(); },
   printPurchaseOrder: function(){ if(S.poBrand) printPurchaseOrder(S.poBrand); },
+  markPurchaseOrderDone: function(){
+    if(S.poMarking) return;
+    var pending = S.poPending || [];
+    if(!pending.length) return;
+    S.poMarking = true;
+    render();
+    Promise.all(pending.map(function(p){ return setItemOrderedCloud(p.fbKey, p.itemIdx, true); }))
+      .then(function(){
+        pending.forEach(function(p){
+          var o = S.orders.filter(function(x){ return x.fbKey===p.fbKey; })[0];
+          if(o && o.items[p.itemIdx]) o.items[p.itemIdx].ordered = true;
+        });
+        S.poMarking = false;
+        S.poPending = [];
+        showToast("発注済みにしました（"+pending.length+"点）");
+        render();
+      })
+      .catch(function(e){
+        console.error(e);
+        S.poMarking = false;
+        showError("更新に失敗しました。もう一度お試しください。");
+        render();
+      });
+  },
   refreshOrders:function(){
     S.loadingAdmin=true;
     loadPublicStock().then(function(c){ if(c) render(); });
