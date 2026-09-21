@@ -747,7 +747,9 @@ var S = {
   statusLookupLoading:false,
   adminAuthed:false,
   /* ── 発注書（ブランド別集計） ── */
-  poBrand:"", poSupplier:"", poNote:"", poPending:[], poMarking:false
+  poBrand:"", poSupplier:"", poNote:"", poPending:[], poMarking:false, poScope:null,
+  /* ── 注文一覧：発注書に回す注文の選択 ── */
+  selectedOrderIds:[]
 };
 
 function selFor(p){
@@ -942,8 +944,9 @@ function productBrands(){
   return list;
 }
 // まだ「発注済み」の印が付いていない商品だけを集計する（前回発注書に載せた分は自動で除外される）。
+// scopeIds を渡すと、その注文IDだけを対象にする（注文一覧でチェックして絞り込んだ場合）。
 // pending には印付け対象（fbKey・items配列のインデックス）を持たせ、印刷後にまとめて発注済みにできるようにする
-function purchaseOrderStatsCalc(brand){
+function purchaseOrderStatsCalc(brand, scopeIds){
   var prods = allProds().filter(function(p){ return (p.brand||"").trim()===brand; });
   var byId = {};
   prods.forEach(function(p){
@@ -952,7 +955,8 @@ function purchaseOrderStatsCalc(brand){
     byId[p.id] = sc;
   });
   var pending = [];
-  S.orders.forEach(function(o){
+  var orders = scopeIds ? S.orders.filter(function(o){ return scopeIds.indexOf(o.id)>=0; }) : S.orders;
+  orders.forEach(function(o){
     o.items.forEach(function(i, idx){
       var sc = byId[i.pid];
       if(!sc || i.ordered) return;
@@ -972,8 +976,8 @@ function productBrandOf(pid){
   return p ? (p.brand||"").trim() : "";
 }
 // メーカー・代理店に渡す発注書：金額ではなく「品目×サイズ×数量」が主目的なので単価・金額は載せない
-function printPurchaseOrder(brand){
-  var stats = purchaseOrderStatsCalc(brand).stats;
+function printPurchaseOrder(brand, scopeIds){
+  var stats = purchaseOrderStatsCalc(brand, scopeIds).stats;
   var el = document.getElementById("inv");
   var rows = stats.map(function(p){
     return Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
@@ -993,6 +997,7 @@ function printPurchaseOrder(brand){
       '<tr><td>発注日</td><td>'+fmtD(new Date().toISOString())+'</td></tr>'+
       '<tr><td>ブランド</td><td>'+esc(brand)+'</td></tr>'+
       '<tr><td>合計数量</td><td>'+grandQty+' 点</td></tr>'+
+      (scopeIds ? '<tr><td>対象注文</td><td>選択した'+scopeIds.length+'件の注文分</td></tr>' : '')+
       (note ? '<tr><td>備考</td><td>'+esc(note)+'</td></tr>' : '')+
     '</table>'+
     '<table><thead><tr><th>商品名</th><th>サイズ</th><th style="text-align:right">数量</th></tr></thead>'+
@@ -1612,6 +1617,7 @@ function dashboardHtml(){
 }
 function orderCardHtml(o){
   var expanded = S.selOid===o.id;
+  var selected = S.selectedOrderIds.indexOf(o.id) >= 0;
   var itemsLine = o.items.map(function(i){ return esc(i.pname)+'（'+sizeLabel(i)+'）×'+i.qty+((i.stockAtOrder!=null && i.stockAtOrder < i.qty) ? ' <span style="color:#b45309;font-weight:700;font-size:11px">［取寄］</span>' : ''); }).join("　");
   var detail = "";
   if(expanded){
@@ -1658,9 +1664,12 @@ function orderCardHtml(o){
     );
   }
   return (
-    '<div onclick="App.toggleOrder(\''+o.id+'\')" style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;border:'+(expanded?("2px solid "+G.g1):"2px solid transparent")+'">'+
+    '<div onclick="App.toggleOrder(\''+o.id+'\')" style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);cursor:pointer;border:'+(expanded?("2px solid "+G.g1):(selected?("2px solid "+G.gold):"2px solid transparent"))+'">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">'+
-        '<div><div style="font-weight:700;font-size:14px">'+esc(o.pName)+' / '+esc(o.sName)+'（'+esc(o.cat)+'）</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+fmtD(o.date)+' · '+esc(o.id)+'</div></div>'+
+        '<div style="display:flex;align-items:flex-start;gap:9px;min-width:0">'+
+          '<input type="checkbox" onclick="event.stopPropagation()" onchange="App.toggleOrderSelected(\''+o.id+'\')" '+(selected?"checked":"")+' style="width:18px;height:18px;margin-top:2px;flex-shrink:0;cursor:pointer" aria-label="発注書用にこの注文を選択">'+
+          '<div><div style="font-weight:700;font-size:14px">'+esc(o.pName)+' / '+esc(o.sName)+'（'+esc(o.cat)+'）</div><div style="font-size:11px;color:#aaa;margin-top:2px">'+fmtD(o.date)+' · '+esc(o.id)+'</div></div>'+
+        '</div>'+
         statusBadge(o.status)+
       '</div>'+
       '<div style="font-size:12px;color:#666;margin-bottom:6px;line-height:1.6">'+itemsLine+'</div>'+
@@ -1718,8 +1727,19 @@ function ordersTabHtml(){
     return '<button onclick=\'App.setSfSt("'+s+'")\' style="padding:5px 11px;border-radius:99px;font-weight:700;font-size:11px;white-space:nowrap;background:'+(active?G.g1:"#fff")+';color:'+(active?"#fff":"#555")+';box-shadow:0 1px 4px rgba(0,0,0,.08)">'+esc(s)+'</button>';
   }).join("");
   var list = filtered.map(orderCardHtml).join("") || '<div style="color:#aaa;padding:20px 0">注文がありません</div>';
+  var selCount = S.selectedOrderIds.length;
+  var selBar = selCount ? (
+    '<div style="position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:'+G.gold+';color:'+G.g3+';padding:10px 14px;border-radius:8px;margin-bottom:14px;font-weight:700;font-size:13px">'+
+      '<span>☑️ '+selCount+'件選択中</span>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+        '<button onclick="App.clearOrderSelection()" style="padding:6px 12px;background:rgba(255,255,255,.5);color:'+G.g3+';border-radius:6px;font-size:12px;font-weight:700">選択解除</button>'+
+        '<button onclick="App.goToPoWithSelection()" style="padding:6px 14px;background:'+G.g3+';color:#fff;border-radius:6px;font-size:12px;font-weight:700">📑 選択した注文で発注書を作る →</button>'+
+      '</div>'+
+    '</div>'
+  ) : '';
   return (
     '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:12px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">ORDERS</div>'+
+    selBar+
     '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">'+
       '<button onclick="App.downloadOrderListCsv()" style="padding:8px 14px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 一覧CSV</button>'+
       '<button onclick="App.downloadOrderDetailCsv()" style="padding:8px 14px;background:'+G.g2+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 明細CSV</button>'+
@@ -1907,9 +1927,15 @@ function poTabHtml(){
   var brandOptions = brands.map(function(b){
     return '<option value="'+esc(b)+'"'+(S.poBrand===b?' selected':'')+'>'+esc(b)+'</option>';
   }).join("");
-  var result = purchaseOrderStatsCalc(S.poBrand);
+  var result = purchaseOrderStatsCalc(S.poBrand, S.poScope);
   var stats = result.stats;
   S.poPending = result.pending;
+  var scopeBanner = S.poScope
+    ? '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#eef6ee;border:1px solid #cfe3cf;color:'+G.g3+';padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:12.5px;font-weight:700">'+
+        '<span>📌 注文一覧で選択した'+S.poScope.length+'件の注文だけを集計中</span>'+
+        '<button onclick="App.clearPoScope()" style="padding:5px 11px;background:#fff;border:1px solid #cfe3cf;border-radius:6px;font-size:12px;font-weight:700;color:'+G.g3+'">✕ 選択解除してすべての未発注分を見る</button>'+
+      '</div>'
+    : '';
   var preview = stats.length ? stats.map(function(p){
     var szs = Object.keys(p.sc).filter(function(s){ return p.sc[s]>0; }).map(function(s){
       return '<div style="background:#f8faf8;border-radius:8px;padding:8px 12px;text-align:center;min-width:52px"><div style="font-size:9px;color:#888;margin-bottom:2px">'+esc(s)+'</div><div style="font-size:18px;font-weight:900;color:'+G.g1+'">'+p.sc[s]+'</div><div style="font-size:9px;color:#bbb">点</div></div>';
@@ -1927,7 +1953,8 @@ function poTabHtml(){
     : '';
   return (
     '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">発注書</div>'+
-    '<div style="color:#888;font-size:13px;margin-bottom:16px">ブランドを選んで、そのブランドの<strong>未発注</strong>の商品だけをまとめてサイズ別に集計→印刷用の発注書を作成します（金額は載せず、数量のみの発注書です）。発注し終えたら「発注済みにする」を押すと、次回はここに出てこなくなります。</div>'+
+    '<div style="color:#888;font-size:13px;margin-bottom:16px">ブランドを選んで、そのブランドの<strong>未発注</strong>の商品だけをまとめてサイズ別に集計→印刷用の発注書を作成します（金額は載せず、数量のみの発注書です）。発注し終えたら「発注済みにする」を押すと、次回はここに出てこなくなります。注文一覧でチェックを入れれば、選んだ注文だけに絞ることもできます。</div>'+
+    scopeBanner+
     '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'+
       '<select onchange="App.setPoBrand(this.value)" style="padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:13px">'+brandOptions+'</select>'+
     '</div>'+
@@ -2179,7 +2206,22 @@ window.App = {
   printInvoice:printInvoice,
   printInvoicePublic:printInvoicePublic,
   setPoBrand: function(b){ S.poBrand = b; render(); },
-  printPurchaseOrder: function(){ if(S.poBrand) printPurchaseOrder(S.poBrand); },
+  printPurchaseOrder: function(){ if(S.poBrand) printPurchaseOrder(S.poBrand, S.poScope); },
+  clearPoScope: function(){ S.poScope = null; render(); },
+  toggleOrderSelected: function(oid){
+    var idx = S.selectedOrderIds.indexOf(oid);
+    if(idx>=0) S.selectedOrderIds.splice(idx,1); else S.selectedOrderIds.push(oid);
+    render();
+  },
+  clearOrderSelection: function(){ S.selectedOrderIds = []; render(); },
+  goToPoWithSelection: function(){
+    if(!S.selectedOrderIds.length) return;
+    S.poScope = S.selectedOrderIds.slice();
+    S.selectedOrderIds = [];
+    S.adminTab = "po";
+    S.selOid = null;
+    render();
+  },
   markPurchaseOrderDone: function(){
     if(S.poMarking) return;
     var pending = S.poPending || [];
