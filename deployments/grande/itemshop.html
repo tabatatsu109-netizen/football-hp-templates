@@ -749,7 +749,7 @@ var S = {
   /* ── 発注書（ブランド別集計） ── */
   poBrand:"", poSupplier:"", poNote:"", poPending:[], poMarking:false, poScope:null,
   /* ── 注文一覧：発注書に回す注文の選択 ── */
-  selectedOrderIds:[]
+  selectedOrderIds:[], bulkSince:""
 };
 
 function selFor(p){
@@ -1769,6 +1769,12 @@ function ordersTabHtml(){
   return (
     '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:12px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">ORDERS</div>'+
     selBar+
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);font-size:12px;font-weight:700;color:#555">'+
+      '<span>☑️ まとめて選択</span>'+
+      '<input type="date" data-bind="bulkSince" aria-label="この日以降" style="padding:6px 8px;border:1.5px solid #ddd;border-radius:6px;font-size:12px">'+
+      '<span>以降の注文で、未渡しの商品があるもの</span>'+
+      '<button onclick="App.selectOrdersSince()" style="padding:6px 12px;background:'+G.g1+';color:#fff;border-radius:6px;font-size:12px;font-weight:700">選択する</button>'+
+    '</div>'+
     '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">'+
       '<button onclick="App.downloadOrderListCsv()" style="padding:8px 14px;background:'+G.g1+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 一覧CSV</button>'+
       '<button onclick="App.downloadOrderDetailCsv()" style="padding:8px 14px;background:'+G.g2+';color:#fff;border-radius:8px;font-weight:700;font-size:12px">📥 明細CSV</button>'+
@@ -2266,6 +2272,16 @@ window.App = {
     render();
   },
   clearOrderSelection: function(){ S.selectedOrderIds = []; render(); },
+  selectOrdersSince: function(){
+    if(!S.bulkSince){ showError("日付を選んでください"); return; }
+    var p = S.bulkSince.split("-");
+    var start = new Date(+p[0], +p[1]-1, +p[2]).getTime();
+    var ids = S.orders.filter(function(o){
+      return new Date(o.date).getTime() >= start && o.items.some(function(i){ return !i.delivered; });
+    }).map(function(o){ return o.id; });
+    S.selectedOrderIds = ids;
+    showToast(ids.length ? ids.length+"件の注文を選択しました" : "該当する注文がありません");
+  },
   goToPoWithSelection: function(){
     if(!S.selectedOrderIds.length) return;
     S.poScope = S.selectedOrderIds.slice();
