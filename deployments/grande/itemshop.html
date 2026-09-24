@@ -492,6 +492,20 @@ function allProds(){
   return base.concat(S.customProds);
 }
 function prodById(pid){ return allProds().filter(function(p){ return p.id===pid; })[0]; }
+// 過去の注文の明細を「今の商品」に対応づける。
+// 古い注文に保存されている商品番号(pid)は、商品一覧の番号を振り直す前のもので、今は別の商品を指していることがある
+// （例：注文時「ゲームパンツ（白）」の番号が、今は「ソックス（赤）」）。
+// そのため、注文時の商品名(pname)が今のその番号の商品名と一致する場合だけ番号を信用し、
+// 一致しなければ商品名から探す。見つからなければ null（＝今の商品一覧にない）を返す。
+var PNAME_ALIASES = { "ウィンドピステ上下": "ウィンドビステ上下" };
+function resolveItemPid(it){
+  var name = PNAME_ALIASES[it.pname] || it.pname;
+  if(!name) return it.pid;
+  var cur = prodById(it.pid);
+  if(cur && cur.name === name) return it.pid;
+  var byName = allProds().filter(function(p){ return p.name === name; })[0];
+  return byName ? byName.id : null;
+}
 function brandOf(p){ return (p.brand || "").trim() || "その他"; }
 function uniqueBrands(){
   var seen = {}, list = [];
@@ -686,7 +700,9 @@ function restoreStockForOrder(order){
   var items = (order.items || []).filter(function(it){ return it.stockAtOrder != null; });
   return items.reduce(function(chain, it){
     return chain.then(function(){
-      return applyStockDelta(it.pid, it.size, +it.qty, true).catch(function(e){ console.warn("stock restore failed", e); });
+      var pid = resolveItemPid(it);
+      if(pid == null) return;
+      return applyStockDelta(pid, it.size, +it.qty, true).catch(function(e){ console.warn("stock restore failed", e); });
     });
   }, Promise.resolve()).then(function(){ if(items.length) render(); });
 }
@@ -926,7 +942,7 @@ function adminStatsCalc(){
   return allProds().map(function(p){
     var sc = {};
     p.sizes.forEach(function(s){ sc[s]=0; });
-    S.orders.forEach(function(o){ o.items.forEach(function(i){ if(i.pid===p.id) sc[i.size]=(sc[i.size]||0)+i.qty; }); });
+    S.orders.forEach(function(o){ o.items.forEach(function(i){ if(resolveItemPid(i)===p.id) sc[i.size]=(sc[i.size]||0)+i.qty; }); });
     var total = Object.keys(sc).reduce(function(a,k){ return a+sc[k]; },0);
     return Object.assign({}, p, {sc:sc, total:total});
   }).filter(function(p){ return p.total>0; });
@@ -964,12 +980,19 @@ function purchaseOrderStatsCalc(brand, scopeIds){
   });
   var pending = [];
   var excluded = 0;
+  var unmatched = [];
   var orders = scopeIds ? S.orders.filter(function(o){ return scopeIds.indexOf(o.id)>=0; }) : S.orders;
   orders.forEach(function(o){
     o.items.forEach(function(i, idx){
-      var entry = byId[i.pid];
+      var done = i.ordered || i.delivered || PO_DONE_STATUSES.indexOf(o.status)>=0;
+      var pid = resolveItemPid(i);
+      if(pid == null){
+        if(!done) unmatched.push({ oid:o.id, sName:o.sName||o.pName||"", pname:i.pname||"", size:i.size, qty:i.qty });
+        return;
+      }
+      var entry = byId[pid];
       if(!entry) return;
-      if(i.ordered || i.delivered || PO_DONE_STATUSES.indexOf(o.status)>=0){ excluded += i.qty; return; }
+      if(done){ excluded += i.qty; return; }
       entry.sources.push({ oid:o.id, sName:o.sName||o.pName||"", size:i.size, number:String(i.number||"").trim(), qty:i.qty, pname:i.pname||"" });
       var num = String(i.number||"").trim();
       if(num){
@@ -993,7 +1016,7 @@ function purchaseOrderStatsCalc(brand, scopeIds){
     var numberedTotal = numberedRows.reduce(function(a,r){ return a+r.qty; },0);
     return Object.assign({}, p, {sc:entry.sc, numberedRows:numberedRows, sources:entry.sources, total: blankTotal + numberedTotal});
   }).filter(function(p){ return p.total>0; });
-  return { stats: stats, pending: pending, excluded: excluded };
+  return { stats: stats, pending: pending, excluded: excluded, unmatched: unmatched };
 }
 function productBrandOf(pid){
   var p = allProds().filter(function(x){ return x.id===pid; })[0];
@@ -1654,7 +1677,7 @@ function orderCardHtml(o){
       var deliverKey = o.id+"-"+idx;
       var deliverBusy = S.itemDeliverUpdating === deliverKey;
       var delivered = !!it.delivered;
-      var brand = productBrandOf(it.pid);
+      var brand = productBrandOf(resolveItemPid(it));
       var orderedBadge = brand
         ? '<span title="'+esc(brand)+'" style="padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap;background:'+(it.ordered?"#eaf1fc":"#fff7e6")+';color:'+(it.ordered?"#2a6fd6":"#b45309")+'">'+(it.ordered?"📦 発注済":"📦 未発注")+'</span>'
         : '';
@@ -2001,6 +2024,12 @@ function poTabHtml(){
       '</div>'
     );
   }).join("") : '<div style="color:#aaa">未発注の商品はありません（すべて発注済みです）</div>';
+  var unmatchedBox = result.unmatched.length
+    ? '<div style="background:#fff7e6;border:1px solid #f0d9a8;color:#8a5a00;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;line-height:1.9">'+
+        '<div style="font-weight:700;margin-bottom:2px">⚠ 今の商品一覧に見つからない明細（この発注書には含めていません）</div>'+
+        result.unmatched.map(function(u){ return '<div>'+esc(u.sName)+'：'+esc(u.pname)+'（'+esc(u.size)+' × '+u.qty+'）<span style="color:#b8860b">'+esc(u.oid)+'</span></div>'; }).join("")+
+      '</div>'
+    : '';
   var excludedNote = result.excluded
     ? '<div style="font-size:12px;color:#888;margin-bottom:14px">ℹ️ 発注不要として除外した明細：'+result.excluded+'点（発注済み・入荷済み・受け渡し済みのもの）</div>'
     : '';
@@ -2024,6 +2053,7 @@ function poTabHtml(){
     '<button onclick="App.printPurchaseOrder()" '+(stats.length?"":"disabled")+' style="padding:9px 16px;background:'+(stats.length?G.g1:"#ccc")+';color:#fff;border-radius:8px;font-weight:700;font-size:13px;margin-bottom:16px;'+(stats.length?"":"cursor:not-allowed")+'">🖨️ 発注書を作成する</button>'+
     markBtn+
     excludedNote+
+    unmatchedBox+
     preview
   );
 }
