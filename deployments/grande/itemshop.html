@@ -131,7 +131,7 @@ var PRODS = [
   {id:7,name:"ソックス（赤）",brand:"ATHLETA",desc:"※GKの選手のみ",price:1800,cat:"ソックス",sizes:["19-21","22-24","25-27"],reqJ:true,reqJU:true},
   {id:8,name:"リバーシブルビブス",brand:"ATHLETA",desc:"",price:2500,cat:"その他",sizes:["ジュニアサイズ","ジュニアユースサイズ"],reqJ:true,reqJU:true},
   {id:9,name:"バックパック",brand:"ATHLETA",desc:"クラブマーク付き。練習・試合・遠征時に。",price:9500,cat:"バッグ",sizes:["1個"],reqJ:true,reqJU:true},
-  {id:10,name:"ポロシャツ（ネイビー）",brand:"ATHLETA",desc:"※ATHLETAではありません。カラー：ネイビー",price:3500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:true},
+  {id:10,name:"ポロシャツ（ネイビー）",brand:"ノーブランド",desc:"※ATHLETAではありません。カラー：ネイビー",price:3500,cat:"トップス",sizes:["S","M","L","O","XO"],reqJ:false,reqJU:true},
   {id:11,name:"プラユニ（緑）",brand:"ノーブランド",desc:"1〜3年生はATHLETAユニフォームの代わりにこちらでもOK（すぐ大きくなる時期のためおすすめ）。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false,gradeNote:"low"},
   {id:12,name:"プラユニ（白）",brand:"ノーブランド",desc:"1〜3年生はATHLETAユニフォームの代わりにこちらでもOK（すぐ大きくなる時期のためおすすめ）。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false,gradeNote:"low"},
   {id:13,name:"プラユニ（赤）",brand:"ノーブランド",desc:"練習試合・GK用。1〜3年生はGKユニフォームの代わりにこちらでもOK。",price:4000,cat:"ユニフォーム",sizes:["130","140","150","160","S","M","L","O","XO"],reqJ:false,reqJU:false,gradeNote:"low"},
@@ -943,25 +943,34 @@ function productBrands(){
   });
   return list;
 }
-// まだ「発注済み」の印が付いていない商品だけを集計する（前回発注書に載せた分は自動で除外される）。
+// これから発注が必要な商品だけを集計する。次のものは「発注不要」として除外する：
+//   ・「発注済みにする」を押した商品（it.ordered）
+//   ・すでに保護者へ受け渡し済みの商品（it.delivered）
+//   ・注文ステータスが「発注済み」「入荷済み」「受け渡し完了」の注文の商品
+//     （「発注済み」の印を付ける機能ができる前の過去の注文も、ここで自動的に除外される）
 // scopeIds を渡すと、その注文IDだけを対象にする（注文一覧でチェックして絞り込んだ場合）。
 // 背番号が指定された商品はサイズだけの合算に埋もれさせず、サイズ×背番号ごとに別行として残す
 // （プリント発注時にどのサイズに何番を入れるか分かるようにするため）。
+// sources には「どの注文（選手）の分か」の内訳を持たせ、画面で確認できるようにする
 // pending には印付け対象（fbKey・items配列のインデックス）を持たせ、印刷後にまとめて発注済みにできるようにする
+var PO_DONE_STATUSES = ["発注済み","入荷済み","受け渡し完了"];
 function purchaseOrderStatsCalc(brand, scopeIds){
   var prods = allProds().filter(function(p){ return (p.brand||"").trim()===brand; });
   var byId = {};
   prods.forEach(function(p){
     var sc = {};
     (p.sizes||[]).forEach(function(s){ sc[s]=0; });
-    byId[p.id] = { sc: sc, numberedMap: {} };
+    byId[p.id] = { sc: sc, numberedMap: {}, sources: [] };
   });
   var pending = [];
+  var excluded = 0;
   var orders = scopeIds ? S.orders.filter(function(o){ return scopeIds.indexOf(o.id)>=0; }) : S.orders;
   orders.forEach(function(o){
     o.items.forEach(function(i, idx){
       var entry = byId[i.pid];
-      if(!entry || i.ordered) return;
+      if(!entry) return;
+      if(i.ordered || i.delivered || PO_DONE_STATUSES.indexOf(o.status)>=0){ excluded += i.qty; return; }
+      entry.sources.push({ oid:o.id, sName:o.sName||o.pName||"", size:i.size, number:String(i.number||"").trim(), qty:i.qty, pname:i.pname||"" });
       var num = String(i.number||"").trim();
       if(num){
         var key = i.size + "|" + num;
@@ -982,9 +991,9 @@ function purchaseOrderStatsCalc(brand, scopeIds){
       });
     var blankTotal = Object.keys(entry.sc).reduce(function(a,k){ return a+entry.sc[k]; },0);
     var numberedTotal = numberedRows.reduce(function(a,r){ return a+r.qty; },0);
-    return Object.assign({}, p, {sc:entry.sc, numberedRows:numberedRows, total: blankTotal + numberedTotal});
+    return Object.assign({}, p, {sc:entry.sc, numberedRows:numberedRows, sources:entry.sources, total: blankTotal + numberedTotal});
   }).filter(function(p){ return p.total>0; });
-  return { stats: stats, pending: pending };
+  return { stats: stats, pending: pending, excluded: excluded };
 }
 function productBrandOf(pid){
   var p = allProds().filter(function(x){ return x.id===pid; })[0];
@@ -1970,21 +1979,32 @@ function poTabHtml(){
         '</div>'+
       '</div>'
     ) : '';
+    // 内訳：どの注文（選手）の分かを表示。注文時の商品名が現在の商品名と違うものは ⚠ を付けて目立たせる
+    var srcHtml = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed #eee;font-size:11px;color:#888;line-height:1.9">内訳：'+
+      p.sources.map(function(s){
+        var warn = s.pname && s.pname !== p.name;
+        return '<span style="white-space:nowrap;'+(warn?'color:#b45309;font-weight:700':'')+'">'+(warn?'⚠ ':'')+esc(s.sName)+'（'+esc(s.size)+(s.number?'・背番号'+esc(s.number):'')+' × '+s.qty+(warn?'／注文時の商品名：'+esc(s.pname):'')+'）</span>';
+      }).join('　')+
+    '</div>';
     return (
       '<div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.06);margin-bottom:10px">'+
         '<div style="font-weight:700;font-size:14px;margin-bottom:8px">'+esc(p.name)+'（合計 '+p.total+'点）</div>'+
         '<div class="st-szs">'+szs+'</div>'+
         numHtml+
+        srcHtml+
       '</div>'
     );
   }).join("") : '<div style="color:#aaa">未発注の商品はありません（すべて発注済みです）</div>';
+  var excludedNote = result.excluded
+    ? '<div style="font-size:12px;color:#888;margin-bottom:14px">ℹ️ 発注不要として除外した明細：'+result.excluded+'点（発注済み・入荷済み・受け渡し済みのもの）</div>'
+    : '';
   var marking = S.poMarking;
   var markBtn = S.poPending.length
     ? '<button onclick="App.markPurchaseOrderDone()" '+(marking?"disabled":"")+' style="padding:9px 16px;background:'+(marking?"#ccc":G.gold)+';color:'+(marking?"#888":G.g3)+';border-radius:8px;font-weight:700;font-size:13px;margin-bottom:16px;margin-left:8px;'+(marking?"cursor:not-allowed":"")+'">'+(marking?"更新中…":"✅ この内容を発注済みにする")+'</button>'
     : '';
   return (
     '<div style="font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:8px;color:'+G.g3+';font-family:\'Barlow Condensed\',sans-serif">発注書</div>'+
-    '<div style="color:#888;font-size:13px;margin-bottom:16px">ブランドを選んで、そのブランドの<strong>未発注</strong>の商品だけをまとめてサイズ別に集計→印刷用の発注書を作成します（金額は載せず、数量のみの発注書です）。発注し終えたら「発注済みにする」を押すと、次回はここに出てこなくなります。注文一覧でチェックを入れれば、選んだ注文だけに絞ることもできます。</div>'+
+    '<div style="color:#888;font-size:13px;margin-bottom:16px">ブランドを選んで、そのブランドの<strong>未発注</strong>の商品だけをまとめてサイズ別に集計→印刷用の発注書を作成します（金額は載せず、数量のみの発注書です）。発注し終えたら「発注済みにする」を押すと、次回はここに出てこなくなります。受け渡し済み・入荷済み・発注済みステータスの注文は自動で除外されます。注文一覧でチェックを入れれば、選んだ注文だけに絞ることもできます。</div>'+
     scopeBanner+
     '<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'+
       '<select onchange="App.setPoBrand(this.value)" style="padding:9px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:13px">'+brandOptions+'</select>'+
@@ -1997,6 +2017,7 @@ function poTabHtml(){
     '</div>'+
     '<button onclick="App.printPurchaseOrder()" '+(stats.length?"":"disabled")+' style="padding:9px 16px;background:'+(stats.length?G.g1:"#ccc")+';color:#fff;border-radius:8px;font-weight:700;font-size:13px;margin-bottom:16px;'+(stats.length?"":"cursor:not-allowed")+'">🖨️ 発注書を作成する</button>'+
     markBtn+
+    excludedNote+
     preview
   );
 }
@@ -2267,7 +2288,7 @@ window.App = {
         });
         S.poMarking = false;
         S.poPending = [];
-        showToast("発注済みにしました（"+pending.length+"点）");
+        showToast("発注済みにしました（"+pending.length+"件の明細）");
         render();
       })
       .catch(function(e){
