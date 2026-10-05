@@ -269,7 +269,7 @@ function scheduleCloudSave() {
     try {
       setSyncIcon('💾');
       const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
       });
@@ -346,7 +346,7 @@ async function saveToCloud() {
   setSyncIcon('💾');
   try {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
     });
@@ -1507,7 +1507,7 @@ async function publishToHP() {
   setSyncIcon('💾');
   try {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
     });
@@ -1537,7 +1537,7 @@ async function unpublish() {
   setSyncIcon('💾');
   try {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
     });
@@ -1570,7 +1570,7 @@ function deleteCurrentMatch() {
       setSyncIcon('💾');
       try {
         const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
         });
@@ -3293,7 +3293,7 @@ async function sendPost() {
   setSyncIcon('💾');
   try {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
     });
@@ -3330,7 +3330,7 @@ async function deletePost(id) {
     if (isCloudConfigured(s)) {
       try {
         await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
-          method: 'PUT',
+          method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
         });
@@ -3536,7 +3536,7 @@ async function postAnnouncement() {
   setSyncIcon('💾');
   try {
     const res = await fetch(`${getFirebaseUrl(sconf)}.json?auth=${sconf.firebaseSecret}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, resetStamp: getResetStamp() }),
     });
