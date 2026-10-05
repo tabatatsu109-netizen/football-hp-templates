@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Match Planner — クラブ運営管理</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261005a">
+  <link rel="stylesheet" href="style.css?v=20261005b">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -440,15 +440,18 @@
                 <option value="その他">その他</option>
               </select>
             </div>
-            <div class="form-group">
+            <div class="form-group photo-drop" data-photo-target="result">
               <label class="form-label">試合の写真（任意）</label>
-              <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
                 <button class="btn btn-secondary btn-sm" type="button" onclick="openPhotoPicker('result')">📷 写真を選ぶ</button>
+                <label class="btn btn-secondary btn-sm photo-upload-label">⬆ 写真をアップロード<input type="file" accept="image/*" style="display:none" onchange="uploadZonePhoto(this, 'result')"></label>
                 <button class="btn btn-ghost btn-sm" type="button" id="result-image-clear" style="display:none" onclick="clearPickedPhoto('result')">✕ 解除</button>
               </div>
+              <div class="photo-drop-status">⏳ アップロード中...</div>
               <img id="result-image-preview" style="display:none;width:100%;max-height:140px;object-fit:cover;border-radius:10px;margin-bottom:6px" alt="">
               <input class="form-input" type="url" id="result-image" placeholder="または画像URLを貼り付け https://..." oninput="updatePhotoPreview('result')">
               <div style="font-size:11.5px;color:var(--c-muted);margin-top:4px">その場で撮った写真をスマホから選べます。ニュース記事・トップページのサムネイルに使われます</div>
+              <div class="photo-drop-hint">💻 パソコンでは、この枠に画像をドラッグ＆ドロップ、または Ctrl＋V で貼り付けできます</div>
             </div>
           </div>
 
@@ -845,15 +848,18 @@
             <label class="form-label">本文</label>
             <textarea class="form-textarea" id="post-body" rows="6" placeholder="本文を入力してください" style="min-height:120px"></textarea>
           </div>
-          <div class="form-group">
+          <div class="form-group photo-drop" data-photo-target="post">
             <label class="form-label">カード写真（任意）</label>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
               <button class="btn btn-secondary btn-sm" type="button" onclick="openPhotoPicker('post')">📷 クラブの写真から選ぶ</button>
+              <label class="btn btn-secondary btn-sm photo-upload-label">⬆ 写真をアップロード<input type="file" accept="image/*" style="display:none" onchange="uploadZonePhoto(this, 'post')"></label>
               <button class="btn btn-ghost btn-sm" type="button" id="post-image-clear" style="display:none" onclick="clearPickedPhoto('post')">✕ 解除</button>
             </div>
+            <div class="photo-drop-status">⏳ アップロード中...</div>
             <img id="post-image-preview" style="display:none;width:100%;max-height:140px;object-fit:cover;border-radius:10px;margin-bottom:6px" alt="">
             <input class="form-input" type="url" id="post-image" placeholder="または画像URLを貼り付け https://..." oninput="updatePhotoPreview('post')">
             <div style="font-size:11.5px;color:var(--c-muted);margin-top:4px">トップページのカードやニュース詳細に表示されます。未選択なら自動で写真が入ります</div>
+            <div class="photo-drop-hint">💻 パソコンでは、この枠に画像をドラッグ＆ドロップ、または Ctrl＋V で貼り付けできます</div>
           </div>
           <div class="toggle-row">
             <div class="toggle-info">
@@ -933,14 +939,17 @@
           </div>
 
           <!-- ④.5 カード写真 -->
-          <div class="form-group">
+          <div class="form-group photo-drop" data-photo-target="ann">
             <label class="form-label">カード写真（任意）</label>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
               <button class="btn btn-secondary btn-sm" type="button" onclick="openPhotoPicker('ann')">📷 クラブの写真から選ぶ</button>
+              <label class="btn btn-secondary btn-sm photo-upload-label">⬆ 写真をアップロード<input type="file" accept="image/*" style="display:none" onchange="uploadZonePhoto(this, 'ann')"></label>
               <button class="btn btn-ghost btn-sm" type="button" id="ann-image-clear" style="display:none" onclick="clearPickedPhoto('ann')">✕ 解除</button>
             </div>
+            <div class="photo-drop-status">⏳ アップロード中...</div>
             <img id="ann-image-preview" style="display:none;width:100%;max-height:140px;object-fit:cover;border-radius:10px" alt="">
             <div style="font-size:11.5px;color:var(--c-muted);margin-top:4px">トップページの告知カードに表示されます。未選択なら自動で写真が入ります</div>
+            <div class="photo-drop-hint">💻 パソコンでは、この枠に画像をドラッグ＆ドロップ、または Ctrl＋V で貼り付けできます</div>
           </div>
 
           <!-- ⑤ ボタン -->
@@ -1136,12 +1145,12 @@
       <div class="sheet-body">
         <div id="photo-upload-row" style="margin-bottom:12px">
           <label class="btn btn-primary btn-full" style="cursor:pointer" id="photo-upload-btn">
-            📱 スマホの写真をアップロードして使う
+            ⬆ 写真をアップロードして使う
             <input type="file" accept="image/*" style="display:none" onchange="uploadPickerPhoto(this)">
           </label>
           <div id="photo-upload-status" style="display:none;text-align:center;font-size:13px;color:var(--c-muted);padding:8px">⏳ アップロード中...</div>
           <div id="photo-upload-nokey" style="display:none;background:#fffbea;border:1px solid #f4c430;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#5a4a00;line-height:1.7;margin-top:8px">
-            スマホの写真を使うには、設定ページで <strong>ImgBB APIキー</strong>（無料）を保存してください。<br>アイテムショップで使っているキーと同じものでOKです。
+            写真をアップロードするには、設定ページで <strong>ImgBB APIキー</strong>（無料）を保存してください。<br>アイテムショップで使っているキーと同じものでOKです。
           </div>
         </div>
         <div style="font-size:12px;font-weight:700;color:var(--c-text2);margin-bottom:6px">またはクラブの写真から選ぶ</div>
@@ -1713,6 +1722,6 @@
 
 </div><!-- /#app -->
 <script src="mp-config.js?v=20260810e"></script>
-<script src="script.js?v=20261005b"></script>
+<script src="script.js?v=20261005c"></script>
 </body>
 </html>

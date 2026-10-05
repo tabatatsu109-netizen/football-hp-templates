@@ -2136,65 +2136,145 @@ function clearPickedPhoto(target) {
   updatePhotoPreview(target);
 }
 
-// スマホの写真をImgBBへアップロードして使う（自動で縮小してから送る）
-function uploadPickerPhoto(input) {
+// 写真をImgBBへアップロードして使う（自動で縮小してから送る）
+// 入口は4つ：写真選択シート内のボタン／各写真欄の「写真をアップロード」ボタン／
+// 写真欄へのドラッグ＆ドロップ／画像の貼り付け（Ctrl+V）。どれも uploadPhotoFile に集約する
+function setPhotoTarget(target, url) {
+  if (target === 'post') {
+    document.getElementById('post-image').value = url;
+  } else if (target === 'ann') {
+    annCardImage = url;
+  } else if (target === 'result') {
+    document.getElementById('result-image').value = url;
+  }
+  updatePhotoPreview(target);
+}
+
+// 画像を最大1600pxに縮小・JPEG圧縮（通信量と表示速度のため）して base64 を返す
+function shrinkImageFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('read'));
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('decode'));
+      img.onload = () => {
+        const MAX = 1600;
+        let w = img.width, h = img.height;
+        if (Math.max(w, h) > MAX) {
+          const ratio = MAX / Math.max(w, h);
+          w = Math.round(w * ratio); h = Math.round(h * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; // 透過PNGをJPEGにしたとき黒くならないように
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.82).split(',')[1]);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+let _photoUploading = false;
+async function uploadPhotoFile(file, target) {
+  if (!file || !target) return false;
+  if (!/^image\//.test(file.type || '')) { showToast('画像ファイルを選んでください', 'error'); return false; }
+  const s = getSettings();
+  if (!s.imgbbKey) {
+    const nokey = document.getElementById('photo-upload-nokey');
+    if (nokey) nokey.style.display = 'block';
+    showToast('写真のアップロードには、設定ページで ImgBB APIキーの保存が必要です', 'error');
+    return false;
+  }
+  if (_photoUploading) { showToast('アップロード中です。少しお待ちください', 'error'); return false; }
+  _photoUploading = true;
+  const zone = document.querySelector(`.photo-drop[data-photo-target="${target}"]`);
+  zone?.classList.add('is-uploading');
+  try {
+    const base64 = await shrinkImageFile(file);
+    const fd = new FormData();
+    fd.append('image', base64);
+    const res = await fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(s.imgbbKey), { method: 'POST', body: fd });
+    const data = await res.json();
+    const url = data && data.data && data.data.display_url;
+    if (!url) throw new Error('ImgBB error');
+    setPhotoTarget(target, url);
+    showToast('写真をアップロードしました ✓', 'success');
+    return true;
+  } catch (err) {
+    console.error(err);
+    showToast(err.message === 'decode' || err.message === 'read'
+      ? '画像を読み込めませんでした'
+      : 'アップロードに失敗しました。電波とAPIキーを確認してください', 'error');
+    return false;
+  } finally {
+    _photoUploading = false;
+    zone?.classList.remove('is-uploading');
+  }
+}
+
+// 写真選択シート内の「アップロードして使う」
+async function uploadPickerPhoto(input) {
   const file = input.files && input.files[0];
   input.value = '';
   if (!file) return;
-  const s = getSettings();
-  if (!s.imgbbKey) {
-    document.getElementById('photo-upload-nokey').style.display = 'block';
-    return;
-  }
-  document.getElementById('photo-upload-nokey').style.display = 'none';
   const btn = document.getElementById('photo-upload-btn');
   const status = document.getElementById('photo-upload-status');
-  btn.style.display = 'none';
-  status.style.display = 'block';
+  document.getElementById('photo-upload-nokey').style.display = 'none';
+  if (getSettings().imgbbKey) { btn.style.display = 'none'; status.style.display = 'block'; }
+  const ok = await uploadPhotoFile(file, photoPickTarget);
+  btn.style.display = ''; status.style.display = 'none';
+  if (ok) closeModal('modal-photo-picker');
+}
 
-  // 画像を最大1600pxに縮小・JPEG圧縮（通信量と表示速度のため）
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      const MAX = 1600;
-      let w = img.width, h = img.height;
-      if (Math.max(w, h) > MAX) {
-        const ratio = MAX / Math.max(w, h);
-        w = Math.round(w * ratio); h = Math.round(h * ratio);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const base64 = canvas.toDataURL('image/jpeg', 0.82).split(',')[1];
+// 各写真欄の「写真をアップロード」ボタン
+function uploadZonePhoto(input, target) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (file) uploadPhotoFile(file, target);
+}
 
-      const fd = new FormData();
-      fd.append('image', base64);
-      fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(s.imgbbKey), { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-          const url = data && data.data && data.data.display_url;
-          if (!url) throw new Error('ImgBB error');
-          closeModal('modal-photo-picker');
-          if (photoPickTarget === 'post') {
-            document.getElementById('post-image').value = url;
-            updatePhotoPreview('post');
-          } else if (photoPickTarget === 'ann') {
-            annCardImage = url;
-            updatePhotoPreview('ann');
-          } else if (photoPickTarget === 'result') {
-            document.getElementById('result-image').value = url;
-            updatePhotoPreview('result');
-          }
-          showToast('写真をアップロードしました ✓', 'success');
-        })
-        .catch(err => { console.error(err); showToast('アップロードに失敗しました。電波とAPIキーを確認してください', 'error'); })
-        .finally(() => { btn.style.display = ''; status.style.display = 'none'; });
-    };
-    img.onerror = () => { showToast('画像を読み込めませんでした', 'error'); btn.style.display = ''; status.style.display = 'none'; };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+// ドラッグ＆ドロップ／貼り付け（主にパソコン向け）
+function bindPhotoDrop() {
+  const zoneOf = (e) => e.target && e.target.closest ? e.target.closest('.photo-drop') : null;
+  const hasFiles = (e) => e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
+
+  document.addEventListener('dragover', (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault(); // 欄の外に落としてもブラウザが画像を開いてページを離れないように
+    const zone = zoneOf(e);
+    document.querySelectorAll('.photo-drop.is-dragover').forEach(z => { if (z !== zone) z.classList.remove('is-dragover'); });
+    if (zone) { zone.classList.add('is-dragover'); e.dataTransfer.dropEffect = 'copy'; }
+    else e.dataTransfer.dropEffect = 'none';
+  });
+  document.addEventListener('dragleave', (e) => {
+    if (!e.relatedTarget) document.querySelectorAll('.photo-drop.is-dragover').forEach(z => z.classList.remove('is-dragover'));
+  });
+  document.addEventListener('drop', (e) => {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    document.querySelectorAll('.photo-drop.is-dragover').forEach(z => z.classList.remove('is-dragover'));
+    const zone = zoneOf(e);
+    if (!zone) return;
+    const file = [...e.dataTransfer.files].find(f => /^image\//.test(f.type));
+    if (!file) { showToast('画像ファイルをドロップしてください', 'error'); return; }
+    uploadPhotoFile(file, zone.dataset.photoTarget);
+  });
+
+  // 画像の貼り付け：いま表示中のページにある写真欄へ入れる（文字の貼り付けには影響しない）
+  document.addEventListener('paste', (e) => {
+    const item = [...((e.clipboardData && e.clipboardData.items) || [])].find(i => i.kind === 'file' && /^image\//.test(i.type));
+    if (!item) return;
+    if (document.querySelector('.modal-overlay.open')) return;
+    const zone = [...document.querySelectorAll('.page.active .photo-drop')].find(z => z.offsetParent !== null);
+    if (!zone) return;
+    e.preventDefault();
+    uploadPhotoFile(item.getAsFile(), zone.dataset.photoTarget);
+  });
 }
 
 // ===== LIVE MATCH CENTER（ライブ速報） =====
@@ -5701,6 +5781,7 @@ function exportStatsCsv() {
 function initApp() {
   loadLocal();
   bindEvents();
+  bindPhotoDrop();
 
   // Apply settings to UI (always from mp-config.js)
   const s = getSettings();
