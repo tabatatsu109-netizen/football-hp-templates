@@ -742,6 +742,10 @@ function saveScheduleForm() {
   };
   if (editingSchedId) {
     const idx = schedules.findIndex(s => s.id === editingSchedId);
+    // Googleカレンダーとの紐づけは編集しても引き継ぐ（消すと変更の自動反映が止まる）
+    if (idx >= 0) {
+      ['gcalId', 'gcalCal', 'gcalSnap'].forEach(k => { if (schedules[idx][k]) sc[k] = schedules[idx][k]; });
+    }
     if (idx >= 0) schedules[idx] = sc;
   } else {
     schedules.push(sc);
@@ -1472,6 +1476,12 @@ function buildNewsPost(m) {
     published: r.publish !== false,
   };
 }
+// 投稿履歴から手で編集した記事（edited）は、再公開しても文面・写真を上書きしない。
+// スコアや公開状態などのデータ部分だけ新しい内容に差し替える
+function keepManualEdit(old, fresh) {
+  if (!old || !old.edited) return fresh;
+  return { ...fresh, title: old.title, body: old.body, category: old.category, image: old.image, edited: true };
+}
 async function publishToHP() {
   if (!currentMatch?.result) { showToast('結果を先に保存してください', 'error'); return; }
   currentMatch.result.publish = document.getElementById('toggle-publish').checked;
@@ -1487,7 +1497,7 @@ async function publishToHP() {
   if (currentMatch.result.makeNews) {
     const post = buildNewsPost(currentMatch);
     const localIdx = posts.findIndex(p => p.id === post.id);
-    if (localIdx >= 0) posts[localIdx] = post; else posts.unshift(post);
+    if (localIdx >= 0) posts[localIdx] = keepManualEdit(posts[localIdx], post); else posts.unshift(post);
   }
   currentMatch.result.grandePosted = true;
   currentMatch.result.grandeNewsId = buildNewsPost(currentMatch).id;
@@ -1702,7 +1712,9 @@ function parseGcalEvent(ev) {
     if (at) venue = at[1];
   }
 
-  return { gcalId: ev.id, calId: ev._calId, calName: ev._calName || '', date, time, endTime, type, category, opponent, venue, competition, title, _use: false };
+  // snap = カレンダーから読み取ったままの値（取り込み画面で手直しする前の内容）
+  const snap = { date, time, venue, opponent };
+  return { gcalId: ev.id, calId: ev._calId, calName: ev._calName || '', date, time, endTime, type, category, opponent, venue, competition, title, snap, _use: false };
 }
 
 // 新規・変更・削除を仕分けする
@@ -1890,7 +1902,7 @@ function importGcalSelected() {
       type: c.type, category: c.category, opponent: c.opponent,
       title: '', venue: c.venue, competition: c.competition, notes: '',
       live: false, posted: false, matchId: null,
-      gcalId: c.gcalId, gcalCal: c.calId,
+      gcalId: c.gcalId, gcalCal: c.calId, gcalSnap: c.snap,
     });
     nNew++;
   });
@@ -1898,12 +1910,15 @@ function importGcalSelected() {
   gcalChanged.forEach((x) => {
     if (!x._use) return;
     const sc = x.sc;
+    const before = { date: sc.date };
     sc.date = x.c.date;
     sc.time = x.c.time;
     if (x.c.endTime) sc.endTime = x.c.endTime;
     sc.venue = x.c.venue;
     if (x.c.opponent) sc.opponent = x.c.opponent;
     if (x.c.competition) sc.competition = x.c.competition;
+    sc.gcalSnap = x.c.snap;
+    refreshAnnPost(sc, before);
     nChg++;
   });
 
@@ -1922,6 +1937,110 @@ function importGcalSelected() {
   if (nChg) parts.push(`変更${nChg}件`);
   if (nDel) parts.push(`削除${nDel}件`);
   showToast(`${parts.join('・')}を反映しました ✓`, 'success');
+}
+
+// ----- カレンダー変更の自動反映 -----
+// 取り込み済みの予定（gcalId つき）について、カレンダー側で日付・時刻・会場・相手が
+// 変わっていたら、プランナーの予定と投稿済みの試合告知を自動で書き換える。
+// 取り込み時点の内容（gcalSnap）と比べて「カレンダー側で変わった項目だけ」を反映するので、
+// プランナーで手直しした項目（会場名の表記など）は、カレンダーが変わらない限り保たれる。
+// 新しい予定の取り込み・予定の削除は自動では行わない（従来どおり取り込み画面で選ぶ）。
+let _gcalAutoBusy = false;
+async function gcalAutoSync() {
+  const s = getSettings();
+  const cals = getGcalCals();
+  if (!isGasConfigured(s) || cals.length === 0 || _gcalAutoBusy) return;
+  if (!schedules.some(sc => sc.gcalId)) return;
+  _gcalAutoBusy = true;
+  try {
+    const byId = {};
+    for (const c of cals) {
+      const data = await gasCall('events', { calendarId: c.id, days: 92 });
+      (data.events || []).forEach(ev => {
+        ev._calId = c.id; ev._calName = c.name;
+        const p = parseGcalEvent(ev);
+        byId[p.gcalId] = p;
+      });
+    }
+    const today = todayStr();
+    const limit = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
+    const selCalIds = new Set(cals.map(c => c.id));
+    const labels = { date: '日付', time: '時刻', venue: '会場', opponent: '相手' };
+    const changes = [];
+    let touched = false, gone = 0;
+
+    schedules.forEach(sc => {
+      if (!sc.gcalId || sc.date < today) return;
+      const c = byId[sc.gcalId];
+      if (!c) {
+        if (sc.gcalCal && selCalIds.has(sc.gcalCal) && sc.date <= limit) gone++;
+        return;
+      }
+      if (c.date < today) return;
+      // この機能より前に取り込んだ予定：今のカレンダー内容を基準として控えるだけ
+      if (!sc.gcalSnap) { sc.gcalSnap = c.snap; touched = true; return; }
+      if (JSON.stringify(sc.gcalSnap) === JSON.stringify(c.snap)) return;
+
+      const before = { date: sc.date };
+      const changed = [];
+      Object.keys(labels).forEach(k => {
+        const was = sc.gcalSnap[k] || '', now = c.snap[k] || '';
+        if (was === now || (sc[k] || '') === now) return;
+        if (k === 'opponent' && !now) return; // 相手が読み取れなかった場合は消さない
+        sc[k] = now;
+        changed.push(labels[k]);
+      });
+      if ((sc.gcalSnap.date !== c.snap.date || sc.gcalSnap.time !== c.snap.time) && c.endTime) sc.endTime = c.endTime;
+      sc.gcalSnap = c.snap;
+      touched = true;
+      if (changed.length) changes.push({ sc, changed, ann: refreshAnnPost(sc, before) });
+    });
+
+    if (touched) {
+      saveLocal();
+      if (!isUserEntryActive()) renderCurrentPage();
+    }
+    if (changes.length) {
+      const first = changes[0];
+      const name = first.sc.opponent ? 'vs ' + first.sc.opponent : (first.sc.title || first.sc.type);
+      const annN = changes.filter(x => x.ann).length;
+      showToast(`📆 カレンダーの変更を反映しました：${fmtDate(first.sc.date)} ${name}（${first.changed.join('・')}）` +
+        (changes.length > 1 ? ` ほか${changes.length - 1}件` : '') +
+        (annN ? ` ／ 試合告知${annN}件も更新` : ''), 'success');
+    } else if (gone) {
+      showToast(`📆 カレンダーから消えた予定が${gone}件あります。「カレンダー取り込み」で確認してください`, 'info');
+    }
+  } catch (e) {
+    console.warn('[gcalAutoSync]', e.message);
+  } finally {
+    _gcalAutoBusy = false;
+  }
+}
+
+// 予定の内容が変わったとき、投稿済みの試合告知（ann_予定ID）を新しい日程に書き換える。
+// 更新したら true。告知を出していない予定では何もしない
+function refreshAnnPost(sc, before) {
+  const idx = posts.findIndex(p => p.id === `ann_${sc.id}`);
+  if (idx < 0) return false;
+  const old = posts[idx];
+  const post = { ...old, date: sc.date };
+  if (old.edited) {
+    // 手で編集した告知は文章を残し、日時・相手・会場の行だけ差し替える
+    post.body = String(old.body || '')
+      .replace(/^日時：.*$/m, () => `日時：${fmtDateFull(sc.date)}${sc.time ? ` ${sc.time} キックオフ` : ''}`)
+      .replace(/^対戦相手：.*$/m, (l) => sc.opponent ? `対戦相手：${sc.opponent}` : l)
+      .replace(/^会場：.*$/m, (l) => sc.venue ? `会場：${sc.venue}` : l);
+    if (before && before.date && before.date !== sc.date) {
+      post.title = String(old.title || '').split(fmtDate(before.date)).join(fmtDate(sc.date));
+    }
+  } else {
+    // ひとことメッセージは元の本文から取り出して引き継ぐ
+    const m = String(old.body || '').match(/\n\n([\s\S]*)\n— [^\n]*$/);
+    post.title = `【試合告知】${fmtDate(sc.date)} vs ${sc.opponent}`;
+    post.body = generateAnnBase(sc, m ? m[1] : '');
+  }
+  posts[idx] = post;
+  return true;
 }
 
 // ===== PHOTO PICKER（カード写真の選択） =====
@@ -3043,9 +3162,10 @@ function confirmPlayerImport() {
 }
 
 // ===== NEWS =====
+let editingPostId = null;
 function renderNews() {
   const today = todayStr();
-  document.getElementById('post-date').value = today;
+  if (!editingPostId) document.getElementById('post-date').value = today;
   renderPostHistory();
 }
 function switchPostTab(tabId) {
@@ -3068,26 +3188,95 @@ function renderPostHistory() {
         <div class="post-hist-title">${p.title}</div>
         <div class="post-hist-meta">${fmtDate(p.date)} · ${p.type} · ${p.published ? '公開中' : '下書き'}</div>
       </div>
+      <button class="post-hist-edit" onclick="editPost('${p.id}')">編集</button>
       <button class="post-hist-del" onclick="deletePost('${p.id}')">削除</button>
     </div>
   `).join('');
+}
+// 投稿履歴の「編集」：内容を作成フォームに読み込む（試合結果・試合告知の記事も直せる）
+function editPost(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  editingPostId = id;
+  document.getElementById('post-title').value = p.title || '';
+  document.getElementById('post-body').value = p.body || '';
+  document.getElementById('post-date').value = p.date || todayStr();
+  document.getElementById('post-image').value = p.image || '';
+  document.getElementById('post-publish').checked = p.published !== false;
+  updatePhotoPreview('post');
+
+  // カテゴリー：選択肢に無い値（U12 など）は一時的に追加して保つ
+  const catSel = document.getElementById('post-category');
+  catSel.querySelectorAll('option[data-temp]').forEach(o => o.remove());
+  if (p.category && ![...catSel.options].some(o => o.value === p.category)) {
+    const o = document.createElement('option');
+    o.value = o.textContent = p.category;
+    o.dataset.temp = '1';
+    catSel.appendChild(o);
+  }
+  catSel.value = p.category || catSel.options[0].value;
+
+  // 投稿タイプ：ボタンに無い種別（試合結果・試合告知）は変更させず元のまま保つ
+  const typeBtns = [...document.querySelectorAll('.post-type-btn')];
+  const selectable = typeBtns.some(b => b.dataset.ptype === p.type);
+  if (selectable) currentPostType = p.type;
+  typeBtns.forEach(b => b.classList.toggle('active', selectable && b.dataset.ptype === p.type));
+  document.getElementById('post-type-row').style.display = selectable ? '' : 'none';
+
+  const banner = document.getElementById('post-edit-banner');
+  if (banner) {
+    banner.classList.remove('hidden');
+    document.getElementById('post-edit-banner-text').textContent =
+      `✏️ 編集中：${p.title || ''}` + (selectable ? '' : `（${p.type}）`);
+  }
+  document.getElementById('btn-post-send').textContent = '💾 更新する';
+  document.getElementById('post-preview-area')?.classList.add('hidden');
+  switchPostTab('compose');
+  banner?.scrollIntoView({ block: 'center' });
+}
+function cancelPostEdit(silent) {
+  editingPostId = null;
+  document.getElementById('post-edit-banner')?.classList.add('hidden');
+  document.getElementById('post-type-row').style.display = '';
+  document.getElementById('post-category').querySelectorAll('option[data-temp]').forEach(o => o.remove());
+  currentPostType = 'お知らせ';
+  document.querySelectorAll('.post-type-btn').forEach(b => b.classList.toggle('active', b.dataset.ptype === currentPostType));
+  document.getElementById('post-title').value = '';
+  document.getElementById('post-body').value = '';
+  document.getElementById('post-image').value = '';
+  document.getElementById('post-date').value = todayStr();
+  document.getElementById('post-publish').checked = true;
+  updatePhotoPreview('post');
+  document.getElementById('btn-post-send').textContent = '🌐 投稿する';
+  if (!silent) showToast('編集をやめました');
 }
 async function sendPost() {
   const title = document.getElementById('post-title').value.trim();
   const body = document.getElementById('post-body').value.trim();
   const date = document.getElementById('post-date').value;
   if (!title) { showToast('タイトルを入力してください', 'error'); return; }
-  const post = {
-    id: `${date.replace(/-/g,'')}_${encodeURIComponent(title).slice(0,20)}_${Date.now()}`,
+  const editing = editingPostId ? posts.find(p => p.id === editingPostId) : null;
+  const form = {
     title,
     category: document.getElementById('post-category').value,
-    type: currentPostType,
     date,
     body,
     image: document.getElementById('post-image').value || null,
-    source: 'manualPost',
     published: document.getElementById('post-publish').checked,
   };
+  let post;
+  if (editing) {
+    // 元の記事のデータ（id・スコア・得点者・種別など）は残し、フォームの項目だけ上書き
+    const typeEditable = [...document.querySelectorAll('.post-type-btn')].some(b => b.dataset.ptype === editing.type);
+    post = { ...editing, ...form, type: typeEditable ? currentPostType : editing.type, edited: true };
+  } else {
+    post = {
+      id: `${date.replace(/-/g,'')}_${encodeURIComponent(title).slice(0,20)}_${Date.now()}`,
+      ...form,
+      type: currentPostType,
+      source: 'manualPost',
+    };
+  }
 
   const s = getSettings();
   const idx = posts.findIndex(p => p.id === post.id);
@@ -3096,6 +3285,7 @@ async function sendPost() {
 
   if (!isCloudConfigured(s)) {
     showToast('下書きとして保存しました（クラウド未設定）');
+    if (editing) cancelPostEdit(true);
     renderPostHistory();
     return;
   }
@@ -3109,13 +3299,15 @@ async function sendPost() {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
-    showToast('投稿しました！', 'success');
+    showToast(editing ? '記事を更新しました！' : '投稿しました！', 'success');
     document.getElementById('post-title').value = '';
     document.getElementById('post-body').value = '';
+    if (editing) { cancelPostEdit(true); switchPostTab('history'); }
     renderPostHistory();
   } catch(e) {
     setSyncIcon('⚠️');
     showToast('クラウド失敗。ローカル保存しました', 'error');
+    if (editing) cancelPostEdit(true);
     renderPostHistory();
   }
 }
@@ -3131,6 +3323,7 @@ function previewPost() {
 async function deletePost(id) {
   showConfirm('投稿を削除', 'この投稿を削除しますか？', '削除する', async () => {
     posts = posts.filter(p => p.id !== id);
+    if (editingPostId === id) cancelPostEdit(true);
     saveLocal();
 
     const s = getSettings();
@@ -5545,8 +5738,10 @@ function initApp() {
 
   // Auto-load from cloud if configured
   if (isCloudConfigured(s)) {
-    loadFromCloud().catch(() => {});
+    // クラウドの最新を読んでから、カレンダー側の変更を自動反映（古い手元データで上書きしないため）
+    loadFromCloud().catch(() => {}).then(() => gcalAutoSync());
     setInterval(autoSync, 60000); // 60秒ごとにバックグラウンド同期
+    setInterval(gcalAutoSync, 30 * 60000); // 開いている間は30分ごとにカレンダーを再チェック
   } else {
     setTimeout(() => showToast('⚙️ 設定画面で Firebase URL とシークレットを入力してください', 'info'), 800);
   }

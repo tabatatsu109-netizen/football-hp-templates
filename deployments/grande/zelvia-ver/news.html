@@ -122,7 +122,6 @@
           <a href="movie.html">動画</a>
           <a href="join.html">入会・体験</a>
           <a href="partners.html">パートナー</a>
-          <a href="supporters.html">サポーター店</a>
           <a href="members.html">クラブ員専用</a>
           <a href="contact.html">お問い合わせ</a>
         </nav>
@@ -222,12 +221,20 @@
       '../assets/toprandom/LINE_ALBUM_エルドラード、ラーゴ_260627_14.jpg'
     ];
 
+    // 絞り込み用の分類。試合結果・試合告知はタグが「U14」等のカテゴリー名になるため、
+    // 表示用タグ（category）だけでなく記事の種別（type）も合わせて判定する。
+    function newsBucket(n){
+      var text = [n.cat, n.category, n.type].filter(Boolean).join(' ');
+      if(/試合|結果|告知/.test(text)) return '試合';
+      if(/スクール|体験/.test(text)) return 'スクール';
+      if(/クラブ/.test(text)) return 'クラブ';
+      return 'その他';
+    }
+
     function filteredNews(){
       if(activeCat === 'all') return allNews;
       return allNews.filter(function(n){
-        var cat = n.cat || n.category || n.type || '';
-        if(activeCat === 'その他') return !/試合|結果|スクール|体験|クラブ/i.test(cat);
-        return cat.indexOf(activeCat) !== -1 || (activeCat==='試合' && /結果/.test(cat)) || (activeCat==='スクール' && /体験/.test(cat));
+        return newsBucket(n) === activeCat;
       });
     }
 

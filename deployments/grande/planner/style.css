@@ -1058,3 +1058,19 @@ img { max-width: 100%; display: block; }
 
 /* ===== LIVE MATCH CENTER ===== */
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* ===== v4.3: 投稿履歴の編集（2026-10-05） ===== */
+.post-history-row .post-hist-edit,
+.post-history-row .post-hist-del {
+  min-width: 44px; min-height: 44px; padding: 2px 10px; font-size: 13px; font-weight: 700;
+}
+.post-hist-edit { color: var(--c-green, #1a6b2f); }
+.post-edit-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; margin-bottom: 14px; border-radius: 10px;
+  background: #fff8e1; border: 1.5px solid #e5a100; color: #7a5c00;
+  font-size: 13px; font-weight: 700;
+}
+.post-edit-banner.hidden { display: none; }
+.post-edit-banner span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.post-edit-banner .btn { flex-shrink: 0; min-height: 44px; }
