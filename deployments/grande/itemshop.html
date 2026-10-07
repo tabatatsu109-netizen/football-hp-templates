@@ -376,6 +376,19 @@ function setItemDeliveredCloud(fbKey, itemIdx, delivered){
   });
 }
 
+// 商品受け渡し状況の更新（数量指定版）：2点以上の商品で「1点だけ渡した」を記録できるようにする。
+// deliveredQty と、互換性のための delivered(全点渡し済みか) をまとめて更新（PATCHなので他の項目は触らない）
+function setItemDeliveredQtyCloud(fbKey, itemIdx, deliveredQty, fullyDelivered){
+  return fetch(FB_ORDERS_URL + "/" + fbKey + "/items/" + itemIdx + ".json?auth=" + encodeURIComponent(getSecret()), {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ deliveredQty: deliveredQty, delivered: fullyDelivered })
+  }).then(function(res){
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  });
+}
+
 // 商品の発注状況の更新：管理者のみ（発注書で「発注済みにする」を押した時に使用）
 function setItemOrderedCloud(fbKey, itemIdx, ordered){
   return fetch(FB_ORDERS_URL + "/" + fbKey + "/items/" + itemIdx + "/ordered.json?auth=" + encodeURIComponent(getSecret()), {
@@ -416,7 +429,7 @@ function syncOrderStatusPublic(order){
     pay: order.pay||"",
     note: order.note||"",
     total: order.total||0,
-    items: order.items.map(function(it){ return { pname: it.pname, size: it.size, number: it.number||"", qty: it.qty, price: it.price||0, delivered: !!it.delivered }; }),
+    items: order.items.map(function(it){ return { pname: it.pname, size: it.size, number: it.number||"", qty: it.qty, price: it.price||0, delivered: itemFullyDelivered(it), deliveredQty: itemDeliveredQty(it) }; }),
     updatedAt: new Date().toISOString()
   };
   return Promise.all(keys.map(function(emailKey){
@@ -622,6 +635,14 @@ function esc(s){
 }
 // カート/注文明細で「サイズ（背番号N）」の形式を統一して出すヘルパー
 function sizeLabel(it){ return esc(it.size) + (it.number ? "（背番号" + esc(it.number) + "）" : ""); }
+
+// 受け渡し済みの数量（1点ずつ渡せるよう、旧来の delivered(true/false) だけでなく
+// deliveredQty（渡した点数）にも対応。古いデータは delivered:true なら全点渡し済み扱いにする）
+function itemDeliveredQty(it){
+  if(it.deliveredQty != null) return Math.max(0, Math.min(it.qty, it.deliveredQty));
+  return it.delivered ? it.qty : 0;
+}
+function itemFullyDelivered(it){ return itemDeliveredQty(it) >= it.qty; }
 
 /* ───────── 在庫（サイズ別） ─────────
    S.stock = { [pid]: { [sizeKey]: 数 } }。未設定のサイズは「在庫管理しない」＝表示も減算もしない。
@@ -984,23 +1005,26 @@ function purchaseOrderStatsCalc(brand, scopeIds){
   var orders = scopeIds ? S.orders.filter(function(o){ return scopeIds.indexOf(o.id)>=0; }) : S.orders;
   orders.forEach(function(o){
     o.items.forEach(function(i, idx){
-      var done = i.ordered || i.delivered || PO_DONE_STATUSES.indexOf(o.status)>=0;
+      // 一部だけ渡し済み（deliveredQty）の商品は、残り（未渡し）の数量分だけ発注対象にする
+      var remain = i.ordered || PO_DONE_STATUSES.indexOf(o.status)>=0 ? 0 : Math.max(0, i.qty - itemDeliveredQty(i));
+      var doneQty = i.qty - remain;
       var pid = resolveItemPid(i);
       if(pid == null){
-        if(!done) unmatched.push({ oid:o.id, sName:o.sName||o.pName||"", pname:i.pname||"", size:i.size, qty:i.qty });
+        if(remain>0) unmatched.push({ oid:o.id, sName:o.sName||o.pName||"", pname:i.pname||"", size:i.size, qty:remain });
         return;
       }
       var entry = byId[pid];
       if(!entry) return;
-      if(done){ excluded += i.qty; return; }
-      entry.sources.push({ oid:o.id, sName:o.sName||o.pName||"", size:i.size, number:String(i.number||"").trim(), qty:i.qty, pname:i.pname||"" });
+      if(doneQty>0) excluded += doneQty;
+      if(remain<=0) return;
+      entry.sources.push({ oid:o.id, sName:o.sName||o.pName||"", size:i.size, number:String(i.number||"").trim(), qty:remain, pname:i.pname||"" });
       var num = String(i.number||"").trim();
       if(num){
         var key = i.size + "|" + num;
         if(!entry.numberedMap[key]) entry.numberedMap[key] = { size: i.size, number: num, qty: 0 };
-        entry.numberedMap[key].qty += i.qty;
+        entry.numberedMap[key].qty += remain;
       } else {
-        entry.sc[i.size] = (entry.sc[i.size]||0) + i.qty;
+        entry.sc[i.size] = (entry.sc[i.size]||0) + remain;
       }
       if(o.fbKey) pending.push({fbKey:o.fbKey, itemIdx:idx});
     });
@@ -1503,10 +1527,16 @@ function statusPageHtml(){
         '<div style="font-size:11px;font-weight:700;color:#888;letter-spacing:2px;margin-bottom:8px">'+orders.length+'件の注文</div>'+
         orders.map(function(r){
           var itemsHtml = r.items.map(function(it){
+            var dq = it.deliveredQty!=null ? it.deliveredQty : (it.delivered?it.qty:0);
+            var full = dq >= it.qty;
+            var partial = dq>0 && !full;
+            var badgeLabel = full ? "✅ 渡し済み" : (partial ? "🔶 "+dq+"/"+it.qty+" 渡し済み" : "⏳ 未渡し");
+            var badgeBg = full ? "#e6f4ea" : (partial ? "#fff3e0" : "#f5f5f5");
+            var badgeColor = full ? "#1a6b2f" : (partial ? "#b45309" : "#888");
             return (
               '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #eee;font-size:13.5px">'+
                 '<span>'+esc(it.pname)+'（'+sizeLabel(it)+'）× '+it.qty+'点</span>'+
-                '<span style="padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+(it.delivered?"#e6f4ea":"#f5f5f5")+';color:'+(it.delivered?"#1a6b2f":"#888")+'">'+(it.delivered?"✅ 渡し済み":"⏳ 未渡し")+'</span>'+
+                '<span style="padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+badgeBg+';color:'+badgeColor+'">'+badgeLabel+'</span>'+
               '</div>'
             );
           }).join("");
@@ -1676,18 +1706,35 @@ function orderCardHtml(o){
     var itemsDetail = o.items.map(function(it, idx){
       var deliverKey = o.id+"-"+idx;
       var deliverBusy = S.itemDeliverUpdating === deliverKey;
-      var delivered = !!it.delivered;
+      var dq = itemDeliveredQty(it);
+      var delivered = dq >= it.qty;
       var brand = productBrandOf(resolveItemPid(it));
       var orderedBadge = brand
         ? '<span title="'+esc(brand)+'" style="padding:3px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap;background:'+(it.ordered?"#eaf1fc":"#fff7e6")+';color:'+(it.ordered?"#2a6fd6":"#b45309")+'">'+(it.ordered?"📦 発注済":"📦 未発注")+'</span>'
         : '';
+      var deliverControl;
+      if(it.qty <= 1){
+        deliverControl = '<button onclick="App.toggleItemDelivered(\''+o.id+'\','+idx+')" '+(deliverBusy?"disabled":"")+' style="padding:4px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+(delivered?"#e6f4ea":"#f5f5f5")+';color:'+(delivered?"#1a6b2f":"#888")+';border:1px solid '+(delivered?"#b7dfc4":"#ddd")+';'+(deliverBusy?"opacity:.5;cursor:not-allowed":"")+'">'+(deliverBusy?"…":(delivered?"✅ 渡し済み":"⏳ 未渡し"))+'</button>';
+      } else {
+        var partial = dq>0 && !delivered;
+        var stepBg = delivered?"#e6f4ea":(partial?"#fff3e0":"#f5f5f5");
+        var stepColor = delivered?"#1a6b2f":(partial?"#b45309":"#888");
+        var stepLabel = delivered?"✅":(partial?"🔶":"⏳");
+        deliverControl = (
+          '<div style="display:flex;align-items:center;gap:4px;padding:3px 6px;border-radius:99px;background:'+stepBg+';color:'+stepColor+';border:1px solid '+(delivered?"#b7dfc4":(partial?"#f0d9a8":"#ddd"))+'">'+
+            '<button onclick="App.adjustItemDelivered(\''+o.id+'\','+idx+',-1)" '+(deliverBusy||dq<=0?"disabled":"")+' style="width:20px;height:20px;font-weight:900;font-size:13px;'+(deliverBusy||dq<=0?"opacity:.3;cursor:not-allowed":"")+'">−</button>'+
+            '<span style="font-size:11px;font-weight:700;white-space:nowrap">'+(deliverBusy?"…":stepLabel+" "+dq+"/"+it.qty+" 渡し済み")+'</span>'+
+            '<button onclick="App.adjustItemDelivered(\''+o.id+'\','+idx+',1)" '+(deliverBusy||dq>=it.qty?"disabled":"")+' style="width:20px;height:20px;font-weight:900;font-size:13px;'+(deliverBusy||dq>=it.qty?"opacity:.3;cursor:not-allowed":"")+'">＋</button>'+
+          '</div>'
+        );
+      }
       return (
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13px;border-bottom:1px solid #eee">'+
           '<span>'+esc(it.pname)+'（'+sizeLabel(it)+'）× '+it.qty+'点</span>'+
           '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+
             '<span>'+fmt(it.price*it.qty)+'</span>'+
             orderedBadge+
-            '<button onclick="App.toggleItemDelivered(\''+o.id+'\','+idx+')" '+(deliverBusy?"disabled":"")+' style="padding:4px 9px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;background:'+(delivered?"#e6f4ea":"#f5f5f5")+';color:'+(delivered?"#1a6b2f":"#888")+';border:1px solid '+(delivered?"#b7dfc4":"#ddd")+';'+(deliverBusy?"opacity:.5;cursor:not-allowed":"")+'">'+(deliverBusy?"…":(delivered?"✅ 渡し済み":"⏳ 未渡し"))+'</button>'+
+            deliverControl+
           '</div>'+
         '</div>'
       );
@@ -2212,11 +2259,34 @@ window.App = {
     if(!o || !o.fbKey){ showError("この注文はクラウド未同期のため更新できません。🔄 最新を取得してください。"); return; }
     var it = o.items[itemIdx];
     if(!it) return;
-    var newVal = !it.delivered;
+    var newVal = !itemFullyDelivered(it);
     S.itemDeliverUpdating = oid+"-"+itemIdx;
     render();
-    setItemDeliveredCloud(o.fbKey, itemIdx, newVal).then(function(){
+    setItemDeliveredQtyCloud(o.fbKey, itemIdx, newVal ? it.qty : 0, newVal).then(function(){
       it.delivered = newVal;
+      it.deliveredQty = newVal ? it.qty : 0;
+      S.itemDeliverUpdating = null;
+      render();
+      syncOrderStatusPublic(o).catch(function(){});
+    }).catch(function(e){
+      S.itemDeliverUpdating = null;
+      showError("更新に失敗しました");
+      render();
+    });
+  },
+  adjustItemDelivered:function(oid, itemIdx, delta){
+    if(S.itemDeliverUpdating) return;
+    var o = S.orders.filter(function(x){return x.id===oid;})[0];
+    if(!o || !o.fbKey){ showError("この注文はクラウド未同期のため更新できません。🔄 最新を取得してください。"); return; }
+    var it = o.items[itemIdx];
+    if(!it) return;
+    var newQty = Math.max(0, Math.min(it.qty, itemDeliveredQty(it) + delta));
+    var fullyDelivered = newQty >= it.qty;
+    S.itemDeliverUpdating = oid+"-"+itemIdx;
+    render();
+    setItemDeliveredQtyCloud(o.fbKey, itemIdx, newQty, fullyDelivered).then(function(){
+      it.deliveredQty = newQty;
+      it.delivered = fullyDelivered;
       S.itemDeliverUpdating = null;
       render();
       syncOrderStatusPublic(o).catch(function(){});
@@ -2307,7 +2377,7 @@ window.App = {
     var p = S.bulkSince.split("-");
     var start = new Date(+p[0], +p[1]-1, +p[2]).getTime();
     var ids = S.orders.filter(function(o){
-      return new Date(o.date).getTime() >= start && o.items.some(function(i){ return !i.delivered; });
+      return new Date(o.date).getTime() >= start && o.items.some(function(i){ return !itemFullyDelivered(i); });
     }).map(function(o){ return o.id; });
     S.selectedOrderIds = ids;
     showToast(ids.length ? ids.length+"件の注文を選択しました" : "該当する注文がありません");
