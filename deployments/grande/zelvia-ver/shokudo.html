@@ -217,8 +217,8 @@
     <a href="join.html#apply" class="fb-trial">体験申込</a>
   </div>
 
-  <script src="js/config-loader.js"></script>
-  <script src="js/shokudo-summary.js?v=20260807c"></script>
+  <script src="js/config-loader.js?v=20261022a"></script>
+  <script src="js/shokudo-summary.js?v=20261022a"></script>
   <script src="js/mobile-experience.js?v=20260807c"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -244,10 +244,8 @@
       }).join('');
 
       ConfigLoader.load().then(function(c){
-        var fbUrl = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
-        var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
-        return fetch(fbUrl + '/clubs/' + clubId + '.json');
-      }).then(function(r){ return r.json(); }).then(function(data){
+        return ShokudoSummary.fetchData(c);
+      }).then(function(data){
         var s = ShokudoSummary.compute(data || {});
         if (s.total === 0) {
           box.innerHTML = '<p class="skp-loading">食堂がスタートすると、ここにスタジアムの建設状況が表示されます ⚽</p>';

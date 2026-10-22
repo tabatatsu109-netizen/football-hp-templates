@@ -154,6 +154,31 @@ const ConfigLoader = (function () {
   }
 
   /**
+   * Firebase の /clubs/{clubId}/{node} を必要な分だけ個別に取得し、
+   * { players: [...], posts: [...] } のようにまとめて返す。
+   * クラブ全体（/clubs/{clubId}.json）を一括取得しないのは、食堂・注文などの
+   * 非公開データを Firebase ルールで閲覧不可にしても公開ページが動くようにするため。
+   * 取得できなかった項目（未作成・権限なし）は null になる。
+   *
+   * @param {Object}   c     - club-config.json の内容
+   * @param {string[]} nodes - 取得する項目名 (例: ['matches', 'schedules'])
+   * @returns {Promise<Object>}
+   */
+  function fetchClubNodes(c, nodes) {
+    var fbUrl  = get(c, 'integration.firebaseUrl') || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
+    var clubId = get(c, 'integration.firebaseClubId') || 'grande';
+    return Promise.all(nodes.map(function (node) {
+      return fetch(fbUrl + '/clubs/' + clubId + '/' + node + '.json')
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .catch(function () { return null; });
+    })).then(function (values) {
+      var data = {};
+      nodes.forEach(function (node, i) { data[node] = values[i]; });
+      return data;
+    });
+  }
+
+  /**
    * 設定を読み込み、DOM へ反映する
    *
    * @param {Object} options
@@ -191,6 +216,6 @@ const ConfigLoader = (function () {
     }
   }
 
-  return { load: load, apply: apply, get: get };
+  return { load: load, apply: apply, get: get, fetchClubNodes: fetchClubNodes };
 
 })();

@@ -135,37 +135,35 @@ const AuroraConnector = (function () {
     return res.json();
   }
 
-  // Firebase（最新版 Match Planner の保存先）から一括取得してキャッシュする
-  var clubDataPromise = null;
-  function fetchClubData(config) {
-    if (!clubDataPromise) {
+  // Firebase（最新版 Match Planner の保存先）から項目ごとに取得してキャッシュする。
+  // クラブ全体を一括取得しないのは、非公開データ（食堂・注文など）をルールで閲覧不可にしても動くようにするため
+  var clubNodePromises = {};
+  function fetchClubNode(config, node) {
+    if (!clubNodePromises[node]) {
       var fbUrl  = get(config, 'integration.firebaseUrl')
                 || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
       var clubId = get(config, 'integration.firebaseClubId') || 'grande';
-      clubDataPromise = fetch(fbUrl + '/clubs/' + clubId + '.json').then(function (res) {
+      clubNodePromises[node] = fetch(fbUrl + '/clubs/' + clubId + '/' + node + '.json').then(function (res) {
         if (!res.ok) throw new Error('Firebase 取得失敗 (' + res.status + ')');
         return res.json();
       });
     }
-    return clubDataPromise;
+    return clubNodePromises[node];
   }
 
   async function fetchMatches(config) {
-    var data = await fetchClubData(config);
-    var matches = data && data.matches;
+    var matches = await fetchClubNode(config, 'matches');
     return Array.isArray(matches) ? matches : [];
   }
 
   // スケジュール（告知はここから作られるが、試合管理側の matches とは別管理のレコード）
   async function fetchSchedules(config) {
-    var data = await fetchClubData(config);
-    var schedules = data && data.schedules;
+    var schedules = await fetchClubNode(config, 'schedules');
     return Array.isArray(schedules) ? schedules : [];
   }
 
   async function fetchNews(config) {
-    var data = await fetchClubData(config);
-    var items = (data && data.news) || (data && data.posts);
+    var items = await fetchClubNode(config, 'posts');
     return Array.isArray(items) ? items : [];
   }
 

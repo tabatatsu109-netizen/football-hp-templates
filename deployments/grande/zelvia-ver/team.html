@@ -162,7 +162,7 @@
     <a href="join.html#apply" class="fb-trial">体験申込</a>
   </div>
 
-  <script src="js/config-loader.js"></script>
+  <script src="js/config-loader.js?v=20261022a"></script>
   <script src="js/mobile-experience.js?v=20260807c"></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -328,12 +328,8 @@
     ConfigLoader.apply({
       pageTitle: '選手・スタッフ紹介',
       onLoaded: function(c){
-        function get(obj,path){ return path.split('.').reduce(function(o,k){ return(o!=null&&o[k]!==undefined)?o[k]:null; },obj); }
         // Firebase（最新版 Match Planner の保存先）から選手データを取得
-        var fbUrl = get(c,'integration.firebaseUrl') || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
-        var clubId = get(c,'integration.firebaseClubId') || 'grande';
-        fetch(fbUrl + '/clubs/' + clubId + '.json')
-          .then(function(r){ return r.json(); })
+        ConfigLoader.fetchClubNodes(c, ['players'])
           .then(function(data){
             var raw = (data && data.players) || [];
             // Google Drive共有リンク(file/d/…/view 等)を画像直リンクに自動変換

@@ -412,9 +412,9 @@
     </div>
   </div>
 
-  <script src="js/config-loader.js?v=20260807c"></script>
-  <script src="js/match-planner-connector.js?v=20260912a"></script>
-  <script src="js/shokudo-summary.js?v=20260807c"></script>
+  <script src="js/config-loader.js?v=20261022a"></script>
+  <script src="js/match-planner-connector.js?v=20261022a"></script>
+  <script src="js/shokudo-summary.js?v=20261022a"></script>
   <script src="js/mobile-experience.js?v=20260807c"></script>
   <script>
     // 年号
@@ -565,13 +565,14 @@
       });
     }, { passive: true });
 
-    // クラブデータ(Firebase)の共有取得 — ニュース・食堂など複数セクションで使い回す
+    // クラブデータ(Firebase)の取得 — 公開してよい項目だけを個別に読む
     var clubConfigPromise = ConfigLoader.load();
     var clubDataPromise = clubConfigPromise.then(function(c){
-      var fbUrl = (c.integration && c.integration.firebaseUrl) || 'https://hp-1-d7bce-default-rtdb.asia-southeast1.firebasedatabase.app';
-      var clubId = (c.integration && c.integration.firebaseClubId) || 'grande';
-      return fetch(fbUrl + '/clubs/' + clubId + '.json');
-    }).then(function(r){ return r.json(); }).then(function(d){ return d || {}; });
+      return ConfigLoader.fetchClubNodes(c, ['posts']);
+    });
+    var shokudoDataPromise = clubConfigPromise.then(function(c){
+      return window.ShokudoSummary ? ShokudoSummary.fetchData(c) : {};
+    });
 
     // 新着ニュースをプロモスライダーに写真つきで追加（体験練習カードは固定で先頭）
     (function(){
@@ -638,7 +639,7 @@
       function toTime(s){ var d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime(); }
 
       clubDataPromise.then(function(data){
-        var items = (data && (data.news || data.posts)) || [];
+        var items = (data && data.posts) || [];
         promoNews = items
           .filter(function(n){ return n && n.title; })
           .sort(function(a,b){ return toTime(b.date) - toTime(a.date); })
@@ -888,7 +889,7 @@
       var dataEl = document.getElementById('sk-data');
       if (!dataEl || !window.ShokudoSummary) return;
 
-      clubDataPromise.then(function(data){
+      shokudoDataPromise.then(function(data){
         var s = ShokudoSummary.compute(data);
 
         // まだ記録が無いときは数字を出さず、案内文だけ残す

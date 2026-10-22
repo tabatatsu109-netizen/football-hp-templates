@@ -67,22 +67,29 @@
   }
 
   /**
-   * Firebase の /clubs/{clubId} データから匿名の集計値を算出する。
+   * Firebase の shokudoStats（無ければ shokudoSessions）から匿名の集計値を算出する。
    * 1食 = 「1回の食堂で1杯以上食べた選手1人」。会員ページの表彰台と同じ数え方。
    * @returns {{total:number, days:number, level:number, pct:number, toNext:number,
    *            stage:object, next:object|null, stageImg:string}}
    */
   function compute(data) {
-    var sessions = toArray(data && data.shokudoSessions);
     var total = 0, days = 0;
+    var stats = data && data.shokudoStats;
 
-    sessions.forEach(function (s) {
-      var cups = (s && s.cups) || {};
-      var eaters = 0;
-      Object.keys(cups).forEach(function (pid) { if ((+cups[pid] || 0) > 0) eaters++; });
-      if (eaters > 0) days++;
-      total += eaters;
-    });
+    if (stats && typeof stats.total === 'number') {
+      // Match Planner が保存時に書き出す公開用の集計値
+      total = stats.total;
+      days = +stats.days || 0;
+    } else {
+      // 移行期間用: shokudoStats がまだ無いときは記録から集計する
+      toArray(data && data.shokudoSessions).forEach(function (s) {
+        var cups = (s && s.cups) || {};
+        var eaters = 0;
+        Object.keys(cups).forEach(function (pid) { if ((+cups[pid] || 0) > 0) eaters++; });
+        if (eaters > 0) days++;
+        total += eaters;
+      });
+    }
 
     return {
       total: total,
@@ -125,11 +132,29 @@
     io.observe(el);
   }
 
+  /**
+   * 集計に必要なデータを Firebase から取得する（ConfigLoader が必要）。
+   * 公開用の shokudoStats を読み、まだ無いクラブだけ shokudoSessions を読む。
+   * shokudoSessions は Firebase ルールで非公開にすると null になる（＝0食表示）。
+   * @returns {Promise<{shokudoStats:Object|null, shokudoSessions:*}>}
+   */
+  function fetchData(config) {
+    // ConfigLoader は const 宣言のため window には載らない（グローバル名で参照する）
+    return ConfigLoader.fetchClubNodes(config, ['shokudoStats']).then(function (d) {
+      if (d.shokudoStats) return d;
+      return ConfigLoader.fetchClubNodes(config, ['shokudoSessions']).then(function (s) {
+        d.shokudoSessions = s.shokudoSessions;
+        return d;
+      });
+    });
+  }
+
   global.ShokudoSummary = {
     STADIUM_STEP: STADIUM_STEP,
     STADIUM: STADIUM,
     CAREER: CAREER,
     compute: compute,
+    fetchData: fetchData,
     countUp: countUp,
     stadiumImg: stadiumImg
   };

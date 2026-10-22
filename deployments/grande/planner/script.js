@@ -260,6 +260,18 @@ function saveLocal() {
   scheduleCloudSave();
 }
 
+// 食堂の公開用集計値（HPのトップ・食堂ページが読む）。選手ごとの記録は含めない。
+// 数え方は HP の js/shokudo-summary.js と同じ（1食 = 1回の食堂で1杯以上食べた選手1人）
+function shokudoPublicStats() {
+  let total = 0, days = 0;
+  (shokudoSessions || []).forEach(s => {
+    const eaters = Object.values((s && s.cups) || {}).filter(c => (+c || 0) > 0).length;
+    if (eaters > 0) days++;
+    total += eaters;
+  });
+  return { total, days };
+}
+
 let _cloudSaveTimer = null;
 function scheduleCloudSave() {
   const s = getSettings();
@@ -271,7 +283,7 @@ function scheduleCloudSave() {
       const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
+        body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, shokudoSessions, shokudoBmi, shokudoStats: shokudoPublicStats(), resetStamp: getResetStamp() }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSyncIcon('☁️');
@@ -348,7 +360,7 @@ async function saveToCloud() {
     const res = await fetch(`${getFirebaseUrl(s)}.json?auth=${s.firebaseSecret}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, shokudoSessions, shokudoBmi, resetStamp: getResetStamp() }),
+      body: JSON.stringify({ players, matches, schedules, posts, opponents, competitions, surveys, shokudoSessions, shokudoBmi, shokudoStats: shokudoPublicStats(), resetStamp: getResetStamp() }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     setSyncIcon('☁️');
