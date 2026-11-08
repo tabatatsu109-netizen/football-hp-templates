@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Match Planner — クラブ運営管理</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261108a">
+  <link rel="stylesheet" href="style.css?v=20261108b">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -929,6 +929,7 @@
           <div id="ann-vs-card"></div>
           <!-- 試合情報カード -->
           <div id="ann-info-card"></div>
+          <button type="button" class="btn btn-secondary btn-sm ann-edit-sched-btn" id="btn-ann-edit-sched">✏️ 予定（日時・会場・相手）を編集</button>
 
           <!-- SNS告知画像 -->
           <div id="ann-sns-slot"></div>
@@ -940,7 +941,28 @@
             <label class="form-label">追加メッセージ（任意）</label>
             <textarea class="form-textarea" id="ann-extra-msg" rows="3"
               placeholder="例: 保護者の皆様の応援をお待ちしております。" style="min-height:80px"></textarea>
-            <div style="font-size:12px;color:var(--c-muted);margin-top:4px">空欄でも投稿できます</div>
+            <div style="font-size:12px;color:var(--c-muted);margin-top:4px" id="ann-extra-note">空欄でも投稿できます</div>
+          </div>
+
+          <!-- ③.5 投稿される本文（手直しできる） -->
+          <div class="form-group">
+            <div class="article-preview-head">
+              <div class="form-label" style="margin-bottom:0"><span>投稿される本文</span> <span id="ann-body-badge" class="article-badge hidden">✏️ 編集済み</span></div>
+              <button type="button" class="btn btn-secondary btn-sm article-edit-btn" id="btn-ann-body-edit">✏️ 本文を編集</button>
+            </div>
+            <div id="ann-body-stale" class="article-stale hidden">
+              <span>予定（日時・会場・相手など）が変わりました。手直しした本文には反映されていません。</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-ann-body-reset-stale">自動作成に戻す</button>
+            </div>
+            <div class="preview-box" id="ann-body-box"><div class="preview-content" id="ann-body-text"></div></div>
+            <div id="ann-body-editor" class="article-editor hidden">
+              <textarea id="ann-body-input" class="form-textarea article-textarea" rows="12" aria-label="告知の本文"></textarea>
+              <div class="article-edit-actions">
+                <button type="button" class="btn btn-ghost btn-sm" id="btn-ann-body-reset">自動作成に戻す</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-ann-body-cancel">キャンセル</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-ann-body-save">保存</button>
+              </div>
+            </div>
           </div>
 
           <!-- ④ カテゴリー -->
@@ -1737,6 +1759,6 @@
 
 </div><!-- /#app -->
 <script src="mp-config.js?v=20260810e"></script>
-<script src="script.js?v=20261108a"></script>
+<script src="script.js?v=20261108b"></script>
 </body>
 </html>

@@ -757,6 +757,8 @@ function saveScheduleForm() {
     // Googleカレンダーとの紐づけは編集しても引き継ぐ（消すと変更の自動反映が止まる）
     if (idx >= 0) {
       ['gcalId', 'gcalCal', 'gcalSnap'].forEach(k => { if (schedules[idx][k]) sc[k] = schedules[idx][k]; });
+      // 試合告知の手直し本文も引き継ぐ
+      ['annMode', 'annCustom', 'annCustomSnap'].forEach(k => { if (schedules[idx][k] != null) sc[k] = schedules[idx][k]; });
     }
     if (idx >= 0) schedules[idx] = sc;
   } else {
@@ -767,6 +769,11 @@ function saveScheduleForm() {
   closeModal('modal-schedule');
   showToast(editingSchedId ? '更新しました' : '追加しました', 'success');
   renderSchedule();
+  // 試合告知の画面から編集した場合は、告知の表示も新しい内容にする
+  if (editingSchedId && editingSchedId === selectedAnnSchedId && currentPage === 'page-announcement') {
+    renderAnnouncement();
+    if (sc.posted) showToast('予定を更新しました。ホームページの告知を直すには「ホームページに告知する」を押してください', 'success');
+  }
   editingSchedId = null;
 }
 function deleteSchedule(id) {
@@ -2148,6 +2155,8 @@ function refreshAnnPost(sc, before) {
     if (before && before.date && before.date !== sc.date) {
       post.title = String(old.title || '').split(fmtDate(before.date)).join(fmtDate(sc.date));
     }
+    // 告知画面の「投稿される本文」も同じ内容にそろえる
+    if (sc.annMode === 'custom' || !sc.annMode) setAnnCustom(sc, post.body);
   } else {
     // ひとことメッセージは元の本文から取り出して引き継ぐ
     const m = String(old.body || '').match(/\n\n([\s\S]*)\n— [^\n]*$/);
@@ -3474,6 +3483,11 @@ async function sendPost() {
           m.result.customArticleBase = buildNewsArticle(m);
         });
     }
+    // 試合告知の記事なら、予定側にも同じ本文を控える（告知画面から投稿し直しても消えない）
+    if (editing.source === 'announcement') {
+      const sc = schedules.find(x => `ann_${x.id}` === editing.id);
+      if (sc) setAnnCustom(sc, body);
+    }
   } else {
     post = {
       id: `${date.replace(/-/g,'')}_${encodeURIComponent(title).slice(0,20)}_${Date.now()}`,
@@ -3586,6 +3600,7 @@ function selectAnnSched(id) {
 
   renderAnnVsCard(sc);
   renderAnnInfoCard(sc);
+  renderAnnBody(sc);
 
   const catMap = { 'U15':'ジュニアユース','U14':'ジュニアユース','U13':'ジュニアユース',
                    'U12':'ジュニア','U11':'ジュニア','U10':'ジュニア','U9':'ジュニア','U8':'ジュニア' };
@@ -3660,6 +3675,89 @@ function generateAnnBase(sc, extraMsg) {
   text += `— ${s.clubName||'クラブ'}`;
   return text;
 }
+
+// ===== 試合告知の本文の手直し =====
+// 予定（schedule）に保存する：annMode 'custom'＝手直しした本文を使う / 'auto'＝自動作成に戻した / null＝従来どおり
+// （null のときは、投稿履歴で編集済みの告知があればその本文を表示・維持する）
+function annSnap(sc) {
+  return JSON.stringify([sc.date||'', sc.time||'', sc.opponent||'', sc.venue||'', sc.competition||'', sc.category||'']);
+}
+function linkedAnnPost(sc) { return posts.find(p => p.id === `ann_${sc.id}`) || null; }
+function annExtraMsg() { return (document.getElementById('ann-extra-msg')?.value || '').trim(); }
+function currentAnnText(sc) {
+  if (sc.annMode === 'custom' && sc.annCustom != null) return sc.annCustom;
+  if (sc.annMode !== 'auto') {
+    const p = linkedAnnPost(sc);
+    if (p?.edited && p.body) return p.body;
+  }
+  return generateAnnBase(sc, annExtraMsg());
+}
+function isAnnEdited(sc) {
+  if (sc.annMode === 'custom') return true;
+  return sc.annMode !== 'auto' && !!linkedAnnPost(sc)?.edited;
+}
+function renderAnnBody(sc) {
+  sc = sc || schedules.find(s => s.id === selectedAnnSchedId);
+  if (!sc) return;
+  const edited = isAnnEdited(sc);
+  const textEl = document.getElementById('ann-body-text');
+  if (textEl) textEl.textContent = currentAnnText(sc);
+  document.getElementById('ann-body-badge')?.classList.toggle('hidden', !edited);
+  const stale = sc.annMode === 'custom' && sc.annCustomSnap && sc.annCustomSnap !== annSnap(sc);
+  document.getElementById('ann-body-stale')?.classList.toggle('hidden', !stale);
+  const note = document.getElementById('ann-extra-note');
+  if (note) note.textContent = edited
+    ? '本文を手直ししているため、追加メッセージは使われません（「自動作成に戻す」で使われます）'
+    : '空欄でも投稿できます。入力すると下の本文に反映されます';
+  closeAnnBodyEditor();
+}
+function openAnnBodyEditor() {
+  const sc = schedules.find(s => s.id === selectedAnnSchedId);
+  if (!sc) return;
+  const input = document.getElementById('ann-body-input');
+  input.value = currentAnnText(sc);
+  document.getElementById('ann-body-box').classList.add('hidden');
+  document.getElementById('ann-body-editor').classList.remove('hidden');
+  document.getElementById('btn-ann-body-edit').classList.add('hidden');
+  input.focus();
+}
+function closeAnnBodyEditor() {
+  document.getElementById('ann-body-box')?.classList.remove('hidden');
+  document.getElementById('ann-body-editor')?.classList.add('hidden');
+  document.getElementById('btn-ann-body-edit')?.classList.remove('hidden');
+}
+function setAnnCustom(sc, text) {
+  sc.annMode = 'custom';
+  sc.annCustom = text;
+  sc.annCustomSnap = annSnap(sc);
+}
+function saveAnnBodyEdit() {
+  const sc = schedules.find(s => s.id === selectedAnnSchedId);
+  if (!sc) return;
+  const text = document.getElementById('ann-body-input').value.replace(/\s+$/, '');
+  if (!text.trim()) { showToast('本文が空です。元に戻す場合は「自動作成に戻す」を押してください', 'error'); return; }
+  if (text === generateAnnBase(sc, annExtraMsg()).replace(/\s+$/, '')) {
+    sc.annMode = 'auto'; sc.annCustom = null; sc.annCustomSnap = null;
+  } else {
+    setAnnCustom(sc, text);
+  }
+  saveLocal();
+  renderAnnBody(sc);
+  showToast(sc.posted ? '本文を保存しました。「ホームページに告知する」で反映されます' : '本文を保存しました', 'success');
+}
+function resetAnnBody() {
+  const sc = schedules.find(s => s.id === selectedAnnSchedId);
+  if (!sc) return;
+  showConfirm('自動作成に戻す', '手直しした本文を消して、予定の内容から作った本文に戻しますか？', '戻す', () => {
+    sc.annMode = 'auto'; sc.annCustom = null; sc.annCustomSnap = null;
+    saveLocal();
+    renderAnnBody(sc);
+    showToast(sc.posted ? '自動作成に戻しました。「ホームページに告知する」で反映されます' : '自動作成に戻しました', 'success');
+  });
+}
+function escAnnHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
 function showAnnPreview() {
   const sc = schedules.find(s => s.id === selectedAnnSchedId);
   if (!sc) { showToast('試合を選択してください', 'error'); return; }
@@ -3691,12 +3789,16 @@ function showAnnPreview() {
       </div>
     </div>
     <div class="ann-preview-divider"></div>
+    ${isAnnEdited(sc) ? `
+    <div class="ann-preview-body">
+      <p>${escAnnHtml(currentAnnText(sc)).replace(/\n/g,'<br>')}</p>
+    </div>` : `
     <div class="ann-preview-meta">${metaRows.join('')}</div>
     <div class="ann-preview-divider"></div>
     <div class="ann-preview-body">
       <p>${bodyText.replace(/\n/g,'<br>')}</p>
       <p class="ann-preview-sign">— ${s.clubName||'クラブ'}</p>
-    </div>
+    </div>`}
   `;
   openModal('modal-ann-preview');
 }
@@ -3708,7 +3810,9 @@ async function postAnnouncement() {
   const sc = schedules.find(s => s.id === selectedAnnSchedId);
   if (!sc) { showToast('試合を選択してください', 'error'); return; }
   const extraMsg = (document.getElementById('ann-extra-msg')?.value || '').trim();
-  const body = generateAnnBase(sc, extraMsg);
+  // 手直しした本文（この画面 or 投稿履歴で編集済み）を優先し、投稿し直しても上書きしない
+  const edited = isAnnEdited(sc);
+  const body = edited ? currentAnnText(sc) : generateAnnBase(sc, extraMsg);
   const category = document.getElementById('ann-category').value;
 
   const sconf = getSettings();
@@ -3723,6 +3827,7 @@ async function postAnnouncement() {
     source: 'announcement',
     published: true,
   };
+  if (edited) post.edited = true;
 
   const pidx = posts.findIndex(p => p.id === post.id);
   if (pidx >= 0) posts[pidx] = post; else posts.unshift(post);
@@ -4640,6 +4745,16 @@ function bindEvents() {
   document.getElementById('btn-back-announcement')?.addEventListener('click', popPage);
   document.getElementById('btn-ann-preview')?.addEventListener('click', showAnnPreview);
   document.getElementById('btn-ann-post')?.addEventListener('click', postAnnouncement);
+  document.getElementById('btn-ann-edit-sched')?.addEventListener('click', () => { if (selectedAnnSchedId) openScheduleModal(selectedAnnSchedId); });
+  document.getElementById('btn-ann-body-edit')?.addEventListener('click', openAnnBodyEditor);
+  document.getElementById('btn-ann-body-save')?.addEventListener('click', saveAnnBodyEdit);
+  document.getElementById('btn-ann-body-cancel')?.addEventListener('click', closeAnnBodyEditor);
+  document.getElementById('btn-ann-body-reset')?.addEventListener('click', resetAnnBody);
+  document.getElementById('btn-ann-body-reset-stale')?.addEventListener('click', resetAnnBody);
+  document.getElementById('ann-extra-msg')?.addEventListener('input', () => {
+    const sc = schedules.find(s => s.id === selectedAnnSchedId);
+    if (sc && !isAnnEdited(sc)) document.getElementById('ann-body-text').textContent = currentAnnText(sc);
+  });
   document.getElementById('btn-close-ann-preview')?.addEventListener('click', () => closeModal('modal-ann-preview'));
   document.getElementById('btn-ann-modify')?.addEventListener('click', () => closeModal('modal-ann-preview'));
   document.getElementById('btn-ann-preview-post')?.addEventListener('click', confirmAnnPost);
