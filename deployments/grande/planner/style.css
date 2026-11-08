@@ -1092,3 +1092,18 @@ img { max-width: 100%; display: block; }
 @media (hover: hover) and (pointer: fine) {
   .photo-drop-hint { display: block; }
 }
+
+/* ===== v4.5: 記事プレビューの編集（2026-11-08） ===== */
+.article-preview-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.article-preview-head .preview-label { margin-bottom: 0; }
+.article-badge { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: rgba(22,163,74,0.12); color: var(--c-green); font-size: 11px; letter-spacing: 0; text-transform: none; }
+.article-edit-btn { min-height: 44px; flex-shrink: 0; }
+.article-stale { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--c-yellow-bg); border: 1px solid var(--c-yellow); color: #7a4b00; font-size: 13px; line-height: 1.6; }
+.article-stale .btn { align-self: flex-start; min-height: 44px; }
+.article-textarea { width: 100%; min-height: 280px; font-size: 16px; line-height: 1.7; resize: vertical; }
+.article-edit-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.article-edit-actions .btn { min-height: 44px; }
+.article-edit-actions #btn-article-reset { margin-right: auto; }
+@media (min-width: 768px) {
+  .article-textarea { font-size: 14px; }
+}

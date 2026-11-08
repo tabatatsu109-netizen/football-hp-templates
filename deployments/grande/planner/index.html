@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Match Planner — クラブ運営管理</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261005b">
+  <link rel="stylesheet" href="style.css?v=20261108a">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -504,8 +504,23 @@
         </div>
         <div class="publish-actions">
           <div id="hp-article-preview" class="preview-box hidden">
-            <div class="preview-label">自動生成記事プレビュー</div>
+            <div class="article-preview-head">
+              <div class="preview-label"><span id="hp-article-label">自動生成記事プレビュー</span> <span id="hp-article-badge" class="article-badge hidden">✏️ 編集済み</span></div>
+              <button type="button" class="btn btn-secondary btn-sm article-edit-btn" id="btn-article-edit">✏️ 記事を編集</button>
+            </div>
+            <div id="hp-article-stale" class="article-stale hidden">
+              <span>試合データ（スコア・得点者など）が変わりました。手直しした文章には反映されていません。</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-article-reset-stale">自動生成に戻す</button>
+            </div>
             <div class="preview-content" id="hp-article-text"></div>
+            <div id="hp-article-editor" class="article-editor hidden">
+              <textarea id="hp-article-input" class="form-textarea article-textarea" rows="14" aria-label="記事の本文"></textarea>
+              <div class="article-edit-actions">
+                <button type="button" class="btn btn-ghost btn-sm" id="btn-article-reset">自動生成に戻す</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-article-cancel">キャンセル</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-article-save">保存</button>
+              </div>
+            </div>
           </div>
           <button class="btn btn-primary btn-lg btn-full" id="btn-publish-to-hp">🌐 ホームページに公開する</button>
           <button class="btn btn-secondary btn-sm btn-full" id="btn-unpublish" style="display:none">公開を取り消す</button>
@@ -1722,6 +1737,6 @@
 
 </div><!-- /#app -->
 <script src="mp-config.js?v=20260810e"></script>
-<script src="script.js?v=20261022a"></script>
+<script src="script.js?v=20261108a"></script>
 </body>
 </html>

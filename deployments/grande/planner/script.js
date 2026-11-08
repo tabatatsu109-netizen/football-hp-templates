@@ -1371,6 +1371,10 @@ function saveResult() {
     makeNews: currentMatch.result?.makeNews ?? true,
     grandePosted: currentMatch.result?.grandePosted || false,
     grandeNewsId: currentMatch.result?.grandeNewsId || null,
+    // 記事プレビューで手直しした文面（結果を保存し直しても消さない）
+    articleMode: currentMatch.result?.articleMode || null,
+    customArticle: currentMatch.result?.customArticle || null,
+    customArticleBase: currentMatch.result?.customArticleBase || null,
   };
   saveCurrentMatch();
   showToast('結果を保存しました', 'success');
@@ -1412,9 +1416,83 @@ function renderPublish() {
     unpublishBtn && (unpublishBtn.style.display = 'none');
   }
 
-  const article = buildNewsArticle(currentMatch);
-  if (articleText) articleText.textContent = article;
+  renderArticlePreview();
   if (articlePreview) articlePreview.classList.remove('hidden');
+}
+
+// ===== 記事プレビューの編集 =====
+// result.articleMode: 'custom'＝手直しした文面を使う / 'auto'＝自動生成に戻した / null＝従来どおり
+// （null のときは、投稿履歴で編集済みの記事があればその文面を表示する）
+function linkedMatchPost(m) {
+  return m?.result?.grandeNewsId ? posts.find(p => p.id === m.result.grandeNewsId) : null;
+}
+function currentArticleText(m) {
+  const r = m.result;
+  if (r.articleMode === 'custom' && r.customArticle != null) return r.customArticle;
+  if (r.articleMode !== 'auto') {
+    const p = linkedMatchPost(m);
+    if (p?.edited && p.body) return p.body;
+  }
+  return buildNewsArticle(m);
+}
+function isArticleEdited(m) {
+  const r = m.result;
+  if (r.articleMode === 'custom') return true;
+  return r.articleMode !== 'auto' && !!linkedMatchPost(m)?.edited;
+}
+function renderArticlePreview() {
+  if (!currentMatch?.result) return;
+  const r = currentMatch.result;
+  const edited = isArticleEdited(currentMatch);
+  const textEl = document.getElementById('hp-article-text');
+  if (textEl) textEl.textContent = currentArticleText(currentMatch);
+  const label = document.getElementById('hp-article-label');
+  if (label) label.textContent = edited ? '記事プレビュー' : '自動生成記事プレビュー';
+  document.getElementById('hp-article-badge')?.classList.toggle('hidden', !edited);
+  // 手直し後にスコア・得点者などを変えた場合は、自動生成に戻すか案内する
+  const stale = r.articleMode === 'custom' && r.customArticleBase != null
+    && r.customArticleBase !== buildNewsArticle(currentMatch);
+  document.getElementById('hp-article-stale')?.classList.toggle('hidden', !stale);
+  closeArticleEditor();
+}
+function openArticleEditor() {
+  if (!currentMatch?.result) return;
+  const input = document.getElementById('hp-article-input');
+  input.value = currentArticleText(currentMatch);
+  document.getElementById('hp-article-text').classList.add('hidden');
+  document.getElementById('hp-article-editor').classList.remove('hidden');
+  document.getElementById('btn-article-edit').classList.add('hidden');
+  input.focus();
+}
+function closeArticleEditor() {
+  document.getElementById('hp-article-text')?.classList.remove('hidden');
+  document.getElementById('hp-article-editor')?.classList.add('hidden');
+  document.getElementById('btn-article-edit')?.classList.remove('hidden');
+}
+function saveArticleEdit() {
+  if (!currentMatch?.result) return;
+  const text = document.getElementById('hp-article-input').value.replace(/\s+$/, '');
+  if (!text.trim()) { showToast('本文が空です。元に戻す場合は「自動生成に戻す」を押してください', 'error'); return; }
+  const r = currentMatch.result;
+  const auto = buildNewsArticle(currentMatch);
+  if (text === auto.replace(/\s+$/, '')) {
+    r.articleMode = 'auto'; r.customArticle = null; r.customArticleBase = null;
+  } else {
+    r.articleMode = 'custom'; r.customArticle = text; r.customArticleBase = auto;
+  }
+  saveCurrentMatch();
+  renderArticlePreview();
+  showToast(r.grandePosted ? '記事を保存しました。「ホームページに公開する」で反映されます' : '記事を保存しました', 'success');
+}
+function resetArticleToAuto() {
+  if (!currentMatch?.result) return;
+  showConfirm('自動生成に戻す', '手直しした文章を消して、試合データから作った文章に戻しますか？', '戻す', () => {
+    const r = currentMatch.result;
+    r.articleMode = 'auto'; r.customArticle = null; r.customArticleBase = null;
+    saveCurrentMatch();
+    renderArticlePreview();
+    showToast(r.grandePosted ? '自動生成に戻しました。「ホームページに公開する」で反映されます' : '自動生成に戻しました', 'success');
+  });
 }
 function fmtDateJP(s) {
   if (!s) return '';
@@ -1422,6 +1500,31 @@ function fmtDateJP(s) {
   return `${d.getMonth()+1}月${d.getDate()}日`;
 }
 
+// 得点者の行を作る。同じ選手の複数得点は1行にまとめる
+// 例) 菊原瑛斗（3得点）／菊原瑛斗（2得点：5分・30分／アシスト：清水頼希）
+function formatScorerLines(goals) {
+  const groups = [];
+  (goals || []).forEach(g => {
+    if (!g.scorer) return;
+    const ex = groups.find(x => x.name === g.scorer);
+    if (ex) ex.goals.push(g); else groups.push({ name: g.scorer, goals: [g] });
+  });
+  return groups.map(({ name, goals: gs }) => {
+    if (gs.length === 1) {
+      const g = gs[0];
+      let line = name;
+      if (g.minute) line = `${g.minute}分　${line}`;
+      if (g.assist) line += `（アシスト：${g.assist}）`;
+      return line;
+    }
+    const minutes = gs.map(g => g.minute).filter(Boolean).map(x => `${x}分`);
+    const assists = gs.map(g => g.assist).filter(Boolean);
+    let detail = `${gs.length}得点`;
+    if (minutes.length) detail += `：${minutes.join('・')}`;
+    if (assists.length) detail += `／アシスト：${assists.join('・')}`;
+    return `${name}（${detail}）`;
+  });
+}
 function buildNewsArticle(m) {
   if (!m.result) return '';
   const r = m.result;
@@ -1446,12 +1549,7 @@ function buildNewsArticle(m) {
   // 得点者
   if (r.goals && r.goals.length > 0) {
     article += '\n【得点者】\n';
-    r.goals.forEach(g => {
-      let line = g.scorer || '';
-      if (g.minute) line = `${g.minute}分　${line}`;
-      if (g.assist) line += `（アシスト：${g.assist}）`;
-      article += line + '\n';
-    });
+    article += formatScorerLines(r.goals).join('\n') + '\n';
   }
 
   // 会場
@@ -1509,7 +1607,12 @@ async function publishToHP() {
   if (currentMatch.result.makeNews) {
     const post = buildNewsPost(currentMatch);
     const localIdx = posts.findIndex(p => p.id === post.id);
-    if (localIdx >= 0) posts[localIdx] = keepManualEdit(posts[localIdx], post); else posts.unshift(post);
+    let next = localIdx >= 0 ? keepManualEdit(posts[localIdx], post) : post;
+    // 記事プレビューで手直しした文面／自動生成に戻した文面を優先する
+    const mode = currentMatch.result.articleMode;
+    if (mode === 'custom' && currentMatch.result.customArticle) next = { ...next, body: currentMatch.result.customArticle, edited: true };
+    else if (mode === 'auto') next = { ...next, body: post.body };
+    if (localIdx >= 0) posts[localIdx] = next; else posts.unshift(next);
   }
   currentMatch.result.grandePosted = true;
   currentMatch.result.grandeNewsId = buildNewsPost(currentMatch).id;
@@ -3361,6 +3464,16 @@ async function sendPost() {
     // 元の記事のデータ（id・スコア・得点者・種別など）は残し、フォームの項目だけ上書き
     const typeEditable = [...document.querySelectorAll('.post-type-btn')].some(b => b.dataset.ptype === editing.type);
     post = { ...editing, ...form, type: typeEditable ? currentPostType : editing.type, edited: true };
+    // 試合結果の記事なら、試合の記事プレビュー側にも同じ文面を控える
+    if (editing.source === 'matchPlanner') {
+      [matches.find(x => `match_${x.id}` === editing.id), currentMatch?.id && `match_${currentMatch.id}` === editing.id ? currentMatch : null]
+        .forEach(m => {
+          if (!m?.result) return;
+          m.result.articleMode = 'custom';
+          m.result.customArticle = body;
+          m.result.customArticleBase = buildNewsArticle(m);
+        });
+    }
   } else {
     post = {
       id: `${date.replace(/-/g,'')}_${encodeURIComponent(title).slice(0,20)}_${Date.now()}`,
@@ -4411,6 +4524,11 @@ function bindEvents() {
   document.getElementById('btn-save-result')?.addEventListener('click', saveResult);
   document.getElementById('btn-publish-to-hp')?.addEventListener('click', publishToHP);
   document.getElementById('btn-unpublish')?.addEventListener('click', unpublish);
+  document.getElementById('btn-article-edit')?.addEventListener('click', openArticleEditor);
+  document.getElementById('btn-article-save')?.addEventListener('click', saveArticleEdit);
+  document.getElementById('btn-article-cancel')?.addEventListener('click', closeArticleEditor);
+  document.getElementById('btn-article-reset')?.addEventListener('click', resetArticleToAuto);
+  document.getElementById('btn-article-reset-stale')?.addEventListener('click', resetArticleToAuto);
 
   // Players
   document.getElementById('btn-add-player')?.addEventListener('click', () => openPlayerModal());
