@@ -15,6 +15,19 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     :root { --tk: #0090d8; --tk-dark: #003c5f; --tk-bg: #e9f4fb; }
+    /* 最新レポートへの導線（2026-11-25 追加） */
+    .fr-report { display: grid; margin-top: 28px; border-radius: 14px; overflow: hidden; background: #003c5f; color: #fff; text-decoration: none; box-shadow: 0 10px 26px rgba(0,60,95,.22); transition: transform .2s; }
+    .fr-report:hover { transform: translateY(-3px); }
+    .fr-report-img { aspect-ratio: 16 / 9; background-size: cover; background-position: center; }
+    .fr-report-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 6px; }
+    .fr-report-body small { font-family: 'Oswald', sans-serif; letter-spacing: 3px; color: #8fd8ff; font-size: 12px; }
+    .fr-report-body b { font-size: 19px; line-height: 1.5; }
+    .fr-report-body span { font-size: 14px; line-height: 1.9; opacity: .9; }
+    .fr-report-body em { font-style: normal; font-weight: 700; color: #8fd8ff; margin-top: 4px; }
+    @media (min-width: 768px) { .fr-report { grid-template-columns: 1.1fr 1fr; } .fr-report-img { aspect-ratio: auto; min-height: 240px; } .fr-report-body { padding: 26px 28px; justify-content: center; } }
+    .fr-gal-label { font-family: 'Oswald', 'Noto Sans JP', sans-serif; font-weight: 700; letter-spacing: 2px; color: var(--tk-dark); margin: 26px 0 12px; font-size: 15px; }
+    .tk-sec-ja + .fr-gal-label { margin-top: 0; }
+    :root[data-theme="night"] .fr-gal-label { color: #8fd8ff; }
   </style>
   <script src="js/theme.js?v=20260807c"></script>
 </head>
@@ -69,7 +82,7 @@
   </nav>
 
   <section class="tk-hero" style="--tk-dark:#003c5f;">
-    <div class="tk-hero-bg" style="background-image:url('../assets/torikumi/frontale-3.jpg'); background-position:center 30%;"></div>
+    <div class="tk-hero-bg" style="background-image:url('../assets/torikumi/frontale-2026w-38.jpg'); background-position:center 45%;"></div>
     <div class="tk-hero-inner">
       <p class="tk-hero-en">GRANDE × KAWASAKI FRONTALE</p>
       <h1 class="tk-hero-title">川崎フロンターレ<br class="sp-br">交流プロジェクト</h1>
@@ -87,6 +100,17 @@
           その育成理念・クラブ方針にグランデの考え方と通ずるものがあり、チーム交流プロジェクトがスタートしました。
           2023年7月の第1回から、夏と冬にお互いの街を行き来する交流を続けています。
         </p>
+
+        <!-- 最新レポート（2026冬） -->
+        <a class="fr-report" href="frontale-2026-winter.html">
+          <span class="fr-report-img" style="background-image:url('../assets/torikumi/frontale-2026w-10.jpg');" role="img" aria-label="等々力陸上競技場で記念撮影するグランデとフロンターレの選手たち"></span>
+          <span class="fr-report-body">
+            <small>LATEST REPORT</small>
+            <b>冬の交流プロジェクト2026 レポート</b>
+            <span>2026年11月20日〜22日の3日間。合同練習・ホームステイ、川崎の街歩きとJリーグ観戦、交流戦と食事会の様子を写真でお届けします。</span>
+            <em>レポートを見る →</em>
+          </span>
+        </a>
       </div>
     </section>
 
@@ -114,7 +138,10 @@
               冬はグランデの選手が川崎市に出向いて活動。
               Jクラブの環境に触れ、ピッチ内外で多くの刺激を受けます。
               <ul>
-                <li>フロンターレとの合同練習</li>
+                <li>フロンターレとの合同練習・交流戦</li>
+                <li>ホームステイ</li>
+                <li>川崎の街歩き・Jリーグ（等々力）観戦</li>
+                <li>みんなで食事会</li>
                 <li>ユースリーグの運営サポート</li>
                 <li>強豪チームとの交流戦</li>
               </ul>
@@ -128,6 +155,17 @@
       <div class="tk-sec-inner">
         <p class="tk-sec-en">GALLERY</p>
         <h2 class="tk-sec-ja">交流プロジェクトの風景</h2>
+        <p class="fr-gal-label">2026 WINTER — 川崎にて</p>
+        <div class="tk-photos">
+          <div class="tk-photo tk-photo--wide" style="background-image:url('../assets/torikumi/frontale-2026w-10.jpg');" role="img" aria-label="等々力陸上競技場での集合写真"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-25.jpg');" role="img" aria-label="ナイターでの合同練習"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-04.jpg');" role="img" aria-label="川崎の街歩きでの集合写真"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-13.jpg');" role="img" aria-label="フロンターレのショップで"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-57.jpg');" role="img" aria-label="交流戦のプレー"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-52.jpg');" role="img" aria-label="交流戦の集合写真"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-18.jpg');" role="img" aria-label="食事会の様子"></div>
+        </div>
+        <p class="fr-gal-label">これまでの交流</p>
         <div class="tk-photos">
           <div class="tk-photo tk-photo--wide" style="background-image:url('../assets/torikumi/frontale-3.jpg');"></div>
           <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-6.jpg');"></div>
