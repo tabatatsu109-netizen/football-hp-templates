@@ -364,7 +364,8 @@
         '</select> <span style="font-size:12.5px;color:var(--ink-sub);margin-left:8px">開催 '+sessions.filter(function(s){ return !isSiblingSession(s); }).length+'回</span></div>';
 
       // 開催日とメニュー
-      html += '<div style="margin-bottom:16px">' + sessions.map(function(s){
+      // 兄弟分の記録は一覧に出さない（表の「兄弟分」列で数える）
+      html += '<div style="margin-bottom:16px">' + sessions.filter(function(s){ return !isSiblingSession(s); }).map(function(s){
         var n = Object.keys(s.cups||{}).length;
         return '<div style="display:flex;gap:10px;padding:7px 2px;border-bottom:1px dashed #eceef1;font-size:13px">' +
           '<b style="min-width:82px">'+esc((s.date||'').slice(5).replace('-','/'))+'</b>' +
