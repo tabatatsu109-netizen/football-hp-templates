@@ -15,8 +15,14 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     :root { --tk: #0090d8; --tk-dark: #003c5f; --tk-bg: #e9f4fb; }
+    /* 写真グリッドの横はみ出し対策（列幅を均等に固定） */
+    .tk-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (min-width: 768px) { .tk-photos { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     /* 最新レポートへの導線（2026-11-25 追加） */
-    .fr-report { display: grid; margin-top: 28px; border-radius: 14px; overflow: hidden; background: #003c5f; color: #fff; text-decoration: none; box-shadow: 0 10px 26px rgba(0,60,95,.22); transition: transform .2s; }
+    .fr-reports { display: grid; gap: 16px; margin-top: 28px; }
+    .fr-report.fr-report--summer { background: #0077b6; }
+    .fr-report--summer .fr-report-body small, .fr-report--summer .fr-report-body em { color: #ffe08a; }
+    .fr-report { display: grid; border-radius: 14px; overflow: hidden; background: #003c5f; color: #fff; text-decoration: none; box-shadow: 0 10px 26px rgba(0,60,95,.22); transition: transform .2s; }
     .fr-report:hover { transform: translateY(-3px); }
     .fr-report-img { aspect-ratio: 16 / 9; background-size: cover; background-position: center; }
     .fr-report-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 6px; }
@@ -101,16 +107,27 @@
           2023年7月の第1回から、夏と冬にお互いの街を行き来する交流を続けています。
         </p>
 
-        <!-- 最新レポート（2026冬） -->
+        <!-- 2026年のレポート（冬・夏） -->
+        <div class="fr-reports">
         <a class="fr-report" href="frontale-2026-winter.html">
           <span class="fr-report-img" style="background-image:url('../assets/torikumi/frontale-2026w-10.jpg');" role="img" aria-label="等々力陸上競技場で記念撮影するグランデとフロンターレの選手たち"></span>
           <span class="fr-report-body">
-            <small>LATEST REPORT</small>
+            <small>2026 WINTER REPORT</small>
             <b>冬の交流プロジェクト2026 レポート</b>
             <span>2026年11月20日〜22日の3日間。合同練習・ホームステイ、川崎の街歩きとJリーグ観戦、交流戦と食事会の様子を写真でお届けします。</span>
             <em>レポートを見る →</em>
           </span>
         </a>
+        <a class="fr-report fr-report--summer" href="frontale-2026-summer.html">
+          <span class="fr-report-img" style="background-image:url('../assets/torikumi/frontale-2026s-d1-14.jpg');" role="img" aria-label="収穫した野菜を前に記念撮影するグランデとフロンターレの選手たち"></span>
+          <span class="fr-report-body">
+            <small>2026 SUMMER REPORT</small>
+            <b>夏の交流プロジェクト2026 レポート</b>
+            <span>2026年7月24日〜26日の3日間。合同トレーニング、野菜収穫とBBQ、ホームステイ、清里ハイキングと川遊び、交流戦の様子を写真でお届けします。</span>
+            <em>レポートを見る →</em>
+          </span>
+        </a>
+        </div>
       </div>
     </section>
 
@@ -164,6 +181,16 @@
           <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-57.jpg');" role="img" aria-label="交流戦のプレー"></div>
           <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-52.jpg');" role="img" aria-label="交流戦の集合写真"></div>
           <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026w-18.jpg');" role="img" aria-label="食事会の様子"></div>
+        </div>
+        <p class="fr-gal-label">2026 SUMMER — 八ヶ岳にて</p>
+        <div class="tk-photos">
+          <div class="tk-photo tk-photo--wide" style="background-image:url('../assets/torikumi/frontale-2026s-d1-14.jpg');" role="img" aria-label="収穫した野菜を前に全員で記念撮影"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026s-d1-19.jpg');" role="img" aria-label="合同トレーニング"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026s-d1-05.jpg');" role="img" aria-label="野菜収穫"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026s-d1-11.jpg');" role="img" aria-label="BBQを楽しむ"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026s-d2-08.jpg');" role="img" aria-label="清里ハイキングでの集合写真"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026s-d2-03.jpg');" role="img" aria-label="清泉寮でソフトクリーム"></div>
+          <div class="tk-photo" style="background-image:url('../assets/torikumi/frontale-2026s-d2-13.jpg');" role="img" aria-label="森の山道を歩く"></div>
         </div>
         <p class="fr-gal-label">これまでの交流</p>
         <div class="tk-photos">
